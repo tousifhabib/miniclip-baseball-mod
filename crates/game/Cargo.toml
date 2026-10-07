@@ -1,0 +1,24 @@
+[package]
+name = "bb-game"
+description = "The baseball game: its own rules, played on the extracted art"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[lib]
+name = "bb_game"
+path = "src/lib.rs"
+
+[[bin]]
+name = "bb-game"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+bb-engine = { path = "../engine" }
+bb-format = { path = "../format" }
+clap = { version = "4", features = ["derive"] }
+serde = { workspace = true, features = ["derive"] }
+resvg = "0.48"
+toml = "1"

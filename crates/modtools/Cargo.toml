@@ -1,0 +1,29 @@
+[package]
+name = "bb-modtools"
+description = "Tools for working on the game's art"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "clip-sheet"
+path = "src/clip_sheet.rs"
+
+[[bin]]
+name = "extracted-check"
+path = "src/extracted_check.rs"
+
+[[bin]]
+name = "svg-png"
+path = "src/svg_png.rs"
+
+[dependencies]
+anyhow.workspace = true
+bb-engine = { path = "../engine" }
+bb-format = { path = "../format" }
+clap = { version = "4", features = ["derive"] }
+image = { version = "0.25", default-features = false, features = ["png"] }
+resvg = "0.48"
+serde.workspace = true
+serde_json.workspace = true
