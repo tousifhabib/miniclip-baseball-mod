@@ -6,10 +6,12 @@ use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 use bb_format::SymbolId;
 
-use super::field::{Facing, Happened, distance, reach, seen_size};
+use super::field::{Ball, Facing, Happened, distance, reach, seen_size};
+use super::overlay::{self, Words};
 use super::pitch::Point;
 use super::zinger;
 use super::{AtBat, Match, Parts, Phase, Place, at, frame_of, put, show};
+use crate::look::Rgb;
 use crate::menu::Game;
 use crate::mods::Mod;
 
@@ -31,7 +33,39 @@ enum Job {
     Throwing {
         step: Point,
     },
+    /// He has let the ball go, and is at a loss for a moment before he
+    /// goes after it.
+    Fumbling {
+        left: u32,
+    },
+    /// At a base, gathering a throw he dropped.
+    Gather {
+        left: u32,
+    },
     Rest,
+}
+
+/// The word that is up over a fielder who has let the ball go.
+pub(crate) struct Told {
+    /// The clip the word is in.
+    holder: Path,
+    /// Frames it has left.
+    left: u32,
+}
+
+impl Told {
+    /// Counts a frame off the word's time, and takes it down when it has
+    /// had its time.
+    pub(crate) fn fade(told: &mut Option<Told>, stage: &mut Stage) {
+        match told {
+            Some(word) if word.left == 0 => {
+                stage.remove(&word.holder);
+                *told = None;
+            }
+            Some(word) => word.left -= 1,
+            None => {}
+        }
+    }
 }
 
 pub(crate) struct Fielding {
@@ -59,6 +93,9 @@ pub(crate) struct Fielding {
     frames: u32,
     /// Frames since the play was settled by a foul or a home run.
     since_settled: u32,
+    /// The ball on the ground has been fumbled once, and will not be
+    /// again before somebody has hold of it.
+    fumbled: bool,
 }
 
 /// The runner clip's frame labels for running and sliding to each base.
@@ -89,6 +126,14 @@ const OUTFIELDERS: usize = 3;
 /// How far short of the wall an outfielder stops to watch a zinger go over
 /// it, as the field measures distance.
 const WARNING_TRACK: f32 = 40.0;
+/// The word that goes up over a fielder who has let the ball go: how far
+/// over him its top is, in pixels of the view, the size of its lettering,
+/// its own being 1, how near the sides of the view its middle may come,
+/// and its colour.
+const TOLD_ABOVE: f32 = 30.0;
+const TOLD_SIZE: f32 = 0.85;
+const TOLD_MARGIN: f32 = 55.0;
+const TOLD_COLOUR: Rgb = [0xff, 0x9a, 0x3c];
 
 /// The frames of a fielder on which he picks the ball up, throws it or
 /// catches it. Each shows a clip inside him that is meant to play once.
@@ -252,6 +297,7 @@ impl Match {
             throw_to: 1,
             frames: 0,
             since_settled: 0,
+            fumbled: false,
         };
         self.phase = Phase::Fielding;
 
@@ -347,7 +393,10 @@ impl Match {
         let miss = at_bat.contact.map_or(0.0, |contact| contact.miss());
 
         // The ball, for as long as nobody has hold of it.
-        let loose = matches!(state.job, Job::Chase | Job::WaitCatch | Job::Rest);
+        let loose = matches!(
+            state.job,
+            Job::Chase | Job::WaitCatch | Job::Rest | Job::Fumbling { .. }
+        );
         if let (Some(ball), true, false) = (&mut at_bat.ball, loose, state.walk || state.foul) {
             let mut happened = if state.home_run {
                 Happened::Nothing
@@ -420,7 +469,19 @@ impl Match {
                 let out = reach(parts.home, next);
                 put(stage, &fielder, next, (0.6 - out / 5000.0).max(0.2));
                 if distance(next, target) <= 2.0 {
-                    if ball.bounced {
+                    if ball.bounced && !state.fumbled && self.lets_go(game) {
+                        // It squirts out of his hands as he bends for it.
+                        state.fumbled = true;
+                        stage.goto_label(&fielder, state.facing.pick_label(), false, library);
+                        self.let_go(&mut at_bat.ball, &parts, game);
+                        Match::sound(stage, library, "crowd_smallCheer");
+                        let told = &mut at_bat.told;
+                        Match::tell(told, "FUMBLED!", next, &parts, game, stage, library);
+                        state.job = Job::Fumbling {
+                            left: game.rules.butterfingers.fumble_time,
+                        };
+                    } else if ball.bounced {
+                        state.fumbled = false;
                         show(stage, &parts.field_ball, false);
                         stage.goto_label(&fielder, state.facing.pick_label(), false, library);
                         state.throw_to = self.pick_base(next, &parts);
@@ -441,6 +502,20 @@ impl Match {
                     if ball.bounced {
                         // It got down before he could take it.
                         state.job = Job::Chase;
+                    } else if ball.lift < 0.0
+                        && ball.height <= rules.catch_height
+                        && self.lets_go(game)
+                    {
+                        // It is in his glove and out again: nobody is out,
+                        // and the ball is on the ground.
+                        self.let_go(&mut at_bat.ball, &parts, game);
+                        Match::sound(stage, library, "ballCatch_3");
+                        Match::sound(stage, library, "crowd_smallCheer");
+                        let told = &mut at_bat.told;
+                        Match::tell(told, "DROPPED!", here, &parts, game, stage, library);
+                        state.job = Job::Fumbling {
+                            left: game.rules.butterfingers.fumble_time,
+                        };
                     } else if ball.lift < 0.0 && ball.height <= rules.catch_height {
                         state.caught = true;
                         show(stage, &parts.field_ball, false);
@@ -496,8 +571,25 @@ impl Match {
                         inner.move_to(inner.matrix.tx, -ball.height);
                     }
                     if distance(ball.at, to) < rules.throw_near {
-                        self.ball_at_base(&mut state, &parts, game, stage, library);
+                        let told = &mut at_bat.told;
+                        self.ball_at_base(&mut state, told, &parts, game, stage, library);
                     }
+                }
+            }
+            Job::Fumbling { left } => {
+                state.job = if left == 0 {
+                    Job::Chase
+                } else {
+                    Job::Fumbling { left: left - 1 }
+                };
+            }
+            Job::Gather { left } => {
+                if left == 0 {
+                    show(stage, &parts.field_ball, false);
+                    stage.goto_label(&fielder, "baseWaiting", false, library);
+                    self.hold_or_throw_on(&mut state, &parts, game, stage, library);
+                } else {
+                    state.job = Job::Gather { left: left - 1 };
                 }
             }
             Job::Rest => {}
@@ -559,6 +651,7 @@ impl Match {
     fn ball_at_base(
         &mut self,
         state: &mut Fielding,
+        told: &mut Option<Told>,
         parts: &Parts,
         game: &Game,
         stage: &mut Stage,
@@ -566,9 +659,22 @@ impl Match {
     ) {
         let base = state.throw_to;
         Match::sound(stage, library, "ballCatch_1");
-        show(stage, &parts.field_ball, false);
-        // The fielder minding that base has the ball now.
+        // The fielder minding that base has the ball now, or should have.
         state.fielder = 4 + usize::from(base);
+        if self.lets_go(game) {
+            // It is through his hands. Nobody is out, and he has it to
+            // gather from the ground beside him.
+            let fielder = parts.fielders[state.fielder].clone();
+            let here = at(stage, &fielder);
+            stage.goto_label(&fielder, Facing::Down.pick_label(), false, library);
+            Match::sound(stage, library, "crowd_smallCheer");
+            Match::tell(told, "DROPPED!", here, parts, game, stage, library);
+            state.job = Job::Gather {
+                left: game.rules.butterfingers.gather_time,
+            };
+            return;
+        }
+        show(stage, &parts.field_ball, false);
         let late: Vec<usize> = (0..self.runners.len())
             .filter(|&runner| self.runners[runner].running_to == Some(base))
             .collect();
@@ -582,6 +688,19 @@ impl Match {
             }
         }
         self.show_numbers(stage);
+        self.hold_or_throw_on(state, parts, game, stage, library);
+    }
+
+    /// The fielder at a base has the ball in his hands. He throws it on if
+    /// anybody is still between bases, and the play is over if nobody is.
+    fn hold_or_throw_on(
+        &mut self,
+        state: &mut Fielding,
+        parts: &Parts,
+        game: &Game,
+        stage: &mut Stage,
+        library: &Library,
+    ) {
         // With the pitcher fielding alone nobody throws the ball on: the
         // play ends where his throw does, and anyone still running is given
         // his base.
@@ -596,6 +715,86 @@ impl Match {
             state.live = false;
             state.job = Job::Rest;
         }
+    }
+
+    /// Whether a fielder having a go at the ball lets it go: with the
+    /// butterfingers mod on, as often as the level it is set to says.
+    fn lets_go(&mut self, game: &Game) -> bool {
+        if !game.mods.is_on(Mod::Butterfingers) {
+            return false;
+        }
+        let level = game.mods.level(Mod::Butterfingers);
+        let slips = self.rng.below(100) < game.rules.butterfingers.chance_at(level);
+        if slips {
+            self.slips += 1;
+        }
+        slips
+    }
+
+    /// Sends a ball that a fielder has let go rolling off, any way but
+    /// out through the wall.
+    fn let_go(&mut self, ball: &mut Option<Ball>, parts: &Parts, game: &Game) {
+        let Some(ball) = ball else {
+            return;
+        };
+        let rules = &game.rules.butterfingers;
+        let turn = (self.rng.below(360) as f32).to_radians();
+        ball.speed = (turn.cos() * rules.roll, turn.sin() * rules.roll);
+        // Where it would be in a little while, at that rate.
+        let ahead = (
+            ball.at.0 + ball.speed.0 * 40.0,
+            ball.at.1 + ball.speed.1 * 40.0,
+        );
+        if reach(parts.home, ahead) >= game.rules.field.wall - WARNING_TRACK {
+            ball.speed = (-ball.speed.0, -ball.speed.1);
+        }
+        ball.height = ball.height.max(0.0);
+        ball.lift = rules.pop;
+        ball.fall = game.rules.field.gravity;
+        // It has been in his hands: there is no catching it now, and
+        // runners may go on as for any ball on the ground.
+        ball.bounced = true;
+    }
+
+    /// Puts a word up over a fielder who has let the ball go, for a
+    /// moment. `over` is where he is on the field.
+    fn tell(
+        told: &mut Option<Told>,
+        word: &str,
+        over: Point,
+        parts: &Parts,
+        game: &Game,
+        stage: &mut Stage,
+        library: &Library,
+    ) {
+        if let Some(old) = told.take() {
+            stage.remove(&old.holder);
+        }
+        // The field is drawn at a size and a place of its own in the view.
+        let Some(field) = stage.child(&parts.field).map(|field| field.matrix) else {
+            return;
+        };
+        let Some(holder) = overlay::holder(parts, "butterfingers", stage, library) else {
+            return;
+        };
+        let middle =
+            (field.tx + field.a * over.0).clamp(TOLD_MARGIN, parts.centre_x * 2.0 - TOLD_MARGIN);
+        let top = field.ty + field.d * over.1 - TOLD_ABOVE;
+        if let Some(words) = Words::new(
+            &holder,
+            1,
+            "butterWord",
+            (middle, top),
+            TOLD_SIZE,
+            stage,
+            library,
+        ) {
+            words.say(word, TOLD_COLOUR, stage);
+        }
+        *told = Some(Told {
+            holder,
+            left: game.rules.butterfingers.told_time,
+        });
     }
 
     /// The ball has cleared the wall: everybody scores.

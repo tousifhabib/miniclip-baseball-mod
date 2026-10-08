@@ -47,7 +47,9 @@ struct Args {
     #[arg(long)]
     seed: Option<u64>,
     /// Switch a mod on for this run, by its name: `timing_indicator`,
-    /// `lone_pitcher` or `zinger_hit`. May be given more than once.
+    /// `lone_pitcher`, `zinger_hit` or `butterfingers`. A mod with a
+    /// setting takes its level after an equals sign, as in
+    /// `butterfingers=5`. May be given more than once.
     #[arg(long = "mod", value_name = "NAME")]
     mods: Vec<String>,
     /// With `--run`: picture pixels per stage pixel.
@@ -101,7 +103,11 @@ fn run() -> Result<()> {
             logic.keep_mods_in(file);
         }
     }
-    for name in &args.mods {
+    for asked in &args.mods {
+        let (name, level) = match asked.split_once('=') {
+            Some((name, level)) => (name, Some(level)),
+            None => (asked.as_str(), None),
+        };
         let which = Mod::from_key(name).with_context(|| {
             let known: Vec<&str> = Mod::ALL.iter().map(|each| each.key()).collect();
             format!(
@@ -110,6 +116,12 @@ fn run() -> Result<()> {
             )
         })?;
         logic.switch_mod(which, true);
+        if let Some(level) = level {
+            let level = level
+                .parse()
+                .with_context(|| format!("`{level}` is not a level for the mod `{name}`"))?;
+            logic.set_mod_level(which, level);
+        }
     }
     if let Some(label) = &args.screen {
         let screen = Screen::from_label(label)

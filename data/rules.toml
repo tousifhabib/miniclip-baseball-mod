@@ -241,6 +241,25 @@ medium = 5
 hard = 8
 
 # ---------------------------------------------------------------------------
+# The butterfingers mod: fielders let the ball go.
+[butterfingers]
+# How often, out of every hundred goes at the ball: one number for each
+# level the mod can be set to on the menu, the lowest first. A go is a catch,
+# a pick-up, or taking a throw at a base. There are as many levels on the
+# menu as there are numbers here.
+chance = [20, 40, 60, 80, 100]
+# A ball that is let go rolls off at this many pixels a frame, any way, and
+# pops up this hard.
+roll = 0.8
+pop = 0.4
+# Frames a fielder is at a loss before he goes after a ball he let go, and
+# frames the fielder at a base takes to gather a throw he dropped.
+fumble_time = 25
+gather_time = 50
+# Frames the word of what he did stays up over him.
+told_time = 80
+
+# ---------------------------------------------------------------------------
 # The arcade game: hit a target on the outfield.
 [arcade]
 pitches = 10

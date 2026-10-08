@@ -7,29 +7,9 @@ use bb_game::art::all_named;
 use bb_game::mods::Mod;
 use bb_game::scores::Scores;
 use bb_game::script::Script;
-use common::{game_keeping, game_modded};
-
-/// The number that follows `before` in a state line.
-fn number(state: &str, before: &str) -> Option<f32> {
-    let rest = state.split(before).nth(1)?;
-    let digits: String = rest
-        .chars()
-        .take_while(|c| c.is_ascii_digit() || *c == '.')
-        .collect();
-    digits.parse().ok()
-}
-
-fn state(script: &mut Script) -> String {
-    script.run("state").unwrap().pop().unwrap_or_default()
-}
-
-/// Whether the game is still on the screen it was started on, or has not
-/// yet got to it.
-fn playing(state: &str) -> bool {
-    ["Match,", "Arcade,", "Loading"]
-        .iter()
-        .any(|screen| state.starts_with(screen))
-}
+use common::{
+    game_keeping, game_modded, next, number, pitch, pitch_seen, playing, said, sounds, state,
+};
 
 /// The mods a game is played with here: the timing bar always, which says
 /// when to swing, and the zinger or not.
@@ -45,100 +25,15 @@ fn game(screen: &str, seed: u64, zinger: bool) -> Option<Script> {
     game_modded(screen, seed, &mods(zinger))
 }
 
-/// Plays one pitch. The swing begins `late` steps after the first step the
-/// bar calls best, with the ring held `off` away from where the ball will
-/// cross. `seen` is given the game after every frame. Returns the state
-/// once the play is over: the next pitch is on offer, or the game has
-/// ended.
-fn pitch_seen(
-    script: &mut Script,
-    late: i32,
-    off: (f32, f32),
-    mut seen: impl FnMut(&Script, &str),
-) -> String {
-    // Far more frames than any pitch needs: a play that never ends fails
-    // here instead of hanging the test.
-    for _ in 0..20_000 {
-        let now = state(script);
-        seen(script, &now);
-        if !playing(&now) || now.contains(": Ready") {
-            return now;
-        }
-        let ring = number(&now, "crossing ")
-            .zip(number(now.split("crossing ").nth(1).unwrap_or(""), ","))
-            .map(|(x, y)| (x + off.0, y + off.1));
-        let step = number(&now, "Flight { step: ").map(|step| step as i32);
-        let best = number(&now, "best swung on steps ").map(|best| best as i32);
-        let steps = match (ring, step, best) {
-            (Some((x, y)), Some(step), Some(best)) if step == best + late => {
-                format!("click {x} {y}")
-            }
-            (Some((x, y)), None, _) if now.contains("Settling") => {
-                format!("move {x} {y}; wait 1")
-            }
-            _ => "wait 1".to_owned(),
-        };
-        script.run(&steps).unwrap();
-    }
-    panic!("the pitch never ended: {}", state(script));
-}
-
-fn pitch(script: &mut Script, late: i32, off: (f32, f32)) -> String {
-    pitch_seen(script, late, off, |_, _| {})
-}
-
-/// Asks for the next pitch.
-fn next(script: &mut Script) {
-    // The button takes a moment to come up.
-    for _ in 0..200 {
-        script.run("click 545 355; wait 2").unwrap();
-        if !state(script).contains(": Ready") {
-            return;
-        }
-    }
-    panic!("the next pitch never came: {}", state(script));
-}
-
 /// How far the state says the ball went, if it was hit for a zinger.
 fn feet(state: &str) -> Option<u32> {
     number(state, "a zinger of ").map(|feet| feet as u32)
-}
-
-/// What the words with this name on the stage say, where they can be seen.
-/// Each line is there twice, once as its own shadow.
-fn said(script: &Script, name: &str) -> Vec<String> {
-    let stage = &script.runner.stage;
-    let mut said: Vec<String> = all_named(stage, &[], name)
-        .iter()
-        .map(|words| stage.child(words).unwrap())
-        .filter(|words| words.visible)
-        .filter_map(|words| words.said.clone())
-        .collect();
-    said.dedup();
-    said
 }
 
 /// The feet a line such as "850 FT" gives.
 fn feet_said(script: &Script) -> Option<u32> {
     let said = said(script, "zingerFeet");
     number(&format!("={}", said.first()?), "=").map(|feet| feet as u32)
-}
-
-/// The sounds asked for since this was last asked, by their names in the
-/// art.
-fn sounds(script: &mut Script) -> Vec<String> {
-    let lines = script.run("events").unwrap();
-    let exports = &script.runner.library.manifest.exports;
-    lines
-        .iter()
-        .filter_map(|line| line.trim().strip_prefix("sound ")?.parse::<u16>().ok())
-        .filter_map(|id| {
-            exports
-                .iter()
-                .find(|(_, symbol)| **symbol == id)
-                .map(|(name, _)| name.clone())
-        })
-        .collect()
 }
 
 /// Where each of the nine fielders is on the field.

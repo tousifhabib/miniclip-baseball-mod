@@ -64,6 +64,7 @@ switched on.
 | Timing indicator | `timing_indicator` | A bar under the plate that shows when to swing |
 | Lone pitcher | `lone_pitcher` | Only the pitcher goes after a ball that has been hit |
 | Zinger hit | `zinger_hit` | Every hit is a home run, bigger the better it was timed |
+| Butterfingers | `butterfingers` | Fielders drop and fumble the ball, as often as you set |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -116,6 +117,22 @@ runs on easy, 5 on medium and 8 on hard. In the arcade game there is no
 target: a hit scores the feet it goes.
 
 The mod's numbers are under `[zinger]` in `data/rules.toml`.
+
+With butterfingers, fielders let the ball go. A fielder under a fly ball
+drops it, so the batter is not out and the ball is on the ground. A fielder
+bending for a ball on the ground fumbles it, and has to go after it again:
+he has it at the second go. And the fielder at a base fails to hold a throw,
+so the runner it would have beaten is safe, and he has to gather the ball
+before it can go anywhere else. Whoever did it has DROPPED! or FUMBLED! over
+him for a moment. The arcade game has no fielders, and plays as it did.
+
+How often they let go is set on the Mods page, on the row of five boxes
+under the mod: from 20 goes in a hundred to all of them, starting at 60. The
+level is kept with the choice of mods, and stays as it was set while the mod
+is off. On the command line it goes after the mod's name, as in
+`--mod butterfingers=5`. What each level comes to, how far a dropped ball
+rolls and how long a fielder is at a loss are under `[butterfingers]` in
+`data/rules.toml`.
 
 ## Changing the game
 
@@ -179,6 +196,12 @@ from.
 A mod that draws something can build it from the art's `BLOCK`, a plain
 white square to stretch and tint, `LABEL_FIELD`, a text field, and `HOLDER`,
 an empty clip to keep its parts in. All three are described in `art.rs`.
+
+A mod can have a setting as well as being on or off: a level, counted from
+1. Give it a name in `Mod::setting`, say how many levels it has and what
+each comes to in `Mod::levels` and `Mod::level_words`, and the Mods page
+puts a row of boxes under the mod to set it by. The rules read it with
+`game.mods.level(Mod::YourMod)`. Butterfingers is the one to copy from.
 
 ## Checking a change
 
