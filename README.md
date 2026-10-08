@@ -75,6 +75,7 @@ switched on.
 | Golden ball | `golden_ball` | Every fifth pitch is gold: runs off it count triple, and a strike on it is an out |
 | Pinball park | `pinball_park` | The ball ricochets off the wall, the ground and the foul lines, as bouncily as you set |
 | Moon ball | `moon_ball` | Every hit floats to where it was going, several times slower, as you set |
+| Turbo runners | `turbo_runners` | Runners are several times as fast, as you set, and can be sent on with the ball in the air |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -218,6 +219,13 @@ starts at two. A home run is still a home run. What changes is what the
 time is worth: a fielder who could not have got under a ball has it, and
 the runners have longer to go round. A batter is out to a catch wherever he
 has got to by then. A ball a fielder has thrown is as fast as ever. The arcade game is left as it was. The numbers are under `[moon]`
+in `data/rules.toml`.
+
+With turbo runners, runners go round the bases several times as fast: how
+many is set on the Mods page, from one and a half to four, and starts at
+two. A runner on a base can be sent on at any time the ball is in play, in
+the air or not, where as the game was he had to wait for it to come down or
+be caught. The arcade game has no runners. The numbers are under `[turbo]`
 in `data/rules.toml`.
 
 ## Changing the game

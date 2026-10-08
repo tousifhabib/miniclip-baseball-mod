@@ -52,9 +52,19 @@ pub struct Rules {
     pub pinball: PinballRules,
     /// The moon ball mod.
     pub moon: MoonRules,
+    /// The turbo runners mod.
+    pub turbo: TurboRules,
     pub arcade: ArcadeRules,
     pub team: TeamRules,
     pub sound: SoundRules,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct TurboRules {
+    /// How many times as fast runners go, for each level the mod can be
+    /// set to, the lowest first.
+    pub speed: Vec<f32>,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]

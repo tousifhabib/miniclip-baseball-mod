@@ -249,6 +249,9 @@ pub struct Match {
     /// How many a run counts for on the pitch being played: one, unless a
     /// mod says more.
     pub(crate) run_worth: u32,
+    /// With the turbo runners mod on: the part of a frame that runners are
+    /// owed, on top of the whole frames they have been hurried on by.
+    pub(crate) hurry: f32,
     /// With the heat check mod on: how many runs' worth faster the pitches
     /// are coming, and the score when that was last worked out.
     pub(crate) heat: u32,
@@ -354,6 +357,7 @@ impl Match {
             slips: 0,
             streak: 0,
             run_worth: 1,
+            hurry: 0.0,
             heat: 0,
             heat_score: 0,
             longest_zinger: 0,
