@@ -54,9 +54,24 @@ pub struct Rules {
     pub moon: MoonRules,
     /// The turbo runners mod.
     pub turbo: TurboRules,
+    /// The night game mod.
+    pub night: NightRules,
     pub arcade: ArcadeRules,
     pub team: TeamRules,
     pub sound: SoundRules,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct NightRules {
+    /// How much is left of the red, green and blue of the stadium.
+    pub dark: [f32; 3],
+    /// Frames a home run flashes the lights for, and how many of them
+    /// each turn of lit or dark lasts.
+    pub flash_time: u32,
+    pub flash_every: u32,
+    /// How much brighter than by day everything is when it is lit.
+    pub glare: f32,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]

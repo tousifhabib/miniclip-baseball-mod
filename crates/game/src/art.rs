@@ -82,6 +82,12 @@ pub const PAGE_TURN: SymbolId = 2045;
 /// An empty clip, for the rules to put things in and move as one.
 pub const HOLDER: SymbolId = 2042;
 
+/// The pictures of the stadium: behind the batter, and from over the field
+/// in a match and in the arcade game. The match's has the stands nearest
+/// the eye as a picture of their own, drawn over the players, and the
+/// arcade game's has the top of its wall as one.
+pub const BACKDROPS: [SymbolId; 5] = [501, 1094, 1544, 1796, 1802];
+
 /// The arcade game's target: rings lying on the grass, `ring1` the outermost,
 /// each a clip whose second frame is the ring lit.
 pub const TARGET: SymbolId = 1794;

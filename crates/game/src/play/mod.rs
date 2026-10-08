@@ -9,6 +9,7 @@ mod arcade;
 mod called;
 pub mod field;
 mod fielding;
+pub mod night;
 pub(crate) mod overlay;
 mod pinball;
 pub mod pitch;
@@ -249,6 +250,10 @@ pub struct Match {
     /// How many a run counts for on the pitch being played: one, unless a
     /// mod says more.
     pub(crate) run_worth: u32,
+    /// A home run has just been hit, which the night game mod has yet to
+    /// flash the lights for, and the frames of a flash still to come.
+    pub(crate) lights: bool,
+    flash: u32,
     /// With the turbo runners mod on: the part of a frame that runners are
     /// owed, on top of the whole frames they have been hurried on by.
     pub(crate) hurry: f32,
@@ -357,6 +362,8 @@ impl Match {
             slips: 0,
             streak: 0,
             run_worth: 1,
+            lights: false,
+            flash: 0,
             hurry: 0.0,
             heat: 0,
             heat_score: 0,
@@ -437,6 +444,7 @@ impl Match {
     ) {
         let record = self.count_zinger(show.zinger.feet);
         show.landed(record, stage);
+        self.lights = true;
         let mut sounds = show.place.cheers().to_vec();
         if record && !sounds.contains(&"baseball_organ_FX") {
             sounds.push("baseball_organ_FX");
@@ -1028,6 +1036,13 @@ impl Match {
         let pressed = down && !self.was_down && !stage.pointer.on_button();
         self.was_down = down;
         self.run_cues(stage, library);
+        if game.mods.is_on(Mod::NightGame) {
+            if std::mem::take(&mut self.lights) {
+                self.flash = game.rules.night.flash_time;
+            }
+            night::light(night::lighting(self.flash, &game.rules.night), stage);
+            self.flash = self.flash.saturating_sub(1);
+        }
 
         if self.phase == Phase::Arriving {
             return self.set_up(game, stage, library);

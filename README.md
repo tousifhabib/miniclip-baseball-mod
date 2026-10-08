@@ -76,6 +76,7 @@ switched on.
 | Pinball park | `pinball_park` | The ball ricochets off the wall, the ground and the foul lines, as bouncily as you set |
 | Moon ball | `moon_ball` | Every hit floats to where it was going, several times slower, as you set |
 | Turbo runners | `turbo_runners` | Runners are several times as fast, as you set, and can be sent on with the ball in the air |
+| Night game | `night_game` | The stadium is dark with the players and ball lit, and home runs flash the lights |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -226,6 +227,14 @@ many is set on the Mods page, from one and a half to four, and starts at
 two. A runner on a base can be sent on at any time the ball is in play, in
 the air or not, where as the game was he had to wait for it to come down or
 be caught. The arcade game has no runners. The numbers are under `[turbo]`
+in `data/rules.toml`.
+
+With the night game, the picture of the stadium behind everything is
+darkened, in the batting view and from over the field, and the players, the
+ball and the scoreboards are left as they are, so they stand out lit. A home
+run flashes the lights: the stadium goes from dark to brighter than day and
+back several times in under a second. It changes nothing about how the game
+is played, and the arcade game has it too. The numbers are under `[night]`
 in `data/rules.toml`.
 
 ## Changing the game
