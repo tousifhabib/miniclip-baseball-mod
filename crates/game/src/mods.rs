@@ -79,6 +79,9 @@ pub enum Mod {
     /// The outfield wall has signs on it, one of them lit, and a ball that
     /// strikes one is worth runs on top.
     HitTheSign,
+    /// Each batter in a row who reaches base makes the runs that follow
+    /// worth one more, until somebody is out.
+    Rally,
 }
 
 /// What the menu and the files know a mod by.
@@ -96,7 +99,7 @@ struct Info {
 
 impl Mod {
     /// Every mod, in the order the menu lists them.
-    pub const ALL: [Mod; 19] = [
+    pub const ALL: [Mod; 20] = [
         Mod::TimingIndicator,
         Mod::LonePitcher,
         Mod::ZingerHit,
@@ -116,6 +119,7 @@ impl Mod {
         Mod::TiredArm,
         Mod::StolenBases,
         Mod::HitTheSign,
+        Mod::Rally,
     ];
 
     fn info(self) -> Info {
@@ -232,6 +236,12 @@ impl Mod {
                 key: "hit_the_sign",
                 name: "HIT THE SIGN",
                 about: "SIGNS ON THE WALL PAY RUNS, THE LIT ONE MOST OF ALL",
+                setting: None,
+            },
+            Mod::Rally => Info {
+                key: "rally",
+                name: "RALLY",
+                about: "EACH BATTER IN A ROW ON BASE ADDS ONE TO EVERY RUN",
                 setting: None,
             },
         }

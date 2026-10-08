@@ -501,6 +501,15 @@ unlit = 1
 told_time = 150
 
 # ---------------------------------------------------------------------------
+# The rally mod: batters who reach base one after another make runs worth
+# more.
+[rally]
+# Each batter in a row who reaches base makes a run worth one more, until
+# somebody is out. This is the most batters that count: with four, a run is
+# never worth more than five.
+most = 4
+
+# ---------------------------------------------------------------------------
 # The arcade game: hit a target on the outfield.
 [arcade]
 pitches = 10
