@@ -323,7 +323,7 @@ impl Pages {
         let last = played.map(|turn| turn.innings).max().unwrap_or(0);
         for innings in 1..=last {
             let most = [&full.book.ours, &full.book.theirs]
-                .map(|side| side.innings(innings).count())
+                .map(|side| side.told(innings).len())
                 .into_iter()
                 .max()
                 .unwrap_or(0);
@@ -475,7 +475,7 @@ impl Pages {
 /// How many innings a side's pitcher has got through, as a scorer writes
 /// it: the innings, a point, and the outs of the one in hand.
 fn innings_pitched(batting: &Side) -> String {
-    let outs: u32 = batting.turns.iter().map(|turn| turn.outs_made).sum();
+    let outs = batting.outs();
     format!("{}.{}", outs / 3, outs % 3)
 }
 
@@ -547,7 +547,7 @@ fn figures(ours: &Side, theirs: &Side, sheet: &mut Sheet, stage: &mut Stage) {
     let (us, them) = (ours.figures(), theirs.figures());
     let feet = |feet: u32| format!("{feet} FT");
     let whole = |value: Option<f32>| value.map_or("-".to_owned(), |value| format!("{value:.0} FT"));
-    let hitting: Vec<(&str, String, String)> = vec![
+    let mut hitting: Vec<(&str, String, String)> = vec![
         ("AVERAGE", average(us.average()), average(them.average())),
         ("ON BASE", average(us.on_base()), average(them.on_base())),
         ("SLUGGING", average(us.slugging()), average(them.slugging())),
@@ -589,6 +589,11 @@ fn figures(ours: &Side, theirs: &Side, sheet: &mut Sheet, stage: &mut Stage) {
             whole(them.usual_feet()),
         ),
     ];
+    // Bases are only stolen with the mod for it on, and there is only a
+    // line for them when somebody has tried.
+    if us.stolen + us.caught + them.stolen + them.caught > 0 {
+        hitting.push(("BASES STOLEN", us.stolen_of(), them.stolen_of()));
+    }
     let pitches: Vec<(&str, String, String)> = vec![
         (
             "PITCHES SEEN",
@@ -880,9 +885,11 @@ fn turns(full: &FullMatch, innings: u32, part: usize, sheet: &mut Sheet, stage: 
         } else {
             &full.book.theirs
         };
-        let all: Vec<&Turn> = side.innings(innings).collect();
-        let runs: u32 = all.iter().map(|turn| turn.runs_in).sum();
-        let hits = all.iter().filter(|turn| turn.end.hit()).count() as u32;
+        let runs: u32 = side.innings(innings).map(|turn| turn.runs_in).sum();
+        let hits = side.hits_in(innings);
+        // Every turn, and every try at stealing a base, in the order they
+        // came.
+        let all = side.told(innings);
         let who = if ours { "YOU" } else { "THEM" };
         let head = if all.is_empty() {
             format!("{half}: {who}, NOT BATTED")
@@ -896,11 +903,11 @@ fn turns(full: &FullMatch, innings: u32, part: usize, sheet: &mut Sheet, stage: 
         let colour = if ours { GOLD } else { CREAM };
         sheet.write_left(stage, "turnsHead", &head, (left, TOP), 0.66, colour);
         let shown = all.iter().skip(part * TURN_ROWS).take(TURN_ROWS);
-        for (row, turn) in shown.enumerate() {
+        for (row, (line, scored)) in shown.enumerate() {
             let down = TOP + 18.0 + PITCH * row as f32;
             // A turn that brought a run in stands out.
-            let colour = if turn.runs_in > 0 { GOLD } else { CREAM };
-            sheet.write_left(stage, "turnLine", &turn.words(), (left, down), SIZE, colour);
+            let colour = if *scored { GOLD } else { CREAM };
+            sheet.write_left(stage, "turnLine", line, (left, down), SIZE, colour);
         }
     }
 }

@@ -73,6 +73,9 @@ pub enum Mod {
     /// The pitcher tires as his pitches mount up: they come slower and
     /// miss the strike zone more, until a fresh pitcher comes in for him.
     TiredArm,
+    /// A click on the little field while the pitcher winds up sends a
+    /// runner for the next base, and the catcher throws to put him out.
+    StolenBases,
 }
 
 /// What the menu and the files know a mod by.
@@ -90,7 +93,7 @@ struct Info {
 
 impl Mod {
     /// Every mod, in the order the menu lists them.
-    pub const ALL: [Mod; 17] = [
+    pub const ALL: [Mod; 18] = [
         Mod::TimingIndicator,
         Mod::LonePitcher,
         Mod::ZingerHit,
@@ -108,6 +111,7 @@ impl Mod {
         Mod::NightGame,
         Mod::TheShift,
         Mod::TiredArm,
+        Mod::StolenBases,
     ];
 
     fn info(self) -> Info {
@@ -212,6 +216,12 @@ impl Mod {
                 key: "tired_arm",
                 name: "TIRED ARM",
                 about: "THE PITCHER TIRES AS HE THROWS, UNTIL A NEW ONE COMES IN",
+                setting: None,
+            },
+            Mod::StolenBases => Info {
+                key: "stolen_bases",
+                name: "STOLEN BASES",
+                about: "CLICK THE LITTLE FIELD IN THE WIND-UP TO SEND A RUNNER",
                 setting: None,
             },
         }

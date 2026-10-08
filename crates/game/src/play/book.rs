@@ -209,6 +209,39 @@ impl Turn {
     }
 }
 
+/// A runner's try at stealing a base.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Steal {
+    /// The innings it was in, counting from 1.
+    pub innings: u32,
+    /// The runner's place in the order, counting from nought.
+    pub order: usize,
+    /// The base he went for: 2 for second, 3 for third.
+    pub base: u8,
+    /// Whether he got there. If not he was thrown out.
+    pub safe: bool,
+    /// How many of his side's turns were over when he went, which is where
+    /// among them it is told.
+    pub at: usize,
+}
+
+impl Steal {
+    /// The try in a line, for the list of an innings.
+    pub fn words(&self) -> String {
+        let base = match self.base {
+            2 => "SECOND",
+            3 => "THIRD",
+            _ => "HOME",
+        };
+        let what = if self.safe {
+            "STOLE"
+        } else {
+            "CAUGHT STEALING"
+        };
+        format!("{} {what} {base}", self.order + 1)
+    }
+}
+
 /// A turn that is still going on.
 #[derive(Clone, Debug, PartialEq)]
 struct Open {
@@ -230,6 +263,8 @@ pub struct Side {
     pub left: Vec<u32>,
     /// The errors this side made in the field.
     pub errors: u32,
+    /// Its runners' tries at stealing a base, in the order they were made.
+    pub steals: Vec<Steal>,
 }
 
 impl Side {
@@ -288,11 +323,55 @@ impl Side {
         self.innings(innings).filter(|turn| turn.end.hit()).count() as u32
     }
 
+    /// A runner tried to steal a base, in the innings the side is batting
+    /// in.
+    pub fn stole(&mut self, innings: u32, order: usize, base: u8, safe: bool) {
+        self.steals.push(Steal {
+            innings,
+            order,
+            base,
+            safe,
+            at: self.turns.len(),
+        });
+    }
+
+    /// How many of the side have been put out: at the plate, in the field
+    /// and stealing.
+    pub fn outs(&self) -> u32 {
+        let batting: u32 = self.turns.iter().map(|turn| turn.outs_made).sum();
+        batting + self.steals.iter().filter(|steal| !steal.safe).count() as u32
+    }
+
+    /// What happened in one innings, in order, a line for each batter's
+    /// turn and each try at stealing a base, with whether it brought a run
+    /// in.
+    pub fn told(&self, innings: u32) -> Vec<(String, bool)> {
+        let mut steals = self
+            .steals
+            .iter()
+            .filter(|steal| steal.innings == innings)
+            .peekable();
+        let mut told = Vec::new();
+        for (index, turn) in self.turns.iter().enumerate() {
+            if turn.innings != innings {
+                continue;
+            }
+            // A base stolen while he was up is told before he is.
+            while let Some(steal) = steals.next_if(|steal| steal.at <= index) {
+                told.push((steal.words(), false));
+            }
+            told.push((turn.words(), turn.runs_in > 0));
+        }
+        told.extend(steals.map(|steal| (steal.words(), false)));
+        told
+    }
+
     /// The figures of the whole side.
     pub fn figures(&self) -> Figures {
         let mut figures = Figures::of(self.turns.iter());
         figures.runs = self.runs.iter().sum();
         figures.left = self.left.iter().sum();
+        figures.steal(self.steals.iter());
         figures
     }
 
@@ -300,6 +379,7 @@ impl Side {
     pub fn figures_of(&self, order: usize) -> Figures {
         let mut figures = Figures::of(self.turns.iter().filter(|turn| turn.order == order));
         figures.runs = self.runs.get(order).copied().unwrap_or(0);
+        figures.steal(self.steals.iter().filter(|steal| steal.order == order));
         figures
     }
 }
@@ -353,6 +433,10 @@ pub struct Figures {
     pub thirds: [u32; 3],
     pub feet: u32,
     pub longest: u32,
+    /// Bases stolen, and runners caught stealing. Only a side or one of
+    /// its batters has these: they are not part of anyone's turn.
+    pub stolen: u32,
+    pub caught: u32,
 }
 
 /// One number over another, where there is anything to divide by.
@@ -417,6 +501,22 @@ impl Figures {
         }
         figures.hits = figures.singles + figures.doubles + figures.triples + figures.home_runs;
         figures
+    }
+
+    /// Counts in these tries at stealing a base.
+    fn steal<'a>(&mut self, steals: impl Iterator<Item = &'a Steal>) {
+        for steal in steals {
+            if steal.safe {
+                self.stolen += 1;
+            } else {
+                self.caught += 1;
+            }
+        }
+    }
+
+    /// Bases stolen, of the tries there were, as the board writes them.
+    pub fn stolen_of(&self) -> String {
+        format!("{} OF {}", self.stolen, self.stolen + self.caught)
     }
 
     /// Hits for each at-bat.
@@ -651,6 +751,48 @@ mod tests {
         assert_eq!(percent(side.figures_of(8).strike_rate()), "-");
         assert_eq!(side.hits_in(1), 2);
         assert_eq!(side.hits_in(2), 0);
+    }
+
+    #[test]
+    fn a_base_stolen_is_the_runners_and_is_told_where_it_happened() {
+        let mut side = Side::default();
+        side.come_up(1, 0, 0, [false; 3]);
+        for _ in 0..4 {
+            side.pitch(pitch(Thrown::Ball, false));
+        }
+        side.close(End::Walk, None, 0, 0);
+        // He steals second while the next man is up, who strikes out.
+        side.come_up(1, 1, 0, [true, false, false]);
+        side.pitch(pitch(Thrown::Called, true));
+        side.stole(1, 0, 2, true);
+        side.pitch(pitch(Thrown::Swinging, true));
+        side.pitch(pitch(Thrown::Swinging, true));
+        side.close(End::Strikeout, None, 0, 1);
+        // And is thrown out going for third before the one after grounds
+        // out.
+        side.come_up(1, 2, 1, [false, true, false]);
+        side.stole(1, 0, 3, false);
+        side.pitch(pitch(Thrown::InPlay, true));
+        side.close(End::GroundOut, ball(0.3, 300.0, false), 0, 1);
+        let figures = side.figures();
+        assert_eq!((figures.stolen, figures.caught), (1, 1));
+        assert_eq!(figures.stolen_of(), "1 OF 2");
+        assert_eq!(side.figures_of(0).stolen_of(), "1 OF 2");
+        assert_eq!(side.figures_of(1).stolen_of(), "0 OF 0");
+        // Three are out, one of them on the bases.
+        assert_eq!(side.outs(), 3);
+        let told: Vec<String> = side.told(1).into_iter().map(|(line, _)| line).collect();
+        assert_eq!(
+            told,
+            [
+                "1 WALKED (4)",
+                "1 STOLE SECOND",
+                "2 STRUCK OUT SWINGING (3)",
+                "1 CAUGHT STEALING THIRD",
+                "3 GROUNDED OUT TO SHORT (1)",
+            ]
+        );
+        assert!(side.told(2).is_empty());
     }
 
     #[test]

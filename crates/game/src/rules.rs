@@ -62,9 +62,28 @@ pub struct Rules {
     pub shift: ShiftRules,
     /// The tired arm mod.
     pub tired_arm: TiredArmRules,
+    /// The stolen bases mod.
+    pub steal: StealRules,
     pub arcade: ArcadeRules,
     pub team: TeamRules,
     pub sound: SoundRules,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct StealRules {
+    /// Frames the catcher takes to let go of the ball once the pitch is in
+    /// his glove, picked afresh each time, and how fast his throw goes.
+    pub pop: Span,
+    pub throw_speed: f32,
+    /// Frames the word of how a steal came out stays up.
+    pub told_time: u32,
+    /// In a full match, how often a runner of the other side goes for
+    /// second before a batter's turn, how much of that often one goes for
+    /// third, and how often either gets there.
+    pub their_chance: f32,
+    pub their_third: f32,
+    pub their_safe: f32,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]

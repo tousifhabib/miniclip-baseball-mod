@@ -456,6 +456,26 @@ wild = 1.5
 told_time = 100
 
 # ---------------------------------------------------------------------------
+# The stolen bases mod: send a runner on while the pitcher winds up.
+[steal]
+# A pitch that is not hit is in the catcher's glove as it goes by. He takes
+# from `low` to `high` frames to let go of it, picked afresh each time, and
+# his throw to the base goes at this many pixels a frame. A runner takes 211
+# frames from one base to the next, and the wind-up is 78 of them, so the
+# sooner in it he is sent the likelier he is to be there first.
+pop = { low = 20, high = 50 }
+throw_speed = 2.0
+# Frames the word of how it came out stays up.
+told_time = 110
+# In a full match the other side steals too, on paper. Before a batter's
+# turn, a runner on first with second empty goes this often. One on second
+# with third empty goes that share of as often. Either gets there this
+# often, and is out the rest.
+their_chance = 0.07
+their_third = 0.25
+their_safe = 0.72
+
+# ---------------------------------------------------------------------------
 # The arcade game: hit a target on the outfield.
 [arcade]
 pitches = 10

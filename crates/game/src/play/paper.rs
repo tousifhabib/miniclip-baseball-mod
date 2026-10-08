@@ -6,15 +6,18 @@
 //! one that goes in the book. Nothing is made up to fit afterwards, so
 //! everything the book says of them adds up.
 
-use super::book::{End, Hit, ORDER, Pitch, Thrown, Turn};
+use super::book::{End, Hit, ORDER, Pitch, Steal, Thrown, Turn};
 use super::field::Ground;
 use crate::rng::Rng;
-use crate::rules::TheirBattingRules;
+use crate::rules::{StealRules, TheirBattingRules};
 
 /// A half of an innings as it was played on paper.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Half {
     pub turns: Vec<Turn>,
+    /// The tries at stealing a base there were in it. Each is told by how
+    /// many of this half's turns were over when it was made.
+    pub steals: Vec<Steal>,
     /// How many runners were left on base.
     pub left: u32,
     /// The runs each place in the order made in it.
@@ -84,13 +87,16 @@ enum Miss {
 
 /// Plays the half of an innings that is to come to `made` runs. `winning`
 /// is whether those runs win the match, which then ends the moment the
-/// last of them is in. `first_up` is whose turn it is.
+/// last of them is in. `first_up` is whose turn it is. With `steals` their
+/// runners try for a base now and then, as those rules say.
+#[allow(clippy::too_many_arguments)]
 pub fn half(
     made: u32,
     winning: bool,
     innings: u32,
     first_up: usize,
     rules: &TheirBattingRules,
+    steals: Option<&StealRules>,
     ground: &Ground,
     rng: &mut Rng,
 ) -> Half {
@@ -99,6 +105,7 @@ pub fn half(
     let mut lean = 1.0_f32;
     for _ in 0..TRIES {
         let mut play = Play::new(made, winning, innings, first_up, lean, rules, ground);
+        play.steals = steals;
         match play.out(rng) {
             Ok(()) => return play.half(),
             Err(Miss::TooFew) => lean = (lean * LEAN).min(MOST_LEAN),
@@ -113,6 +120,7 @@ pub fn half(
 fn plainly(made: u32, winning: bool, innings: u32, first_up: usize, ground: &Ground) -> Half {
     let mut half = Half {
         turns: Vec::new(),
+        steals: Vec::new(),
         left: 0,
         runs: [0; ORDER],
         next: first_up,
@@ -169,6 +177,8 @@ struct Play<'a> {
     innings: u32,
     lean: f32,
     rules: &'a TheirBattingRules,
+    /// What their runners steal by, if they steal at all.
+    steals: Option<&'a StealRules>,
     ground: &'a Ground,
     /// Who is on first, second and third: his place in the order.
     bases: [Option<usize>; 3],
@@ -176,6 +186,7 @@ struct Play<'a> {
     runs: u32,
     up: usize,
     turns: Vec<Turn>,
+    stolen: Vec<Steal>,
     by_order: [u32; ORDER],
     /// Runners who were on their way home when the match was won, and so
     /// never got there.
@@ -198,12 +209,14 @@ impl<'a> Play<'a> {
             innings,
             lean,
             rules,
+            steals: None,
             ground,
             bases: [None; 3],
             outs: 0,
             runs: 0,
             up: first_up % ORDER,
             turns: Vec::new(),
+            stolen: Vec::new(),
             by_order: [0; ORDER],
             stranded: 0,
         }
@@ -212,6 +225,7 @@ impl<'a> Play<'a> {
     fn half(self) -> Half {
         Half {
             turns: self.turns,
+            steals: self.stolen,
             left: self.bases.iter().flatten().count() as u32 + self.stranded,
             runs: self.by_order,
             next: self.up,
@@ -223,6 +237,11 @@ impl<'a> Play<'a> {
         while self.outs < 3 {
             if self.turns.len() >= MOST_TURNS {
                 return Err(Miss::TooMany);
+            }
+            // A runner thrown out stealing may be the last out there is.
+            self.steal(rng);
+            if self.outs >= 3 {
+                break;
             }
             self.turn(rng)?;
             if self.winning && self.runs >= self.made {
@@ -236,6 +255,41 @@ impl<'a> Play<'a> {
             return Err(Miss::TooFew);
         }
         Ok(())
+    }
+
+    /// Before a batter's turn, a runner with the base in front of him empty
+    /// may go for it: the one on second if there is one, and if he stays
+    /// the one on first. He gets there or he is out.
+    fn steal(&mut self, rng: &mut Rng) {
+        let Some(rules) = self.steals else {
+            return;
+        };
+        let [first, second, third] = self.bases;
+        let from = if second.is_some() && third.is_none() {
+            rng.chance(rules.their_chance * rules.their_third)
+                .then_some(1)
+        } else if first.is_some() && second.is_none() {
+            rng.chance(rules.their_chance).then_some(0)
+        } else {
+            None
+        };
+        let Some((from, runner)) = from.and_then(|from| Some((from, self.bases[from].take()?)))
+        else {
+            return;
+        };
+        let safe = rng.chance(rules.their_safe);
+        if safe {
+            self.bases[from + 1] = Some(runner);
+        } else {
+            self.outs += 1;
+        }
+        self.stolen.push(Steal {
+            innings: self.innings,
+            order: runner,
+            base: from as u8 + 2,
+            safe,
+            at: self.turns.len(),
+        });
     }
 
     /// One batter's turn.
@@ -533,6 +587,16 @@ mod tests {
     use crate::rules::Rules;
 
     fn played(made: u32, winning: bool, first_up: usize, seed: u64) -> Half {
+        played_by(made, winning, first_up, seed, None)
+    }
+
+    fn played_by(
+        made: u32,
+        winning: bool,
+        first_up: usize,
+        seed: u64,
+        steals: Option<&StealRules>,
+    ) -> Half {
         let rules = Rules::default().full_match.their_batting;
         let mut rng = Rng::new(seed);
         half(
@@ -541,6 +605,7 @@ mod tests {
             3,
             first_up,
             &rules,
+            steals,
             &Ground::default(),
             &mut rng,
         )
@@ -555,7 +620,8 @@ mod tests {
             made,
             "the runs each batter made"
         );
-        let outs: u32 = half.turns.iter().map(|turn| turn.outs_made).sum();
+        let caught = half.steals.iter().filter(|steal| !steal.safe).count() as u32;
+        let outs = half.turns.iter().map(|turn| turn.outs_made).sum::<u32>() + caught;
         if winning {
             assert!(outs < 3, "a match that was won before the side was out");
             assert!(half.turns.last().is_some_and(|turn| turn.runs_in > 0));
@@ -567,7 +633,19 @@ mod tests {
         assert_eq!(reached, outs + made + half.left, "where the batters went");
         let mut out_so_far = 0;
         let mut on_base = 0;
+        for steal in &half.steals {
+            assert!(steal.at <= half.turns.len() && steal.order < ORDER);
+            assert!(steal.innings == 3 && (steal.base == 2 || steal.base == 3));
+        }
         for (index, turn) in half.turns.iter().enumerate() {
+            // A runner thrown out stealing before this turn is out, and
+            // off the bases.
+            for steal in half.steals.iter().filter(|steal| steal.at == index) {
+                if !steal.safe {
+                    out_so_far += 1;
+                    on_base -= 1;
+                }
+            }
             // They come up in order, with the outs there have been.
             assert_eq!(turn.order, (first_up + index) % ORDER);
             assert_eq!(turn.outs, out_so_far);
@@ -643,6 +721,49 @@ mod tests {
             let made = 1 + (seed % 5) as u32;
             let half = played(made, true, 4, seed);
             sound(&half, made, true, 4);
+        }
+    }
+
+    #[test]
+    fn with_runners_who_steal_a_half_still_adds_up() {
+        // Runners who go every chance they get, and are out half the time.
+        let keen = StealRules {
+            their_chance: 1.0,
+            their_third: 1.0,
+            their_safe: 0.5,
+            ..Rules::default().steal
+        };
+        let (mut stolen, mut caught, mut thirds) = (0, 0, 0);
+        for seed in 0..400 {
+            let made = (seed % 7) as u32;
+            let winning = seed % 5 == 0 && made > 0;
+            let half = played_by(made, winning, 2, seed, Some(&keen));
+            sound(&half, made, winning, 2);
+            stolen += half.steals.iter().filter(|steal| steal.safe).count();
+            caught += half.steals.iter().filter(|steal| !steal.safe).count();
+            thirds += half.steals.iter().filter(|steal| steal.base == 3).count();
+        }
+        assert!(stolen > 100 && caught > 100 && thirds > 20);
+        // As the rules have them they go now and then, and mostly get
+        // there.
+        let usual = Rules::default().steal;
+        let (mut tries, mut safe, mut turns) = (0, 0, 0);
+        for seed in 0..600 {
+            let made = [0, 0, 0, 1, 1, 2, 2, 3, 4, 6][(seed % 10) as usize];
+            let half = played_by(made, false, 0, seed, Some(&usual));
+            sound(&half, made, false, 0);
+            tries += half.steals.len();
+            safe += half.steals.iter().filter(|steal| steal.safe).count();
+            turns += half.turns.len();
+        }
+        assert!(tries > 20 && tries * 20 < turns, "{tries} in {turns}");
+        assert!(safe * 2 > tries, "{safe} of {tries}");
+    }
+
+    #[test]
+    fn without_runners_who_steal_nobody_does() {
+        for seed in 0..100 {
+            assert!(played(3, false, 0, seed).steals.is_empty());
         }
     }
 

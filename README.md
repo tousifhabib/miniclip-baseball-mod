@@ -132,6 +132,7 @@ switched on.
 | Night game | `night_game` | The stadium is dark with the players and ball lit, and home runs flash the lights |
 | The shift | `the_shift` | The fielders stand where you have been hitting the ball, until you go the other way |
 | Tired arm | `tired_arm` | The pitcher slows and misses the zone more as his pitches mount up, until a fresh one comes in |
+| Stolen bases | `stolen_bases` | Click the little field as the pitcher winds up to send a runner; the catcher throws to put him out |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -315,6 +316,32 @@ After thirty-six a new pitcher comes in for him, as fresh as the first was,
 and the count starts again. In a full match the count goes on from one
 innings to the next. The arcade game is over before any arm tires. The
 numbers are under `[tired_arm]` in `data/rules.toml`.
+
+With stolen bases, a runner can be sent for the next base while the pitcher
+winds up. Each runner on base is marked on the little field in the corner of
+the batting view, and once the wind-up starts the marks of those who may go
+beat, with CLICK TO STEAL under them. A click on the little field then sends
+the one whose mark is nearest. He may go from first or from second, if the
+base in front of him is free or the runner on it has been sent too, and
+nobody steals home. The ring is where the pointer is, so sending him costs
+you your aim for a moment.
+
+What comes of it goes by the pitch. Hit fair, he is a runner like any other
+with a start on the ball, and has stolen nothing. Fouled off, he goes back.
+On ball four he has the base anyway. On any other pitch the catcher has the
+ball: the view goes to the field, he draws back and throws, and whichever of
+the ball and the runner is at the base first settles it. A runner takes 211
+frames from base to base, the wind-up is 78 of them, and the catcher takes
+from 20 to 50 to let go, so the sooner in the wind-up he is sent the better
+his chance, and on the harder levels, where pitches are quicker, he needs
+the best of starts. Thrown out, he is out and the batter's count is as it
+was.
+
+In a full match steals go in the book. The other side's runners steal too,
+on paper: now and then one goes before a batter's turn, and gets there
+seven times in ten. The page of figures has a line of bases stolen for both
+sides once anyone has tried, and each try is told among the turns of its
+innings. The numbers are under `[steal]` in `data/rules.toml`.
 
 ## Changing the game
 
