@@ -40,12 +40,37 @@ pub struct Rules {
 #[derive(Clone, Debug, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ZingerRules {
-    /// How far the ball comes down, the distance to the wall being 1.
-    pub carry: ByTiming,
-    /// Frames the ball is in the air.
+    /// How far the ball comes down at the least, the distance to the wall
+    /// being 1.
+    pub carry_worst: f32,
+    /// And at the most, for each skill level.
+    pub carry_best: BySkill<f32>,
+    /// How much of the most is for holding the ring on the ball.
+    pub aim: f32,
+    pub aim_reach: f32,
+    /// Frames a ball hit level is in the air.
     pub hang: ByTiming,
     pub power: ByTiming,
+    pub level_peak: f32,
+    pub shape_reach: f32,
+    pub sky: Shape,
+    pub drive: Shape,
+    pub stands: f32,
+    pub ball_size: f32,
     pub wall_feet: f32,
+    /// How many runs behind a match starts with the mod on.
+    pub runs_down: BySkill<u32>,
+}
+
+/// What holding the ring well above or well below the ball does to a
+/// zinger's flight.
+#[derive(Clone, Copy, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Shape {
+    /// How many times as long the ball is in the air as one hit level.
+    pub hang: f32,
+    /// How high it goes, in pixels of the field.
+    pub peak: f32,
 }
 
 /// A number that goes by how well a swing was timed.

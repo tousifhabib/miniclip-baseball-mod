@@ -8,7 +8,7 @@
 mod arcade;
 pub mod field;
 mod fielding;
-mod overlay;
+pub(crate) mod overlay;
 pub mod pitch;
 pub mod timing;
 pub mod zinger;
@@ -25,7 +25,7 @@ use crate::menu::Game;
 use crate::mods::Mod;
 use crate::rng::Rng;
 use crate::rules::{HitRules, PitchRules};
-use field::{Ball, Contact};
+use field::{Ball, Contact, Happened};
 use pitch::{Choice, Mound, Pitch, Point, Quality};
 use zinger::Zinger;
 
@@ -162,8 +162,10 @@ pub(crate) struct AtBat {
     pub aim_area_x: f32,
     /// Frames since the swing began.
     pub swing: Option<u32>,
-    /// How far below the ball the ring was when the swing began.
+    /// How far below the ball the ring was when the swing began, and how
+    /// far to the right of it.
     pub under: f32,
+    pub across: f32,
     pub contact: Option<Contact>,
     /// The ball leaving the bat, in the batting view: where it is, how high,
     /// and how fast it is rising.
@@ -177,8 +179,13 @@ pub(crate) struct AtBat {
     pub fielding: Option<fielding::Fielding>,
     /// The timing bar, while that mod is on and the batting view is up.
     pub timing: Option<timing::Indicator>,
-    /// The hit, if that mod made a zinger of it.
+    /// The hit, if that mod made a zinger of it, and what the player is
+    /// shown of it over the field.
     pub zinger: Option<Zinger>,
+    pub zinger_show: Option<zinger::Show>,
+    /// The ball went over the wall while it was still being watched leaving
+    /// the bat, which the view of the field has yet to be told.
+    pub over_wall: bool,
 }
 
 impl AtBat {
@@ -212,6 +219,10 @@ pub struct Match {
     put_away: Vec<(Path, u32)>,
     /// The arcade game's own state, when that is what is being played.
     pub(crate) arcade: Option<arcade::Arcade>,
+    /// The longest zinger of this game, in feet, and the longest there has
+    /// ever been.
+    pub(crate) longest_zinger: u32,
+    pub(crate) zinger_record: u32,
     was_down: bool,
     runner_symbol: Option<SymbolId>,
 }
@@ -252,7 +263,13 @@ pub(crate) fn frame_of(stage: &Stage, path: &[u16]) -> u16 {
 
 impl Match {
     pub fn new(game: &Game, seed: u64, library: &Library) -> Match {
-        let behind = game.rules.game.runs_down.at(game.settings.difficulty);
+        // With every hit a home run there are more runs to get.
+        let behind = if game.mods.is_on(Mod::ZingerHit) {
+            game.rules.zinger.runs_down
+        } else {
+            game.rules.game.runs_down
+        }
+        .at(game.settings.difficulty);
         Match {
             score: 0,
             // Drawing level is not enough: the target is one run more.
@@ -270,6 +287,8 @@ impl Match {
             cues: Vec::new(),
             put_away: Vec::new(),
             arcade: None,
+            longest_zinger: 0,
+            zinger_record: 0,
             was_down: false,
             runner_symbol: library.manifest.exports.get("runner").copied(),
         }
@@ -280,6 +299,50 @@ impl Match {
         let mut arcade = Match::new(game, seed, library);
         arcade.arcade = Some(arcade::Arcade::new(game.rules.arcade.pitches));
         arcade
+    }
+
+    /// The longest zinger of this game, in feet. Nought if there was none.
+    pub fn longest_zinger(&self) -> u32 {
+        self.longest_zinger
+    }
+
+    /// The longest zinger there has ever been, as far as this game knows.
+    pub fn zinger_record(&self) -> u32 {
+        self.zinger_record
+    }
+
+    /// Tells the game the record its zingers have to beat.
+    pub fn set_zinger_record(&mut self, feet: u32) {
+        self.zinger_record = feet;
+    }
+
+    /// A zinger has gone `feet`: it is counted, and may be a record.
+    fn count_zinger(&mut self, feet: u32) -> bool {
+        self.longest_zinger = self.longest_zinger.max(feet);
+        let record = feet > self.zinger_record;
+        if record {
+            self.zinger_record = feet;
+        }
+        record
+    }
+
+    /// A zinger has come down: the player is told how far it went and
+    /// where, and the crowd is heard.
+    pub(crate) fn zinger_down(
+        &mut self,
+        show: &mut zinger::Show,
+        stage: &mut Stage,
+        library: &Library,
+    ) {
+        let record = self.count_zinger(show.zinger.feet);
+        show.landed(record, stage);
+        let mut sounds = show.place.cheers().to_vec();
+        if record && !sounds.contains(&"baseball_organ_FX") {
+            sounds.push("baseball_organ_FX");
+        }
+        for name in sounds {
+            Match::sound(stage, library, name);
+        }
     }
 
     /// How the match stands, if it is over.
@@ -604,10 +667,21 @@ impl Match {
         let mound = Match::mound(&parts, stage, library)?;
         let choice = Choice::pick(&table, &rules.throw, &mut self.rng);
         let pitch = Pitch::throw(&choice, &mound, &rules.throw);
+        // With the zinger mod on as well, the timing bar says how far a
+        // swing on each of its colours sends the ball at the most.
+        let difficulty = game.settings.difficulty;
+        let feet = |frames: u32| {
+            Zinger::of(&table, frames, (0.0, 0.0), parts.home, difficulty, rules)
+                .map(|zinger| zinger.feet)
+        };
         let timing = game
             .mods
             .is_on(Mod::TimingIndicator)
-            .then(|| timing::Indicator::new(&pitch, &table, &parts, stage, library))
+            .then(|| {
+                let feet: Option<&dyn Fn(u32) -> Option<u32>> =
+                    game.mods.is_on(Mod::ZingerHit).then_some(&feet);
+                timing::Indicator::new(&pitch, &table, &parts, feet, stage, library)
+            })
             .flatten();
         self.phase = Phase::Settling {
             left: rules.throw.settle + pitch.samples.len() as u32,
@@ -621,6 +695,7 @@ impl Match {
             marker_shown: false,
             swing: None,
             under: 0.0,
+            across: 0.0,
             contact: None,
             fly: ((0.0, 0.0), 0.0, 0.0),
             fly_size: 1.0,
@@ -630,6 +705,8 @@ impl Match {
             fielding: None,
             timing,
             zinger: None,
+            zinger_show: None,
+            over_wall: false,
         });
         None
     }
@@ -833,6 +910,7 @@ impl Match {
             Phase::Fielding => self.field(&mut at_bat, game, stage, library),
             Phase::Leaving { left } => {
                 if left == 0 {
+                    self.zinger_unseen();
                     // Building the view again starts the next pitch.
                     let mut holder = at_bat.parts.main.clone();
                     holder.pop();
@@ -906,6 +984,7 @@ impl Match {
             }
             at_bat.swing = Some(0);
             at_bat.under = at_bat.aim.1 - at_bat.pitch.crosses.1;
+            at_bat.across = at_bat.aim.0 - at_bat.pitch.crosses.0;
             if let Some(bar) = &mut at_bat.timing {
                 bar.swung(step, stage);
             }
@@ -919,20 +998,25 @@ impl Match {
             Some((frames, quality, power))
         });
         if let (true, Some((frames, quality, power))) = (in_band, met) {
-            // With the zinger mod on, whatever the bat meets in a match is
-            // on its way out of the ground, and is heard to be well hit.
-            // The arcade game is left alone: a ball over the wall scores
-            // nothing there.
-            let zinger = (self.arcade.is_none() && game.mods.is_on(Mod::ZingerHit))
-                .then(|| Zinger::of(&at_bat.table, frames, rules))
+            // With the zinger mod on, whatever the bat meets is on its way
+            // out of the ground.
+            let zinger = game
+                .mods
+                .is_on(Mod::ZingerHit)
+                .then(|| {
+                    let ring = (at_bat.across, at_bat.under);
+                    let home = at_bat.parts.home;
+                    let difficulty = game.settings.difficulty;
+                    Zinger::of(&at_bat.table, frames, ring, home, difficulty, rules)
+                })
                 .flatten();
-            let quality = zinger.map_or(quality, |_| Quality::Good);
             let (hit, cheer): (&str, &[&str]) = match quality {
                 Quality::Poor => ("batHit_poorly", &["crowd_smallClap"]),
                 Quality::MediumPoor => ("batHit_mediumPoor", &["crowd_smallCheer"]),
                 Quality::Medium => ("batHit_medium", &["crowd_smallCheer", "crowd_smallClap"]),
                 Quality::Good => ("batHit_good", &["crowd_bigClap"]),
             };
+            let (hit, cheer) = zinger.map_or((hit, cheer), |zinger| zinger.hit_sounds());
             Match::sound(stage, library, hit);
             for name in cheer {
                 Match::sound(stage, library, name);
@@ -955,7 +1039,7 @@ impl Match {
             at_bat.fly = (
                 sample.shadow,
                 sample.shadow.1 - sample.ball.1,
-                contact.lift(&rules.hit),
+                zinger.map_or(contact.lift(&rules.hit), |zinger| zinger.lift(&rules.hit)),
             );
             // It leaves the bat the size it had come to, and shrinks from
             // there as it goes away.
@@ -975,10 +1059,14 @@ impl Match {
                 parts.field_mark.1,
             );
             at_bat.ball = Some(match &zinger {
-                Some(zinger) => zinger.ball(parts.home, mark, &rules.field),
+                Some(zinger) => zinger.ball(parts.home, mark),
                 None => Ball::hit(parts.home, mark, &contact, &rules.hit, &rules.field),
             });
             at_bat.zinger = zinger;
+            if let (Some(arcade), Some(zinger)) = (&mut self.arcade, zinger) {
+                // In the arcade game a zinger scores by how far it goes.
+                arcade.owed = Some(zinger.feet);
+            }
             show(stage, &parts.ball, false);
             show(stage, &parts.shadow, false);
             at_bat.contact = Some(contact);
@@ -1095,8 +1183,10 @@ impl Match {
             }
         }
         // The ball is already on its way over the field, out of sight.
-        if let Some(ball) = &mut at_bat.ball {
-            ball.step(parts.home, contact.miss(), &rules.field);
+        if let Some(ball) = &mut at_bat.ball
+            && ball.step(parts.home, contact.miss(), &rules.field) == Happened::Cleared
+        {
+            at_bat.over_wall = true;
         }
     }
 

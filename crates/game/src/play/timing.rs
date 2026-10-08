@@ -24,9 +24,9 @@ use crate::rules::PitchRules;
 /// What a swing begun on each step of a pitch's flight comes to.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Timing {
-    /// For each step, how well a swing begun on it meets the ball. `None`
-    /// is a miss.
-    by_step: Vec<Option<Quality>>,
+    /// For each step, how well a swing begun on it meets the ball, and how
+    /// many frames into the swing. `None` is a miss.
+    by_step: Vec<Option<(Quality, u32)>>,
     /// The steps to swing on for the best this pitch allows: the first and
     /// the last.
     best: Option<(usize, usize)>,
@@ -60,7 +60,10 @@ impl Verdict {
 impl Timing {
     pub fn of(pitch: &Pitch, rules: &PitchRules) -> Timing {
         let by_step = (0..pitch.samples.len())
-            .map(|step| pitch.swing_from(rules, step).map(|(_, quality, _)| quality))
+            .map(|step| {
+                let (on, quality, _) = pitch.swing_from(rules, step)?;
+                Some((quality, (on - step) as u32))
+            })
             .collect();
         let mut timing = Timing {
             by_step,
@@ -83,6 +86,16 @@ impl Timing {
 
     /// How well a swing begun on `step` meets the ball, if it does.
     pub fn at(&self, step: usize) -> Option<Quality> {
+        self.met(step).map(|(quality, _)| quality)
+    }
+
+    /// How many frames into a swing begun on `step` the bat meets the ball,
+    /// if it does.
+    pub fn frames(&self, step: usize) -> Option<u32> {
+        self.met(step).map(|(_, frames)| frames)
+    }
+
+    fn met(&self, step: usize) -> Option<(Quality, u32)> {
         self.by_step.get(step).copied().flatten()
     }
 
@@ -96,8 +109,8 @@ impl Timing {
     /// the last, and how well.
     pub fn stretches(&self) -> Vec<(usize, usize, Quality)> {
         let mut stretches: Vec<(usize, usize, Quality)> = Vec::new();
-        for (step, quality) in self.by_step.iter().enumerate() {
-            let Some(quality) = *quality else {
+        for (step, met) in self.by_step.iter().enumerate() {
+            let Some((quality, _)) = *met else {
                 continue;
             };
             match stretches.last_mut() {
@@ -150,6 +163,13 @@ const WORD_ABOVE: f32 = 19.0;
 /// The depth the verdict is at in the bar's clip, which is over all of the
 /// bar's blocks.
 const WORD_DEPTH: u16 = 100;
+/// The figures over the bar that say how far a swing on each colour sends
+/// the ball, when it is being sent for a zinger: the size of their
+/// lettering, how far above the bar their tops are, and how far apart their
+/// middles.
+const FEET_SIZE: f32 = 0.5;
+const FEET_ABOVE: f32 = 12.0;
+const FEET_APART: f32 = 24.0;
 
 const BAR_COLOUR: Rgb = [0x0b, 0x3a, 0x5e];
 const MARKER_COLOUR: Rgb = [0xff, 0xff, 0xff];
@@ -180,6 +200,9 @@ pub(crate) struct Indicator {
     marker: Path,
     /// The verdict.
     words: Words,
+    /// How far a swing on each colour sends the ball, when that is being
+    /// told.
+    feet: Vec<Words>,
     /// The bar's left end.
     left: f32,
     /// The step the best moment is in the middle of. Between two steps if
@@ -190,11 +213,14 @@ pub(crate) struct Indicator {
 
 impl Indicator {
     /// Puts the bar into a batting view that has just been built, for the
-    /// pitch about to be thrown.
+    /// pitch about to be thrown. `feet` is given when hits are being sent
+    /// for zingers: how far one goes that the bat meets this many frames
+    /// into the swing.
     pub fn new(
         pitch: &Pitch,
         rules: &PitchRules,
         parts: &Parts,
+        feet: Option<&dyn Fn(u32) -> Option<u32>>,
         stage: &mut Stage,
         library: &Library,
     ) -> Option<Indicator> {
@@ -224,6 +250,7 @@ impl Indicator {
             holder,
             marker: Path::new(),
             words,
+            feet: Vec::new(),
             left,
             best,
             swung: false,
@@ -277,7 +304,48 @@ impl Indicator {
             HEIGHT + MARKER_REACH * 2.0,
             paint(MARKER_COLOUR, 1.0),
         )?;
+        if let Some(feet) = feet {
+            indicator.label(feet, stage, library);
+        }
         Some(indicator)
+    }
+
+    /// Writes over the bar how far a swing on each of its colours sends the
+    /// ball at the most, each figure in the colour it speaks for and in the
+    /// order the colours come. The figure for the best is over the best.
+    fn label(&mut self, feet: &dyn Fn(u32) -> Option<u32>, stage: &mut Stage, library: &Library) {
+        let stretches = self.timing.stretches();
+        let Some(best) = self
+            .timing
+            .best()
+            .and_then(|(first, _)| stretches.iter().position(|&(start, ..)| start == first))
+        else {
+            return;
+        };
+        for (index, &(first, last, quality)) in stretches.iter().enumerate() {
+            let most = (first..=last)
+                .filter_map(|step| feet(self.timing.frames(step)?))
+                .max();
+            let Some(most) = most else {
+                continue;
+            };
+            let middle = self.left + BEST_AT + (index as f32 - best as f32) * FEET_APART;
+            let depth = WORD_DEPTH + 2 + 2 * index as u16;
+            let top = (middle, TOP - FEET_ABOVE);
+            let Some(words) = Words::new(
+                &self.holder,
+                depth,
+                "zoneFeet",
+                top,
+                FEET_SIZE,
+                stage,
+                library,
+            ) else {
+                continue;
+            };
+            words.say(&most.to_string(), colour(quality), stage);
+            self.feet.push(words);
+        }
     }
 
     /// How far across the batting view a step of the flight is on the bar.
@@ -309,6 +377,10 @@ impl Indicator {
         };
         let colour = self.timing.at(step).map_or(MISS_COLOUR, colour);
         self.words.say(verdict.words(), colour, stage);
+        // The verdict takes the place of the figures.
+        for feet in &self.feet {
+            feet.hide(stage);
+        }
     }
 
     /// Takes the bar off the stage, as the view changes to the field.

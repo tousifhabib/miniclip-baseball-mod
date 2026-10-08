@@ -26,8 +26,8 @@ pub enum Mod {
     /// Only the pitcher goes after a ball that has been hit. The rest of
     /// the side stands where it is, and nobody throws the ball on.
     LonePitcher,
-    /// In a match, every ball the bat meets is a home run, and the better
-    /// the swing was timed the further it goes.
+    /// Every ball the bat meets is a home run, and the better the swing was
+    /// timed the further it goes.
     ZingerHit,
 }
 

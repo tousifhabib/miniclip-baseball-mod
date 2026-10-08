@@ -14,6 +14,7 @@ use crate::art::{self, ButtonLabels};
 use crate::look::{self, Look, Rgb, Swatch};
 use crate::menu::{Game, Leave, Menu, MenuPage};
 use crate::mods::{Mod, Mods, ModsPage};
+use crate::play::overlay::Words;
 use crate::play::{Match, Outcome};
 use crate::rng::Rng;
 use crate::rules::Rules;
@@ -102,7 +103,21 @@ pub struct Baseball {
     /// Clips that are playing an animation and must stop when they reach
     /// this frame, where the art has no stop of its own.
     holds: Vec<(Path, u16)>,
+    /// The longest zinger of the game just finished, in feet, how many
+    /// frames its result has been showing, and the line on that screen that
+    /// tells of it, once it is up.
+    last_zinger: u32,
+    result_frames: u32,
+    zinger_line: Option<Path>,
 }
+
+/// How many frames into a result screen the line about zingers is written,
+/// which is when the screen has got to its figures, and how far down the
+/// screen: on the ones a match ends on, and on the arcade game's.
+const ZINGER_LINE_AFTER: u32 = 260;
+const ZINGER_LINE_TOP: (f32, f32) = (262.0, 325.0);
+const ZINGER_LINE_SIZE: f32 = 0.8;
+const ZINGER_LINE_COLOUR: Rgb = [0xfd, 0xf6, 0xc0];
 
 impl Baseball {
     pub fn new(library: &Library) -> Baseball {
@@ -126,6 +141,9 @@ impl Baseball {
             clothes_strip: Swatch::of_clip(library, art::CLOTHES_STRIP).ok(),
             skin_strip: Swatch::of_clip(library, art::SKIN_STRIP).ok(),
             holds: Vec::new(),
+            last_zinger: 0,
+            result_frames: 0,
+            zinger_line: None,
         }
     }
 
@@ -334,6 +352,10 @@ impl Baseball {
         };
         let from_intro = self.screen == Screen::Intro;
         self.holds.clear();
+        if let Some(line) = self.zinger_line.take() {
+            stage.remove(&line);
+        }
+        self.result_frames = 0;
         stage.goto_label(&shell, label, false, library);
         self.screen = screen;
         self.sound_for(screen, stage, library);
@@ -343,9 +365,72 @@ impl Baseball {
             Screen::Arcade => Some(Match::new_arcade(&self.game, seed, library)),
             _ => None,
         };
+        if let Some(play) = &mut self.play {
+            play.set_zinger_record(self.scores.longest_zinger);
+            self.last_zinger = 0;
+        }
         if screen == Screen::Menu {
             self.menu.shown(from_intro, &self.game, stage, library);
         }
+    }
+
+    /// Keeps a zinger that has beaten the longest there had been, as soon
+    /// as it has, so that leaving the game early does not lose it.
+    fn keep_zinger_record(&mut self) {
+        let Some(play) = &self.play else {
+            return;
+        };
+        if play.zinger_record() <= self.scores.longest_zinger {
+            return;
+        }
+        self.scores.longest_zinger = play.zinger_record();
+        if let Some(file) = &self.scores_file
+            && let Err(error) = self.scores.save(file)
+        {
+            eprintln!("The longest zinger could not be saved: {error:#}");
+        }
+    }
+
+    /// Writes the longest zinger of the game just finished on its result
+    /// screen, with the longest there has ever been, once the screen has
+    /// got to its figures. A game with no zinger in it has no such line.
+    fn show_zinger_line(&mut self, stage: &mut Stage, library: &Library) {
+        let top = match self.screen {
+            Screen::MatchWon | Screen::MatchLost | Screen::InningsTied => ZINGER_LINE_TOP.0,
+            Screen::ArcadeFinish => ZINGER_LINE_TOP.1,
+            _ => return,
+        };
+        if self.last_zinger == 0 || self.zinger_line.is_some() {
+            return;
+        }
+        self.result_frames += 1;
+        if self.result_frames < ZINGER_LINE_AFTER {
+            return;
+        }
+        let Some(shell) = art::shell(stage) else {
+            return;
+        };
+        let depth = Stage::RULES_DEPTH + 400;
+        let Some(holder) = stage.attach(&shell, art::HOLDER, depth, "zingerResult", library) else {
+            return;
+        };
+        let middle = library.manifest.stage.width as f32 / 2.0;
+        if let Some(words) = Words::new(
+            &holder,
+            1,
+            "zingerLine",
+            (middle, top),
+            ZINGER_LINE_SIZE,
+            stage,
+            library,
+        ) {
+            let text = format!(
+                "LONGEST ZINGER {} FT   BEST EVER {} FT",
+                self.last_zinger, self.scores.longest_zinger
+            );
+            words.say(&text, ZINGER_LINE_COLOUR, stage);
+        }
+        self.zinger_line = Some(holder);
     }
 
     /// Goes where the menu has asked to go.
@@ -480,9 +565,13 @@ impl Logic for Baseball {
                 // The clip has gone, and its hold with it.
                 None => false,
             });
-        if let Some(play) = &mut self.play
-            && let Some(outcome) = play.tick(&self.game, stage, library)
-        {
+        let outcome = self
+            .play
+            .as_mut()
+            .and_then(|play| play.tick(&self.game, stage, library));
+        self.keep_zinger_record();
+        if let (Some(play), Some(outcome)) = (&mut self.play, outcome) {
+            let longest = play.longest_zinger();
             play.show_result(stage);
             play.show_arcade_result(&self.game, stage);
             if let Some(points) = play.arcade_score(&self.game) {
@@ -507,7 +596,9 @@ impl Logic for Baseball {
                 Outcome::ArcadeOver => Screen::ArcadeFinish,
             };
             self.show(screen, stage, library);
+            self.last_zinger = longest;
         }
+        self.show_zinger_line(stage, library);
         // The arcade game's finish screen names the skill level played, on
         // a clip with a frame for each. It appears part of the way through
         // the screen's arrival, so it is set whenever it is there.
