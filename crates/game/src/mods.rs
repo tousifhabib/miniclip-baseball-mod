@@ -48,6 +48,8 @@ pub enum Mod {
     /// Each hit in a row widens the timing window for the next swing,
     /// and a strike takes it back to what it was.
     HotBat,
+    /// One strike puts a batter out, and every run counts for two.
+    SuddenDeath,
 }
 
 /// What the menu and the files know a mod by.
@@ -65,7 +67,7 @@ struct Info {
 
 impl Mod {
     /// Every mod, in the order the menu lists them.
-    pub const ALL: [Mod; 9] = [
+    pub const ALL: [Mod; 10] = [
         Mod::TimingIndicator,
         Mod::LonePitcher,
         Mod::ZingerHit,
@@ -75,6 +77,7 @@ impl Mod {
         Mod::MysteryPitch,
         Mod::CalledShot,
         Mod::HotBat,
+        Mod::SuddenDeath,
     ];
 
     fn info(self) -> Info {
@@ -131,6 +134,12 @@ impl Mod {
                 key: "hot_bat",
                 name: "HOT BAT",
                 about: "EACH HIT IN A ROW WIDENS THE TIMING, A MISS RESETS IT",
+                setting: None,
+            },
+            Mod::SuddenDeath => Info {
+                key: "sudden_death",
+                name: "SUDDEN DEATH",
+                about: "ONE STRIKE AND YOU ARE OUT, BUT RUNS COUNT DOUBLE",
                 setting: None,
             },
         }

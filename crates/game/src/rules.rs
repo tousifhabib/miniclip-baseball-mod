@@ -44,9 +44,20 @@ pub struct Rules {
     pub called_shot: CalledShotRules,
     /// The hot bat mod.
     pub hot_bat: HotBatRules,
+    /// The sudden death mod.
+    pub sudden_death: SuddenDeathRules,
     pub arcade: ArcadeRules,
     pub team: TeamRules,
     pub sound: SoundRules,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SuddenDeathRules {
+    /// Strikes that put a batter out.
+    pub strikes: u32,
+    /// How many each run counts for.
+    pub runs: u32,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]

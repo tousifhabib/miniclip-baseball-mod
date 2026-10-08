@@ -222,8 +222,8 @@ impl Match {
         self.runners[runner].sliding = false;
         if base == 4 {
             self.runners[runner].place = Place::Home;
-            self.runners[runner].runs += 1;
-            self.score += 1;
+            self.runners[runner].runs += self.run_worth;
+            self.score += self.run_worth;
             if let Some(path) = &path {
                 stage.goto_label(path, "addRun", false, library);
                 if let Some(walk) = stage.find(path, &["outWalk"]) {
@@ -291,7 +291,7 @@ impl Match {
                 // A foul is a strike, but never the last one.
                 fielding.foul = true;
                 fielding.live = false;
-                if self.strikes + 1 < rules.count.strikes {
+                if self.strikes + 1 < self.strikes_allowed(game) {
                     self.strikes += 1;
                     self.cool(game);
                 }
@@ -809,12 +809,13 @@ impl Match {
         state.home_run = true;
         state.live = false;
         state.job = Job::Rest;
+        let worth = self.run_worth;
         for runner in &mut self.runners {
             if matches!(runner.place, Place::AtBat | Place::Base(_)) {
                 runner.place = Place::Home;
                 runner.running_to = None;
-                runner.runs += 1;
-                self.score += 1;
+                runner.runs += worth;
+                self.score += worth;
                 if let Some(path) = &runner.path {
                     stage.goto_label(path, "empty", false, library);
                 }
