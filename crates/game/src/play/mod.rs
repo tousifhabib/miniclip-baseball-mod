@@ -316,6 +316,10 @@ pub struct Match {
     /// are coming, and the score when that was last worked out.
     pub(crate) heat: u32,
     heat_score: u32,
+    /// How many batters in a row have reached base, with nobody put out
+    /// since, and whether the rally mod is on to go by it.
+    pub(crate) rally: u32,
+    rallying: bool,
     /// With the hit the sign mod on: the innings a sign was last lit for
     /// and which it was, what the next is drawn by, the sign a ball has
     /// just struck and the runs that was worth, until that has been told,
@@ -481,6 +485,8 @@ impl Match {
             hurry: 0.0,
             heat: 0,
             heat_score: 0,
+            rally: 0,
+            rallying: false,
             sign: None,
             sign_rng: Rng::new(seed ^ SIGN_SEED),
             sign_news: None,
@@ -524,6 +530,11 @@ impl Match {
         let mut worth = if golden { game.rules.golden.runs } else { 1 };
         if game.mods.is_on(Mod::SuddenDeath) {
             worth *= game.rules.sudden_death.runs;
+        }
+        // A rally makes a run worth one more for each batter in it, and
+        // whatever else multiplies runs multiplies that.
+        if game.mods.is_on(Mod::Rally) {
+            worth *= game.rules.rally.worth(self.rally);
         }
         worth
     }
@@ -1031,6 +1042,22 @@ impl Match {
                 corner.line(),
                 0.8,
                 [0xff, 0xd2, 0x40],
+                None,
+                stage,
+                library,
+            );
+        }
+        self.rallying = game.mods.is_on(Mod::Rally) && self.arcade.is_none();
+        if self.rallying && self.rally > 0 {
+            let worth = rules.rally.worth(self.rally);
+            Notice::put(
+                &mut notices,
+                &parts,
+                "rally",
+                &format!("RALLY: RUNS X{worth}"),
+                corner.line(),
+                0.8,
+                hot_colour(self.rally.min(rules.rally.most), rules.rally.most),
                 None,
                 stage,
                 library,
@@ -1738,6 +1765,7 @@ impl Match {
                 self.runners[batter].place = Place::Out;
             }
             self.outs += 1;
+            self.rally = 0;
             self.clear_count();
             self.announce = true;
             self.book_end(End::Strikeout, None);
@@ -1923,6 +1951,9 @@ impl Match {
         }
         if self.streak > 0 {
             let_go += &format!(", hits in a row {}", self.streak);
+        }
+        if self.rallying && self.rally > 0 {
+            let_go += &format!(", rally {}", self.rally);
         }
         if let Some((_, lit)) = self.sign {
             let_go += &format!(", sign {} lit", lit + 1);

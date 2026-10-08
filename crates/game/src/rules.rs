@@ -66,9 +66,26 @@ pub struct Rules {
     pub steal: StealRules,
     /// The hit the sign mod.
     pub sign: SignRules,
+    /// The rally mod.
+    pub rally: RallyRules,
     pub arcade: ArcadeRules,
     pub team: TeamRules,
     pub sound: SoundRules,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RallyRules {
+    /// The most batters in a row that count towards what a run is worth.
+    pub most: u32,
+}
+
+impl RallyRules {
+    /// How many a run counts for when this many batters in a row have
+    /// reached base.
+    pub fn worth(&self, in_a_row: u32) -> u32 {
+        1 + in_a_row.min(self.most)
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
@@ -790,6 +807,15 @@ mod tests {
         assert_eq!(spent.target.width, usual.target.width * arm.wild);
         assert_eq!(spent.target.height, usual.target.height * arm.wild);
         assert_eq!(spent.window, usual.window);
+    }
+
+    #[test]
+    fn a_rally_makes_a_run_worth_one_more_for_each_batter_up_to_the_most() {
+        let rules = Rules::default().rally;
+        assert_eq!(rules.worth(0), 1);
+        assert_eq!(rules.worth(1), 2);
+        assert_eq!(rules.worth(rules.most), rules.most + 1);
+        assert_eq!(rules.worth(rules.most + 7), rules.most + 1);
     }
 
     #[test]

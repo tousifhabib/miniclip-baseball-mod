@@ -134,6 +134,7 @@ switched on.
 | Tired arm | `tired_arm` | The pitcher slows and misses the zone more as his pitches mount up, until a fresh one comes in |
 | Stolen bases | `stolen_bases` | Click the little field as the pitcher winds up to send a runner; the catcher throws to put him out |
 | Hit the sign | `hit_the_sign` | Signs on the outfield wall pay runs to a ball that strikes them, the lit one most |
+| Rally | `rally` | Each batter in a row who reaches base makes every run worth one more, until somebody is out |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -361,6 +362,18 @@ with the sign's runs on top. Only the first sign a hit strikes counts, the
 runs are the batter's, and like a called shot's they are not multiplied by
 anything. The arcade game has no runs to add to. The numbers are under
 `[sign]` in `data/rules.toml`.
+
+With the rally, batters who reach base one after another make runs worth
+more. Each one who gets on, by a hit, a walk or a fielder's slip, adds one to
+what a run counts for from the next pitch on: after three in a row a run is
+worth four, and so is each of the four a home run would then bring in. It
+stops at five. An out of any kind, at the plate or on the bases, takes it
+back to one. What a run is worth is settled when the pitch is thrown, so the
+batter who keeps the rally going does not raise the worth of his own hit.
+The corner of the batting view says what runs are worth while a rally is
+on. Whatever else multiplies runs, sudden death or a golden ball,
+multiplies these. The arcade game has no runs. The number is under `[rally]`
+in `data/rules.toml`.
 
 ## Changing the game
 
