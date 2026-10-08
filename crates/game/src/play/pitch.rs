@@ -8,7 +8,7 @@
 use serde::Deserialize;
 
 use crate::rng::Rng;
-use crate::rules::{Band, PitchRules, ThrowRules};
+use crate::rules::{Band, MysteryRules, PitchRules, ThrowRules};
 
 /// How well the bat met the ball, from the worst to the best.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize)]
@@ -22,6 +22,41 @@ pub enum Quality {
 
 /// A point of the batting view, in pixels.
 pub type Point = (f32, f32);
+
+/// What a mystery pitch turns out to be.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Kind {
+    Fastball,
+    ChangeUp,
+    Curve,
+}
+
+impl Kind {
+    pub const ALL: [Kind; 3] = [Kind::Fastball, Kind::ChangeUp, Kind::Curve];
+
+    /// What the player is told it was.
+    pub fn words(self) -> &'static str {
+        match self {
+            Kind::Fastball => "FASTBALL",
+            Kind::ChangeUp => "CHANGE-UP",
+            Kind::Curve => "CURVE",
+        }
+    }
+
+    /// Changes the table a pitch is picked from so that it is one of this
+    /// kind. A curve goes to the left or to the right.
+    pub fn shape(self, table: &mut PitchRules, rules: &MysteryRules, to_left: bool) {
+        match self {
+            Kind::Fastball => table.speed = table.speed.times(rules.fast),
+            Kind::ChangeUp => table.speed = table.speed.times(rules.slow),
+            Kind::Curve => {
+                let way = if to_left { -1.0 } else { 1.0 };
+                table.swing.base += way * rules.curve_swing;
+                table.dip.base += rules.curve_dip;
+            }
+        }
+    }
+}
 
 /// The fixed points a pitch is drawn between, taken from the art.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -393,6 +428,34 @@ mod tests {
         pitch.knuckle(16.0, 2.0, 0.25, &mound());
         assert!(pitch.crosses.0 > 341.1, "{:?}", pitch.crosses);
         assert!(!pitch.in_zone);
+    }
+
+    #[test]
+    fn a_mystery_pitch_is_quick_or_slow_or_curves_more() {
+        let rules = Rules::default();
+        let usual = rules.pitch.at(Difficulty::Medium);
+        let shaped = |kind: Kind, to_left: bool| {
+            let mut table = usual.clone();
+            kind.shape(&mut table, &rules.mystery, to_left);
+            table
+        };
+        let frames = |table: &PitchRules| {
+            let choice = straight((300.0, 250.0), table.speed.high as f32);
+            Pitch::throw(&choice, &mound(), &rules.throw).samples.len()
+        };
+        let (fast, slow) = (shaped(Kind::Fastball, false), shaped(Kind::ChangeUp, false));
+        assert!(frames(&fast) * 10 < frames(usual) * 8);
+        assert!(frames(&slow) * 10 > frames(usual) * 13);
+        // A curve takes as long as any pitch, and swings and drops more.
+        for to_left in [false, true] {
+            let curve = shaped(Kind::Curve, to_left);
+            assert_eq!(curve.speed, usual.speed);
+            assert_eq!((curve.swing.base - usual.swing.base).abs(), 1.5);
+            assert_eq!(curve.swing.base < usual.swing.base, to_left);
+            assert!(curve.dip.base > usual.dip.base);
+        }
+        let names: Vec<&str> = Kind::ALL.iter().map(|kind| kind.words()).collect();
+        assert_eq!(names, ["FASTBALL", "CHANGE-UP", "CURVE"]);
     }
 
     #[test]

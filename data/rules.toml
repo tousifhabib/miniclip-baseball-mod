@@ -279,6 +279,20 @@ step = 0.06
 most = 8
 
 # ---------------------------------------------------------------------------
+# The mystery pitch mod: each pitch is a fastball, a change-up or a curve.
+[mystery]
+# How long a fastball and a change-up take, the time a pitch takes at the
+# skill level being 1.
+fast = 0.7
+slow = 1.5
+# How much more a curve swings each frame, to one side or the other, and how
+# much more it drops, in pixels.
+curve_swing = 1.5
+curve_dip = 0.4
+# Frames the name of the pitch stays up once it has been thrown.
+told_time = 70
+
+# ---------------------------------------------------------------------------
 # The arcade game: hit a target on the outfield.
 [arcade]
 pitches = 10
