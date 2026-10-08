@@ -451,9 +451,20 @@ impl ApplicationHandler for App {
                     self.pointer_changed();
                 }
             }
+            // A key that comes up always goes through, so that one which
+            // went down on the game is not left held.
+            WindowEvent::KeyboardInput { event, .. } if event.state == ElementState::Released => {
+                for key in held(&event.logical_key) {
+                    self.runner.hold(key, false);
+                }
+            }
+            WindowEvent::Focused(false) => self.runner.stage.keys_let_go(),
             WindowEvent::KeyboardInput { event, .. }
                 if !taken && event.state == ElementState::Pressed =>
             {
+                for key in held(&event.logical_key) {
+                    self.runner.hold(key, true);
+                }
                 match &event.logical_key {
                     // The window's own keys, which no game is offered.
                     Key::Named(NamedKey::F1) => self.inspector.open = !self.inspector.open,
@@ -504,5 +515,28 @@ impl ApplicationHandler for App {
             }
             _ => {}
         }
+    }
+}
+
+/// The keys a game can be told are held down while this one is: the keys
+/// it has names for, the space bar, and whatever letters the key types,
+/// in small letters whether Shift is held or not.
+fn held(logical: &Key) -> Vec<input::Key> {
+    match logical {
+        Key::Named(NamedKey::Backspace) => vec![input::Key::Backspace],
+        Key::Named(NamedKey::Enter) => vec![input::Key::Enter],
+        Key::Named(NamedKey::Tab) => vec![input::Key::Tab],
+        Key::Named(NamedKey::Escape) => vec![input::Key::Escape],
+        Key::Named(NamedKey::ArrowLeft) => vec![input::Key::Left],
+        Key::Named(NamedKey::ArrowRight) => vec![input::Key::Right],
+        Key::Named(NamedKey::ArrowUp) => vec![input::Key::Up],
+        Key::Named(NamedKey::ArrowDown) => vec![input::Key::Down],
+        Key::Named(NamedKey::Space) => vec![input::Key::Char(' ')],
+        Key::Character(text) => text
+            .chars()
+            .flat_map(char::to_lowercase)
+            .map(input::Key::Char)
+            .collect(),
+        _ => Vec::new(),
     }
 }

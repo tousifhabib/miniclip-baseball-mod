@@ -108,6 +108,13 @@ impl Runner {
         used
     }
 
+    /// Takes in that a key has gone down or come up again, for rules that
+    /// care how long one is held. The logic is not told: it asks the stage
+    /// whether a key is down when it wants to know.
+    pub fn hold(&mut self, key: Key, down: bool) {
+        self.stage.key_changed(key, down);
+    }
+
     /// Lets the logic act on anything that has happened without playing a
     /// frame, for instance after an inspector has moved a clip.
     pub fn settle(&mut self) {

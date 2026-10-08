@@ -34,7 +34,9 @@ impl Script {
     /// - `press` and `release` work the pointer's button where it is
     /// - `type TEXT` types the rest of the step
     /// - `key NAME` presses `backspace`, `enter`, `tab`, `escape`, `left`,
-    ///   `right`, `up` or `down`
+    ///   `right`, `up`, `down`, `space`, or a letter or figure
+    /// - `hold NAME` puts such a key down and keeps it there, and
+    ///   `lift NAME` lets it up
     /// - `state` gives where the game is
     /// - `events` gives the buttons touched and sounds asked for since it
     ///   was last used
@@ -101,18 +103,24 @@ impl Script {
                 let name = words
                     .get(1)
                     .with_context(|| format!("`{step}` needs the name of a key"))?;
-                let key = match *name {
-                    "backspace" => Key::Backspace,
-                    "enter" => Key::Enter,
-                    "tab" => Key::Tab,
-                    "escape" => Key::Escape,
-                    "left" => Key::Left,
-                    "right" => Key::Right,
-                    "up" => Key::Up,
-                    "down" => Key::Down,
-                    other => bail!("there is no key called `{other}`"),
+                let Some(key) = Key::named(name) else {
+                    bail!("there is no key called `{name}`");
                 };
                 runner.key(key);
+            }
+            "hold" | "lift" => {
+                let name = words
+                    .get(1)
+                    .with_context(|| format!("`{step}` needs the name of a key"))?;
+                let Some(key) = Key::named(name) else {
+                    bail!("there is no key called `{name}`");
+                };
+                let down = words[0] == "hold";
+                runner.hold(key, down);
+                // A key that goes down is a key pressed, too.
+                if down {
+                    runner.key(key);
+                }
             }
             "state" => lines.push(runner.describe()),
             "events" => {

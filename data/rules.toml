@@ -517,6 +517,21 @@ most = 4
 runs = 2
 
 # ---------------------------------------------------------------------------
+# The bullet time mod: hold the space bar to slow the pitch near the plate.
+[bullet_time]
+# While it is held back the ball moves on one frame in this many.
+slow = 3
+# It can be held back over the last this many frames of its flight, which
+# is while it comes to the plate and goes by, and not before.
+near = 40
+# The meter has this many frames of holding back in it when it is full, as
+# it is when a game starts. Each frame the ball is held back takes one.
+full = 120
+# A hit puts this share of a full meter back, and a home run fills it. In
+# the arcade game any ball that scores puts this share back.
+hit = 0.5
+
+# ---------------------------------------------------------------------------
 # The arcade game: hit a target on the outfield.
 [arcade]
 pitches = 10

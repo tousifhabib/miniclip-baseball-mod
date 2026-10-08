@@ -794,6 +794,17 @@ impl Match {
                 let ground = parts.ground(rules);
                 self.spray.push(ground.across(state.land));
             }
+            // A hit puts some of bullet time's meter back, and a home run
+            // all of it.
+            let batter = state.batter.and_then(|batter| self.runners.get(batter));
+            let hit = !state.walk && !state.foul && !state.steal;
+            match batter.map(|batter| batter.place) {
+                Some(Place::Home) if hit => self.refill_bullet_time(1.0, &game.rules.bullet_time),
+                Some(Place::Base(_)) if hit => {
+                    self.refill_bullet_time(game.rules.bullet_time.hit, &game.rules.bullet_time);
+                }
+                _ => {}
+            }
             self.book_play(at_bat, &state);
             self.ready(&parts, stage, library);
         }

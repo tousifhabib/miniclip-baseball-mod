@@ -7,6 +7,7 @@
 
 mod arcade;
 pub mod book;
+pub mod bullet;
 mod called;
 pub mod field;
 mod fielding;
@@ -235,6 +236,8 @@ pub(crate) struct AtBat {
     pub leads: Option<steal::Leads>,
     /// The signs on the wall, with the hit the sign mod on.
     pub signs: Option<sign::Board>,
+    /// The meter in the corner of the view, with the bullet time mod on.
+    pub meter: Option<bullet::Meter>,
 }
 
 impl Parts {
@@ -316,6 +319,14 @@ pub struct Match {
     /// are coming, and the score when that was last worked out.
     pub(crate) heat: u32,
     heat_score: u32,
+    /// With the bullet time mod on: how many frames of holding the ball
+    /// back are left in the meter, how many frames it has been held back
+    /// for, whether it is being held back now, and a click made on a frame
+    /// it was held back on, which the next frame that moves it takes.
+    pub(crate) bullet: Option<u32>,
+    slow_beat: u32,
+    pub(crate) slowed: bool,
+    late_press: bool,
     /// How many batters in a row have reached base, with nobody put out
     /// since, and whether the rally mod is on to go by it.
     pub(crate) rally: u32,
@@ -488,6 +499,10 @@ impl Match {
             hurry: 0.0,
             heat: 0,
             heat_score: 0,
+            bullet: None,
+            slow_beat: 0,
+            slowed: false,
+            late_press: false,
             rally: 0,
             rallying: false,
             clutch: false,
@@ -1100,6 +1115,20 @@ impl Match {
                 library,
             );
         }
+        // With bullet time on there is a meter, full when the game starts.
+        let meter = if game.mods.is_on(Mod::BulletTime) {
+            self.bullet.get_or_insert(rules.bullet_time.full);
+            let (top, under) = (corner.line(), corner.line());
+            let meter = bullet::Meter::put(&parts, top, (under.0, under.1 + 2.0), stage, library);
+            if let (Some(meter), Some(left)) = (&meter, self.bullet) {
+                let full = rules.bullet_time.full.max(1) as f32;
+                meter.keep(left as f32 / full, false, stage);
+            }
+            meter
+        } else {
+            self.bullet = None;
+            None
+        };
         // With the shift on, the fielders stand where the last few balls
         // went. The arcade game has no fielders to move.
         if game.mods.is_on(Mod::TheShift) && self.arcade.is_none() {
@@ -1283,6 +1312,7 @@ impl Match {
             met: None,
             leads,
             signs,
+            meter,
         });
         None
     }
@@ -1395,11 +1425,25 @@ impl Match {
         let pressed = down && !self.was_down && !stage.pointer.on_button();
         self.was_down = down;
         self.run_cues(stage, library);
-        if game.mods.is_on(Mod::NightGame) {
-            if std::mem::take(&mut self.lights) {
+        // The stadium is lit as by day, unless it is night, and is cooler
+        // while bullet time holds the ball back.
+        let slowed = std::mem::take(&mut self.slowed);
+        let night = game.mods.is_on(Mod::NightGame);
+        if night || game.mods.is_on(Mod::BulletTime) {
+            if std::mem::take(&mut self.lights) && night {
                 self.flash = game.rules.night.flash_time;
             }
-            night::light(night::lighting(self.flash, &game.rules.night), stage);
+            let lighting = if night {
+                night::lighting(self.flash, &game.rules.night)
+            } else {
+                night::DAY
+            };
+            let lighting = if slowed {
+                bullet::cool(lighting)
+            } else {
+                lighting
+            };
+            night::light(lighting, stage);
             self.flash = self.flash.saturating_sub(1);
         }
 
@@ -1446,6 +1490,10 @@ impl Match {
         }
         if let Some(signs) = &mut at_bat.signs {
             signs.keep(stage);
+        }
+        if let (Some(meter), Some(left)) = (&at_bat.meter, self.bullet) {
+            let full = rules.bullet_time.full.max(1) as f32;
+            meter.keep(left as f32 / full, slowed, stage);
         }
         if at_bat.contact.is_none() {
             Match::aim(&mut at_bat, stage);
@@ -1523,7 +1571,14 @@ impl Match {
                 }
             }
             Phase::Flight { step } => {
-                self.flight(&mut at_bat, step, pressed, game, stage, library);
+                let pressed = pressed || std::mem::take(&mut self.late_press);
+                if self.held_back(&at_bat, step, game, stage) {
+                    // The ball stays where it is for this frame. A click
+                    // made on it is for the step the ball is on.
+                    self.late_press = pressed;
+                } else {
+                    self.flight(&mut at_bat, step, pressed, game, stage, library);
+                }
             }
             Phase::Called { left } => {
                 if left == 0 {
@@ -1973,8 +2028,12 @@ impl Match {
             )
         });
         if let Some(arcade) = &self.arcade {
+            let meter = self.bullet.map_or(String::new(), |left| {
+                let slowed = if self.slowed { " slowed" } else { "" };
+                format!(", bullet time {left}{slowed}")
+            });
             return format!(
-                "{:?}, {} points, {} pitches left{pitch}",
+                "{:?}, {} points, {} pitches left{pitch}{meter}",
                 self.phase, arcade.points, arcade.left
             );
         }
@@ -1994,6 +2053,12 @@ impl Match {
         }
         if self.clutch {
             let_go += ", clutch";
+        }
+        if let Some(left) = self.bullet {
+            let_go += &format!(", bullet time {left}");
+            if self.slowed {
+                let_go += " slowed";
+            }
         }
         if let Some((_, lit)) = self.sign {
             let_go += &format!(", sign {} lit", lit + 1);
