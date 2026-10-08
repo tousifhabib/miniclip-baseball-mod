@@ -39,8 +39,10 @@ cargo run --release -p bb-game
 
 F1 opens the inspector, F2 pauses, F3 steps one frame while paused, and
 Escape quits. `--mute` turns the sound off, `--screen match` (or `menu`,
-`arcade` and so on) starts on a screen of your choice, `--seed N` makes
-every game go the same way, and `--mod NAME` switches a mod on for that run.
+`arcade`, `fullMatch` and so on) starts on a screen of your choice,
+`--seed N` makes every game go the same way, `--mod NAME` switches a mod on
+for that run, and `--ground home` (or `away`, or `toss`) says where a full
+match is played.
 
 To build it as a Mac app:
 
@@ -51,6 +53,35 @@ open "target/app/Baseball Mod.app"
 
 The app is called Baseball Mod and keeps its scores apart from the vanilla
 game's, so both can be installed side by side.
+
+## Full match
+
+The menu's first page has a Full Match row, under Bottom of the Ninth. Where
+that game is the last innings of a match already nearly lost, this one is
+the whole match: nine innings a side.
+
+Only your own innings are played. You bat until three are out, as in the
+other game, and then the other side's half of the innings is made up: how
+many runs they are likely to make goes by the skill level. A board comes up
+between innings to say what they made, with every innings of both sides and
+how the match stands, and its button brings your side in again with nobody
+out and nobody on base. Nine batters make up the order, and come round
+again.
+
+The setup page has a choice under the skill levels: Home, Away or Toss.
+Away, you bat first, in the top of each innings. At home you bat second, so
+the visitors have batted before your first ball. Toss leaves it to a coin,
+and the page after says how it came down.
+
+The match ends as a match does. The side at home does not bat in the bottom
+of the ninth if it is already ahead, and wins the moment it goes ahead
+there. A match that is level after nine goes on, an innings at a time, until
+one side is in front. The board the game ends on has every innings on it.
+
+Every mod is played by in a full match just as in the last innings alone.
+With the zinger hit mod on, when every ball you hit is a home run, the other
+side makes about three times its usual runs. The numbers are under
+`[full_match]` in `data/rules.toml`.
 
 ## Mods
 
@@ -241,7 +272,8 @@ in `data/rules.toml`.
 
 ### The numbers
 
-Pitch speeds, timing windows, how the ball flies, the count, the arcade
+Pitch speeds, timing windows, how the ball flies, the count, how many
+innings a full match has and how the other side scores in them, the arcade
 target's rings and points, how far a zinger goes, sound levels, skin tones
 and bat logos are all in `data/rules.toml`, with a note on each. Change them
 there.
@@ -276,10 +308,12 @@ cargo run --release -p bb-modtools --bin clip-sheet -- extracted --clip 688 --ev
 ### The rules
 
 The rules are in `crates/game/src`. `baseball.rs` decides which screen is
-showing, `menu.rs` is the menu, `play/` is a game in progress, `look.rs`
-dresses the batting side, `scores.rs` keeps the high scores, `mods.rs` is
-the mods and their page of the menu, and `art.rs` describes how the art is
-put together: which clip is which, and what each button is.
+showing, `menu.rs` is the menu, `play/` is a game in progress, with a full
+match's innings in `play/full.rs` and what it writes on the boards in
+`board.rs`, `look.rs` dresses the batting side, `scores.rs` keeps the high
+scores, `mods.rs` is the mods and their page of the menu, and `art.rs`
+describes how the art is put together: which clip is which, and what each
+button is.
 
 The art only knows how to play its animations. The rules are told about
 every button the pointer touches and every key pressed, and are called once
@@ -321,7 +355,7 @@ steps drive the game from the command line:
 
 ```bash
 cargo run --release -p bb-game -- --screen menu \
-  --run "wait 60; click 200 192; wait 60; state; shot setup.png"
+  --run "wait 60; click 200 181; wait 60; state; shot setup.png"
 ```
 
 `wait N` plays N frames, `click X Y` clicks at a stage position, `move`,

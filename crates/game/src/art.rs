@@ -82,6 +82,32 @@ pub const PAGE_TURN: SymbolId = 2045;
 /// An empty clip, for the rules to put things in and move as one.
 pub const HOLDER: SymbolId = 2042;
 
+/// What the full match adds to the menu: a text field in the menu's own
+/// lettering, which centres what it says, and a small box to choose with,
+/// with room beside it for a word.
+pub const MENU_FIELD: SymbolId = 2051;
+pub const CHOICE: SymbolId = 2052;
+/// The round badge the menu's rows and headings begin with, as its two
+/// drawings, and the nine that is the full match's picture in it. The nine
+/// is drawn to lie on a badge this far down and to the right of it.
+pub const BADGE: [SymbolId; 2] = [69, 70];
+pub const NINE: SymbolId = 2048;
+pub const NINE_FROM_BADGE: (f32, f32) = (-16.7, -4.4);
+/// The heading and the words of the page that says what a match is to be,
+/// which a full match writes its own in place of.
+pub const SUMMARY_WORDS: [SymbolId; 2] = [481, 486];
+
+/// The board that says an innings was tied. A full match shows it between
+/// innings, with its own words on it in place of the art's: the heading,
+/// which is a drawing, and the lines under it.
+pub const BOARD: SymbolId = 1769;
+pub const BOARD_WORDS: [SymbolId; 5] = [1760, 1761, 1762, 1763, 1764];
+/// The frame of the board on which its words arrive.
+pub const BOARD_WORDS_FRAME: u16 = 38;
+/// The word over the score to beat on the game's scoreboards, as its two
+/// drawings. In a full match the other side's score is shown there.
+pub const TARGET_LABEL: [SymbolId; 2] = [505, 517];
+
 /// The pictures of the stadium: behind the batter, and from over the field
 /// in a match and in the arcade game. The match's has the stands nearest
 /// the eye as a picture of their own, drawn over the players, and the

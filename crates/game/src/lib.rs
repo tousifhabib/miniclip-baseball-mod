@@ -3,6 +3,7 @@
 
 pub mod art;
 pub mod baseball;
+pub mod board;
 pub mod locate;
 pub mod look;
 pub mod menu;

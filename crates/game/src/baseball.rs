@@ -11,15 +11,17 @@ use bb_engine::stage::Stage;
 use bb_format::SymbolId;
 
 use crate::art::{self, ButtonLabels};
+use crate::board;
 use crate::look::{self, Look, Rgb, Swatch};
 use crate::menu::{Game, Leave, Menu, MenuPage};
 use crate::mods::{Asked, Mod, Mods, ModsPage};
+use crate::play::full::FullMatch;
 use crate::play::overlay::Words;
 use crate::play::{Match, Outcome};
 use crate::rng::Rng;
 use crate::rules::Rules;
 use crate::scores::Scores;
-use crate::settings::Difficulty;
+use crate::settings::{Difficulty, Ground};
 
 /// What the player is looking at. Each is a labelled frame of the shell.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -35,9 +37,20 @@ pub enum Screen {
     InningsTied,
     ArcadeFinish,
     Instructions,
+    /// A full match, while the player's side is batting. It is played on
+    /// the match's own frame of the shell.
+    FullMatch,
+    /// The board a full match shows between innings, which is the one the
+    /// art has for an innings that was tied.
+    Interval,
 }
 
 impl Screen {
+    /// Whether a game is being played on this screen.
+    fn is_game(self) -> bool {
+        matches!(self, Screen::Match | Screen::FullMatch | Screen::Arcade)
+    }
+
     const ALL: [Screen; 9] = [
         Screen::Intro,
         Screen::Menu,
@@ -50,8 +63,15 @@ impl Screen {
         Screen::Instructions,
     ];
 
+    /// What a full match is called where a screen is asked for by its
+    /// label, the art having none for it.
+    pub const FULL_MATCH: &str = "fullMatch";
+
     /// The screen the shell shows on the frame with this label.
     pub fn from_label(label: &str) -> Option<Screen> {
+        if label == Screen::FULL_MATCH {
+            return Some(Screen::FullMatch);
+        }
         Screen::ALL
             .into_iter()
             .find(|screen| screen.label() == Some(label))
@@ -63,11 +83,11 @@ impl Screen {
             Screen::Loading => return None,
             Screen::Intro => "intro",
             Screen::Menu => "menu",
-            Screen::Match => "match",
+            Screen::Match | Screen::FullMatch => "match",
             Screen::Arcade => "arcade",
             Screen::MatchLost => "matchLost",
             Screen::MatchWon => "matchWon",
-            Screen::InningsTied => "inningsTied",
+            Screen::InningsTied | Screen::Interval => "inningsTied",
             Screen::ArcadeFinish => "arcadeFinish",
             Screen::Instructions => "instructionsAll",
         })
@@ -107,11 +127,16 @@ pub struct Baseball {
     /// this frame, where the art has no stop of its own.
     holds: Vec<(Path, u16)>,
     /// The longest zinger of the game just finished, in feet, how many
-    /// frames its result has been showing, and the line on that screen that
-    /// tells of it, once it is up.
+    /// frames its result has been showing, and what has been written on
+    /// that screen about it, once that is up.
     last_zinger: u32,
     result_frames: u32,
-    zinger_line: Option<Path>,
+    result_lines: Option<Path>,
+    /// The full match just finished, which its result screen tells of.
+    finished: Option<FullMatch>,
+    /// What a full match has written on the board between innings, while
+    /// that is up.
+    board: Option<Path>,
 }
 
 /// How many frames into a result screen the line about zingers is written,
@@ -119,6 +144,8 @@ pub struct Baseball {
 /// screen: on the ones a match ends on, and on the arcade game's.
 const ZINGER_LINE_AFTER: u32 = 260;
 const ZINGER_LINE_TOP: (f32, f32) = (262.0, 325.0);
+/// How far down it is when a full match has its innings written there.
+const ZINGER_LINE_TOP_FULL: f32 = 143.0;
 const ZINGER_LINE_SIZE: f32 = 0.8;
 const ZINGER_LINE_COLOUR: Rgb = [0xfd, 0xf6, 0xc0];
 
@@ -147,8 +174,15 @@ impl Baseball {
             holds: Vec::new(),
             last_zinger: 0,
             result_frames: 0,
-            zinger_line: None,
+            result_lines: None,
+            finished: None,
+            board: None,
         }
+    }
+
+    /// Where the side plays a full match, for this run.
+    pub fn play_on(&mut self, ground: Ground) {
+        self.game.settings.ground = ground;
     }
 
     /// Keeps the high scores in this file, starting from what it holds.
@@ -283,7 +317,7 @@ impl Baseball {
         for (name, level) in &sound.levels {
             stage.set_sound_level(name, *level, library);
         }
-        let in_game = matches!(screen, Screen::Match | Screen::Arcade);
+        let in_game = screen.is_game();
         let wants_music = screen == Screen::Menu;
         let stops_music = in_game || screen == Screen::Instructions;
         if wants_music && !self.music_on {
@@ -332,7 +366,7 @@ impl Baseball {
     fn look(&self) -> Look {
         let settings = &self.game.settings;
         match (&self.play, self.screen) {
-            (Some(play), Screen::Match) => play.look(settings.clothes),
+            (Some(play), Screen::Match | Screen::FullMatch) => play.look(settings.clothes),
             // The arcade game and the setup pages show what was chosen.
             _ => Look {
                 clothes: settings.clothes,
@@ -346,6 +380,7 @@ impl Baseball {
     /// Makes every game go the same way, for a test or for chasing a fault.
     pub fn seed(&mut self, seed: u64) {
         self.seed = Some(seed);
+        self.menu.seed(seed);
     }
 
     /// Plays by `rules` instead of the ones built in.
@@ -358,25 +393,43 @@ impl Baseball {
         self.first = Some(screen);
     }
 
-    /// Switches to another screen.
-    fn show(&mut self, screen: Screen, stage: &mut Stage, library: &Library) {
+    /// Has the shell show another screen, with what is heard on it. Returns
+    /// whether the shell was there to do it.
+    fn switch(&mut self, screen: Screen, stage: &mut Stage, library: &Library) -> bool {
         let (Some(shell), Some(label)) = (art::shell(stage), screen.label()) else {
-            return;
+            return false;
         };
-        let from_intro = self.screen == Screen::Intro;
         self.holds.clear();
-        if let Some(line) = self.zinger_line.take() {
-            stage.remove(&line);
+        if let Some(lines) = self.result_lines.take() {
+            stage.remove(&lines);
         }
+        // What was written on the board went with the board.
+        self.board = None;
         self.result_frames = 0;
         stage.goto_label(&shell, label, false, library);
         self.screen = screen;
         self.sound_for(screen, stage, library);
+        true
+    }
+
+    /// Switches to another screen, and starts the game that is played on
+    /// it if one is.
+    fn show(&mut self, screen: Screen, stage: &mut Stage, library: &Library) {
+        let from_intro = self.screen == Screen::Intro;
+        if !self.switch(screen, stage, library) {
+            return;
+        }
+        self.finished = None;
         let seed = self.seed.unwrap_or_else(Rng::seed_from_clock);
         self.play = match screen {
             Screen::Match => {
                 self.playing = self.game.as_played(true);
                 Some(Match::new(&self.playing, seed, library))
+            }
+            Screen::FullMatch => {
+                self.playing = self.game.as_played(true);
+                let home = self.menu.take_home(&self.game.settings);
+                Some(Match::new_full(&self.playing, home, seed, library))
             }
             Screen::Arcade => {
                 self.playing = self.game.as_played(false);
@@ -390,6 +443,55 @@ impl Baseball {
         }
         if screen == Screen::Menu {
             self.menu.shown(from_intro, &self.game, stage, library);
+        }
+        // At home in a full match the other side has batted already, and
+        // the board says how before a ball is thrown.
+        let at_home = self.play.as_ref().and_then(Match::full);
+        if at_home.is_some_and(FullMatch::at_home) {
+            self.switch(Screen::Interval, stage, library);
+        }
+    }
+
+    /// The board between innings has been read: back to the batting.
+    fn bat_again(&mut self, stage: &mut Stage, library: &Library) {
+        let Some(play) = &mut self.play else {
+            return;
+        };
+        play.bat_again();
+        self.switch(Screen::FullMatch, stage, library);
+    }
+
+    /// While the board between innings is up, keeps the art's own words
+    /// off it, and writes the full match's once the board has arrived.
+    fn show_interval(&mut self, stage: &mut Stage, library: &Library) {
+        if self.screen != Screen::Interval {
+            return;
+        }
+        let Some(path) = art::in_shell(stage, art::BOARD) else {
+            return;
+        };
+        let Some(clip) = stage.clip(&path) else {
+            return;
+        };
+        let arrived = clip.frame >= art::BOARD_WORDS_FRAME;
+        let theirs: Vec<u16> = clip
+            .children
+            .iter()
+            .filter(|(_, child)| art::BOARD_WORDS.contains(&child.symbol))
+            .map(|(&depth, _)| depth)
+            .collect();
+        for depth in theirs {
+            let mut child = path.clone();
+            child.push(depth);
+            if let Some(child) = stage.child_mut(&child) {
+                child.set_visible(false);
+            }
+        }
+        if !arrived || self.board.is_some() {
+            return;
+        }
+        if let Some(full) = self.play.as_ref().and_then(Match::full) {
+            self.board = board::interval(full, &path, stage, library);
         }
     }
 
@@ -410,16 +512,18 @@ impl Baseball {
         }
     }
 
-    /// Writes the longest zinger of the game just finished on its result
-    /// screen, with the longest there has ever been, once the screen has
-    /// got to its figures. A game with no zinger in it has no such line.
-    fn show_zinger_line(&mut self, stage: &mut Stage, library: &Library) {
-        let top = match self.screen {
+    /// Writes on a result screen what the art has no place for, once the
+    /// screen has got to its figures: every innings of a full match, and
+    /// the longest zinger of the game just finished with the longest there
+    /// has ever been. A game with no zinger in it has no such line.
+    fn show_result_lines(&mut self, stage: &mut Stage, library: &Library) {
+        let mut top = match self.screen {
             Screen::MatchWon | Screen::MatchLost | Screen::InningsTied => ZINGER_LINE_TOP.0,
             Screen::ArcadeFinish => ZINGER_LINE_TOP.1,
             _ => return,
         };
-        if self.last_zinger == 0 || self.zinger_line.is_some() {
+        let nothing = self.last_zinger == 0 && self.finished.is_none();
+        if nothing || self.result_lines.is_some() {
             return;
         }
         self.result_frames += 1;
@@ -430,9 +534,18 @@ impl Baseball {
             return;
         };
         let depth = Stage::RULES_DEPTH + 400;
-        let Some(holder) = stage.attach(&shell, art::HOLDER, depth, "zingerResult", library) else {
+        let Some(holder) = stage.attach(&shell, art::HOLDER, depth, "resultLines", library) else {
             return;
         };
+        self.result_lines = Some(holder.clone());
+        if let Some(full) = &self.finished {
+            // The innings go where the zingers would, which move up.
+            board::result(full, &holder, stage, library);
+            top = ZINGER_LINE_TOP_FULL;
+        }
+        if self.last_zinger == 0 {
+            return;
+        }
         let middle = library.manifest.stage.width as f32 / 2.0;
         if let Some(words) = Words::new(
             &holder,
@@ -449,7 +562,6 @@ impl Baseball {
             );
             words.say(&text, ZINGER_LINE_COLOUR, stage);
         }
-        self.zinger_line = Some(holder);
     }
 
     /// Goes where the menu has asked to go.
@@ -458,6 +570,7 @@ impl Baseball {
             Leave::Instructions => Screen::Instructions,
             Leave::Match => Screen::Match,
             Leave::Arcade => Screen::Arcade,
+            Leave::FullMatch => Screen::FullMatch,
         };
         self.show(screen, stage, library);
     }
@@ -474,7 +587,7 @@ impl Baseball {
                     self.leave_menu(leave, stage, library);
                 }
             }
-            Screen::Match | Screen::Arcade => match label {
+            Screen::Match | Screen::FullMatch | Screen::Arcade => match label {
                 "QUIT" => self.quit_prompt(true, stage, library),
                 "NO" => self.quit_prompt(false, stage, library),
                 "YES" => self.show(Screen::Menu, stage, library),
@@ -487,6 +600,11 @@ impl Baseball {
                         .open(MenuPage::HighScores, &self.game, stage, library);
                 } else if label == "MAIN MENU" || art::CONTINUE_BUTTONS.contains(&button) {
                     self.show(Screen::Menu, stage, library);
+                }
+            }
+            Screen::Interval => {
+                if art::CONTINUE_BUTTONS.contains(&button) {
+                    self.bat_again(stage, library);
                 }
             }
             Screen::Instructions => self.instructions_clicked(label, stage, library),
@@ -558,7 +676,7 @@ impl Baseball {
 
 impl Logic for Baseball {
     fn event(&mut self, event: &Event, stage: &mut Stage, library: &Library) {
-        if let Some(play) = &mut self.play {
+        if let (Some(play), true) = (&mut self.play, self.screen.is_game()) {
             play.event(event, &self.playing, stage, library);
         }
         if let Event::Button {
@@ -569,6 +687,7 @@ impl Logic for Baseball {
         {
             self.choose_look(*symbol, stage);
             self.choose_mod(path);
+            self.menu.chose(path, &mut self.game.settings);
             self.clicked(*symbol, stage, library);
         }
     }
@@ -584,13 +703,17 @@ impl Logic for Baseball {
                 // The clip has gone, and its hold with it.
                 None => false,
             });
-        let outcome = self
-            .play
-            .as_mut()
-            .and_then(|play| play.tick(&self.playing, stage, library));
+        // A game that has stopped for the board between innings waits.
+        let outcome = match (&mut self.play, self.screen.is_game()) {
+            (Some(play), true) => play.tick(&self.playing, stage, library),
+            _ => None,
+        };
         self.keep_zinger_record();
-        if let (Some(play), Some(outcome)) = (&mut self.play, outcome) {
+        if outcome == Some(Outcome::Interval) {
+            self.switch(Screen::Interval, stage, library);
+        } else if let (Some(play), Some(outcome)) = (&mut self.play, outcome) {
             let longest = play.longest_zinger();
+            let finished = play.full().cloned();
             play.show_result(stage);
             play.show_arcade_result(&self.playing, stage);
             if let Some(points) = play.arcade_score(&self.playing) {
@@ -613,11 +736,14 @@ impl Logic for Baseball {
                 Outcome::Lost => Screen::MatchLost,
                 Outcome::Tied => Screen::InningsTied,
                 Outcome::ArcadeOver => Screen::ArcadeFinish,
+                Outcome::Interval => Screen::Interval,
             };
             self.show(screen, stage, library);
             self.last_zinger = longest;
+            self.finished = finished;
         }
-        self.show_zinger_line(stage, library);
+        self.show_interval(stage, library);
+        self.show_result_lines(stage, library);
         // The arcade game's finish screen names the skill level played, on
         // a clip with a frame for each. It appears part of the way through
         // the screen's arrival, so it is set whenever it is there.
@@ -649,7 +775,7 @@ impl Logic for Baseball {
             .find_symbol(&[], art::QUIT_PROMPT)
             .and_then(|path| stage.clip(&path))
             .is_some_and(|prompt| prompt.frame > 1);
-        if self.play.is_none() || prompt_up {
+        if self.play.is_none() || prompt_up || !self.screen.is_game() {
             stage.hide_pointer = false;
         }
         match self.screen {
@@ -705,11 +831,13 @@ impl Logic for Baseball {
                 )
             }
             screen => {
-                let play = self
-                    .play
-                    .as_ref()
-                    .map(|play| format!(": {}", play.describe()))
-                    .unwrap_or_default();
+                // A game says how it stands, and the screen a full match
+                // ended on says how it went.
+                let play = match (&self.play, &self.finished) {
+                    (Some(play), _) => format!(": {}", play.describe()),
+                    (None, Some(full)) => format!(": {}, {}", full.verdict(), full.describe()),
+                    (None, None) => String::new(),
+                };
                 format!("{screen:?}, {:?}{play}", self.game.settings.difficulty)
             }
         }

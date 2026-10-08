@@ -16,6 +16,7 @@ use bb_game::baseball::{Baseball, Screen};
 use bb_game::mods::Mod;
 use bb_game::rules::Rules;
 use bb_game::script::Script;
+use bb_game::settings::Ground;
 
 /// The folder that holds the art, if it is there.
 fn extracted() -> Option<PathBuf> {
@@ -36,12 +37,19 @@ pub fn game_with(screen: &str, seed: Option<u64>) -> Option<Script> {
 
 /// The same, played by `rules` instead of the ones built in.
 pub fn game_ruled(screen: &str, seed: Option<u64>, rules: Option<Rules>) -> Option<Script> {
-    game_made(screen, seed, rules, &[], None, None)
+    game_made(screen, seed, rules, &[], None, None, None)
 }
 
 /// The game opened on a screen, with these mods switched on.
 pub fn game_modded(screen: &str, seed: u64, mods: &[Mod]) -> Option<Script> {
-    game_made(screen, Some(seed), None, mods, None, None)
+    game_made(screen, Some(seed), None, mods, None, None, None)
+}
+
+/// A full match with these mods on, played at home or away, by `rules` if
+/// any are given.
+pub fn full_match(seed: u64, ground: Ground, mods: &[Mod], rules: Option<Rules>) -> Option<Script> {
+    let screen = Screen::FULL_MATCH;
+    game_made(screen, Some(seed), rules, mods, None, None, Some(ground))
 }
 
 /// A match with these mods on that takes a long time to win or lose, for
@@ -50,20 +58,28 @@ pub fn game_modded(screen: &str, seed: u64, mods: &[Mod]) -> Option<Script> {
 pub fn long_match(seed: u64, mods: &[Mod]) -> Option<Script> {
     let long = "[match]\nouts = 30\n[match.runs_down]\neasy = 40\nmedium = 40\nhard = 40\n";
     let rules = Rules::layered(&[("a long match", long)]).expect("rules that read");
-    game_made("match", Some(seed), Some(rules), mods, None, None)
+    game_made("match", Some(seed), Some(rules), mods, None, None, None)
 }
 
 /// The same, keeping its scores in `scores` and starting from what is
 /// there.
 pub fn game_keeping(screen: &str, seed: u64, mods: &[Mod], scores: &Path) -> Option<Script> {
-    game_made(screen, Some(seed), None, mods, Some(scores), None)
+    game_made(screen, Some(seed), None, mods, Some(scores), None, None)
 }
 
 /// The game opened on a screen with one mod switched on, its setting at
 /// `level`, and the timing bar, which says when to swing.
 pub fn game_levelled(screen: &str, seed: u64, which: Mod, level: u8) -> Option<Script> {
     let mods = [Mod::TimingIndicator, which];
-    game_made(screen, Some(seed), None, &mods, None, Some((which, level)))
+    game_made(
+        screen,
+        Some(seed),
+        None,
+        &mods,
+        None,
+        Some((which, level)),
+        None,
+    )
 }
 
 fn game_made(
@@ -73,6 +89,7 @@ fn game_made(
     mods: &[Mod],
     scores: Option<&Path>,
     level: Option<(Mod, u8)>,
+    ground: Option<Ground>,
 ) -> Option<Script> {
     let Some(dir) = extracted() else {
         eprintln!("skipped: there is no extracted art to play");
@@ -96,6 +113,9 @@ fn game_made(
     }
     if let Some((which, level)) = level {
         logic.set_mod_level(which, level);
+    }
+    if let Some(ground) = ground {
+        logic.play_on(ground);
     }
     let runner = Runner::new(library, stage, logic, None);
     Some(Script::new(runner).expect("a renderer with no window"))
@@ -124,7 +144,7 @@ pub fn state(script: &mut Script) -> String {
 /// Whether the game is still on the screen it was started on, or has not
 /// yet got to it.
 pub fn playing(state: &str) -> bool {
-    ["Match,", "Arcade,", "Loading"]
+    ["Match,", "FullMatch,", "Arcade,", "Loading"]
         .iter()
         .any(|screen| state.starts_with(screen))
 }

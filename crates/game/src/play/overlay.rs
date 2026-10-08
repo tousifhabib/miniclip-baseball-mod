@@ -5,6 +5,7 @@ use bb_engine::display::Path;
 use bb_engine::library::Library;
 use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
+use bb_format::SymbolId;
 
 use super::Parts;
 use super::pitch::Point;
@@ -48,14 +49,39 @@ impl Words {
         stage: &mut Stage,
         library: &Library,
     ) -> Option<Words> {
-        let field = library.edit_texts.get(&art::TABLE_FIELD)?;
+        Words::in_field(
+            art::TABLE_FIELD,
+            holder,
+            depth,
+            name,
+            top,
+            size,
+            stage,
+            library,
+        )
+    }
+
+    /// The same in the lettering of another of the art's text fields, which
+    /// has to be one that centres what it says.
+    #[allow(clippy::too_many_arguments)]
+    pub fn in_field(
+        symbol: SymbolId,
+        holder: &[u16],
+        depth: u16,
+        name: &str,
+        top: Point,
+        size: f32,
+        stage: &mut Stage,
+        library: &Library,
+    ) -> Option<Words> {
+        let field = library.edit_texts.get(&symbol)?;
         // The field centres what it says, so it is placed by its middle.
         let middle = ((field.bounds.x_min + field.bounds.x_max) / 2.0) as f32;
         let drop = size.max(1.0);
         let mut paths = [Path::new(), Path::new()];
         for (index, offset) in [drop, 0.0].into_iter().enumerate() {
             let depth = depth + index as u16;
-            let path = stage.attach(holder, art::TABLE_FIELD, depth, name, library)?;
+            let path = stage.attach(holder, symbol, depth, name, library)?;
             let words = stage.child_mut(&path)?;
             words.set_matrix(Matrix {
                 a: size,

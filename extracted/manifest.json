@@ -16406,6 +16406,52 @@
     "2045": {
       "file": "buttons/2045.json",
       "kind": "button"
+    },
+    "2046": {
+      "file": "texts/2046.json",
+      "kind": "text"
+    },
+    "2047": {
+      "file": "shapes/2047.svg",
+      "kind": "shape",
+      "bounds": {
+        "x_min": 46.7,
+        "y_min": 7.9,
+        "x_max": 166.55,
+        "y_max": 23.05
+      }
+    },
+    "2048": {
+      "file": "shapes/2048.svg",
+      "kind": "shape",
+      "bounds": {
+        "x_min": 6.2,
+        "y_min": 6.1,
+        "x_max": 26.0,
+        "y_max": 25.9
+      }
+    },
+    "2049": {
+      "file": "shapes/2049.svg",
+      "kind": "shape",
+      "bounds": {
+        "x_min": 6.2,
+        "y_min": 6.1,
+        "x_max": 26.0,
+        "y_max": 25.9
+      }
+    },
+    "2050": {
+      "file": "buttons/2050.json",
+      "kind": "button"
+    },
+    "2051": {
+      "file": "texts/2051.json",
+      "kind": "edit_text"
+    },
+    "2052": {
+      "file": "buttons/2052.json",
+      "kind": "button"
     }
   },
   "exports": {

@@ -5,8 +5,8 @@ mod common;
 use common::{game, state_after};
 
 /// Where things are on the menu's pages, in stage pixels.
-const BOTTOM_OF_THE_NINTH: &str = "click 200 192";
-const ARCADE: &str = "click 200 237";
+const BOTTOM_OF_THE_NINTH: &str = "click 200 181";
+const ARCADE: &str = "click 200 252";
 const MODS: &str = "click 330 360";
 /// The mods listed on the mods' page, from the top.
 const FIRST_MOD: &str = "click 300 140";
@@ -380,7 +380,7 @@ fn the_high_score_page_is_itself_again_after_the_mods_page() {
     let Some(mut script) = game("menu") else {
         return;
     };
-    let steps = format!("wait 60; {MODS}; wait 90; {BACK}; wait 90; click 250 275; wait 90; state");
+    let steps = format!("wait 60; {MODS}; wait 90; {BACK}; wait 90; click 250 287; wait 90; state");
     assert_eq!(state_after(&mut script, &steps), "Menu, HighScores, Medium");
     let stage = &script.runner.stage;
     assert!(bb_game::art::all_named(stage, &[], "modsWords").is_empty());
