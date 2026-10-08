@@ -34,9 +34,20 @@ pub struct Rules {
     pub zinger: ZingerRules,
     /// The butterfingers mod.
     pub butterfingers: ButterfingersRules,
+    /// The knuckleball mod.
+    pub knuckleball: KnuckleballRules,
     pub arcade: ArcadeRules,
     pub team: TeamRules,
     pub sound: SoundRules,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct KnuckleballRules {
+    /// How far the ball sways to either side as it comes by the batter.
+    pub sway: f32,
+    /// How many times it goes from side to side and back on the way in.
+    pub turns: f32,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]

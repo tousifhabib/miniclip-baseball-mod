@@ -260,6 +260,16 @@ gather_time = 50
 told_time = 80
 
 # ---------------------------------------------------------------------------
+# The knuckleball mod: pitches sway from side to side on the way in.
+[knuckleball]
+# How far to either side, in pixels as the ball comes by the batter. Further
+# off, where the ball is drawn smaller, it sways by less.
+sway = 16.0
+# How many times it goes from side to side and back between the pitcher's
+# hand and the batter.
+turns = 2.5
+
+# ---------------------------------------------------------------------------
 # The arcade game: hit a target on the outfield.
 [arcade]
 pitches = 10

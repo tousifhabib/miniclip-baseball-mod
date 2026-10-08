@@ -33,6 +33,9 @@ pub enum Mod {
     /// Fielders let the ball go: they drop catches, fumble pick-ups, and
     /// fail to hold throws at the bases. How often is set on the menu.
     Butterfingers,
+    /// Pitches sway from side to side on the way in, and the marker shows
+    /// only roughly where they will cross.
+    Knuckleball,
 }
 
 /// What the menu and the files know a mod by.
@@ -50,11 +53,12 @@ struct Info {
 
 impl Mod {
     /// Every mod, in the order the menu lists them.
-    pub const ALL: [Mod; 4] = [
+    pub const ALL: [Mod; 5] = [
         Mod::TimingIndicator,
         Mod::LonePitcher,
         Mod::ZingerHit,
         Mod::Butterfingers,
+        Mod::Knuckleball,
     ];
 
     fn info(self) -> Info {
@@ -82,6 +86,12 @@ impl Mod {
                 name: "BUTTERFINGERS",
                 about: "FIELDERS DROP AND FUMBLE THE BALL",
                 setting: Some(("HOW OFTEN", 3)),
+            },
+            Mod::Knuckleball => Info {
+                key: "knuckleball",
+                name: "KNUCKLEBALL",
+                about: "PITCHES SWAY, AND THE MARKER IS ONLY ROUGHLY RIGHT",
+                setting: None,
             },
         }
     }

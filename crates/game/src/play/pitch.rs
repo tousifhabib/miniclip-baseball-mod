@@ -156,6 +156,36 @@ impl Pitch {
         pitch
     }
 
+    /// Makes a knuckleball of the pitch: the ball sways from side to side
+    /// on its way in, `sway` pixels either way as it comes by the batter
+    /// and less while it is far off and small, `turns` times there and
+    /// back. `start` is where in a turn it sets off, from 0 to 1. Where
+    /// the pitch crosses is worked out again.
+    pub fn knuckle(&mut self, sway: f32, turns: f32, start: f32, mound: &Mound) {
+        let Some(crossing) = self
+            .samples
+            .iter()
+            .position(|sample| sample.shadow.1 >= mound.plate)
+            .filter(|&step| step > 0)
+        else {
+            return;
+        };
+        let full_size = self.samples[crossing].size.max(0.001);
+        for (step, sample) in self.samples.iter_mut().enumerate() {
+            let gone = step as f32 / crossing as f32;
+            // It leaves the hand straight, and takes a moment to start.
+            let eased = (gone / 0.2).min(1.0);
+            let turn = (start + turns * gone) * std::f32::consts::TAU;
+            let aside = sway * (sample.size / full_size) * eased * turn.sin();
+            sample.ball.0 += aside;
+            sample.shadow.0 += aside;
+        }
+        let ball = self.samples[crossing].ball;
+        let [left, top, right, bottom] = mound.zone;
+        self.crosses = ball;
+        self.in_zone = (left..=right).contains(&ball.0) && (top..=bottom).contains(&ball.1);
+    }
+
     /// What a swing begun on `step` of this pitch comes to: the step on
     /// which the bat meets the ball, how well, and with what power. `None`
     /// is a miss. The bat meets the ball on the first frame the ball is in
@@ -311,6 +341,58 @@ mod tests {
         // On easy the ball is thrown straight.
         let easy = Choice::pick(rules.pitch.at(Difficulty::Easy), &rules.throw, &mut rng);
         assert_eq!((easy.swing, easy.dip), (0.0, 0.0));
+    }
+
+    #[test]
+    fn a_knuckleball_sways_and_crosses_somewhere_near_where_it_was_going() {
+        let rules = Rules::default();
+        let straight = Pitch::throw(&straight((300.0, 250.0), 60.0), &mound(), &rules.throw);
+        let mut far_off = 0.0f32;
+        for start in [0.0, 0.2, 0.45, 0.7, 0.9] {
+            let mut pitch = straight.clone();
+            pitch.knuckle(16.0, 2.5, start, &mound());
+            // It leaves the hand where it would have, and no frame of it is
+            // further out than the sway.
+            assert_eq!(pitch.samples[0].ball, straight.samples[0].ball);
+            let aside: Vec<f32> = pitch
+                .samples
+                .iter()
+                .zip(&straight.samples)
+                .map(|(swayed, plain)| swayed.ball.0 - plain.ball.0)
+                .collect();
+            assert!(
+                aside.iter().all(|aside| aside.abs() <= 16.0 * 1.6),
+                "{aside:?}"
+            );
+            // It goes to both sides on the way.
+            assert!(aside.iter().any(|&aside| aside > 3.0), "{start}: {aside:?}");
+            assert!(
+                aside.iter().any(|&aside| aside < -3.0),
+                "{start}: {aside:?}"
+            );
+            // Only side to side: its height is as it was.
+            assert_eq!(pitch.crosses.1, straight.crosses.1);
+            let off = pitch.crosses.0 - straight.crosses.0;
+            assert!(off.abs() <= 16.0, "{off}");
+            far_off = far_off.max(off.abs());
+            // The shadow goes with the ball.
+            let shadow = pitch.samples[20].shadow.0 - straight.samples[20].shadow.0;
+            assert_eq!(shadow, aside[20]);
+        }
+        assert!(far_off > 8.0, "{far_off}");
+    }
+
+    #[test]
+    fn a_knuckleball_that_sways_out_of_the_zone_is_a_ball() {
+        let rules = Rules::default();
+        // Aimed just inside the zone's right edge.
+        let mut pitch = Pitch::throw(&straight((338.0, 250.0), 60.0), &mound(), &rules.throw);
+        assert!(pitch.in_zone);
+        // A quarter of a turn on at the batter, which is as far right as
+        // it goes.
+        pitch.knuckle(16.0, 2.0, 0.25, &mound());
+        assert!(pitch.crosses.0 > 341.1, "{:?}", pitch.crosses);
+        assert!(!pitch.in_zone);
     }
 
     #[test]
