@@ -186,6 +186,9 @@ pub(crate) struct AtBat {
     /// The ball went over the wall while it was still being watched leaving
     /// the bat, which the view of the field has yet to be told.
     pub over_wall: bool,
+    /// The word over a fielder who has just let the ball go, with the
+    /// butterfingers mod on.
+    pub told: Option<fielding::Told>,
 }
 
 impl AtBat {
@@ -219,6 +222,9 @@ pub struct Match {
     put_away: Vec<(Path, u32)>,
     /// The arcade game's own state, when that is what is being played.
     pub(crate) arcade: Option<arcade::Arcade>,
+    /// How many times a fielder has let the ball go in this game, with the
+    /// butterfingers mod on.
+    pub(crate) slips: u32,
     /// The longest zinger of this game, in feet, and the longest there has
     /// ever been.
     pub(crate) longest_zinger: u32,
@@ -287,6 +293,7 @@ impl Match {
             cues: Vec::new(),
             put_away: Vec::new(),
             arcade: None,
+            slips: 0,
             longest_zinger: 0,
             zinger_record: 0,
             was_down: false,
@@ -707,6 +714,7 @@ impl Match {
             zinger: None,
             zinger_show: None,
             over_wall: false,
+            told: None,
         });
         None
     }
@@ -844,6 +852,7 @@ impl Match {
                 });
         Match::still_batter(stage, &at_bat.parts.hitter, library);
         Match::settle_fielders(&at_bat.parts, stage, library);
+        fielding::Told::fade(&mut at_bat.told, stage);
         if at_bat.contact.is_none() {
             Match::aim(&mut at_bat, stage);
             Match::point_hit(&mut at_bat, &rules.hit, stage, library);
@@ -1275,8 +1284,13 @@ impl Match {
                 self.phase, arcade.points, arcade.left
             );
         }
+        // How often the fielders have let the ball go, once they have.
+        let let_go = match self.slips {
+            0 => String::new(),
+            times => format!(", let go {times}"),
+        };
         format!(
-            "{:?}, score {} of {}, outs {}, count {}-{}, bases {bases}, pitched {}{pitch}",
+            "{:?}, score {} of {}, outs {}, count {}-{}, bases {bases}, pitched {}{pitch}{let_go}",
             self.phase, self.score, self.target, self.outs, self.balls, self.strikes, self.pitched
         )
     }

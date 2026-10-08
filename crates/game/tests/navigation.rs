@@ -12,6 +12,12 @@ const MODS: &str = "click 330 360";
 const FIRST_MOD: &str = "click 300 140";
 const SECOND_MOD: &str = "click 300 175";
 const THIRD_MOD: &str = "click 300 215";
+const FOURTH_MOD: &str = "click 300 255";
+/// The first, third and last of the boxes that set how often the fourth
+/// mod's fielders let the ball go.
+const SELDOM: &str = "click 329 276";
+const MIDDLING: &str = "click 353 276";
+const ALWAYS: &str = "click 379 276";
 const NEXT: &str = "click 490 362";
 const BACK: &str = "click 290 362";
 const PLAY_BALL: &str = "click 480 362";
@@ -203,13 +209,21 @@ fn the_menu_lists_the_mods_each_with_a_box_to_tick() {
             .collect::<Vec<bool>>()
     };
     let written = said(&script);
-    for wanted in ["MODS", "TIMING INDICATOR", "LONE PITCHER", "ZINGER HIT"] {
+    for wanted in [
+        "MODS",
+        "TIMING INDICATOR",
+        "LONE PITCHER",
+        "ZINGER HIT",
+        "BUTTERFINGERS",
+        "HOW OFTEN",
+        "60%",
+    ] {
         assert!(written.iter().any(|text| text == wanted), "{written:?}");
     }
     // The page is the high-score page put to another use: none of the
     // table is written on it.
     assert!(bb_game::art::all_named(&script.runner.stage, &[], "scoreLine").is_empty());
-    assert_eq!(ticked(&script), [false, false, false]);
+    assert_eq!(ticked(&script), [false, false, false, false]);
 
     // A click anywhere on a mod's line switches it and no other, and
     // another switches it back.
@@ -218,22 +232,22 @@ fn the_menu_lists_the_mods_each_with_a_box_to_tick() {
         state_after(&mut script, &tick),
         "Menu, Mods, Medium, with timing_indicator"
     );
-    assert_eq!(ticked(&script), [true, false, false]);
+    assert_eq!(ticked(&script), [true, false, false, false]);
     assert_eq!(state_after(&mut script, &tick), "Menu, Mods, Medium");
-    assert_eq!(ticked(&script), [false, false, false]);
+    assert_eq!(ticked(&script), [false, false, false, false]);
     let second = format!("{SECOND_MOD}; wait 2; state");
     assert_eq!(
         state_after(&mut script, &second),
         "Menu, Mods, Medium, with lone_pitcher"
     );
-    assert_eq!(ticked(&script), [false, true, false]);
+    assert_eq!(ticked(&script), [false, true, false, false]);
     assert_eq!(state_after(&mut script, &second), "Menu, Mods, Medium");
     let third = format!("{THIRD_MOD}; wait 2; state");
     assert_eq!(
         state_after(&mut script, &third),
         "Menu, Mods, Medium, with zinger_hit"
     );
-    assert_eq!(ticked(&script), [false, false, true]);
+    assert_eq!(ticked(&script), [false, false, true, false]);
     assert_eq!(state_after(&mut script, &third), "Menu, Mods, Medium");
 
     // What was chosen lasts through the rest of the menu, and the page
@@ -248,7 +262,62 @@ fn the_menu_lists_the_mods_each_with_a_box_to_tick() {
         state_after(&mut script, &steps),
         "Menu, Mods, Medium, with timing_indicator"
     );
-    assert_eq!(ticked(&script), [true, false, false]);
+    assert_eq!(ticked(&script), [true, false, false, false]);
+}
+
+#[test]
+fn a_mod_with_a_setting_has_its_level_set_on_the_mods_page() {
+    let Some(mut script) = game("menu") else {
+        return;
+    };
+    let steps = format!("wait 60; {MODS}; wait 90; {FOURTH_MOD}; wait 2; state");
+    // It starts at the middle of its five levels.
+    assert_eq!(
+        state_after(&mut script, &steps),
+        "Menu, Mods, Medium, with butterfingers=3"
+    );
+    // How many of the setting's boxes are filled, and what the page says
+    // that level comes to.
+    let shown = |script: &bb_game::script::Script| {
+        let stage = &script.runner.stage;
+        let filled = bb_game::art::all_named(stage, &[], "modPipFill")
+            .iter()
+            .filter(|fill| stage.child(fill).unwrap().visible)
+            .count();
+        let says = bb_game::art::all_named(stage, &[], "modsWords")
+            .iter()
+            .filter_map(|words| stage.child(words).unwrap().said.clone())
+            .find(|said| said.ends_with('%'));
+        (filled, says.unwrap_or_default())
+    };
+    assert_eq!(shown(&script), (3, "60%".to_owned()));
+
+    // A click on a box sets the level to it, and does not switch the mod.
+    for (click, level, says) in [
+        (ALWAYS, 5, "100%"),
+        (SELDOM, 1, "20%"),
+        (MIDDLING, 3, "60%"),
+    ] {
+        let steps = format!("{click}; wait 2; state");
+        assert_eq!(
+            state_after(&mut script, &steps),
+            format!("Menu, Mods, Medium, with butterfingers={level}")
+        );
+        assert_eq!(shown(&script), (level, says.to_owned()));
+    }
+
+    // The level is kept while the mod is off, and is there when it is
+    // switched on again.
+    let steps = format!("{ALWAYS}; wait 2; {FOURTH_MOD}; wait 2; state");
+    assert_eq!(state_after(&mut script, &steps), "Menu, Mods, Medium");
+    assert_eq!(shown(&script), (5, "100%".to_owned()));
+    let steps = format!("{SELDOM}; wait 2; state");
+    assert_eq!(state_after(&mut script, &steps), "Menu, Mods, Medium");
+    let steps = format!("{FOURTH_MOD}; wait 2; {BACK}; wait 90; state");
+    assert_eq!(
+        state_after(&mut script, &steps),
+        "Menu, Main, Medium, with butterfingers=1"
+    );
 }
 
 #[test]

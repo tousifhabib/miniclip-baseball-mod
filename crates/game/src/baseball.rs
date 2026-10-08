@@ -13,7 +13,7 @@ use bb_format::SymbolId;
 use crate::art::{self, ButtonLabels};
 use crate::look::{self, Look, Rgb, Swatch};
 use crate::menu::{Game, Leave, Menu, MenuPage};
-use crate::mods::{Mod, Mods, ModsPage};
+use crate::mods::{Asked, Mod, Mods, ModsPage};
 use crate::play::overlay::Words;
 use crate::play::{Match, Outcome};
 use crate::rng::Rng;
@@ -164,12 +164,21 @@ impl Baseball {
         self.game.mods.set(which, on);
     }
 
+    /// Sets a mod's setting to a level for this run, without writing that
+    /// down.
+    pub fn set_mod_level(&mut self, which: Mod, level: u8) {
+        self.game.mods.set_level(which, level);
+    }
+
     /// Acts on a click on one of the boxes on the mods' page.
     fn choose_mod(&mut self, path: &[u16]) {
-        let Some(which) = self.mods_page.clicked(path) else {
-            return;
-        };
-        self.game.mods.toggle(which);
+        match self.mods_page.clicked(path) {
+            Some(Asked::Switch(which)) => {
+                self.game.mods.toggle(which);
+            }
+            Some(Asked::Level(which, level)) => self.game.mods.set_level(which, level),
+            None => return,
+        }
         if let Some(file) = &self.mods_file
             && let Err(error) = self.game.mods.save(file)
         {
@@ -623,7 +632,7 @@ impl Logic for Baseball {
         self.show_scores(stage, library);
         let on_mods = self.screen == Screen::Menu && self.menu.page() == MenuPage::Mods;
         self.mods_page
-            .show(on_mods, &self.game.mods, stage, library);
+            .show(on_mods, &self.game.mods, &self.game.rules, stage, library);
         // A pointer hidden for aiming comes back for the quit prompt, and
         // whenever no game is being played.
         let prompt_up = stage
@@ -663,8 +672,17 @@ impl Logic for Baseball {
     fn describe(&self) -> String {
         match self.screen {
             Screen::Menu => {
-                // The mods that are on are named, when any are.
-                let mods: Vec<&str> = self.game.mods.all_on().map(Mod::key).collect();
+                // The mods that are on are named, when any are, each with
+                // the level its setting is at if it has one.
+                let mods: Vec<String> = self
+                    .game
+                    .mods
+                    .all_on()
+                    .map(|which| match which.setting() {
+                        Some(_) => format!("{}={}", which.key(), self.game.mods.level(which)),
+                        None => which.key().to_owned(),
+                    })
+                    .collect();
                 let mods = if mods.is_empty() {
                     String::new()
                 } else {

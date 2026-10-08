@@ -32,9 +32,39 @@ pub struct Rules {
     pub field: FieldRules,
     /// The zinger hit mod.
     pub zinger: ZingerRules,
+    /// The butterfingers mod.
+    pub butterfingers: ButterfingersRules,
     pub arcade: ArcadeRules,
     pub team: TeamRules,
     pub sound: SoundRules,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ButterfingersRules {
+    /// How often a fielder lets the ball go, out of every hundred goes at
+    /// it, for each level the mod can be set to, the lowest first.
+    pub chance: Vec<u32>,
+    pub roll: f32,
+    pub pop: f32,
+    pub fumble_time: u32,
+    pub gather_time: u32,
+    pub told_time: u32,
+}
+
+impl ButterfingersRules {
+    /// How many levels the mod can be set to.
+    pub fn levels(&self) -> u8 {
+        self.chance.len().min(usize::from(u8::MAX)) as u8
+    }
+
+    /// How often a fielder lets the ball go at this level, counting from
+    /// 1. A level there is none of is taken as the nearest there is.
+    pub fn chance_at(&self, level: u8) -> u32 {
+        let last = self.chance.len().saturating_sub(1);
+        let index = usize::from(level.max(1) - 1).min(last);
+        self.chance.get(index).copied().unwrap_or(0)
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
@@ -337,6 +367,22 @@ mod tests {
         let rules = Rules::layered(&[]).unwrap();
         assert_eq!(rules.game.outs, 3);
         assert_eq!(rules.game.runs_down.at(Difficulty::Hard), 3);
+    }
+
+    #[test]
+    fn butterfingers_has_a_chance_for_each_of_its_levels() {
+        let rules = Rules::default().butterfingers;
+        assert_eq!(rules.levels(), 5);
+        assert_eq!(rules.chance_at(1), 20);
+        assert_eq!(rules.chance_at(5), 100);
+        // A level there is none of is the nearest there is.
+        assert_eq!(rules.chance_at(0), 20);
+        assert_eq!(rules.chance_at(9), 100);
+        let none = ButterfingersRules {
+            chance: Vec::new(),
+            ..rules
+        };
+        assert_eq!((none.levels(), none.chance_at(3)), (0, 0));
     }
 
     #[test]

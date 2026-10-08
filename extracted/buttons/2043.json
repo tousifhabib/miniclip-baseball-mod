@@ -1,0 +1,56 @@
+{
+  "id": 2043,
+  "track_as_menu": false,
+  "records": [
+    {
+      "states": [
+        "hit"
+      ],
+      "symbol": 2031,
+      "depth": 1,
+      "matrix": [1.4, 0.0, 0.0, 1.4, -2.0, -2.0]
+    },
+    {
+      "states": [
+        "up",
+        "over",
+        "down"
+      ],
+      "symbol": 2039,
+      "depth": 2,
+      "matrix": [0.7, 0.0, 0.0, 0.7, 0.0, 0.0]
+    },
+    {
+      "states": [
+        "over",
+        "down"
+      ],
+      "symbol": 2031,
+      "depth": 3,
+      "matrix": [0.58, 0.0, 0.0, 0.58, 2.0, 2.0],
+      "color": {
+        "mult": [0.0, 0.0, 0.0, 0.45],
+        "add": [33, 164, 177, 0]
+      }
+    }
+  ],
+  "actions": [
+    {
+      "conditions": [
+        "release"
+      ]
+    }
+  ],
+  "sounds": {
+    "up_to_over": {
+      "sound": 80,
+      "event": "event",
+      "loops": 1
+    },
+    "over_to_down": {
+      "sound": 81,
+      "event": "event",
+      "loops": 1
+    }
+  }
+}

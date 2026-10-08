@@ -74,6 +74,9 @@ pub const MODS_PANEL_DEPTH: u16 = 18;
 /// The box beside each mod on that page, and the tick that shows in it.
 pub const MOD_BOX: SymbolId = 2041;
 pub const MOD_TICK: SymbolId = 2040;
+/// A small box for one level of a mod's setting. The rules fill it with a
+/// [`BLOCK`] when the setting is at that level or above.
+pub const MOD_PIP: SymbolId = 2043;
 /// An empty clip, for the rules to put things in and move as one.
 pub const HOLDER: SymbolId = 2042;
 
