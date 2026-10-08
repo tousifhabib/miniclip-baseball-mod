@@ -16,6 +16,7 @@ pub(crate) mod overlay;
 pub mod paper;
 mod pinball;
 pub mod pitch;
+pub mod shift;
 pub mod timing;
 pub mod zinger;
 
@@ -30,9 +31,9 @@ use crate::look::{self, Look, Rgb};
 use crate::menu::Game;
 use crate::mods::Mod;
 use crate::rng::Rng;
-use crate::rules::{HitRules, PitchRules};
+use crate::rules::{FieldRules, HitRules, PitchRules};
 use book::{End, ORDER, Thrown};
-use field::{Ball, Contact, Happened};
+use field::{Ball, Contact, Ground, Happened, reach};
 use overlay::Notice;
 use pitch::{Choice, Kind, Mound, Pitch, Point, Quality};
 use zinger::Zinger;
@@ -227,6 +228,20 @@ pub(crate) struct AtBat {
     pub met: Option<Quality>,
 }
 
+impl Parts {
+    /// The fixed points of the field that a hit is placed by.
+    pub(crate) fn ground(&self, rules: &FieldRules) -> Ground {
+        Ground {
+            home: self.home,
+            mark_y: self.field_mark.1,
+            foul: self.foul,
+            wall: rules.wall,
+            infield: reach(self.home, self.bases[1]),
+            ..Ground::default()
+        }
+    }
+}
+
 impl AtBat {
     /// The view is changing to the field, where the timing bar has no
     /// place.
@@ -292,6 +307,12 @@ pub struct Match {
     /// are coming, and the score when that was last worked out.
     pub(crate) heat: u32,
     heat_score: u32,
+    /// How far across the field each fair ball of this game came down, from
+    /// 0 on the left foul line to 1 on the right, the latest last. The shift
+    /// mod has the fielders stand by it, and this is how far it has moved
+    /// their middle for the pitch in hand: to the left if less than nought.
+    pub(crate) spray: Vec<f32>,
+    pub(crate) shift: f32,
     /// The longest zinger of this game, in feet, and the longest there has
     /// ever been.
     pub(crate) longest_zinger: u32,
@@ -302,20 +323,14 @@ pub struct Match {
 
 /// The pitcher's frame label for his wind-up.
 const PITCH: &str = "pitch";
-/// Where a full match says which half of which innings it is: the middle of
-/// the top of its words, under the little field in the corner of the
-/// batting view. What the mods write there goes this much further down to
-/// make room.
-const INNINGS_AT: Point = (60.0, 88.0);
-const INNINGS_ROOM: f32 = 16.0;
-/// Where the heat check mod says how much heat is on: the middle of the top
-/// of its words, under the little field in the corner of the batting view.
-const HEAT_AT: Point = (60.0, 88.0);
-/// Where the hot bat mod says how hot the bat is, under that.
-const HOT_BAT_AT: Point = (60.0, 104.0);
-/// Where the golden ball mod says that the pitch is one, under those, and
-/// what turns the white of the ball to gold.
-const GOLDEN_AT: Point = (60.0, 120.0);
+/// Where a full match and the mods write in the corner of the batting view,
+/// under the little field: the middle of the top of the first line, and how
+/// far under each line the next one is. A full match says which half of
+/// which innings it is, and each mod with something to say says it under
+/// that.
+const CORNER_AT: Point = (60.0, 88.0);
+const CORNER_ROW: f32 = 16.0;
+/// What turns the white of the ball to gold, for the golden ball mod.
 const GOLD: ColorTransform = ColorTransform {
     mult: [1.0, 0.8, 0.22, 1.0],
     add: [0.0, 0.0, 0.0, 0.0],
@@ -348,6 +363,21 @@ pub(crate) fn put(stage: &mut Stage, path: &[u16], at: Point, size: f32) {
 pub(crate) fn show(stage: &mut Stage, path: &[u16], visible: bool) {
     if let Some(child) = stage.child_mut(path) {
         child.set_visible(visible);
+    }
+}
+
+/// The lines written in the corner of the batting view, each under the last.
+#[derive(Default)]
+struct Corner {
+    lines: u32,
+}
+
+impl Corner {
+    /// Where the next line goes: the middle of the top of its words.
+    fn line(&mut self) -> Point {
+        let at = (CORNER_AT.0, CORNER_AT.1 + self.lines as f32 * CORNER_ROW);
+        self.lines += 1;
+        at
     }
 }
 
@@ -410,6 +440,8 @@ impl Match {
             hurry: 0.0,
             heat: 0,
             heat_score: 0,
+            spray: Vec::new(),
+            shift: 0.0,
             longest_zinger: 0,
             zinger_record: 0,
             was_down: false,
@@ -813,15 +845,14 @@ impl Match {
         let mut notices = Vec::new();
         // A full match says which half of which innings this is, and what
         // the mods say goes under that.
-        let mut room = 0.0;
+        let mut corner = Corner::default();
         if let Some(full) = &self.full {
-            room = INNINGS_ROOM;
             Notice::put(
                 &mut notices,
                 &parts,
                 "innings",
                 &full.half_words(),
-                INNINGS_AT,
+                corner.line(),
                 0.8,
                 [0xfd, 0xf6, 0xc0],
                 None,
@@ -841,18 +872,6 @@ impl Match {
                     ball.set_color(GOLD);
                 }
             }
-            Notice::put(
-                &mut notices,
-                &parts,
-                "goldenBall",
-                "GOLDEN BALL",
-                (GOLDEN_AT.0, GOLDEN_AT.1 + room),
-                0.8,
-                [0xff, 0xd2, 0x40],
-                None,
-                stage,
-                library,
-            );
         }
         if game.mods.is_on(Mod::HeatCheck) {
             // Every run since the last pitch makes this one faster.
@@ -864,7 +883,7 @@ impl Match {
                 let hot = self.heat as f32 / rules.heat.most.max(1) as f32;
                 let colour = [0xff, (0xe0 as f32 - 0xa0 as f32 * hot) as u8, 0x30];
                 let says = format!("HEAT {}", self.heat);
-                let top = (HEAT_AT.0, HEAT_AT.1 + room);
+                let top = corner.line();
                 Notice::put(
                     &mut notices,
                     &parts,
@@ -891,13 +910,48 @@ impl Match {
                 &parts,
                 "hotBat",
                 &says,
-                (HOT_BAT_AT.0, HOT_BAT_AT.1 + room),
+                corner.line(),
                 0.8,
                 colour,
                 None,
                 stage,
                 library,
             );
+        }
+        if golden {
+            Notice::put(
+                &mut notices,
+                &parts,
+                "goldenBall",
+                "GOLDEN BALL",
+                corner.line(),
+                0.8,
+                [0xff, 0xd2, 0x40],
+                None,
+                stage,
+                library,
+            );
+        }
+        // With the shift on, the fielders stand where the last few balls
+        // went. The arcade game has no fielders to move.
+        if game.mods.is_on(Mod::TheShift) && self.arcade.is_none() {
+            let shift = shift::Shift::of(&self.spray, &rules.shift);
+            self.shift = shift.by();
+            shift.place(&parts, &parts.ground(&rules.field), stage);
+            if let Some(says) = shift.words(&rules.shift) {
+                Notice::put(
+                    &mut notices,
+                    &parts,
+                    "shift",
+                    says,
+                    corner.line(),
+                    0.8,
+                    [0xc8, 0xf0, 0xff],
+                    None,
+                    stage,
+                    library,
+                );
+            }
         }
         show(stage, &parts.ball, false);
         show(stage, &parts.shadow, false);
@@ -1708,6 +1762,10 @@ impl Match {
         }
         if self.streak > 0 {
             let_go += &format!(", hits in a row {}", self.streak);
+        }
+        if self.shift != 0.0 {
+            let way = if self.shift < 0.0 { "left" } else { "right" };
+            let_go += &format!(", shifted {way} {:.2}", self.shift.abs());
         }
         // A full match has no score to reach: it says which innings it
         // is, and what both sides have made.

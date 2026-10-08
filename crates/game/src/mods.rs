@@ -67,6 +67,9 @@ pub enum Mod {
     /// The stadium is darkened, with the players and the ball left lit,
     /// and a home run flashes the lights.
     NightGame,
+    /// The fielders stand where the last few balls were hit, so that
+    /// hitting the same way every time stops paying.
+    TheShift,
 }
 
 /// What the menu and the files know a mod by.
@@ -84,7 +87,7 @@ struct Info {
 
 impl Mod {
     /// Every mod, in the order the menu lists them.
-    pub const ALL: [Mod; 15] = [
+    pub const ALL: [Mod; 16] = [
         Mod::TimingIndicator,
         Mod::LonePitcher,
         Mod::ZingerHit,
@@ -100,6 +103,7 @@ impl Mod {
         Mod::MoonBall,
         Mod::TurboRunners,
         Mod::NightGame,
+        Mod::TheShift,
     ];
 
     fn info(self) -> Info {
@@ -192,6 +196,12 @@ impl Mod {
                 key: "night_game",
                 name: "NIGHT GAME",
                 about: "THE STADIUM IS DARK, AND HOME RUNS FLASH THE LIGHTS",
+                setting: None,
+            },
+            Mod::TheShift => Info {
+                key: "the_shift",
+                name: "THE SHIFT",
+                about: "FIELDERS STAND WHERE YOU HIT IT: GO THE OTHER WAY",
                 setting: None,
             },
         }

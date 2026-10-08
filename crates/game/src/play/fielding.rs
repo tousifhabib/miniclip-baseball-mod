@@ -684,6 +684,11 @@ impl Match {
                     self.arrive(runner, &parts, stage, library);
                 }
             }
+            if !state.walk && !state.foul {
+                // Where it went is remembered, for the shift to go by.
+                let ground = parts.ground(rules);
+                self.spray.push(ground.across(state.land));
+            }
             self.book_play(at_bat, &state);
             self.ready(&parts, stage, library);
         }

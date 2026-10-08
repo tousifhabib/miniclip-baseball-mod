@@ -156,6 +156,13 @@ pub fn ground(library: &Library, rules: &Rules) -> Ground {
     ground
 }
 
+/// The little field in the corner of the batting view, and the mark on it
+/// of each fielder who roams: which fielder, counting from 0, and the depth
+/// his mark is at. They are the left fielder, the shortstop, the centre
+/// fielder and the right fielder.
+pub const LITTLE_FIELD: SymbolId = 1092;
+pub const LITTLE_FIELDERS: [(usize, u16); 4] = [(0, 6), (1, 8), (3, 10), (4, 12)];
+
 /// The pictures of the stadium: behind the batter, and from over the field
 /// in a match and in the arcade game. The match's has the stands nearest
 /// the eye as a picture of their own, drawn over the players, and the
