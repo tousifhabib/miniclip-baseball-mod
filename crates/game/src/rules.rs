@@ -42,9 +42,18 @@ pub struct Rules {
     pub mystery: MysteryRules,
     /// The called shot mod.
     pub called_shot: CalledShotRules,
+    /// The hot bat mod.
+    pub hot_bat: HotBatRules,
     pub arcade: ArcadeRules,
     pub team: TeamRules,
     pub sound: SoundRules,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct HotBatRules {
+    /// The most frames hits in a row can add to each end of the window.
+    pub most: u32,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]

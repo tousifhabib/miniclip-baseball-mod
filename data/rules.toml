@@ -309,6 +309,13 @@ runs = [3, 2, 1, 1]
 told_time = 150
 
 # ---------------------------------------------------------------------------
+# The hot bat mod: each hit in a row widens the timing window.
+[hot_bat]
+# Each hit in a row adds a frame to each end of the window, as good as the
+# frame that was the end. This is the most frames it can add to each.
+most = 3
+
+# ---------------------------------------------------------------------------
 # The arcade game: hit a target on the outfield.
 [arcade]
 pitches = 10
