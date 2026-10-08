@@ -130,6 +130,7 @@ switched on.
 | Moon ball | `moon_ball` | Every hit floats to where it was going, several times slower, as you set |
 | Turbo runners | `turbo_runners` | Runners are several times as fast, as you set, and can be sent on with the ball in the air |
 | Night game | `night_game` | The stadium is dark with the players and ball lit, and home runs flash the lights |
+| The shift | `the_shift` | The fielders stand where you have been hitting the ball, until you go the other way |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -289,6 +290,18 @@ run flashes the lights: the stadium goes from dark to brighter than day and
 back several times in under a second. It changes nothing about how the game
 is played, and the arcade game has it too. The numbers are under `[night]`
 in `data/rules.toml`.
+
+With the shift, the fielders stand where you have been hitting the ball.
+Every fair ball is remembered by how far across the field it came down,
+caught or not. Once there have been three, the outfielders and the shortstop
+move over before each pitch: the middle of the field is taken to be where
+the last eight went on the whole, and they stand to either side of that as
+they stood of the real middle, squeezed up on the side it has moved to and
+spread out on the other. The pitcher and the men at the bases stay where
+they are. The little field in the corner of the batting view shows where
+everyone is standing, with SHIFT LEFT or SHIFT RIGHT under it, and hitting
+the other way brings them back. The arcade game has no fielders. The numbers
+are under `[shift]` in `data/rules.toml`.
 
 ## Changing the game
 

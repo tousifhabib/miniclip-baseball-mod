@@ -58,9 +58,27 @@ pub struct Rules {
     pub turbo: TurboRules,
     /// The night game mod.
     pub night: NightRules,
+    /// The shift mod.
+    pub shift: ShiftRules,
     pub arcade: ArcadeRules,
     pub team: TeamRules,
     pub sound: SoundRules,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ShiftRules {
+    /// How many of the last fair balls the fielders go by, and how many
+    /// there have to have been before they move.
+    pub memory: u32,
+    pub least: u32,
+    /// The share of the way from the middle of the field to where those
+    /// balls went that the fielders' middle moves, and the most it moves,
+    /// the width of the field being 1.
+    pub follow: f32,
+    pub most: f32,
+    /// How far it has to have moved for the player to be told.
+    pub told: f32,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]

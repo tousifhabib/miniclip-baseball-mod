@@ -420,6 +420,24 @@ flash_every = 6
 glare = 0.22
 
 # ---------------------------------------------------------------------------
+# The shift mod: the fielders stand where you have been hitting the ball.
+[shift]
+# They go by where the last `memory` fair balls came down, and do not move
+# until there have been `least` of them.
+memory = 8
+least = 3
+# The middle of the field is taken to be where those balls went on the whole,
+# from one foul line to the other. The fielders' own middle moves this share
+# of the way there from the real one, and never more than `most` of the
+# field's width. The outfielders and the shortstop stand as far to either
+# side of it as the lines allow.
+follow = 1.0
+most = 0.3
+# The corner of the batting view says which way they have gone once their
+# middle has moved this much of the field's width.
+told = 0.05
+
+# ---------------------------------------------------------------------------
 # The arcade game: hit a target on the outfield.
 [arcade]
 pitches = 10
