@@ -270,6 +270,15 @@ sway = 16.0
 turns = 2.5
 
 # ---------------------------------------------------------------------------
+# The heat check mod: runs make the pitches faster, and strikes slow them.
+[heat]
+# Each run scored takes this share off the time the next pitch takes, and
+# each strike puts it back.
+step = 0.06
+# The most runs' worth of heat there can be.
+most = 8
+
+# ---------------------------------------------------------------------------
 # The arcade game: hit a target on the outfield.
 [arcade]
 pitches = 10

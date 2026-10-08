@@ -36,9 +36,29 @@ pub struct Rules {
     pub butterfingers: ButterfingersRules,
     /// The knuckleball mod.
     pub knuckleball: KnuckleballRules,
+    /// The heat check mod.
+    pub heat: HeatRules,
     pub arcade: ArcadeRules,
     pub team: TeamRules,
     pub sound: SoundRules,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct HeatRules {
+    /// The share each run's worth of heat takes off the time a pitch
+    /// takes.
+    pub step: f32,
+    /// The most heat there can be.
+    pub most: u32,
+}
+
+impl HeatRules {
+    /// How long a pitch takes with this much heat on, the time it takes
+    /// with none being 1.
+    pub fn time(&self, heat: u32) -> f32 {
+        (1.0 - self.step * heat.min(self.most) as f32).max(0.1)
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
@@ -182,6 +202,18 @@ pub struct CountRules {
 pub struct Span {
     pub low: u32,
     pub high: u32,
+}
+
+impl Span {
+    /// The span with both its ends this many times what they were, to the
+    /// nearest whole number, and never less than 1.
+    pub fn times(self, by: f32) -> Span {
+        let times = |number: u32| ((number as f32 * by).round() as u32).max(1);
+        Span {
+            low: times(self.low),
+            high: times(self.high),
+        }
+    }
 }
 
 /// A number worked out as `base + over / n`, with n picked from 1 to
@@ -394,6 +426,18 @@ mod tests {
             ..rules
         };
         assert_eq!((none.levels(), none.chance_at(3)), (0, 0));
+    }
+
+    #[test]
+    fn heat_takes_time_off_a_pitch_up_to_the_most_there_can_be() {
+        let rules = Rules::default().heat;
+        assert_eq!(rules.time(0), 1.0);
+        assert!((rules.time(1) - 0.94).abs() < 1e-6);
+        assert!((rules.time(8) - 0.52).abs() < 1e-6);
+        assert_eq!(rules.time(8), rules.time(30));
+        let span = Span { low: 35, high: 49 };
+        assert_eq!(span.times(0.5), Span { low: 18, high: 25 });
+        assert_eq!(span.times(0.0), Span { low: 1, high: 1 });
     }
 
     #[test]

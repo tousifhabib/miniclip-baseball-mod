@@ -26,6 +26,7 @@ use crate::mods::Mod;
 use crate::rng::Rng;
 use crate::rules::{HitRules, PitchRules};
 use field::{Ball, Contact, Happened};
+use overlay::Notice;
 use pitch::{Choice, Mound, Pitch, Point, Quality};
 use zinger::Zinger;
 
@@ -227,6 +228,10 @@ pub struct Match {
     /// How many times a fielder has let the ball go in this game, with the
     /// butterfingers mod on.
     pub(crate) slips: u32,
+    /// With the heat check mod on: how many runs' worth faster the pitches
+    /// are coming, and the score when that was last worked out.
+    pub(crate) heat: u32,
+    heat_score: u32,
     /// The longest zinger of this game, in feet, and the longest there has
     /// ever been.
     pub(crate) longest_zinger: u32,
@@ -237,6 +242,9 @@ pub struct Match {
 
 /// The pitcher's frame label for his wind-up.
 const PITCH: &str = "pitch";
+/// Where the heat check mod says how much heat is on: the middle of the top
+/// of its words, under the little field in the corner of the batting view.
+const HEAT_AT: Point = (60.0, 88.0);
 /// The button on the next-ball panel.
 const NEXT_BALL_BUTTON: SymbolId = 1618;
 
@@ -305,6 +313,8 @@ impl Match {
             put_away: Vec::new(),
             arcade: None,
             slips: 0,
+            heat: 0,
+            heat_score: 0,
             longest_zinger: 0,
             zinger_record: 0,
             was_down: false,
@@ -317,6 +327,14 @@ impl Match {
         let mut arcade = Match::new(game, seed, library);
         arcade.arcade = Some(arcade::Arcade::new(game.rules.arcade.pitches));
         arcade
+    }
+
+    /// A strike has been called: with the heat check mod on, the pitches
+    /// slow down by a run's worth.
+    pub(crate) fn cool(&mut self, game: &Game) {
+        if game.mods.is_on(Mod::HeatCheck) {
+            self.heat = self.heat.saturating_sub(1);
+        }
     }
 
     /// The longest zinger of this game, in feet. Nought if there was none.
@@ -631,7 +649,33 @@ impl Match {
         }
 
         let rules = &game.rules;
-        let table = rules.pitch.at(game.settings.difficulty).clone();
+        let mut table = rules.pitch.at(game.settings.difficulty).clone();
+        let mut notices = Vec::new();
+        if game.mods.is_on(Mod::HeatCheck) {
+            // Every run since the last pitch makes this one faster.
+            let runs = self.score.saturating_sub(self.heat_score);
+            self.heat = (self.heat + runs).min(rules.heat.most);
+            self.heat_score = self.score;
+            table.speed = table.speed.times(rules.heat.time(self.heat));
+            if self.heat > 0 {
+                let hot = self.heat as f32 / rules.heat.most.max(1) as f32;
+                let colour = [0xff, (0xe0 as f32 - 0xa0 as f32 * hot) as u8, 0x30];
+                let says = format!("HEAT {}", self.heat);
+                let top = HEAT_AT;
+                Notice::put(
+                    &mut notices,
+                    &parts,
+                    "heat",
+                    &says,
+                    top,
+                    0.8,
+                    colour,
+                    None,
+                    stage,
+                    library,
+                );
+            }
+        }
         show(stage, &parts.ball, false);
         show(stage, &parts.shadow, false);
         if let Some(zone) = stage.find(&parts.main, &["strikeZone"]) {
@@ -734,7 +778,7 @@ impl Match {
             zinger: None,
             zinger_show: None,
             over_wall: false,
-            notices: Vec::new(),
+            notices,
         });
         None
     }
@@ -1146,6 +1190,7 @@ impl Match {
             return;
         }
         self.strikes += 1;
+        self.cool(game);
         if let Some(anim) = &parts.strike_anim {
             let label = format!("strike{}", self.strikes.min(3));
             stage.goto_label(anim, &label, false, library);
@@ -1310,10 +1355,13 @@ impl Match {
             );
         }
         // How often the fielders have let the ball go, once they have.
-        let let_go = match self.slips {
+        let mut let_go = match self.slips {
             0 => String::new(),
             times => format!(", let go {times}"),
         };
+        if self.heat > 0 {
+            let_go += &format!(", heat {}", self.heat);
+        }
         format!(
             "{:?}, score {} of {}, outs {}, count {}-{}, bases {bases}, pitched {}{pitch}{let_go}",
             self.phase, self.score, self.target, self.outs, self.balls, self.strikes, self.pitched

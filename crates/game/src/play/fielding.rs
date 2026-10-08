@@ -289,6 +289,7 @@ impl Match {
                 fielding.live = false;
                 if self.strikes + 1 < rules.count.strikes {
                     self.strikes += 1;
+                    self.cool(game);
                 }
                 stage.goto_label(&parts.transitions, "foulHit", true, library);
             } else {
