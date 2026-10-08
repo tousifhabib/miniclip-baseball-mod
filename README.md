@@ -136,6 +136,7 @@ switched on.
 | Hit the sign | `hit_the_sign` | Signs on the outfield wall pay runs to a ball that strikes them, the lit one most |
 | Rally | `rally` | Each batter in a row who reaches base makes every run worth one more, until somebody is out |
 | Clutch | `clutch` | With two out and a runner on second or third, every run counts double |
+| Bullet time | `bullet_time` | Hold the space bar to slow the pitch as it comes to the plate, on a meter that hits refill |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -384,6 +385,21 @@ not enough. It goes with the other mods that change what a run is worth, so
 a golden ball in the clutch is worth six. The arcade game has no runs. The
 number is under `[clutch]` in `data/rules.toml`.
 
+With bullet time, holding the space bar slows the pitch. While it is held
+the ball moves on one frame in three, and the stadium goes cool and blue.
+It only works over the last forty frames of the ball's flight, as it comes
+to the plate, which is when the swing has to be timed, and it stops the
+moment you swing: what a swing comes to is settled when it is made. A swing
+made while the ball is held back begins on the step the ball is on.
+
+Each frame the ball is held back takes one from a meter, drawn in the corner
+of the batting view, which starts full with a hundred and twenty: enough for
+one whole pitch. A hit that leaves the batter on base puts half of it back,
+and a home run fills it. A walk puts back nothing. With the mod off the
+space bar pauses the game, as it always did, and with it on F2 still does.
+The arcade game has it too, where any ball that scores puts half the meter
+back. The numbers are under `[bullet_time]` in `data/rules.toml`.
+
 ## Changing the game
 
 ### The numbers
@@ -433,8 +449,8 @@ describes how the art is put together: which clip is which, and what each
 button is.
 
 The art only knows how to play its animations. The rules are told about
-every button the pointer touches and every key pressed, and are called once
-a frame. In return they steer the stage: jump a clip to a labelled frame,
+every button the pointer touches and every key pressed, can ask whether a
+key is being held down, and are called once a frame. In return they steer the stage: jump a clip to a labelled frame,
 move, tint or hide an object, add one of their own, set what a text field
 says, or ask for a sound.
 
@@ -477,7 +493,8 @@ cargo run --release -p bb-game -- --screen menu \
 
 `wait N` plays N frames, `click X Y` clicks at a stage position, `move`,
 `press` and `release` work the pointer by hand, `type TEXT` types, `key NAME`
-presses a key, `state` prints where the game is, `events` prints the buttons
+presses a key, `hold NAME` and `lift NAME` put one down and let it up again,
+`state` prints where the game is, `events` prints the buttons
 touched and sounds asked for, `tree` prints every object on the stage, and
 `shot FILE` saves a picture. The stage is 590 by 400.
 

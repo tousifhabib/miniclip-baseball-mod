@@ -70,9 +70,25 @@ pub struct Rules {
     pub rally: RallyRules,
     /// The clutch mod.
     pub clutch: ClutchRules,
+    /// The bullet time mod.
+    pub bullet_time: BulletTimeRules,
     pub arcade: ArcadeRules,
     pub team: TeamRules,
     pub sound: SoundRules,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct BulletTimeRules {
+    /// While the ball is held back it moves on one frame in this many.
+    pub slow: u32,
+    /// It can be held back for this many of the last frames of its flight.
+    pub near: u32,
+    /// How many frames of holding back the meter has in it when it is
+    /// full.
+    pub full: u32,
+    /// The share of that a hit puts back, a home run filling it.
+    pub hit: f32,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]

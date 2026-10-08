@@ -18,6 +18,8 @@ pub struct Stage {
     /// The game wants the system's pointer out of sight, because it is
     /// drawing something of its own where the pointer is.
     pub hide_pointer: bool,
+    /// The keys the player is holding down.
+    keys_down: Vec<Key>,
     /// Frames played, for blinking the caret.
     ticks: u32,
     /// How loud each sound is to be played, where the game has said.
@@ -49,6 +51,7 @@ impl Stage {
             texts: Texts::new(),
             focus: None,
             hide_pointer: false,
+            keys_down: Vec::new(),
             ticks: 0,
             levels: std::collections::HashMap::new(),
             events,
@@ -296,6 +299,25 @@ impl Stage {
     /// What a text field showing `variable` says now.
     pub fn text(&self, variable: &str) -> Option<&str> {
         self.texts.get(text_key(variable)).map(String::as_str)
+    }
+
+    /// Whether the player is holding this key down.
+    pub fn key_down(&self, key: Key) -> bool {
+        self.keys_down.contains(&key)
+    }
+
+    /// Takes in that a key has gone down, or has come up again.
+    pub fn key_changed(&mut self, key: Key, down: bool) {
+        self.keys_down.retain(|held| *held != key);
+        if down {
+            self.keys_down.push(key);
+        }
+    }
+
+    /// No key is being held down any more, as far as can be told: the
+    /// window has lost the keyboard, say.
+    pub fn keys_let_go(&mut self) {
+        self.keys_down.clear();
     }
 
     /// Takes in a key the player has pressed. Returns whether a text field

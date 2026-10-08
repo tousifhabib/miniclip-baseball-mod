@@ -45,7 +45,8 @@ struct Args {
     ground: Option<String>,
     /// Play with no window, following these steps, separated by semicolons:
     /// `wait N`, `click X Y`, `move X Y`, `press`, `release`, `type TEXT`,
-    /// `key NAME`, `state`, `events`, `tree` and `shot FILE`.
+    /// `key NAME`, `hold NAME`, `lift NAME`, `state`, `events`, `tree` and
+    /// `shot FILE`.
     #[arg(long)]
     run: Option<String>,
     /// Make every game go the same way: the number its chances are worked

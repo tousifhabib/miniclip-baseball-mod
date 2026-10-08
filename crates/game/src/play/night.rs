@@ -15,7 +15,7 @@ use crate::art;
 use crate::rules::NightRules;
 
 /// The stadium as it is by day.
-const DAY: ColorTransform = ColorTransform {
+pub(crate) const DAY: ColorTransform = ColorTransform {
     mult: [1.0, 1.0, 1.0, 1.0],
     add: [0.0, 0.0, 0.0, 0.0],
 };

@@ -85,6 +85,9 @@ pub enum Mod {
     /// With two out and a runner on second or third, every run counts
     /// for two.
     Clutch,
+    /// Holding the space bar slows the pitch as it comes to the plate, for
+    /// as long as a meter lasts that hits fill up again.
+    BulletTime,
 }
 
 /// What the menu and the files know a mod by.
@@ -102,7 +105,7 @@ struct Info {
 
 impl Mod {
     /// Every mod, in the order the menu lists them.
-    pub const ALL: [Mod; 21] = [
+    pub const ALL: [Mod; 22] = [
         Mod::TimingIndicator,
         Mod::LonePitcher,
         Mod::ZingerHit,
@@ -124,6 +127,7 @@ impl Mod {
         Mod::HitTheSign,
         Mod::Rally,
         Mod::Clutch,
+        Mod::BulletTime,
     ];
 
     fn info(self) -> Info {
@@ -252,6 +256,12 @@ impl Mod {
                 key: "clutch",
                 name: "CLUTCH",
                 about: "TWO OUT AND A RUNNER ON SECOND OR THIRD: RUNS COUNT DOUBLE",
+                setting: None,
+            },
+            Mod::BulletTime => Info {
+                key: "bullet_time",
+                name: "BULLET TIME",
+                about: "HOLD SPACE TO SLOW THE PITCH: HITS REFILL THE METER",
                 setting: None,
             },
         }

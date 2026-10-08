@@ -28,6 +28,31 @@ pub enum Key {
     Down,
 }
 
+impl Key {
+    /// The key with this name, as a script writes it: one of the keys
+    /// that have a name here, `space`, or a single letter or figure.
+    pub fn named(name: &str) -> Option<Key> {
+        Some(match name {
+            "backspace" => Key::Backspace,
+            "enter" => Key::Enter,
+            "tab" => Key::Tab,
+            "escape" => Key::Escape,
+            "left" => Key::Left,
+            "right" => Key::Right,
+            "up" => Key::Up,
+            "down" => Key::Down,
+            "space" => Key::Char(' '),
+            other => {
+                let mut letters = other.chars();
+                match (letters.next(), letters.next()) {
+                    (Some(letter), None) => Key::Char(letter),
+                    _ => return None,
+                }
+            }
+        })
+    }
+}
+
 /// One button in the tree.
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct Target {

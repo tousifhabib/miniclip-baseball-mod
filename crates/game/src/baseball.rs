@@ -5,6 +5,7 @@
 
 use bb_engine::app::Logic;
 use bb_engine::display::{ButtonEvent, Event, Path};
+use bb_engine::input::Key;
 use bb_engine::library::Library;
 use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
@@ -17,7 +18,7 @@ use crate::menu::{Game, Leave, Menu, MenuPage};
 use crate::mods::{Asked, Mod, Mods, ModsPage};
 use crate::play::full::FullMatch;
 use crate::play::overlay::Words;
-use crate::play::{Match, Outcome};
+use crate::play::{Match, Outcome, bullet};
 use crate::rng::Rng;
 use crate::rules::Rules;
 use crate::scores::Scores;
@@ -821,6 +822,15 @@ impl Logic for Baseball {
             }
             _ => {}
         }
+    }
+
+    fn key(&mut self, key: &Key, _stage: &mut Stage, _library: &Library) -> bool {
+        // With bullet time on, the space bar is the game's while a game
+        // is being played.
+        *key == bullet::KEY
+            && self.play.is_some()
+            && self.screen.is_game()
+            && self.game.mods.is_on(Mod::BulletTime)
     }
 
     fn describe(&self) -> String {
