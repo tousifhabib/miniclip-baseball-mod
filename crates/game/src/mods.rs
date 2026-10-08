@@ -53,6 +53,10 @@ pub enum Mod {
     /// Every fifth pitch is a golden ball: runs scored off it count for
     /// three, and a strike on it puts the batter out.
     GoldenBall,
+    /// The ball keeps most of its speed when it bounces, comes off the
+    /// wall like a ball off a cushion, and is kept in by the foul lines
+    /// too. How much it keeps is set on the menu.
+    PinballPark,
 }
 
 /// What the menu and the files know a mod by.
@@ -70,7 +74,7 @@ struct Info {
 
 impl Mod {
     /// Every mod, in the order the menu lists them.
-    pub const ALL: [Mod; 11] = [
+    pub const ALL: [Mod; 12] = [
         Mod::TimingIndicator,
         Mod::LonePitcher,
         Mod::ZingerHit,
@@ -82,6 +86,7 @@ impl Mod {
         Mod::HotBat,
         Mod::SuddenDeath,
         Mod::GoldenBall,
+        Mod::PinballPark,
     ];
 
     fn info(self) -> Info {
@@ -152,6 +157,12 @@ impl Mod {
                 about: "EVERY FIFTH PITCH IS GOLD: TRIPLE RUNS, OR OUT ON A MISS",
                 setting: None,
             },
+            Mod::PinballPark => Info {
+                key: "pinball_park",
+                name: "PINBALL PARK",
+                about: "THE BALL BOUNCES OFF THE WALL AND THE GROUND, AND ON",
+                setting: Some(("BOUNCE", 3)),
+            },
         }
     }
 
@@ -192,6 +203,7 @@ impl Mod {
     pub fn levels(self, rules: &Rules) -> u8 {
         match self {
             Mod::Butterfingers => rules.butterfingers.levels(),
+            Mod::PinballPark => rules.pinball.keeps.len() as u8,
             _ => 0,
         }
     }
@@ -200,6 +212,10 @@ impl Mod {
     pub fn level_words(self, level: u8, rules: &Rules) -> String {
         match self {
             Mod::Butterfingers => format!("{}%", rules.butterfingers.chance_at(level)),
+            Mod::PinballPark => {
+                let keeps = crate::rules::level_of(&rules.pinball.keeps, level).unwrap_or(0.0);
+                format!("{:.0}%", keeps * 100.0)
+            }
             _ => String::new(),
         }
     }

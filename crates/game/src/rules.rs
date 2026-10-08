@@ -48,9 +48,46 @@ pub struct Rules {
     pub sudden_death: SuddenDeathRules,
     /// The golden ball mod.
     pub golden: GoldenRules,
+    /// The pinball park mod.
+    pub pinball: PinballRules,
     pub arcade: ArcadeRules,
     pub team: TeamRules,
     pub sound: SoundRules,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct PinballRules {
+    /// The share of its speed the ball keeps when it bounces, for each
+    /// level the mod can be set to, the lowest first.
+    pub keeps: Vec<f32>,
+    /// The most a bounce can send the ball up by.
+    pub hop: f32,
+    /// How low a ball has to be for a fielder to get hold of it.
+    pub low: f32,
+}
+
+impl PinballRules {
+    /// The numbers the ball flies by in a pinball park at this level,
+    /// counting from 1, given the ones it flies by as the game was.
+    pub fn park(&self, level: u8, field: &FieldRules) -> FieldRules {
+        let keeps = level_of(&self.keeps, level).unwrap_or(field.bounce_run);
+        FieldRules {
+            bounce_run: keeps,
+            bounce_lift: keeps,
+            wall_bounce: keeps,
+            bounce_cap: self.hop,
+            ..field.clone()
+        }
+    }
+}
+
+/// What a list with a number for each level of a mod's setting has for
+/// this level, counting from 1. A level there is none of is taken as the
+/// nearest there is.
+pub fn level_of(levels: &[f32], level: u8) -> Option<f32> {
+    let last = levels.len().checked_sub(1)?;
+    levels.get(usize::from(level.max(1) - 1).min(last)).copied()
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
@@ -514,6 +551,28 @@ mod tests {
         assert_eq!(gold, [5, 10, 15]);
         let never = GoldenRules { every: 0, ..rules };
         assert!(!never.is_gold(5));
+    }
+
+    #[test]
+    fn a_pinball_park_changes_how_the_ball_bounces_and_nothing_else() {
+        let rules = Rules::default();
+        let park = rules.pinball.park(5, &rules.field);
+        assert_eq!(
+            (park.bounce_run, park.wall_bounce, park.bounce_lift),
+            (0.9, 0.9, 0.9)
+        );
+        assert_eq!(park.bounce_cap, 1.5);
+        assert_eq!(rules.pinball.park(1, &rules.field).wall_bounce, 0.6);
+        let back = FieldRules {
+            bounce_run: rules.field.bounce_run,
+            bounce_lift: rules.field.bounce_lift,
+            wall_bounce: rules.field.wall_bounce,
+            bounce_cap: rules.field.bounce_cap,
+            ..park
+        };
+        assert_eq!(back, rules.field);
+        assert_eq!(level_of(&[1.0, 2.0], 9), Some(2.0));
+        assert_eq!(level_of(&[], 1), None);
     }
 
     #[test]

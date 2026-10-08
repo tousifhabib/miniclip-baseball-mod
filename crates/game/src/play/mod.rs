@@ -10,6 +10,7 @@ mod called;
 pub mod field;
 mod fielding;
 pub(crate) mod overlay;
+mod pinball;
 pub mod pitch;
 pub mod timing;
 pub mod zinger;
@@ -203,6 +204,9 @@ pub(crate) struct AtBat {
     /// Where the hit first came down, if it has and the called shot mod
     /// wants to know.
     pub came_down: Option<Point>,
+    /// How many times the wall or a foul line has sent the ball back, in
+    /// a pinball park.
+    pub rebounds: u32,
 }
 
 impl AtBat {
@@ -907,6 +911,7 @@ impl Match {
             over_wall: false,
             notices,
             came_down: None,
+            rebounds: 0,
         });
         None
     }
@@ -1508,6 +1513,9 @@ impl Match {
             }
             if at_bat.golden {
                 zinger += ", golden";
+            }
+            if at_bat.rebounds > 0 {
+                zinger += &format!(", rebounds {}", at_bat.rebounds);
             }
             if let Some(called) = &at_bat.called {
                 zinger += &format!(", called {:.0},{:.0}", called.at.0, called.at.1);

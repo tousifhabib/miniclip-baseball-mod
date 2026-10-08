@@ -333,6 +333,21 @@ every = 5
 runs = 3
 
 # ---------------------------------------------------------------------------
+# The pinball park mod: the ball keeps most of its speed when it bounces.
+[pinball]
+# The share of its speed the ball keeps, off the ground and off the wall and
+# the foul lines: one number for each level the mod can be set to on the
+# menu, the lowest first. As the game was it keeps half off the ground and
+# three tenths off the wall.
+keeps = [0.6, 0.7, 0.8, 0.85, 0.9]
+# The most a bounce can send the ball up by, in pixels a frame. As the game
+# was it is 1.
+hop = 1.5
+# A fielder can only get hold of a ball that is no higher off the ground than
+# this, in pixels. As the game was he has any ball he gets to.
+low = 6.0
+
+# ---------------------------------------------------------------------------
 # The arcade game: hit a target on the outfield.
 [arcade]
 pitches = 10
