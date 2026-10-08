@@ -39,8 +39,8 @@ cargo run --release -p bb-game
 
 F1 opens the inspector, F2 pauses, F3 steps one frame while paused, and
 Escape quits. `--mute` turns the sound off, `--screen match` (or `menu`,
-`arcade` and so on) starts on a screen of your choice, and `--seed N` makes
-every game go the same way.
+`arcade` and so on) starts on a screen of your choice, `--seed N` makes
+every game go the same way, and `--mod NAME` switches a mod on for that run.
 
 To build it as a Mac app:
 
@@ -51,6 +51,26 @@ open "target/app/Baseball Mod.app"
 
 The app is called Baseball Mod and keeps its scores apart from the vanilla
 game's, so both can be installed side by side.
+
+## Mods
+
+The menu's first page has a Mods row. It leads to a list of the mods, each
+with a box to tick. What is ticked is kept from one run to the next, beside
+the scores. Every mod starts off, so the game plays as it did until one is
+switched on.
+
+| Mod | Name for `--mod` | What it does |
+|---|---|---|
+| Timing indicator | `timing_indicator` | A bar under the plate that shows when to swing |
+
+The timing bar lays out the frames of the pitch from left to right. The
+frames on which a swing would meet the ball are coloured by how well: green
+for the best, then yellow, orange and red. A white marker runs along the bar
+as the frames go by, and reaches the green at the moment to swing. It always
+moves at the same pace and the green is always at the same place, so only
+the width of the colours changes with the pitch and the skill level. A swing
+stops the marker where it was made, and the bar says how it was timed:
+too early, early, perfect, late or too late.
 
 ## Changing the game
 
@@ -91,15 +111,28 @@ cargo run --release -p bb-modtools --bin clip-sheet -- extracted --clip 688 --ev
 
 The rules are in `crates/game/src`. `baseball.rs` decides which screen is
 showing, `menu.rs` is the menu, `play/` is a game in progress, `look.rs`
-dresses the batting side, `scores.rs` keeps the high scores, and `art.rs`
-describes how the art is put together: which clip is which, and what each
-button is.
+dresses the batting side, `scores.rs` keeps the high scores, `mods.rs` is
+the mods and their page of the menu, and `art.rs` describes how the art is
+put together: which clip is which, and what each button is.
 
 The art only knows how to play its animations. The rules are told about
 every button the pointer touches and every key pressed, and are called once
 a frame. In return they steer the stage: jump a clip to a labelled frame,
 move, tint or hide an object, add one of their own, set what a text field
 says, or ask for a sound.
+
+### A mod
+
+A mod is a change the player can switch on and off. To add one, give it a
+name in `Mod` in `crates/game/src/mods.rs` and add it to `Mod::ALL`: the
+menu lists whatever is there. Then have the rules ask
+`game.mods.is_on(Mod::YourMod)` wherever the game should go differently.
+The timing indicator, in `crates/game/src/play/timing.rs`, is one to copy
+from.
+
+A mod that draws something can build it from the art's `BLOCK`, a plain
+white square to stretch and tint, `LABEL_FIELD`, a text field, and `HOLDER`,
+an empty clip to keep its parts in. All three are described in `art.rs`.
 
 ## Checking a change
 
@@ -111,8 +144,8 @@ cargo test
 
 The tests in `crates/game/tests` play the real game with no window, by
 written steps: whole matches and arcade games with batters of different
-skill, the menus, the colour picker and the score table. The same steps
-drive the game from the command line:
+skill, the menus, the colour picker, the score table and the mods. The same
+steps drive the game from the command line:
 
 ```bash
 cargo run --release -p bb-game -- --screen menu \

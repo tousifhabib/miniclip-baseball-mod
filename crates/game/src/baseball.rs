@@ -13,6 +13,7 @@ use bb_format::SymbolId;
 use crate::art::{self, ButtonLabels};
 use crate::look::{self, Look, Rgb, Swatch};
 use crate::menu::{Game, Leave, Menu, MenuPage};
+use crate::mods::{Mod, Mods, ModsPage};
 use crate::play::{Match, Outcome};
 use crate::rng::Rng;
 use crate::rules::Rules;
@@ -88,6 +89,10 @@ pub struct Baseball {
     scores_file: Option<std::path::PathBuf>,
     /// The lines of the score table on the stage, while its page is up.
     table: Vec<Path>,
+    /// Where the choice of mods is kept. `None` keeps it only for this run.
+    mods_file: Option<std::path::PathBuf>,
+    /// The list of mods on the stage, while its page is up.
+    mods_page: ModsPage,
     /// Whether the menu's music and the game's crowd are being heard.
     music_on: bool,
     crowd_on: bool,
@@ -112,6 +117,8 @@ impl Baseball {
             scores: Scores::default(),
             scores_file: None,
             table: Vec::new(),
+            mods_file: None,
+            mods_page: ModsPage::default(),
             music_on: false,
             crowd_on: false,
             // A game whose art has no such strip is played in the art's own
@@ -126,6 +133,30 @@ impl Baseball {
     pub fn keep_scores_in(&mut self, file: std::path::PathBuf) {
         self.scores = Scores::load(&file);
         self.scores_file = Some(file);
+    }
+
+    /// Keeps the choice of mods in this file, starting from what it holds.
+    pub fn keep_mods_in(&mut self, file: std::path::PathBuf) {
+        self.game.mods = Mods::load(&file);
+        self.mods_file = Some(file);
+    }
+
+    /// Switches a mod on or off for this run, without writing that down.
+    pub fn switch_mod(&mut self, which: Mod, on: bool) {
+        self.game.mods.set(which, on);
+    }
+
+    /// Acts on a click on one of the boxes on the mods' page.
+    fn choose_mod(&mut self, path: &[u16]) {
+        let Some(which) = self.mods_page.clicked(path) else {
+            return;
+        };
+        self.game.mods.toggle(which);
+        if let Some(file) = &self.mods_file
+            && let Err(error) = self.game.mods.save(file)
+        {
+            eprintln!("The choice of mods could not be saved: {error:#}");
+        }
     }
 
     /// Writes the score table over the panel on the high-score page, for as
@@ -428,11 +459,12 @@ impl Logic for Baseball {
         }
         if let Event::Button {
             symbol,
+            path,
             event: ButtonEvent::Release,
-            ..
         } = event
         {
             self.choose_look(*symbol, stage);
+            self.choose_mod(path);
             self.clicked(*symbol, stage, library);
         }
     }
@@ -498,6 +530,9 @@ impl Logic for Baseball {
             look::dress(stage, &shell, &self.look(), library);
         }
         self.show_scores(stage, library);
+        let on_mods = self.screen == Screen::Menu && self.menu.page() == MenuPage::Mods;
+        self.mods_page
+            .show(on_mods, &self.game.mods, stage, library);
         // A pointer hidden for aiming comes back for the quit prompt, and
         // whenever no game is being played.
         let prompt_up = stage
@@ -536,11 +571,20 @@ impl Logic for Baseball {
 
     fn describe(&self) -> String {
         match self.screen {
-            Screen::Menu => format!(
-                "Menu, {:?}, {:?}",
-                self.menu.page(),
-                self.game.settings.difficulty
-            ),
+            Screen::Menu => {
+                // The mods that are on are named, when any are.
+                let mods: Vec<&str> = self.game.mods.all_on().map(Mod::key).collect();
+                let mods = if mods.is_empty() {
+                    String::new()
+                } else {
+                    format!(", with {}", mods.join(" and "))
+                };
+                format!(
+                    "Menu, {:?}, {:?}{mods}",
+                    self.menu.page(),
+                    self.game.settings.difficulty
+                )
+            }
             screen => {
                 let play = self
                     .play

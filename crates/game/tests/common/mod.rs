@@ -12,6 +12,7 @@ use bb_engine::app::Runner;
 use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 use bb_game::baseball::{Baseball, Screen};
+use bb_game::mods::Mod;
 use bb_game::rules::Rules;
 use bb_game::script::Script;
 
@@ -34,6 +35,20 @@ pub fn game_with(screen: &str, seed: Option<u64>) -> Option<Script> {
 
 /// The same, played by `rules` instead of the ones built in.
 pub fn game_ruled(screen: &str, seed: Option<u64>, rules: Option<Rules>) -> Option<Script> {
+    game_made(screen, seed, rules, &[])
+}
+
+/// The game opened on a screen, with these mods switched on.
+pub fn game_modded(screen: &str, seed: u64, mods: &[Mod]) -> Option<Script> {
+    game_made(screen, Some(seed), None, mods)
+}
+
+fn game_made(
+    screen: &str,
+    seed: Option<u64>,
+    rules: Option<Rules>,
+    mods: &[Mod],
+) -> Option<Script> {
     let Some(dir) = extracted() else {
         eprintln!("skipped: there is no extracted art to play");
         return None;
@@ -47,6 +62,9 @@ pub fn game_ruled(screen: &str, seed: Option<u64>, rules: Option<Rules>) -> Opti
     }
     if let Some(rules) = rules {
         logic.play_by(rules);
+    }
+    for &which in mods {
+        logic.switch_mod(which, true);
     }
     let runner = Runner::new(library, stage, logic, None);
     Some(Script::new(runner).expect("a renderer with no window"))
