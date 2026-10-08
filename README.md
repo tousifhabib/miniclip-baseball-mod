@@ -69,6 +69,7 @@ switched on.
 | Knuckleball | `knuckleball` | Pitches sway from side to side, and the crossing marker is only roughly right |
 | Heat check | `heat_check` | Every run makes the next pitch faster, and every strike slows them again |
 | Mystery pitch | `mystery_pitch` | Each pitch is a fastball, a change-up or a curve, and you find out as it is thrown |
+| Called shot | `called_shot` | Click a spot on the outfield before a pitch; a hit that lands near it is worth extra runs |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -162,6 +163,17 @@ away beforehand: the pitcher stands as long before one as before another,
 and the marker of where the pitch will cross is not shown until the ball has
 left his hand. Then the pitch is named over him. The numbers are under
 `[mystery]` in `data/rules.toml`.
+
+With the called shot, a click on the outfield while the pitcher stands and
+waits puts a target there: the arcade game's, drawn smaller. It lies behind
+the players in the batting view and is seen again on the field once the ball
+is hit. Another click moves it, until the wind-up starts. A hit that first
+comes down on the target is worth runs on top of whatever it earns the usual
+way: three in the middle, two in the next ring, and one in either of the
+outer two. A ball that is caught, or that goes over the wall, never comes
+down on it. Each pitch is called afresh, and need not be called at all. The
+arcade game has a target of its own, and plays as it did. The numbers are
+under `[called_shot]` in `data/rules.toml`.
 
 ## Changing the game
 

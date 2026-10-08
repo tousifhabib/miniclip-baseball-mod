@@ -82,6 +82,10 @@ pub const PAGE_TURN: SymbolId = 2045;
 /// An empty clip, for the rules to put things in and move as one.
 pub const HOLDER: SymbolId = 2042;
 
+/// The arcade game's target: rings lying on the grass, `ring1` the outermost,
+/// each a clip whose second frame is the ring lit.
+pub const TARGET: SymbolId = 1794;
+
 /// Buttons whose words are drawn as artwork, not text, so they have to be
 /// known by number: the ones on the result screens that lead back to the
 /// menu, such as the "restart game" badge.

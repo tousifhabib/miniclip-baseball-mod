@@ -40,9 +40,23 @@ pub struct Rules {
     pub heat: HeatRules,
     /// The mystery pitch mod.
     pub mystery: MysteryRules,
+    /// The called shot mod.
+    pub called_shot: CalledShotRules,
     pub arcade: ArcadeRules,
     pub team: TeamRules,
     pub sound: SoundRules,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct CalledShotRules {
+    /// The part of the field a shot can be called for.
+    pub area: Area,
+    /// How large the target is, the arcade game's being 1.
+    pub size: f32,
+    /// The runs each of its rings is worth, from the centre out.
+    pub runs: Vec<u32>,
+    pub told_time: u32,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
