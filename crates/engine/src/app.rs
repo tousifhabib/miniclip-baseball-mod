@@ -85,6 +85,8 @@ impl Runner {
         self.react();
         self.logic.tick(&mut self.stage, &self.library);
         self.react();
+        // The frame has been told of any click made before it.
+        self.stage.pointer.went_down = None;
     }
 
     /// Tells the stage where the pointer is, in stage coordinates, and
@@ -227,5 +229,58 @@ impl Stage {
             envelope,
         }));
         true
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::cell::RefCell;
+    use std::rc::Rc;
+
+    use bb_format::SymbolId;
+
+    use super::*;
+    use crate::display::tests::{frame, library_with};
+
+    /// Nothing is ever under the pointer.
+    struct Empty;
+
+    impl Geometry for Empty {
+        fn contains(&mut self, _: &Library, _: SymbolId, _: u16, _: f32, _: f32) -> bool {
+            false
+        }
+    }
+
+    /// The click each frame was told of, if any.
+    type Told = Vec<Option<(f32, f32)>>;
+
+    /// Rules that write down the click each frame is told of.
+    struct Clicks(Rc<RefCell<Told>>);
+
+    impl Logic for Clicks {
+        fn tick(&mut self, stage: &mut Stage, _: &Library) {
+            self.0.borrow_mut().push(stage.pointer.went_down);
+        }
+    }
+
+    #[test]
+    fn a_frame_is_told_of_a_click_made_before_it_and_the_next_is_not() {
+        let library = library_with(vec![frame(vec![])], vec![frame(vec![])]);
+        let stage = Stage::new(None, &library);
+        let seen = Rc::new(RefCell::new(Vec::new()));
+        let mut runner = Runner::new(library, stage, Box::new(Clicks(seen.clone())), None);
+        runner.tick(&mut Empty);
+        // The button goes down and comes up before a frame is played.
+        runner.pointer(30.0, 40.0, false, &mut Empty);
+        runner.pointer(30.0, 40.0, true, &mut Empty);
+        runner.pointer(31.0, 41.0, false, &mut Empty);
+        runner.tick(&mut Empty);
+        runner.tick(&mut Empty);
+        // A button held down over several frames is one click.
+        runner.pointer(50.0, 60.0, true, &mut Empty);
+        runner.tick(&mut Empty);
+        runner.tick(&mut Empty);
+        let told = [None, Some((30.0, 40.0)), None, Some((50.0, 60.0)), None];
+        assert_eq!(*seen.borrow(), told);
     }
 }

@@ -66,6 +66,11 @@ pub struct Pointer {
     pub x: f32,
     pub y: f32,
     pub down: bool,
+    /// Where the pointer's button went down since the last frame was
+    /// played, if it did and not on one of the game's buttons. A click is
+    /// kept here as it arrives, so that one which is over before the next
+    /// frame is played is not missed by it.
+    pub went_down: Option<(f32, f32)>,
     /// The button the pointer is resting on.
     over: Option<Target>,
     /// The button a press began on. It keeps the press until release, even
@@ -83,6 +88,7 @@ impl Default for Pointer {
             x: Pointer::NOWHERE,
             y: Pointer::NOWHERE,
             down: false,
+            went_down: None,
             over: None,
             pressed: None,
             inside: false,
@@ -175,13 +181,19 @@ impl Pointer {
                 self.over = hit;
             }
         }
-        if down
-            && !was_down
-            && let Some(target) = self.over.clone()
-        {
-            change(&target, ButtonEvent::Press, ButtonMode::Down);
-            self.pressed = Some(target);
-            self.inside = true;
+        if down && !was_down {
+            match self.over.clone() {
+                Some(target) => {
+                    change(&target, ButtonEvent::Press, ButtonMode::Down);
+                    self.pressed = Some(target);
+                    self.inside = true;
+                }
+                // Of two clicks before the same frame, the first is the
+                // one the frame is told of.
+                None => {
+                    self.went_down.get_or_insert((x, y));
+                }
+            }
         }
     }
 }
@@ -438,6 +450,39 @@ mod tests {
         );
         assert_eq!(mode(&root), ButtonMode::Up);
         assert!(!pointer.on_button());
+    }
+
+    #[test]
+    fn a_click_off_the_buttons_is_kept_though_it_is_over_at_once() {
+        let (library, mut root) = scene();
+        let mut pointer = Pointer::default();
+        act(&mut pointer, &mut root, &library, 5.0, false);
+        assert_eq!(pointer.went_down, None);
+        // Down and up again with no frame played in between.
+        assert!(act(&mut pointer, &mut root, &library, 5.0, true).is_empty());
+        act(&mut pointer, &mut root, &library, 5.0, false);
+        assert!(!pointer.down);
+        assert_eq!(pointer.went_down, Some((5.0, 25.0)));
+        // A second click before the frame does not take its place, and
+        // holding the button is not a click at all.
+        act(&mut pointer, &mut root, &library, 7.0, true);
+        act(&mut pointer, &mut root, &library, 8.0, true);
+        assert_eq!(pointer.went_down, Some((5.0, 25.0)));
+    }
+
+    #[test]
+    fn a_click_on_a_button_is_the_buttons_alone() {
+        let (library, mut root) = scene();
+        let mut pointer = Pointer::default();
+        act(&mut pointer, &mut root, &library, 25.0, false);
+        assert_eq!(
+            act(&mut pointer, &mut root, &library, 25.0, true),
+            [ButtonEvent::Press]
+        );
+        // Not even once the pointer has been dragged off it.
+        act(&mut pointer, &mut root, &library, 5.0, true);
+        act(&mut pointer, &mut root, &library, 5.0, false);
+        assert_eq!(pointer.went_down, None);
     }
 
     #[test]

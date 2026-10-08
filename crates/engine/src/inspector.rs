@@ -38,6 +38,9 @@ pub struct Info<'a> {
     pub stats: Stats,
     pub paused: bool,
     pub frames_per_second: f32,
+    /// How many redraws go to each frame of the game, if the screen is in
+    /// step with it.
+    pub redraws_to_a_frame: Option<u32>,
     /// From stage coordinates to window pixels.
     pub base: Matrix,
 }
@@ -88,7 +91,13 @@ impl Inspector {
                     {
                         actions.push(Action::Step);
                     }
-                    ui.label(format!("{:.0} fps", info.frames_per_second));
+                    ui.label(match info.redraws_to_a_frame {
+                        Some(1) => format!("{:.0} fps, a frame each", info.frames_per_second),
+                        Some(redraws) => {
+                            format!("{:.0} fps, a frame every {redraws}", info.frames_per_second)
+                        }
+                        None => format!("{:.0} fps, frames by the clock", info.frames_per_second),
+                    });
                 });
                 ui.label(format!(
                     "{} draws, {} blurred layers, {} meshes built",

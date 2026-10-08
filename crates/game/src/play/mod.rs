@@ -327,7 +327,7 @@ pub struct Match {
     pub(crate) bullet: Option<u32>,
     slow_beat: u32,
     pub(crate) slowed: bool,
-    late_press: bool,
+    late_press: Option<Point>,
     /// How many batters in a row have reached base, with nobody put out
     /// since, and whether the rally mod is on to go by it.
     pub(crate) rally: u32,
@@ -371,7 +371,6 @@ pub struct Match {
     /// ever been.
     pub(crate) longest_zinger: u32,
     pub(crate) zinger_record: u32,
-    was_down: bool,
     runner_symbol: Option<SymbolId>,
 }
 
@@ -505,7 +504,7 @@ impl Match {
             bullet: None,
             slow_beat: 0,
             slowed: false,
-            late_press: false,
+            late_press: None,
             rally: 0,
             rallying: false,
             clutch: false,
@@ -525,7 +524,6 @@ impl Match {
             shift: 0.0,
             longest_zinger: 0,
             zinger_record: 0,
-            was_down: false,
             runner_symbol: library.manifest.exports.get("runner").copied(),
         }
     }
@@ -1436,9 +1434,10 @@ impl Match {
     /// Called once a frame while the match screen is showing. Returns how
     /// the match ended, once it has.
     pub fn tick(&mut self, game: &Game, stage: &mut Stage, library: &Library) -> Option<Outcome> {
-        let down = stage.pointer.down;
-        let pressed = down && !self.was_down && !stage.pointer.on_button();
-        self.was_down = down;
+        // Where the player has clicked since the last frame, off the
+        // buttons. It is taken from the click itself and not from how the
+        // pointer's button is now, which may be up again already.
+        let pressed = stage.pointer.went_down;
         self.run_cues(stage, library);
         // The stadium is lit as by day, unless it is night, and is cooler
         // while bullet time holds the ball back.
@@ -1524,13 +1523,13 @@ impl Match {
             Phase::Settling { left } => {
                 // While the pitcher waits, a click on the outfield calls
                 // the shot. The arcade game has a target of its own.
-                if pressed && self.arcade.is_none() && game.mods.is_on(Mod::CalledShot) {
-                    let main = &at_bat.parts.main;
-                    if let Some(pointer) = stage.from_stage(main, stage.pointer.x, stage.pointer.y)
-                    {
-                        let called = &mut at_bat.called;
-                        called::Called::call(called, pointer, &at_bat.parts, rules, stage, library);
-                    }
+                if let Some((x, y)) = pressed
+                    && self.arcade.is_none()
+                    && game.mods.is_on(Mod::CalledShot)
+                    && let Some(pointer) = stage.from_stage(&at_bat.parts.main, x, y)
+                {
+                    let called = &mut at_bat.called;
+                    called::Called::call(called, pointer, &at_bat.parts, rules, stage, library);
                 }
                 if left == 0 {
                     stage.goto_label(&at_bat.parts.pitcher, PITCH, true, library);
@@ -1543,9 +1542,8 @@ impl Match {
             Phase::WindUp => {
                 // While he winds up, a click on the little field sends a
                 // runner.
-                if pressed
-                    && let Some(pointer) =
-                        stage.from_stage(&at_bat.parts.main, stage.pointer.x, stage.pointer.y)
+                if let Some((x, y)) = pressed
+                    && let Some(pointer) = stage.from_stage(&at_bat.parts.main, x, y)
                 {
                     self.steal_click(&mut at_bat, pointer, stage, library);
                 }
@@ -1586,7 +1584,7 @@ impl Match {
                 }
             }
             Phase::Flight { step } => {
-                let pressed = pressed || std::mem::take(&mut self.late_press);
+                let pressed = self.late_press.take().or(pressed);
                 if self.held_back(&at_bat, step, game, stage) {
                     // The ball stays where it is for this frame. A click
                     // made on it is for the step the ball is on.
@@ -1661,7 +1659,7 @@ impl Match {
         &mut self,
         at_bat: &mut AtBat,
         step: usize,
-        pressed: bool,
+        pressed: Option<Point>,
         game: &Game,
         stage: &mut Stage,
         library: &Library,
@@ -1680,10 +1678,12 @@ impl Match {
             }
         }
 
-        if pressed && at_bat.swing.is_none() {
-            // The swing is high, level or low by where the pointer is.
+        if let Some((x, y)) = pressed
+            && at_bat.swing.is_none()
+        {
+            // The swing is high, level or low by where the click was.
             let pointer = stage
-                .from_stage(&at_bat.parts.main, stage.pointer.x, stage.pointer.y)
+                .from_stage(&at_bat.parts.main, x, y)
                 .unwrap_or(at_bat.aim);
             let label = match pointer.1 {
                 y if y <= 200.0 => "hitHigh",
