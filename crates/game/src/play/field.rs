@@ -86,6 +86,30 @@ impl Ball {
         }
     }
 
+    /// A ball sent off towards `mark` to come down `carry` from home, as
+    /// [`reach`] measures it, after `frames` in the air.
+    pub fn sent(home: Point, mark: Point, carry: f32, frames: f32, rules: &FieldRules) -> Ball {
+        // It takes two frames to go up and come down at all.
+        let frames = frames.max(2.0);
+        let way = distance(home, mark).max(0.001);
+        let towards = ((mark.0 - home.0) / way, (mark.1 - home.1) / way);
+        // Along a straight line reach grows evenly, so its first pixel
+        // tells how many pixels the whole carry is.
+        let from = reach(home, home);
+        let each = reach(home, (home.0 + towards.0, home.1 + towards.1)) - from;
+        let pace = (carry - from) / each / frames;
+        Ball {
+            at: home,
+            speed: (towards.0 * pace, towards.1 * pace),
+            height: 0.0,
+            // Gravity has taken all of this back between the last frame
+            // but one and the last, which is the frame it comes down on.
+            lift: rules.gravity * (frames - 1.5) / 2.0,
+            bounced: false,
+            walled: false,
+        }
+    }
+
     /// Moves the ball on by one frame. `miss` is how far off the ball's
     /// height the ring was: a ball hit off-centre is slowed by the air more.
     pub fn step(&mut self, home: Point, miss: f32, rules: &FieldRules) -> Happened {
@@ -268,6 +292,23 @@ mod tests {
         assert_eq!(ball.at, landing);
         // It went up the field, away from home.
         assert!(landing.1 < HOME.1);
+    }
+
+    #[test]
+    fn a_ball_sent_a_distance_comes_down_that_far_off_whichever_way_it_goes() {
+        let rules = Rules::default();
+        for across in [-40.0, 120.0, STRAIGHT.0, 480.0, 620.0] {
+            let mark = (across, STRAIGHT.1);
+            let mut ball = Ball::sent(HOME, mark, 600.0, 150.0, &rules.field);
+            let mut frames = 1;
+            while ball.step(HOME, 0.0, &rules.field) != Happened::Landed {
+                frames += 1;
+                assert!(frames < 400, "towards {across}: it never came down");
+            }
+            assert_eq!(frames, 150, "towards {across}");
+            let far = reach(HOME, ball.at);
+            assert!((far - 600.0).abs() < 1.0, "towards {across}: {far}");
+        }
     }
 
     #[test]

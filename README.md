@@ -63,6 +63,7 @@ switched on.
 |---|---|---|
 | Timing indicator | `timing_indicator` | A bar under the plate that shows when to swing |
 | Lone pitcher | `lone_pitcher` | Only the pitcher goes after a ball that has been hit |
+| Zinger hit | `zinger_hit` | Every hit in a match is a home run, bigger the better it was timed |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -80,13 +81,25 @@ throw beats is out. Nobody else moves, and the fielder at the base does not
 throw the ball on, so the play ends there and anyone still running is given
 his base.
 
+With the zinger hit, every ball the bat meets in a match goes over the wall.
+A swing still has to be timed to meet the ball, but how well it was timed
+now decides only how far the ball goes: from 440 feet, just over the wall,
+for the worst-timed swing that still meets it, to 800 feet for the best. The
+best moment is the middle of the timing bar's green. The distance is written
+under the home-run banner. Where the ring is held still sends the
+ball to one side or the other, but no longer lifts it or drags on it, and a
+hit that would have gone foul stays just inside the line. The arcade game is
+left as it was, since a ball over the wall scores nothing there. The mod's
+numbers are under `[zinger]` in `data/rules.toml`.
+
 ## Changing the game
 
 ### The numbers
 
 Pitch speeds, timing windows, how the ball flies, the count, the arcade
-target's rings and points, sound levels, skin tones and bat logos are all
-in `data/rules.toml`, with a note on each. Change them there.
+target's rings and points, how far a zinger goes, sound levels, skin tones
+and bat logos are all in `data/rules.toml`, with a note on each. Change them
+there.
 
 The game can also lay other files of the same shape over that one, each
 holding only the numbers it changes, and refuses a number it does not have

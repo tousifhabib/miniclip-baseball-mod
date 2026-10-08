@@ -187,6 +187,22 @@ medium = 0.45
 hard = 0.49
 
 # ---------------------------------------------------------------------------
+# The zinger hit mod: in a match, every ball the bat meets is a home run.
+# Each number is given twice: for the worst-timed swing that still meets the
+# ball, and for the best. A swing between the two gets a number between.
+[zinger]
+# How far from home the ball comes down, the distance to the wall being 1.
+carry = { worst = 1.1, best = 2.0 }
+# Frames the ball is in the air. Too few and it is still under the top of
+# the wall when it gets there.
+hang = { worst = 170.0, best = 200.0 }
+# The power it leaves the bat with in the batting view, where lower is
+# faster.
+power = { worst = 14.0, best = 9.0 }
+# How far the wall is in feet, for telling the player how far the ball went.
+wall_feet = 400.0
+
+# ---------------------------------------------------------------------------
 # The arcade game: hit a target on the outfield.
 [arcade]
 pitches = 10

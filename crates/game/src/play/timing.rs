@@ -15,6 +15,7 @@ use bb_engine::math::{ColorTransform, Matrix};
 use bb_engine::stage::Stage;
 
 use super::Parts;
+use super::overlay::{self, DARK, Words};
 use super::pitch::{Pitch, Quality};
 use crate::art;
 use crate::look::{self, Rgb};
@@ -142,13 +143,14 @@ const BEST_AT: f32 = 120.0;
 const MARKER_WIDTH: f32 = 2.0;
 const MARKER_REACH: f32 = 3.0;
 /// The size of the verdict's lettering, its own being 1, how far along the
-/// bar its middle is, and how far above the bar its top. That puts it on
-/// the dirt beside the plate, where it can be read.
+/// bar its middle is, and how far above the bar its top.
 const WORD_SIZE: f32 = 0.75;
 const WORD_AT: f32 = 150.0;
 const WORD_ABOVE: f32 = 19.0;
+/// The depth the verdict is at in the bar's clip, which is over all of the
+/// bar's blocks.
+const WORD_DEPTH: u16 = 100;
 
-const EDGE_COLOUR: Rgb = [0x04, 0x1a, 0x2b];
 const BAR_COLOUR: Rgb = [0x0b, 0x3a, 0x5e];
 const MARKER_COLOUR: Rgb = [0xff, 0xff, 0xff];
 const MISS_COLOUR: Rgb = [0xff, 0x5a, 0x4a];
@@ -176,8 +178,8 @@ pub(crate) struct Indicator {
     /// The clip every part of the bar is in.
     holder: Path,
     marker: Path,
-    /// The verdict, and its shadow under it.
-    words: [Path; 2],
+    /// The verdict.
+    words: Words,
     /// The bar's left end.
     left: f32,
     /// The step the best moment is in the middle of. Between two steps if
@@ -196,15 +198,20 @@ impl Indicator {
         stage: &mut Stage,
         library: &Library,
     ) -> Option<Indicator> {
-        // Just over the field, which is out of sight until the ball is hit:
-        // over the batter, and under everything laid over the game.
-        let (&field, _) = parts.field.split_last()?;
-        let view = stage.clip(&parts.main)?;
-        let depth = (field + 1..).find(|depth| !view.children.contains_key(depth))?;
-        let holder = stage.attach(&parts.main, art::HOLDER, depth, "timingBar", library)?;
-
+        let holder = overlay::holder(parts, "timingBar", stage, library)?;
         let timing = Timing::of(pitch, rules);
         let left = parts.centre_x - WIDTH / 2.0;
+        // That puts the verdict on the dirt beside the plate, where it can
+        // be read.
+        let words = Words::new(
+            &holder,
+            WORD_DEPTH,
+            "verdict",
+            (left + WORD_AT, TOP - WORD_ABOVE),
+            WORD_SIZE,
+            stage,
+            library,
+        )?;
         // With nothing to swing for, the marker just runs out with the
         // pitch.
         let best = timing
@@ -216,7 +223,7 @@ impl Indicator {
             timing,
             holder,
             marker: Path::new(),
-            words: [Path::new(), Path::new()],
+            words,
             left,
             best,
             swung: false,
@@ -243,7 +250,7 @@ impl Indicator {
             TOP - EDGE,
             WIDTH + EDGE * 2.0,
             HEIGHT + EDGE * 2.0,
-            paint(EDGE_COLOUR, 0.8),
+            paint(DARK, 0.8),
         )?;
         block(stage, left, TOP, WIDTH, HEIGHT, paint(BAR_COLOUR, 1.0))?;
         for (first, last, quality) in indicator.timing.stretches() {
@@ -270,32 +277,6 @@ impl Indicator {
             HEIGHT + MARKER_REACH * 2.0,
             paint(MARKER_COLOUR, 1.0),
         )?;
-
-        // The verdict is written twice, the dark one a pixel down and to
-        // the right, so that it stands out from the ground behind it.
-        let field = library.edit_texts.get(&art::TABLE_FIELD)?;
-        // The field centres what it says, so it is placed by its middle.
-        let middle = ((field.bounds.x_min + field.bounds.x_max) / 2.0) as f32;
-        for (index, offset) in [1.0, 0.0].into_iter().enumerate() {
-            let depth = depth + 1 + index as u16;
-            let path = stage.attach(
-                &indicator.holder,
-                art::TABLE_FIELD,
-                depth,
-                "verdict",
-                library,
-            )?;
-            let words = stage.child_mut(&path)?;
-            words.set_matrix(Matrix {
-                a: WORD_SIZE,
-                d: WORD_SIZE,
-                tx: left + WORD_AT - middle * WORD_SIZE + offset,
-                ty: TOP - WORD_ABOVE + offset,
-                ..Matrix::IDENTITY
-            });
-            words.set_visible(false);
-            indicator.words[index] = path;
-        }
         Some(indicator)
     }
 
@@ -326,17 +307,8 @@ impl Indicator {
         let Some(verdict) = self.timing.verdict(step) else {
             return;
         };
-        let colours = [
-            EDGE_COLOUR,
-            self.timing.at(step).map_or(MISS_COLOUR, colour),
-        ];
-        for (path, colour) in self.words.iter().zip(colours) {
-            if let Some(words) = stage.child_mut(path) {
-                words.said = Some(verdict.words().to_owned());
-                words.set_color(look::tint(colour));
-                words.set_visible(true);
-            }
-        }
+        let colour = self.timing.at(step).map_or(MISS_COLOUR, colour);
+        self.words.say(verdict.words(), colour, stage);
     }
 
     /// Takes the bar off the stage, as the view changes to the field.
