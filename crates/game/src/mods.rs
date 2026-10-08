@@ -64,6 +64,9 @@ pub enum Mod {
     /// sent on at any time while the ball is in play, in the air or not.
     /// How fast is set on the menu.
     TurboRunners,
+    /// The stadium is darkened, with the players and the ball left lit,
+    /// and a home run flashes the lights.
+    NightGame,
 }
 
 /// What the menu and the files know a mod by.
@@ -81,7 +84,7 @@ struct Info {
 
 impl Mod {
     /// Every mod, in the order the menu lists them.
-    pub const ALL: [Mod; 14] = [
+    pub const ALL: [Mod; 15] = [
         Mod::TimingIndicator,
         Mod::LonePitcher,
         Mod::ZingerHit,
@@ -96,6 +99,7 @@ impl Mod {
         Mod::PinballPark,
         Mod::MoonBall,
         Mod::TurboRunners,
+        Mod::NightGame,
     ];
 
     fn info(self) -> Info {
@@ -183,6 +187,12 @@ impl Mod {
                 name: "TURBO RUNNERS",
                 about: "RUNNERS ARE FAST, AND CAN GO ON WITH THE BALL IN THE AIR",
                 setting: Some(("SPEED", 2)),
+            },
+            Mod::NightGame => Info {
+                key: "night_game",
+                name: "NIGHT GAME",
+                about: "THE STADIUM IS DARK, AND HOME RUNS FLASH THE LIGHTS",
+                setting: None,
             },
         }
     }

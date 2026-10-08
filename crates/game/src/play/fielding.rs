@@ -853,6 +853,7 @@ impl Match {
         state.home_run = true;
         state.live = false;
         state.job = Job::Rest;
+        self.lights = true;
         let worth = self.run_worth;
         for runner in &mut self.runners {
             if matches!(runner.place, Place::AtBat | Place::Base(_)) {
