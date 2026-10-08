@@ -76,6 +76,9 @@ pub enum Mod {
     /// A click on the little field while the pitcher winds up sends a
     /// runner for the next base, and the catcher throws to put him out.
     StolenBases,
+    /// The outfield wall has signs on it, one of them lit, and a ball that
+    /// strikes one is worth runs on top.
+    HitTheSign,
 }
 
 /// What the menu and the files know a mod by.
@@ -93,7 +96,7 @@ struct Info {
 
 impl Mod {
     /// Every mod, in the order the menu lists them.
-    pub const ALL: [Mod; 18] = [
+    pub const ALL: [Mod; 19] = [
         Mod::TimingIndicator,
         Mod::LonePitcher,
         Mod::ZingerHit,
@@ -112,6 +115,7 @@ impl Mod {
         Mod::TheShift,
         Mod::TiredArm,
         Mod::StolenBases,
+        Mod::HitTheSign,
     ];
 
     fn info(self) -> Info {
@@ -222,6 +226,12 @@ impl Mod {
                 key: "stolen_bases",
                 name: "STOLEN BASES",
                 about: "CLICK THE LITTLE FIELD IN THE WIND-UP TO SEND A RUNNER",
+                setting: None,
+            },
+            Mod::HitTheSign => Info {
+                key: "hit_the_sign",
+                name: "HIT THE SIGN",
+                about: "SIGNS ON THE WALL PAY RUNS, THE LIT ONE MOST OF ALL",
                 setting: None,
             },
         }

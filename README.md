@@ -133,6 +133,7 @@ switched on.
 | The shift | `the_shift` | The fielders stand where you have been hitting the ball, until you go the other way |
 | Tired arm | `tired_arm` | The pitcher slows and misses the zone more as his pitches mount up, until a fresh one comes in |
 | Stolen bases | `stolen_bases` | Click the little field as the pitcher winds up to send a runner; the catcher throws to put him out |
+| Hit the sign | `hit_the_sign` | Signs on the outfield wall pay runs to a ball that strikes them, the lit one most |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -342,6 +343,24 @@ on paper: now and then one goes before a batter's turn, and gets there
 seven times in ten. The page of figures has a line of bases stolen for both
 sides once anyone has tried, and each try is told among the turns of its
 innings. The numbers are under `[steal]` in `data/rules.toml`.
+
+With hit the sign, the outfield wall has five signs on it, side by side,
+each with what it is worth written on it. One of them is lit and beats: a
+ball that strikes it is worth three runs on top of whatever it earns the
+usual way, and one that strikes any of the others is worth one. A different
+sign is lit each innings, never the one that was lit the innings before, so
+in the last innings alone it is the same sign throughout. The signs are on
+the wall in the batting view too, where the red pointer shows a hit going,
+so the pointer on a sign is a hit at it.
+
+A ball strikes a sign if it comes to the wall there no higher than the sign
+is tall, on the fly or on the bounce. Too low to clear the wall, it comes
+back off the sign as it would off the wall anywhere else. A little higher,
+it goes off the top of the sign and out, and is a home run all the same,
+with the sign's runs on top. Only the first sign a hit strikes counts, the
+runs are the batter's, and like a called shot's they are not multiplied by
+anything. The arcade game has no runs to add to. The numbers are under
+`[sign]` in `data/rules.toml`.
 
 ## Changing the game
 

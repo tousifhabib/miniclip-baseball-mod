@@ -474,6 +474,9 @@ impl Match {
             state.job,
             Job::Chase | Job::WaitCatch | Job::Rest | Job::Fumbling { .. }
         );
+        // Where across the field it has come to the wall, and how high, if
+        // it has on this frame.
+        let mut at_wall = None;
         if let (Some(ball), true, false) = (&mut at_bat.ball, loose, state.walk || state.foul) {
             let before = *ball;
             let was_down = before.bounced;
@@ -506,6 +509,9 @@ impl Match {
                         }
                     }
                 }
+            }
+            if matches!(happened, Happened::Cleared | Happened::HitWall) {
+                at_wall = Some((parts.ground(rules).across(ball.at), ball.height));
             }
             // A ball that went over the wall before the view changed has
             // gone over it as far as this view knows now.
@@ -575,6 +581,9 @@ impl Match {
                 }
                 _ => {}
             }
+        }
+        if let Some((across, height)) = at_wall {
+            self.strike_sign(at_bat, across, height, &game.rules.sign);
         }
         Match::watch_zinger(&mut state, &parts, game, stage, library);
 
@@ -750,6 +759,7 @@ impl Match {
         let down = at_bat.ball.is_some_and(|ball| ball.bounced);
         self.move_runners(&state, down, &parts, game, stage, library);
         self.tell_steal(at_bat, game.rules.steal.told_time, stage, library);
+        self.tell_sign(at_bat, game.rules.sign.told_time, stage, library);
 
         // How the play ends.
         let over = if state.foul || state.home_run {
