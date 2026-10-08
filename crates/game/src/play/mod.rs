@@ -242,6 +242,13 @@ pub(crate) struct AtBat {
 }
 
 impl Parts {
+    /// How far across the batting view a place this far across the field
+    /// is: where the art's pointer stands for a ball that comes down there.
+    pub(crate) fn across_view(&self, across: f32, rules: &FieldRules) -> f32 {
+        let mark = self.foul.0 + across * (self.foul.1 - self.foul.0);
+        self.centre_x + (mark - self.field_mark.0) * rules.aim_share
+    }
+
     /// The fixed points of the field that a hit is placed by.
     pub(crate) fn ground(&self, rules: &FieldRules) -> Ground {
         Ground {
@@ -1143,7 +1150,7 @@ impl Match {
         if game.mods.is_on(Mod::TheShift) && self.arcade.is_none() {
             let shift = shift::Shift::of(&self.spray, &rules.shift);
             self.shift = shift.by();
-            shift.place(&parts, &parts.ground(&rules.field), stage);
+            shift.place(&parts, &rules.field, stage, library);
             if let Some(says) = shift.words(&rules.shift) {
                 Notice::put(
                     &mut notices,

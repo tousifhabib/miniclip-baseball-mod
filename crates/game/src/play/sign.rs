@@ -158,10 +158,7 @@ impl Board {
         };
         // Each view has a clip for them, just over its picture of the
         // stadium and under everything else.
-        let wall_in_view = |across: f32| {
-            let mark = ground.foul.0 + across * (ground.foul.1 - ground.foul.0);
-            parts.centre_x + (mark - parts.field_mark.0) * field.aim_share
-        };
+        let wall_in_view = |across: f32| parts.across_view(across, field);
         for over_field in [false, true] {
             let view = if over_field {
                 &parts.field
