@@ -131,6 +131,7 @@ switched on.
 | Turbo runners | `turbo_runners` | Runners are several times as fast, as you set, and can be sent on with the ball in the air |
 | Night game | `night_game` | The stadium is dark with the players and ball lit, and home runs flash the lights |
 | The shift | `the_shift` | The fielders stand where you have been hitting the ball, until you go the other way |
+| Tired arm | `tired_arm` | The pitcher slows and misses the zone more as his pitches mount up, until a fresh one comes in |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -302,6 +303,18 @@ they are. The little field in the corner of the batting view shows where
 everyone is standing, with SHIFT LEFT or SHIFT RIGHT under it, and hitting
 the other way brings them back. The arcade game has no fielders. The numbers
 are under `[shift]` in `data/rules.toml`.
+
+With the tired arm, the pitcher wears out. His first ten pitches are as they
+always were. From there to his thirtieth each takes a little longer than the
+last, up to three tenths longer, and he aims at a wider and wider area about
+the same middle, up to half as wide and as high again, so that more and more
+of his pitches miss the strike zone. How many he has thrown is written in the
+corner of the batting view, from white through yellow to red, and he grows
+flushed. So it pays to make him throw: take the balls, and he tires sooner.
+After thirty-six a new pitcher comes in for him, as fresh as the first was,
+and the count starts again. In a full match the count goes on from one
+innings to the next. The arcade game is over before any arm tires. The
+numbers are under `[tired_arm]` in `data/rules.toml`.
 
 ## Changing the game
 

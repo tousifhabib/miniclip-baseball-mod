@@ -307,6 +307,14 @@ pub struct Match {
     /// are coming, and the score when that was last worked out.
     pub(crate) heat: u32,
     heat_score: u32,
+    /// How many pitches the pitcher on the mound has thrown, and how many
+    /// pitchers have come in for the one before, which the tired arm mod
+    /// goes by.
+    pub(crate) arm: u32,
+    pub(crate) relieved: u32,
+    /// How tired he is for the pitch in hand, from 0 to 1, with that mod
+    /// on.
+    pub(crate) tired: Option<f32>,
     /// How far across the field each fair ball of this game came down, from
     /// 0 on the left foul line to 1 on the right, the latest last. The shift
     /// mod has the fielders stand by it, and this is how far it has moved
@@ -336,8 +344,12 @@ const GOLD: ColorTransform = ColorTransform {
     add: [0.0, 0.0, 0.0, 0.0],
 };
 /// How far down the batting view the mystery pitch mod names the pitch,
-/// which is between the scoreboard and the pitcher.
+/// which is between the scoreboard and the pitcher. The tired arm mod says
+/// there that a new pitcher has come in.
 const MYSTERY_TOP: f32 = 141.0;
+/// How much of the green and the blue of a pitcher goes when he is spent,
+/// with the tired arm mod on: he is flushed.
+const FLUSH: f32 = 0.22;
 /// The button on the next-ball panel.
 const NEXT_BALL_BUTTON: SymbolId = 1618;
 
@@ -440,6 +452,9 @@ impl Match {
             hurry: 0.0,
             heat: 0,
             heat_score: 0,
+            arm: 0,
+            relieved: 0,
+            tired: None,
             spray: Vec::new(),
             shift: 0.0,
             longest_zinger: 0,
@@ -898,6 +913,57 @@ impl Match {
                 );
             }
         }
+        // A tired arm is slower and wilder, and one that has thrown its last
+        // gives way to a fresh one. The arcade game is over before any arm
+        // tires.
+        if game.mods.is_on(Mod::TiredArm) && self.arcade.is_none() {
+            let arm = &rules.tired_arm;
+            if self.arm >= arm.relief.max(1) {
+                self.arm = 0;
+                self.relieved += 1;
+                Match::sound(stage, library, "baseball_organ_FX");
+                Notice::put(
+                    &mut notices,
+                    &parts,
+                    "newPitcher",
+                    "NEW PITCHER",
+                    (parts.centre_x, MYSTERY_TOP),
+                    1.0,
+                    [0xc8, 0xf0, 0xff],
+                    Some(arm.told_time),
+                    stage,
+                    library,
+                );
+            }
+            let tired = arm.tired(self.arm);
+            self.tired = Some(tired);
+            table = arm.pitch(&table, tired);
+            if let Some(pitcher) = stage.child_mut(&parts.pitcher) {
+                let left = 1.0 - FLUSH * tired;
+                pitcher.set_color(ColorTransform {
+                    mult: [1.0, left, left, 1.0],
+                    add: [0.0; 4],
+                });
+            }
+            // From white, through yellow, to red.
+            let colour = [
+                0xff,
+                (0xff as f32 - 0x90 as f32 * tired) as u8,
+                (0xff as f32 - 0xc0 as f32 * tired.min(0.5) * 2.0) as u8,
+            ];
+            Notice::put(
+                &mut notices,
+                &parts,
+                "pitches",
+                &format!("PITCHES {}", self.arm),
+                corner.line(),
+                0.8,
+                colour,
+                None,
+                stage,
+                library,
+            );
+        }
         if game.mods.is_on(Mod::HotBat) && self.streak > 0 {
             // Every hit in a row has widened the window by a frame at
             // each end.
@@ -1289,6 +1355,7 @@ impl Match {
                     show(stage, &at_bat.parts.ball, true);
                     show(stage, &at_bat.parts.shadow, true);
                     self.pitched += 1;
+                    self.arm += 1;
                     self.book_thrown();
                     if let Some(arcade) = &mut self.arcade {
                         arcade.left = arcade.left.saturating_sub(1);
@@ -1762,6 +1829,12 @@ impl Match {
         }
         if self.streak > 0 {
             let_go += &format!(", hits in a row {}", self.streak);
+        }
+        if let Some(tired) = self.tired {
+            let_go += &format!(", arm {} tired {tired:.2}", self.arm);
+            if self.relieved > 0 {
+                let_go += &format!(", pitcher {}", self.relieved + 1);
+            }
         }
         if self.shift != 0.0 {
             let way = if self.shift < 0.0 { "left" } else { "right" };

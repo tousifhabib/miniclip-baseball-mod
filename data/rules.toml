@@ -438,6 +438,24 @@ most = 0.3
 told = 0.05
 
 # ---------------------------------------------------------------------------
+# The tired arm mod: the pitcher tires as he throws, until another comes in.
+[tired_arm]
+# He pitches as he always did for his first `fresh` pitches, and tires from
+# there until he is spent, by his `spent`th.
+fresh = 10
+spent = 30
+# When he has thrown this many a fresh pitcher comes in for him.
+relief = 36
+# Spent, his pitches take this many times as long, and the area he aims at
+# is this many times as wide and as high, about the same middle, so that
+# more of them miss the strike zone. Part of the way to spent he is that
+# part of the way to both.
+slow = 1.3
+wild = 1.5
+# Frames the word that a new pitcher has come in stays up.
+told_time = 100
+
+# ---------------------------------------------------------------------------
 # The arcade game: hit a target on the outfield.
 [arcade]
 pitches = 10
