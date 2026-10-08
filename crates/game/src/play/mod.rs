@@ -237,6 +237,9 @@ pub struct Match {
     /// How many times a fielder has let the ball go in this game, with the
     /// butterfingers mod on.
     pub(crate) slips: u32,
+    /// With the hot bat mod on: how many swings in a row have met the
+    /// ball.
+    pub(crate) streak: u32,
     /// With the heat check mod on: how many runs' worth faster the pitches
     /// are coming, and the score when that was last worked out.
     pub(crate) heat: u32,
@@ -254,6 +257,8 @@ const PITCH: &str = "pitch";
 /// Where the heat check mod says how much heat is on: the middle of the top
 /// of its words, under the little field in the corner of the batting view.
 const HEAT_AT: Point = (60.0, 88.0);
+/// Where the hot bat mod says how hot the bat is, under that.
+const HOT_BAT_AT: Point = (60.0, 104.0);
 /// How far down the batting view the mystery pitch mod names the pitch,
 /// which is between the scoreboard and the pitcher.
 const MYSTERY_TOP: f32 = 141.0;
@@ -283,6 +288,12 @@ pub(crate) fn show(stage: &mut Stage, path: &[u16], visible: bool) {
     if let Some(child) = stage.child_mut(path) {
         child.set_visible(visible);
     }
+}
+
+/// The colour of a bat this hot, from warm to as hot as it gets.
+fn hot_colour(hot: u32, most: u32) -> Rgb {
+    let share = hot as f32 / most.max(1) as f32;
+    [0xff, (0xc8 as f32 - 0x98 as f32 * share) as u8, 0x20]
 }
 
 /// Where across the batting view the art's pointer shows a hit going, for a
@@ -325,6 +336,7 @@ impl Match {
             put_away: Vec::new(),
             arcade: None,
             slips: 0,
+            streak: 0,
             heat: 0,
             heat_score: 0,
             longest_zinger: 0,
@@ -688,6 +700,26 @@ impl Match {
                 );
             }
         }
+        if game.mods.is_on(Mod::HotBat) && self.streak > 0 {
+            // Every hit in a row has widened the window by a frame at
+            // each end.
+            let more = self.streak.min(rules.hot_bat.most);
+            table.window = pitch::widened(&table.window, more);
+            let says = format!("HOT BAT {more}");
+            let colour = hot_colour(more, rules.hot_bat.most);
+            Notice::put(
+                &mut notices,
+                &parts,
+                "hotBat",
+                &says,
+                HOT_BAT_AT,
+                0.8,
+                colour,
+                None,
+                stage,
+                library,
+            );
+        }
         show(stage, &parts.ball, false);
         show(stage, &parts.shadow, false);
         if let Some(zone) = stage.find(&parts.main, &["strikeZone"]) {
@@ -951,6 +983,16 @@ impl Match {
                     (left..=right).contains(&x) && (top..=bottom).contains(&y)
                 });
         Match::still_batter(stage, &at_bat.parts.hitter, library);
+        if game.mods.is_on(Mod::HotBat) && self.streak > 0 {
+            // The mark on the bat glows, hotter the longer the run of hits.
+            let most = rules.hot_bat.most;
+            let glow = look::tint(hot_colour(self.streak.min(most), most));
+            for mark in art::all_named(stage, &at_bat.parts.hitter, "batLogo") {
+                if let Some(mark) = stage.child_mut(&mark) {
+                    mark.set_color(glow);
+                }
+            }
+        }
         Match::settle_fielders(&at_bat.parts, stage, library);
         overlay::Notice::fade(&mut at_bat.notices, stage);
         if at_bat.contact.is_none() {
@@ -1134,6 +1176,9 @@ impl Match {
             Some((frames, quality, power))
         });
         if let (true, Some((frames, quality, power))) = (in_band, met) {
+            if game.mods.is_on(Mod::HotBat) {
+                self.streak += 1;
+            }
             // With the zinger mod on, whatever the bat meets is on its way
             // out of the ground.
             let zinger = game
@@ -1254,6 +1299,7 @@ impl Match {
             return;
         }
         self.strikes += 1;
+        self.streak = 0;
         self.cool(game);
         if let Some(anim) = &parts.strike_anim {
             let label = format!("strike{}", self.strikes.min(3));
@@ -1434,6 +1480,9 @@ impl Match {
         };
         if self.heat > 0 {
             let_go += &format!(", heat {}", self.heat);
+        }
+        if self.streak > 0 {
+            let_go += &format!(", hits in a row {}", self.streak);
         }
         format!(
             "{:?}, score {} of {}, outs {}, count {}-{}, bases {bases}, pitched {}{pitch}{let_go}",

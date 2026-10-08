@@ -70,6 +70,7 @@ switched on.
 | Heat check | `heat_check` | Every run makes the next pitch faster, and every strike slows them again |
 | Mystery pitch | `mystery_pitch` | Each pitch is a fastball, a change-up or a curve, and you find out as it is thrown |
 | Called shot | `called_shot` | Click a spot on the outfield before a pitch; a hit that lands near it is worth extra runs |
+| Hot bat | `hot_bat` | Each hit in a row widens your timing window, and a strike resets it |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -174,6 +175,13 @@ outer two. A ball that is caught, or that goes over the wall, never comes
 down on it. Each pitch is called afresh, and need not be called at all. The
 arcade game has a target of its own, and plays as it did. The numbers are
 under `[called_shot]` in `data/rules.toml`.
+
+With the hot bat, every swing in a row that meets the ball adds a frame to
+each end of the timing window for the next, up to three, each as good as the
+frame that was the end. A strike that is not a foul takes the window back to
+what it was. How hot the bat is is written in the corner of the batting
+view, and the mark on the bat glows, redder the hotter. The number is under
+`[hot_bat]` in `data/rules.toml`.
 
 ## Changing the game
 

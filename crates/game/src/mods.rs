@@ -45,6 +45,9 @@ pub enum Mod {
     /// Before a pitch the player clicks a spot on the outfield, and a hit
     /// that comes down near it is worth runs on top.
     CalledShot,
+    /// Each hit in a row widens the timing window for the next swing,
+    /// and a strike takes it back to what it was.
+    HotBat,
 }
 
 /// What the menu and the files know a mod by.
@@ -62,7 +65,7 @@ struct Info {
 
 impl Mod {
     /// Every mod, in the order the menu lists them.
-    pub const ALL: [Mod; 8] = [
+    pub const ALL: [Mod; 9] = [
         Mod::TimingIndicator,
         Mod::LonePitcher,
         Mod::ZingerHit,
@@ -71,6 +74,7 @@ impl Mod {
         Mod::HeatCheck,
         Mod::MysteryPitch,
         Mod::CalledShot,
+        Mod::HotBat,
     ];
 
     fn info(self) -> Info {
@@ -121,6 +125,12 @@ impl Mod {
                 key: "called_shot",
                 name: "CALLED SHOT",
                 about: "CLICK THE OUTFIELD BEFORE A PITCH: LAND IT THERE FOR RUNS",
+                setting: None,
+            },
+            Mod::HotBat => Info {
+                key: "hot_bat",
+                name: "HOT BAT",
+                about: "EACH HIT IN A ROW WIDENS THE TIMING, A MISS RESETS IT",
                 setting: None,
             },
         }

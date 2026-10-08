@@ -44,6 +44,15 @@ pub fn game_modded(screen: &str, seed: u64, mods: &[Mod]) -> Option<Script> {
     game_made(screen, Some(seed), None, mods, None, None)
 }
 
+/// A match with these mods on that takes a long time to win or lose, for
+/// tests that need a good many pitches: forty runs behind, with thirty outs
+/// to get them in.
+pub fn long_match(seed: u64, mods: &[Mod]) -> Option<Script> {
+    let long = "[match]\nouts = 30\n[match.runs_down]\neasy = 40\nmedium = 40\nhard = 40\n";
+    let rules = Rules::layered(&[("a long match", long)]).expect("rules that read");
+    game_made("match", Some(seed), Some(rules), mods, None, None)
+}
+
 /// The same, keeping its scores in `scores` and starting from what is
 /// there.
 pub fn game_keeping(screen: &str, seed: u64, mods: &[Mod], scores: &Path) -> Option<Script> {

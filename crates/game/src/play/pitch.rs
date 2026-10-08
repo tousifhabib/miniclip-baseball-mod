@@ -247,6 +247,24 @@ pub fn meets(rules: &PitchRules, frames_since_swing: u32) -> Option<(Quality, f3
         .map(|&(_, quality, power)| (quality, power))
 }
 
+/// A timing window with `more` frames added to each end, each as good as
+/// the frame that was the end and with its power. A window cannot begin
+/// before the swing does.
+pub fn widened(window: &[(u32, Quality, f32)], more: u32) -> Vec<(u32, Quality, f32)> {
+    let first = window.iter().min_by_key(|&&(frames, ..)| frames).copied();
+    let last = window.iter().max_by_key(|&&(frames, ..)| frames).copied();
+    let (Some(first), Some(last)) = (first, last) else {
+        return Vec::new();
+    };
+    let mut wider: Vec<(u32, Quality, f32)> = (1..=more.min(first.0))
+        .rev()
+        .map(|by| (first.0 - by, first.1, first.2))
+        .collect();
+    wider.extend_from_slice(window);
+    wider.extend((1..=more).map(|by| (last.0 + by, last.1, last.2)));
+    wider
+}
+
 /// How near the best a swing that meets the ball this many frames after it
 /// began was timed: 1 on the best frame of the window, falling evenly to 0
 /// on the frame of the window furthest from it. `None` for a miss.
@@ -456,6 +474,23 @@ mod tests {
         }
         let names: Vec<&str> = Kind::ALL.iter().map(|kind| kind.words()).collect();
         assert_eq!(names, ["FASTBALL", "CHANGE-UP", "CURVE"]);
+    }
+
+    #[test]
+    fn a_widened_window_has_frames_at_each_end_as_good_as_the_end_was() {
+        let rules = Rules::default();
+        let medium = &rules.pitch.at(Difficulty::Medium).window;
+        assert_eq!(widened(medium, 0), *medium);
+        let wider = widened(medium, 2);
+        let frames: Vec<u32> = wider.iter().map(|&(frames, ..)| frames).collect();
+        assert_eq!(frames, [6, 7, 8, 9, 10, 11, 12, 13, 14]);
+        assert_eq!(wider[0], (6, Quality::Poor, 25.0));
+        assert_eq!(wider[8], (14, Quality::Medium, 17.0));
+        // The frames that were there are as they were.
+        assert_eq!(wider[2..7], medium[..]);
+        // It cannot begin before the swing does.
+        assert_eq!(widened(&[(1, Quality::Good, 14.0)], 3).len(), 5);
+        assert!(widened(&[], 3).is_empty());
     }
 
     #[test]
