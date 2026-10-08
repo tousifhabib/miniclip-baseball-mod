@@ -320,6 +320,9 @@ pub struct Match {
     /// since, and whether the rally mod is on to go by it.
     pub(crate) rally: u32,
     rallying: bool,
+    /// The pitch in hand is one the clutch mod makes runs count for more
+    /// on.
+    clutch: bool,
     /// With the hit the sign mod on: the innings a sign was last lit for
     /// and which it was, what the next is drawn by, the sign a ball has
     /// just struck and the runs that was worth, until that has been told,
@@ -487,6 +490,7 @@ impl Match {
             heat_score: 0,
             rally: 0,
             rallying: false,
+            clutch: false,
             sign: None,
             sign_rng: Rng::new(seed ^ SIGN_SEED),
             sign_news: None,
@@ -536,7 +540,20 @@ impl Match {
         if game.mods.is_on(Mod::Rally) {
             worth *= game.rules.rally.worth(self.rally);
         }
+        if self.in_the_clutch(game) {
+            worth *= game.rules.clutch.runs;
+        }
         worth
+    }
+
+    /// Whether the pitch about to be thrown is one the clutch mod makes
+    /// runs count for more on: the side has one out left, and a runner is
+    /// on second or third.
+    fn in_the_clutch(&self, game: &Game) -> bool {
+        game.mods.is_on(Mod::Clutch)
+            && self.arcade.is_none()
+            && self.outs + 1 == self.max_outs
+            && (self.on_base(2).is_some() || self.on_base(3).is_some())
     }
 
     /// A strike has been called: with the heat check mod on, the pitches
@@ -1042,6 +1059,26 @@ impl Match {
                 corner.line(),
                 0.8,
                 [0xff, 0xd2, 0x40],
+                None,
+                stage,
+                library,
+            );
+        }
+        self.clutch = self.in_the_clutch(game);
+        if self.clutch {
+            // The organ plays as the batter comes up to it, and not again
+            // for every pitch to him.
+            if self.strikes + self.balls == 0 {
+                Match::sound(stage, library, "baseball_organ_tense_FX");
+            }
+            Notice::put(
+                &mut notices,
+                &parts,
+                "clutch",
+                &format!("CLUTCH: RUNS X{}", rules.clutch.runs),
+                corner.line(),
+                0.8,
+                [0xff, 0x8a, 0x6a],
                 None,
                 stage,
                 library,
@@ -1954,6 +1991,9 @@ impl Match {
         }
         if self.rallying && self.rally > 0 {
             let_go += &format!(", rally {}", self.rally);
+        }
+        if self.clutch {
+            let_go += ", clutch";
         }
         if let Some((_, lit)) = self.sign {
             let_go += &format!(", sign {} lit", lit + 1);

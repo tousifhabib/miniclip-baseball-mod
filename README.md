@@ -135,6 +135,7 @@ switched on.
 | Stolen bases | `stolen_bases` | Click the little field as the pitcher winds up to send a runner; the catcher throws to put him out |
 | Hit the sign | `hit_the_sign` | Signs on the outfield wall pay runs to a ball that strikes them, the lit one most |
 | Rally | `rally` | Each batter in a row who reaches base makes every run worth one more, until somebody is out |
+| Clutch | `clutch` | With two out and a runner on second or third, every run counts double |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -374,6 +375,14 @@ The corner of the batting view says what runs are worth while a rally is
 on. Whatever else multiplies runs, sudden death or a golden ball,
 multiplies these. The arcade game has no runs. The number is under `[rally]`
 in `data/rules.toml`.
+
+With the clutch, a pitch thrown with two out and a runner standing on second
+or third is one on which every run counts for two: the runs of everyone it
+brings home, the batter's own included. The corner of the batting view says
+so, and the organ plays as the batter comes up. A runner on first alone is
+not enough. It goes with the other mods that change what a run is worth, so
+a golden ball in the clutch is worth six. The arcade game has no runs. The
+number is under `[clutch]` in `data/rules.toml`.
 
 ## Changing the game
 
