@@ -68,9 +68,19 @@ pub struct Rules {
     pub sign: SignRules,
     /// The rally mod.
     pub rally: RallyRules,
+    /// The clutch mod.
+    pub clutch: ClutchRules,
     pub arcade: ArcadeRules,
     pub team: TeamRules,
     pub sound: SoundRules,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ClutchRules {
+    /// How many each run counts for with one out left and a runner on
+    /// second or third.
+    pub runs: u32,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]

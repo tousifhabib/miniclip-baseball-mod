@@ -82,6 +82,9 @@ pub enum Mod {
     /// Each batter in a row who reaches base makes the runs that follow
     /// worth one more, until somebody is out.
     Rally,
+    /// With two out and a runner on second or third, every run counts
+    /// for two.
+    Clutch,
 }
 
 /// What the menu and the files know a mod by.
@@ -99,7 +102,7 @@ struct Info {
 
 impl Mod {
     /// Every mod, in the order the menu lists them.
-    pub const ALL: [Mod; 20] = [
+    pub const ALL: [Mod; 21] = [
         Mod::TimingIndicator,
         Mod::LonePitcher,
         Mod::ZingerHit,
@@ -120,6 +123,7 @@ impl Mod {
         Mod::StolenBases,
         Mod::HitTheSign,
         Mod::Rally,
+        Mod::Clutch,
     ];
 
     fn info(self) -> Info {
@@ -242,6 +246,12 @@ impl Mod {
                 key: "rally",
                 name: "RALLY",
                 about: "EACH BATTER IN A ROW ON BASE ADDS ONE TO EVERY RUN",
+                setting: None,
+            },
+            Mod::Clutch => Info {
+                key: "clutch",
+                name: "CLUTCH",
+                about: "TWO OUT AND A RUNNER ON SECOND OR THIRD: RUNS COUNT DOUBLE",
                 setting: None,
             },
         }

@@ -510,6 +510,13 @@ told_time = 150
 most = 4
 
 # ---------------------------------------------------------------------------
+# The clutch mod: runs count for more when they are hardest to come by.
+[clutch]
+# How many each run counts for on a pitch thrown with one out left to the
+# side, which is two out as the game is, and a runner on second or third.
+runs = 2
+
+# ---------------------------------------------------------------------------
 # The arcade game: hit a target on the outfield.
 [arcade]
 pitches = 10
