@@ -9,9 +9,12 @@ use bb_engine::display::Path;
 use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
+use super::book::{Book, End, Hit, ORDER, Pitch, Thrown};
+use super::field::Ground;
 use super::overlay::Words;
+use super::paper;
 use super::pitch::Point;
-use super::{Match, Outcome, Parts, Phase};
+use super::{AtBat, Match, Outcome, Parts, Phase, Place};
 use crate::art;
 use crate::look::Rgb;
 use crate::menu::Game;
@@ -55,6 +58,9 @@ pub struct Line {
     pub ours: bool,
     pub cells: Vec<Cell>,
     pub runs: u32,
+    pub hits: u32,
+    /// The errors it made in the field.
+    pub errors: u32,
 }
 
 #[derive(Clone, Debug)]
@@ -75,10 +81,20 @@ pub struct FullMatch {
     over: bool,
     /// What the other side's innings are drawn from.
     rng: Rng,
+    /// What their innings are played out on paper from, the field they are
+    /// played on, and whose turn it is to bat for them.
+    seed: u64,
+    ground: Ground,
+    their_turn: usize,
+    /// Every pitch to every batter of both sides.
+    pub book: Book,
 }
 
 /// The most innings the board has room for. A longer match shows its last.
 pub const COLUMNS: u32 = 9;
+/// What makes the playing out of each of their innings on paper come out
+/// differently from the last.
+const PAPER_SEED: u64 = 0x3c6e_f372_fe94_f82b;
 
 /// A number as the place it has in an order, in capitals: 1ST, 2ND, 11TH.
 pub fn ordinal(number: u32) -> String {
@@ -93,7 +109,7 @@ pub fn ordinal(number: u32) -> String {
 }
 
 /// A number of runs, in words fit for the board.
-fn runs_words(runs: u32) -> String {
+pub fn runs_words(runs: u32) -> String {
     match runs {
         0 => "NO RUNS".to_owned(),
         1 => "1 RUN".to_owned(),
@@ -101,15 +117,26 @@ fn runs_words(runs: u32) -> String {
     }
 }
 
+/// A number of hits, the same way.
+pub fn hits_words(hits: u32) -> String {
+    match hits {
+        0 => "NO HITS".to_owned(),
+        1 => "1 HIT".to_owned(),
+        hits => format!("{hits} HITS"),
+    }
+}
+
 impl FullMatch {
     /// A match about to begin, with the player's side at home or away. If
     /// it is at home the other side has batted already when this returns.
-    /// `zinger` is whether every ball the player hits is a home run.
+    /// `zinger` is whether every ball the player hits is a home run, and
+    /// `ground` the field the match is played on.
     pub fn new(
         home: bool,
         rules: &FullMatchRules,
         difficulty: Difficulty,
         zinger: bool,
+        ground: Ground,
         seed: u64,
     ) -> FullMatch {
         let mut full = FullMatch {
@@ -122,12 +149,48 @@ impl FullMatch {
             unneeded: false,
             over: false,
             rng: Rng::new(seed),
+            seed,
+            ground,
+            their_turn: 0,
+            book: Book::default(),
         };
         if home {
             let made = full.made();
-            full.theirs.push(made);
+            full.their_half(made, false);
         }
         full
+    }
+
+    /// The other side bats for `made` runs. `winning` is whether that wins
+    /// them the match, which ends the moment the last run is in. The half
+    /// is played out on paper and goes in the book.
+    fn their_half(&mut self, made: u32, winning: bool) {
+        let innings = self.theirs.len() as u32 + 1;
+        let mut rng = Rng::new(self.seed ^ PAPER_SEED.wrapping_mul(u64::from(innings)));
+        let rules = &self.rules.their_batting;
+        let first_up = self.their_turn;
+        let half = paper::half(
+            made,
+            winning,
+            innings,
+            first_up,
+            rules,
+            &self.ground,
+            &mut rng,
+        );
+        self.their_turn = half.next;
+        let theirs = &mut self.book.theirs;
+        theirs.turns.extend(half.turns);
+        theirs.left.push(half.left);
+        for (all, more) in theirs.runs.iter_mut().zip(half.runs) {
+            *all += more;
+        }
+        self.theirs.push(made);
+    }
+
+    /// The field the match is played on.
+    pub fn ground(&self) -> &Ground {
+        &self.ground
     }
 
     /// The runs the other side makes in an innings left to run its course.
@@ -194,7 +257,7 @@ impl FullMatch {
             return if ours > theirs { Next::Won } else { Next::Lost };
         }
         let made = self.made();
-        self.theirs.push(made);
+        self.their_half(made, false);
         // Ahead with only the bottom of the last innings to come, the home
         // side has no need of it.
         if self.last(innings + 1) && ours > self.theirs() {
@@ -217,7 +280,8 @@ impl FullMatch {
             // They stop as soon as they are ahead.
             made = made.min(ours - self.theirs() + 1);
         }
-        self.theirs.push(made);
+        let winning = last && self.theirs() + made > ours;
+        self.their_half(made, winning);
         match (last, self.theirs().cmp(&ours)) {
             (false, _) | (true, std::cmp::Ordering::Equal) => Next::Bat,
             (true, std::cmp::Ordering::Greater) => Next::Lost,
@@ -257,11 +321,18 @@ impl FullMatch {
                     None => Cell::Blank,
                 })
                 .collect();
+            let side = if ours {
+                &self.book.ours
+            } else {
+                &self.book.theirs
+            };
             Line {
                 name: if ours { "YOU" } else { "THEM" },
                 ours,
                 cells,
                 runs: made.iter().sum(),
+                hits: side.figures().hits,
+                errors: side.errors,
             }
         };
         if self.home {
@@ -276,7 +347,11 @@ impl FullMatch {
     pub fn report(&self) -> Report {
         let (ours, theirs) = (self.ours(), self.theirs());
         let innings = self.innings();
-        let made = runs_words(self.theirs.last().copied().unwrap_or(0));
+        let made = format!(
+            "{} ON {}",
+            runs_words(self.theirs.last().copied().unwrap_or(0)),
+            hits_words(self.book.theirs.hits_in(self.theirs.len() as u32))
+        );
         let standing = match ours.cmp(&theirs) {
             std::cmp::Ordering::Greater => format!("YOU LEAD {ours} - {theirs}"),
             std::cmp::Ordering::Less => format!("YOU TRAIL {ours} - {theirs}"),
@@ -459,6 +534,7 @@ impl Match {
             &game.rules.full_match,
             game.settings.difficulty,
             game.mods.is_on(Mod::ZingerHit),
+            art::ground(library, &game.rules),
             seed ^ THEIR_SEED,
         );
         played.target = full.theirs() + 1;
@@ -475,9 +551,20 @@ impl Match {
     /// It is written up and the other side has its turn, after which what
     /// was only a side being out may be the match won or lost.
     pub(crate) fn close_half(&mut self, outcome: Outcome) -> Outcome {
+        let by_order = self.runs_by_order();
+        let on_base = |runner: &&super::Runner| matches!(runner.place, Place::Base(_));
+        let left = self.runners.iter().filter(on_base).count() as u32;
         let Some(full) = &mut self.full else {
             return outcome;
         };
+        // The book is made up for the half: who made the runs, and how many
+        // were left on base.
+        let ours = &mut full.book.ours;
+        ours.abandon();
+        ours.left.push(left);
+        for (order, runs) in ours.runs.iter_mut().enumerate() {
+            *runs = by_order.get(order).copied().unwrap_or(0);
+        }
         let runs = self.score.saturating_sub(full.ours());
         if outcome == Outcome::Won {
             full.walked_off(runs);
@@ -487,6 +574,47 @@ impl Match {
             Next::Bat => Outcome::Interval,
             Next::Won => Outcome::Won,
             Next::Lost => Outcome::Lost,
+        }
+    }
+
+    /// A pitch is on its way. In a full match the batter is written into
+    /// the book, if he is not there already, and how things stand is kept
+    /// for when it is known what came of the pitch.
+    pub(crate) fn book_thrown(&mut self) {
+        self.thrown_at = (self.score, self.outs);
+        let order = self.batter().map(|batter| self.runners[batter].order);
+        let on = [1, 2, 3].map(|base| self.on_base(base).is_some());
+        if let (Some(full), Some(order)) = (&mut self.full, order) {
+            let innings = full.innings();
+            full.book
+                .ours
+                .come_up(innings, order % ORDER, self.outs, on);
+        }
+    }
+
+    /// Writes the pitch into a full match's book, now that it is known how
+    /// it ended.
+    pub(crate) fn book_pitch(&mut self, at_bat: &AtBat, thrown: Thrown) {
+        if let Some(full) = &mut self.full {
+            full.book.ours.pitch(Pitch {
+                in_zone: at_bat.pitch.in_zone,
+                thrown,
+                off: at_bat.swing_off,
+                quality: at_bat.met,
+            });
+        }
+    }
+
+    /// The batter's turn is over: a full match's book is told how, and
+    /// works out the runs that came in on the pitch and the outs that were
+    /// made, a play that put out more than were left to get counting for no
+    /// more than those.
+    pub(crate) fn book_end(&mut self, end: End, ball: Option<Hit>) {
+        let (score, outs) = self.thrown_at;
+        let runs_in = self.score.saturating_sub(score);
+        let outs_made = self.outs.min(self.max_outs).saturating_sub(outs);
+        if let Some(full) = &mut self.full {
+            full.book.ours.close(end, ball, runs_in, outs_made);
         }
     }
 
@@ -528,7 +656,14 @@ mod tests {
         rules.runs.easy = chances.clone();
         rules.runs.medium = chances.clone();
         rules.runs.hard = chances;
-        FullMatch::new(home, &rules, Difficulty::Medium, false, 7)
+        FullMatch::new(
+            home,
+            &rules,
+            Difficulty::Medium,
+            false,
+            Ground::default(),
+            7,
+        )
     }
 
     #[test]
@@ -624,12 +759,14 @@ mod tests {
         assert_eq!(full.half_words(), "BOT 1ST");
         let report = full.report();
         assert_eq!(report.heading, "TOP OF THE 1ST");
+        // How many hits the two runs came on is as the book has it.
+        let hits = hits_words(full.book.theirs.hits_in(1));
         assert_eq!(
             report.lines,
             [
-                "THE VISITORS MADE 2 RUNS",
-                "YOU TRAIL 0 - 2",
-                "YOU BAT IN THE BOTTOM OF THE 1ST"
+                format!("THE VISITORS MADE 2 RUNS ON {hits}"),
+                "YOU TRAIL 0 - 2".to_owned(),
+                "YOU BAT IN THE BOTTOM OF THE 1ST".to_owned()
             ]
         );
         let [visitors, home] = full.lines();
@@ -690,19 +827,84 @@ mod tests {
     #[test]
     fn with_every_hit_a_home_run_the_other_side_makes_more() {
         let rules = Rules::default().full_match;
+        let ground = Ground::default();
         let total = |zinger: bool| {
             (0..40)
-                .map(|seed| FullMatch::new(true, &rules, Difficulty::Hard, zinger, seed).theirs())
+                .map(|seed| {
+                    FullMatch::new(true, &rules, Difficulty::Hard, zinger, ground, seed).theirs()
+                })
                 .sum::<u32>()
         };
         assert!(total(true) > total(false) * 3 / 2);
     }
 
+    /// Checks that the book of the other side says what the board says.
+    fn book_agrees(full: &FullMatch) {
+        let theirs = &full.book.theirs;
+        for (index, &made) in full.theirs.iter().enumerate() {
+            let innings = index as u32 + 1;
+            let in_it: u32 = theirs.innings(innings).map(|turn| turn.runs_in).sum();
+            assert_eq!(in_it, made, "the runs of innings {innings}");
+        }
+        assert_eq!(theirs.runs.iter().sum::<u32>(), full.theirs());
+        assert_eq!(theirs.left.len(), full.theirs.len());
+        // They bat in order from one innings to the next.
+        for (index, turn) in theirs.turns.iter().enumerate() {
+            assert_eq!(turn.order, index % ORDER);
+        }
+        // Nobody batted in a half that was not played.
+        let played = full.theirs.len() as u32;
+        assert!(theirs.turns.iter().all(|turn| turn.innings <= played));
+        let figures = theirs.figures();
+        assert_eq!(figures.runs, full.theirs());
+        assert_eq!(figures.runs_in, full.theirs());
+        let line = full.lines().into_iter().find(|line| !line.ours).unwrap();
+        assert_eq!((line.runs, line.hits), (figures.runs, figures.hits));
+        // Everyone who came up was put out, came home or was left on.
+        let outs: u32 = theirs.turns.iter().map(|turn| turn.outs_made).sum();
+        assert_eq!(figures.turns, outs + figures.runs + figures.left);
+    }
+
+    #[test]
+    fn the_other_sides_book_says_what_the_board_says() {
+        let rules = Rules::default().full_match;
+        let ground = Ground::default();
+        for seed in 0..60 {
+            let home = seed % 2 == 0;
+            let difficulty = [Difficulty::Easy, Difficulty::Medium, Difficulty::Hard][seed % 3];
+            let zinger = seed % 5 == 0;
+            let mut full = FullMatch::new(home, &rules, difficulty, zinger, ground, seed as u64);
+            book_agrees(&full);
+            for innings in 0..30 {
+                // Sometimes ahead and sometimes behind, so that matches
+                // end every way they can.
+                let next = full.side_out((seed as u32 + innings) % 4);
+                book_agrees(&full);
+                if next != Next::Bat {
+                    break;
+                }
+            }
+            // Three were out in every half of theirs that ran its course.
+            let theirs = &full.book.theirs;
+            let won_at_bat = !home && full.theirs() > full.ours() && !full.unneeded;
+            for innings in 1..=full.theirs.len() as u32 {
+                let outs: u32 = theirs.innings(innings).map(|turn| turn.outs_made).sum();
+                let last = innings as usize == full.theirs.len();
+                if last && won_at_bat && full.over {
+                    assert!(outs < 3, "a winning half that went on");
+                } else {
+                    assert_eq!(outs, 3, "innings {innings} of seed {seed}");
+                }
+            }
+        }
+    }
+
     #[test]
     fn the_same_seed_gives_the_same_match() {
         let rules = Rules::default().full_match;
+        let ground = Ground::default();
         let play = |seed| {
-            let mut full = FullMatch::new(false, &rules, Difficulty::Medium, false, seed);
+            let mut full = FullMatch::new(false, &rules, Difficulty::Medium, false, ground, seed);
             for _ in 0..8 {
                 full.side_out(1);
             }

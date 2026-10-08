@@ -96,6 +96,26 @@ impl Words {
         Some(Words(paths))
     }
 
+    /// Words in the table's lettering that start from a point instead of
+    /// being centred on one: `left` is the left end of their top edge.
+    pub fn from_left(
+        holder: &[u16],
+        depth: u16,
+        name: &str,
+        left: Point,
+        size: f32,
+        stage: &mut Stage,
+        library: &Library,
+    ) -> Option<Words> {
+        let field = library.edit_texts.get(&art::LABEL_FIELD)?;
+        let (from, to) = (field.bounds.x_min as f32, field.bounds.x_max as f32);
+        // The field is placed by its middle, and starts what it says from
+        // its left edge.
+        let top = (left.0 + (to - from) / 2.0 * size, left.1);
+        let field = art::LABEL_FIELD;
+        Words::in_field(field, holder, depth, name, top, size, stage, library)
+    }
+
     /// Takes the words out of sight.
     pub fn hide(&self, stage: &mut Stage) {
         for path in &self.0 {

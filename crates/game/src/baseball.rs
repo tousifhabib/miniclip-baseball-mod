@@ -137,6 +137,9 @@ pub struct Baseball {
     /// What a full match has written on the board between innings, while
     /// that is up.
     board: Option<Path>,
+    /// The pages of the full match just finished, once they are up on its
+    /// result screen.
+    pages: Option<board::Pages>,
 }
 
 /// How many frames into a result screen the line about zingers is written,
@@ -144,8 +147,6 @@ pub struct Baseball {
 /// screen: on the ones a match ends on, and on the arcade game's.
 const ZINGER_LINE_AFTER: u32 = 260;
 const ZINGER_LINE_TOP: (f32, f32) = (262.0, 325.0);
-/// How far down it is when a full match has its innings written there.
-const ZINGER_LINE_TOP_FULL: f32 = 143.0;
 const ZINGER_LINE_SIZE: f32 = 0.8;
 const ZINGER_LINE_COLOUR: Rgb = [0xfd, 0xf6, 0xc0];
 
@@ -177,6 +178,7 @@ impl Baseball {
             result_lines: None,
             finished: None,
             board: None,
+            pages: None,
         }
     }
 
@@ -403,6 +405,7 @@ impl Baseball {
         if let Some(lines) = self.result_lines.take() {
             stage.remove(&lines);
         }
+        self.pages = None;
         // What was written on the board went with the board.
         self.board = None;
         self.result_frames = 0;
@@ -513,11 +516,14 @@ impl Baseball {
     }
 
     /// Writes on a result screen what the art has no place for, once the
-    /// screen has got to its figures: every innings of a full match, and
-    /// the longest zinger of the game just finished with the longest there
-    /// has ever been. A game with no zinger in it has no such line.
+    /// screen has got to its figures: the pages of a full match, and the
+    /// longest zinger of the game just finished with the longest there has
+    /// ever been. A game with no zinger in it has no such line.
     fn show_result_lines(&mut self, stage: &mut Stage, library: &Library) {
-        let mut top = match self.screen {
+        if let Some(pages) = &self.pages {
+            pages.keep(stage);
+        }
+        let top = match self.screen {
             Screen::MatchWon | Screen::MatchLost | Screen::InningsTied => ZINGER_LINE_TOP.0,
             Screen::ArcadeFinish => ZINGER_LINE_TOP.1,
             _ => return,
@@ -538,14 +544,21 @@ impl Baseball {
             return;
         };
         self.result_lines = Some(holder.clone());
+        let zingers = (self.last_zinger > 0).then(|| {
+            format!(
+                "LONGEST ZINGER {} FT   BEST EVER {} FT",
+                self.last_zinger, self.scores.longest_zinger
+            )
+        });
         if let Some(full) = &self.finished {
-            // The innings go where the zingers would, which move up.
-            board::result(full, &holder, stage, library);
-            top = ZINGER_LINE_TOP_FULL;
-        }
-        if self.last_zinger == 0 {
+            // A full match has pages, and what there is to say of zingers
+            // is on the first of them.
+            self.pages = board::Pages::new(full, zingers, &holder, stage, library);
             return;
         }
+        let Some(zingers) = zingers else {
+            return;
+        };
         let middle = library.manifest.stage.width as f32 / 2.0;
         if let Some(words) = Words::new(
             &holder,
@@ -556,11 +569,15 @@ impl Baseball {
             stage,
             library,
         ) {
-            let text = format!(
-                "LONGEST ZINGER {} FT   BEST EVER {} FT",
-                self.last_zinger, self.scores.longest_zinger
-            );
-            words.say(&text, ZINGER_LINE_COLOUR, stage);
+            words.say(&zingers, ZINGER_LINE_COLOUR, stage);
+        }
+    }
+
+    /// Takes in a click on the button at `path`, which may be one of the
+    /// arrows that turn the pages of a finished full match.
+    fn turn_page(&mut self, path: &[u16], stage: &mut Stage, library: &Library) {
+        if let Some(pages) = &mut self.pages {
+            pages.clicked(path, stage, library);
         }
     }
 
@@ -688,6 +705,7 @@ impl Logic for Baseball {
             self.choose_look(*symbol, stage);
             self.choose_mod(path);
             self.menu.chose(path, &mut self.game.settings);
+            self.turn_page(path, stage, library);
             self.clicked(*symbol, stage, library);
         }
     }
@@ -835,7 +853,13 @@ impl Logic for Baseball {
                 // ended on says how it went.
                 let play = match (&self.play, &self.finished) {
                     (Some(play), _) => format!(": {}", play.describe()),
-                    (None, Some(full)) => format!(": {}, {}", full.verdict(), full.describe()),
+                    (None, Some(full)) => {
+                        let page = self.pages.as_ref().map_or(String::new(), |pages| {
+                            let (page, of) = pages.at();
+                            format!(", page {page} of {of}")
+                        });
+                        format!(": {}, {}{page}", full.verdict(), full.describe())
+                    }
                     (None, None) => String::new(),
                 };
                 format!("{screen:?}, {:?}{play}", self.game.settings.difficulty)

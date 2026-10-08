@@ -41,6 +41,30 @@ easy = [44, 30, 15, 7, 3, 1]
 medium = [28, 24, 19, 13, 8, 4, 3, 1]
 hard = [16, 19, 20, 17, 12, 8, 4, 3, 1]
 
+# Once it is settled how many runs an innings of theirs comes to, it is
+# played out on paper, a pitch at a time, to come to just that: who struck
+# out, who walked, who hit what and where. These are the chances it is
+# played by.
+[full_match.their_batting]
+# The share of the pitches to them that are in the strike zone.
+zone = 0.5
+# How often they swing at a pitch in the zone, and at one outside it.
+swing = [0.66, 0.27]
+# How often such a swing meets the ball.
+contact = [0.85, 0.58]
+# The share of the balls they meet that go foul.
+foul = 0.4
+# What a ball they put in play is likely to come to. Only how the numbers
+# compare with one another matters. The hits all become likelier in an
+# innings that is to come to many runs, and rarer in one that is to come to
+# few.
+ground_out = 31
+fly_out = 29
+single = 25
+double = 8
+triple = 1
+home_run = 6
+
 # ---------------------------------------------------------------------------
 # The pitch. One table for each skill level.
 #
