@@ -6,6 +6,7 @@
 //! the outs, and where every runner stands.
 
 mod arcade;
+mod called;
 pub mod field;
 mod fielding;
 pub(crate) mod overlay;
@@ -163,6 +164,9 @@ pub(crate) struct AtBat {
     pub marker_at: Point,
     /// What the pitch is, with the mystery pitch mod on.
     pub kind: Option<Kind>,
+    /// Where the batter has said his hit will come down, with the called
+    /// shot mod on.
+    pub called: Option<called::Called>,
     pub aim: Point,
     /// Where the hit would go sideways, as the art's indicator shows it.
     pub aim_area_x: f32,
@@ -194,6 +198,9 @@ pub(crate) struct AtBat {
     pub over_wall: bool,
     /// What the mods have written up in the view.
     pub notices: Vec<overlay::Notice>,
+    /// Where the hit first came down, if it has and the called shot mod
+    /// wants to know.
+    pub came_down: Option<Point>,
 }
 
 impl AtBat {
@@ -792,6 +799,7 @@ impl Match {
             marker_shown: false,
             marker_at,
             kind,
+            called: None,
             swing: None,
             under: 0.0,
             across: 0.0,
@@ -807,6 +815,7 @@ impl Match {
             zinger_show: None,
             over_wall: false,
             notices,
+            came_down: None,
         });
         None
     }
@@ -956,6 +965,16 @@ impl Match {
         }
         match self.phase {
             Phase::Settling { left } => {
+                // While the pitcher waits, a click on the outfield calls
+                // the shot. The arcade game has a target of its own.
+                if pressed && self.arcade.is_none() && game.mods.is_on(Mod::CalledShot) {
+                    let main = &at_bat.parts.main;
+                    if let Some(pointer) = stage.from_stage(main, stage.pointer.x, stage.pointer.y)
+                    {
+                        let called = &mut at_bat.called;
+                        called::Called::call(called, pointer, &at_bat.parts, rules, stage, library);
+                    }
+                }
                 if left == 0 {
                     stage.goto_label(&at_bat.parts.pitcher, PITCH, true, library);
                     self.phase = Phase::WindUp;
@@ -1377,6 +1396,12 @@ impl Match {
                 .unwrap_or_default();
             if let Some(kind) = at_bat.kind {
                 zinger += &format!(", mystery {}", kind.words().to_lowercase());
+            }
+            if let Some(called) = &at_bat.called {
+                zinger += &format!(", called {:.0},{:.0}", called.at.0, called.at.1);
+            }
+            if let Some(down) = at_bat.came_down {
+                zinger += &format!(", came down at {:.0},{:.0}", down.0, down.1);
             }
             let best = at_bat
                 .timing

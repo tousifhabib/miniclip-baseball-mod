@@ -293,6 +293,22 @@ curve_dip = 0.4
 told_time = 70
 
 # ---------------------------------------------------------------------------
+# The called shot mod: click the outfield before a pitch, and a hit that
+# comes down there is worth runs on top.
+[called_shot]
+# The part of the field a shot can be called for, in pixels of the overhead
+# field.
+area = { x = 70.0, y = 125.0, width = 390.0, height = 115.0 }
+# The target is the arcade game's, with the same rings, drawn this many
+# times its size.
+size = 0.6
+# The runs a hit is worth that first comes down in each ring, from the
+# centre out.
+runs = [3, 2, 1, 1]
+# Frames the word that the shot came off stays up.
+told_time = 150
+
+# ---------------------------------------------------------------------------
 # The arcade game: hit a target on the outfield.
 [arcade]
 pitches = 10

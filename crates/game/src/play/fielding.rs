@@ -111,6 +111,10 @@ const TOLD_ABOVE: f32 = 30.0;
 const TOLD_SIZE: f32 = 0.85;
 const TOLD_MARGIN: f32 = 55.0;
 const TOLD_COLOUR: Rgb = [0xff, 0x9a, 0x3c];
+/// Where the view of the field says that a called shot came off: how far
+/// down, and in what colour.
+const CALLED_TOP: f32 = 232.0;
+const CALLED_COLOUR: Rgb = [0xff, 0xe2, 0x4a];
 
 /// The frames of a fielder on which he picks the ball up, throws it or
 /// catches it. Each shows a clip inside him that is meant to play once.
@@ -376,6 +380,7 @@ impl Match {
             Job::Chase | Job::WaitCatch | Job::Rest | Job::Fumbling { .. }
         );
         if let (Some(ball), true, false) = (&mut at_bat.ball, loose, state.walk || state.foul) {
+            let was_down = ball.bounced;
             let mut happened = if state.home_run {
                 Happened::Nothing
             } else {
@@ -397,6 +402,32 @@ impl Match {
             }
             if let (Some(shown), false) = (&mut at_bat.zinger_show, ball.bounced) {
                 shown.follow(ball, &parts, stage);
+            }
+            // The first time it comes down, a shot that was called for
+            // there comes off.
+            if happened == Happened::Landed && !was_down && game.mods.is_on(Mod::CalledShot) {
+                at_bat.came_down = Some(ball.at);
+                if let Some(called) = &mut at_bat.called {
+                    let runs = called.landed(ball.at, &game.rules, stage, library);
+                    if runs > 0 {
+                        self.score += runs;
+                        self.show_numbers(stage);
+                        Match::sound(stage, library, "crowd_bigClap");
+                        Match::sound(stage, library, "baseball_organ_FX");
+                        Notice::put(
+                            &mut at_bat.notices,
+                            &parts,
+                            "calledIt",
+                            &format!("CALLED IT! +{runs}"),
+                            (parts.centre_x, CALLED_TOP),
+                            1.2,
+                            CALLED_COLOUR,
+                            Some(game.rules.called_shot.told_time),
+                            stage,
+                            library,
+                        );
+                    }
+                }
             }
             match happened {
                 // A zinger is followed on to where it comes down before

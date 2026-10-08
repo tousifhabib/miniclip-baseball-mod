@@ -42,6 +42,9 @@ pub enum Mod {
     /// Each pitch is a fastball, a slow change-up or a big curve, by
     /// chance, and nothing shows which until it leaves his hand.
     MysteryPitch,
+    /// Before a pitch the player clicks a spot on the outfield, and a hit
+    /// that comes down near it is worth runs on top.
+    CalledShot,
 }
 
 /// What the menu and the files know a mod by.
@@ -59,7 +62,7 @@ struct Info {
 
 impl Mod {
     /// Every mod, in the order the menu lists them.
-    pub const ALL: [Mod; 7] = [
+    pub const ALL: [Mod; 8] = [
         Mod::TimingIndicator,
         Mod::LonePitcher,
         Mod::ZingerHit,
@@ -67,6 +70,7 @@ impl Mod {
         Mod::Knuckleball,
         Mod::HeatCheck,
         Mod::MysteryPitch,
+        Mod::CalledShot,
     ];
 
     fn info(self) -> Info {
@@ -111,6 +115,12 @@ impl Mod {
                 key: "mystery_pitch",
                 name: "MYSTERY PITCH",
                 about: "FASTBALL, CHANGE-UP OR CURVE: FIND OUT AS IT IS THROWN",
+                setting: None,
+            },
+            Mod::CalledShot => Info {
+                key: "called_shot",
+                name: "CALLED SHOT",
+                about: "CLICK THE OUTFIELD BEFORE A PITCH: LAND IT THERE FOR RUNS",
                 setting: None,
             },
         }
