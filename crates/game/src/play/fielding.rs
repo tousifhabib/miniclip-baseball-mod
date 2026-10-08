@@ -214,6 +214,7 @@ impl Match {
     ) {
         let rules = &game.rules;
         let parts = at_bat.parts.clone();
+        at_bat.leave_batting_view(stage);
         let y = at(stage, &parts.field).1;
         if let Some(field) = stage.child_mut(&parts.field) {
             field.move_to(rules.field.x, y);

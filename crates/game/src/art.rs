@@ -17,6 +17,9 @@ pub const INTRO: SymbolId = 165;
 /// The menu, on the shell's `menu` frame. Its labelled sections are the
 /// pages of the menu.
 pub const MENU: SymbolId = 489;
+/// The line on the menu's first page that named the game's author, which
+/// this game's menu no longer shows.
+pub const MENU_CREDIT: SymbolId = 230;
 /// The "are you sure?" panel shown over a game.
 pub const QUIT_PROMPT: SymbolId = 1675;
 /// The three versions of the instructions, each a clip that stops at the end
@@ -51,6 +54,28 @@ pub const SCORE_PANEL_NOTICE: [SymbolId; 2] = [421, 420];
 /// A text field in the game's display lettering, with letters and figures,
 /// which the table is written in.
 pub const TABLE_FIELD: SymbolId = 1762;
+
+/// The art the mods add: none of it was in the original.
+///
+/// A plain white square ten pixels a side, to be stretched and tinted into
+/// whatever bar or band is wanted.
+pub const BLOCK: SymbolId = 2031;
+/// The side of [`BLOCK`], in pixels.
+pub const BLOCK_SIDE: f32 = 10.0;
+/// A text field in the table's lettering that starts from its left edge.
+pub const LABEL_FIELD: SymbolId = 2032;
+/// The backing and the publisher's mark the score table's panel is drawn
+/// with. The mods' page takes them off and puts on a backing of its own,
+/// which has no tabs for the table's days, weeks and months, under the
+/// panel's border.
+pub const SCORE_PANEL_TABLE: [SymbolId; 2] = [413, 414];
+pub const MODS_PANEL: SymbolId = 2038;
+pub const MODS_PANEL_DEPTH: u16 = 18;
+/// The box beside each mod on that page, and the tick that shows in it.
+pub const MOD_BOX: SymbolId = 2041;
+pub const MOD_TICK: SymbolId = 2040;
+/// An empty clip, for the rules to put things in and move as one.
+pub const HOLDER: SymbolId = 2042;
 
 /// Buttons whose words are drawn as artwork, not text, so they have to be
 /// known by number: the ones on the result screens that lead back to the

@@ -9,6 +9,7 @@ mod arcade;
 pub mod field;
 mod fielding;
 pub mod pitch;
+pub mod timing;
 
 use bb_engine::display::{ButtonEvent, Content, Event, Path, child_bounds};
 use bb_engine::library::Library;
@@ -19,6 +20,7 @@ use bb_format::SymbolId;
 use crate::art;
 use crate::look::{self, Look, Rgb};
 use crate::menu::Game;
+use crate::mods::Mod;
 use crate::rng::Rng;
 use crate::rules::{HitRules, PitchRules};
 use field::{Ball, Contact};
@@ -170,6 +172,18 @@ pub(crate) struct AtBat {
     pub run_in: Option<u32>,
     pub ball: Option<Ball>,
     pub fielding: Option<fielding::Fielding>,
+    /// The timing bar, while that mod is on and the batting view is up.
+    pub timing: Option<timing::Indicator>,
+}
+
+impl AtBat {
+    /// The view is changing to the field, where the timing bar has no
+    /// place.
+    pub(crate) fn leave_batting_view(&mut self, stage: &mut Stage) {
+        if let Some(bar) = self.timing.take() {
+            bar.put_away(stage);
+        }
+    }
 }
 
 pub struct Match {
@@ -585,6 +599,11 @@ impl Match {
         let mound = Match::mound(&parts, stage, library)?;
         let choice = Choice::pick(&table, &rules.throw, &mut self.rng);
         let pitch = Pitch::throw(&choice, &mound, &rules.throw);
+        let timing = game
+            .mods
+            .is_on(Mod::TimingIndicator)
+            .then(|| timing::Indicator::new(&pitch, &table, &parts, stage, library))
+            .flatten();
         self.phase = Phase::Settling {
             left: rules.throw.settle + pitch.samples.len() as u32,
         };
@@ -604,6 +623,7 @@ impl Match {
             run_in: None,
             ball: None,
             fielding: None,
+            timing,
         });
         None
     }
@@ -821,6 +841,21 @@ impl Match {
             }
             Phase::Ready | Phase::Arriving | Phase::Over => {}
         }
+        if let Some(bar) = &mut at_bat.timing {
+            match self.phase {
+                // A swing made now begins on the step the flight has come
+                // to.
+                Phase::Flight { step } => bar.point(step as i32, stage),
+                // Until the ball is thrown, the steps to go are the frames
+                // left of the wind-up.
+                Phase::WindUp => {
+                    let frame = frame_of(stage, &at_bat.parts.pitcher);
+                    let to_go = i32::from(rules.throw.release_frame) - i32::from(frame);
+                    bar.point(-to_go, stage);
+                }
+                _ => {}
+            }
+        }
         self.at = Some(at_bat);
         None
     }
@@ -865,12 +900,14 @@ impl Match {
             }
             at_bat.swing = Some(0);
             at_bat.under = at_bat.aim.1 - at_bat.pitch.crosses.1;
+            if let Some(bar) = &mut at_bat.timing {
+                bar.swung(step, stage);
+            }
         } else if let Some(frames) = &mut at_bat.swing {
             *frames += 1;
         }
 
-        let band = at_bat.table.band;
-        let in_band = sample.shadow.1 > band.top && sample.shadow.1 < band.bottom;
+        let in_band = sample.in_band(at_bat.table.band);
         let met = at_bat
             .swing
             .and_then(|frames| pitch::meets(&at_bat.table, frames));
@@ -1096,10 +1133,17 @@ impl Match {
             })
             .collect();
         // Where this pitch crosses and how many frames it takes, which a
-        // script needs to know to time a swing.
+        // script needs to know to time a swing. With the timing bar up, the
+        // steps it shows as the best to swing on are given too.
         let pitch = self.at.as_ref().map_or(String::new(), |at_bat| {
+            let best = at_bat
+                .timing
+                .as_ref()
+                .and_then(|bar| bar.timing.best())
+                .map(|(first, last)| format!(", best swung on steps {first} to {last}"))
+                .unwrap_or_default();
             format!(
-                ", crossing {:.0},{:.0} after {} frames{}",
+                ", crossing {:.0},{:.0} after {} frames{}{best}",
                 at_bat.pitch.crosses.0,
                 at_bat.pitch.crosses.1,
                 at_bat.pitch.samples.len(),

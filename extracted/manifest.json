@@ -16297,6 +16297,97 @@
         "x_max": 1685.8,
         "y_max": 932.2
       }
+    },
+    "2031": {
+      "file": "shapes/2031.svg",
+      "kind": "shape",
+      "bounds": {
+        "x_min": 0.0,
+        "y_min": 0.0,
+        "x_max": 10.0,
+        "y_max": 10.0
+      }
+    },
+    "2032": {
+      "file": "texts/2032.json",
+      "kind": "edit_text"
+    },
+    "2033": {
+      "file": "texts/2033.json",
+      "kind": "text"
+    },
+    "2034": {
+      "file": "shapes/2034.svg",
+      "kind": "shape",
+      "bounds": {
+        "x_min": 47.0,
+        "y_min": 7.9,
+        "x_max": 104.65,
+        "y_max": 23.05
+      }
+    },
+    "2035": {
+      "file": "shapes/2035.svg",
+      "kind": "shape",
+      "bounds": {
+        "x_min": 6.2,
+        "y_min": 6.1,
+        "x_max": 26.0,
+        "y_max": 25.9
+      }
+    },
+    "2036": {
+      "file": "shapes/2036.svg",
+      "kind": "shape",
+      "bounds": {
+        "x_min": 6.2,
+        "y_min": 6.1,
+        "x_max": 26.0,
+        "y_max": 25.9
+      }
+    },
+    "2037": {
+      "file": "buttons/2037.json",
+      "kind": "button"
+    },
+    "2038": {
+      "file": "shapes/2038.svg",
+      "kind": "shape",
+      "bounds": {
+        "x_min": -183.95,
+        "y_min": -126.0,
+        "x_max": 190.05,
+        "y_max": 113.0
+      }
+    },
+    "2039": {
+      "file": "shapes/2039.svg",
+      "kind": "shape",
+      "bounds": {
+        "x_min": -1.0,
+        "y_min": -1.0,
+        "x_max": 15.0,
+        "y_max": 15.0
+      }
+    },
+    "2040": {
+      "file": "shapes/2040.svg",
+      "kind": "shape",
+      "bounds": {
+        "x_min": 1.0,
+        "y_min": -3.5,
+        "x_max": 18.5,
+        "y_max": 13.5
+      }
+    },
+    "2041": {
+      "file": "buttons/2041.json",
+      "kind": "button"
+    },
+    "2042": {
+      "file": "clips/2042.json",
+      "kind": "clip",
+      "frame_count": 1
     }
   },
   "exports": {
