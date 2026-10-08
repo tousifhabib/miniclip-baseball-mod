@@ -186,9 +186,8 @@ pub(crate) struct AtBat {
     /// The ball went over the wall while it was still being watched leaving
     /// the bat, which the view of the field has yet to be told.
     pub over_wall: bool,
-    /// The word over a fielder who has just let the ball go, with the
-    /// butterfingers mod on.
-    pub told: Option<fielding::Told>,
+    /// What the mods have written up in the view.
+    pub notices: Vec<overlay::Notice>,
 }
 
 impl AtBat {
@@ -714,7 +713,7 @@ impl Match {
             zinger: None,
             zinger_show: None,
             over_wall: false,
-            told: None,
+            notices: Vec::new(),
         });
         None
     }
@@ -852,7 +851,7 @@ impl Match {
                 });
         Match::still_batter(stage, &at_bat.parts.hitter, library);
         Match::settle_fielders(&at_bat.parts, stage, library);
-        fielding::Told::fade(&mut at_bat.told, stage);
+        overlay::Notice::fade(&mut at_bat.notices, stage);
         if at_bat.contact.is_none() {
             Match::aim(&mut at_bat, stage);
             Match::point_hit(&mut at_bat, &rules.hit, stage, library);

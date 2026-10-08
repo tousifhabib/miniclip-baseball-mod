@@ -90,3 +90,73 @@ impl Words {
         }
     }
 }
+
+/// A line of words put up in the view for a while, such as what a fielder
+/// has just done, or for as long as the view lasts.
+pub(crate) struct Notice {
+    /// What the words are called on the stage, by which a notice is told
+    /// from the others.
+    name: String,
+    /// The clip the words are in.
+    holder: Path,
+    /// Frames it has left. `None` stays until the view is built again.
+    left: Option<u32>,
+}
+
+impl Notice {
+    /// Puts `text` up with the middle of its top edge at `top`, taking the
+    /// place of any notice of the same name. `size` is the size of the
+    /// lettering, its own being 1.
+    #[allow(clippy::too_many_arguments)]
+    pub fn put(
+        notices: &mut Vec<Notice>,
+        parts: &Parts,
+        name: &str,
+        text: &str,
+        top: Point,
+        size: f32,
+        colour: Rgb,
+        frames: Option<u32>,
+        stage: &mut Stage,
+        library: &Library,
+    ) {
+        Notice::take_down(notices, name, stage);
+        let Some(holder) = holder(parts, "notice", stage, library) else {
+            return;
+        };
+        if let Some(words) = Words::new(&holder, 1, name, top, size, stage, library) {
+            words.say(text, colour, stage);
+        }
+        notices.push(Notice {
+            name: name.to_owned(),
+            holder,
+            left: frames,
+        });
+    }
+
+    /// Takes the notice of this name down, if it is up.
+    pub fn take_down(notices: &mut Vec<Notice>, name: &str, stage: &mut Stage) {
+        notices.retain(|notice| {
+            if notice.name == name {
+                stage.remove(&notice.holder);
+            }
+            notice.name != name
+        });
+    }
+
+    /// Counts a frame off the time of every notice that has one, and takes
+    /// down those that have had theirs.
+    pub fn fade(notices: &mut Vec<Notice>, stage: &mut Stage) {
+        notices.retain_mut(|notice| match &mut notice.left {
+            Some(0) => {
+                stage.remove(&notice.holder);
+                false
+            }
+            Some(left) => {
+                *left -= 1;
+                true
+            }
+            None => true,
+        });
+    }
+}

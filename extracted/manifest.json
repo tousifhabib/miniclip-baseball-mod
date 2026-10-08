@@ -16392,6 +16392,20 @@
     "2043": {
       "file": "buttons/2043.json",
       "kind": "button"
+    },
+    "2044": {
+      "file": "shapes/2044.svg",
+      "kind": "shape",
+      "bounds": {
+        "x_min": 0.0,
+        "y_min": 0.0,
+        "x_max": 10.0,
+        "y_max": 12.0
+      }
+    },
+    "2045": {
+      "file": "buttons/2045.json",
+      "kind": "button"
     }
   },
   "exports": {
