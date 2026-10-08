@@ -62,6 +62,7 @@ switched on.
 | Mod | Name for `--mod` | What it does |
 |---|---|---|
 | Timing indicator | `timing_indicator` | A bar under the plate that shows when to swing |
+| Lone pitcher | `lone_pitcher` | Only the pitcher goes after a ball that has been hit |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -71,6 +72,13 @@ moves at the same pace and the green is always at the same place, so only
 the width of the colours changes with the pitch and the skill level. A swing
 stops the marker where it was made, and the bar says how it was timed:
 too early, early, perfect, late or too late.
+
+With the lone pitcher, the fielder nearest the ball no longer goes for it:
+the pitcher does, from the mound, however far off it is. He catches it or
+picks it up and throws to a base as any fielder would, and a runner his
+throw beats is out. Nobody else moves, and the fielder at the base does not
+throw the ball on, so the play ends there and anyone still running is given
+his base.
 
 ## Changing the game
 
