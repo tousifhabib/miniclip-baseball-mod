@@ -7,6 +7,9 @@ use common::{game, state_after};
 /// Where things are on the menu's pages, in stage pixels.
 const BOTTOM_OF_THE_NINTH: &str = "click 200 192";
 const ARCADE: &str = "click 200 237";
+const MODS: &str = "click 330 360";
+/// The first mod listed on the mods' page.
+const FIRST_MOD: &str = "click 300 140";
 const NEXT: &str = "click 490 362";
 const BACK: &str = "click 290 362";
 const PLAY_BALL: &str = "click 480 362";
@@ -173,4 +176,89 @@ fn the_pointer_is_hidden_only_while_the_ring_is_being_aimed() {
     script.run("move 300 250; wait 400").unwrap();
     assert!(state_after(&mut script, "state").contains("Ready"));
     assert!(!script.runner.stage.hide_pointer);
+}
+
+#[test]
+fn the_menu_lists_the_mods_each_with_a_box_to_tick() {
+    let Some(mut script) = game("menu") else {
+        return;
+    };
+    let steps = format!("wait 60; {MODS}; wait 90; state");
+    assert_eq!(state_after(&mut script, &steps), "Menu, Mods, Medium");
+    let said = |script: &bb_game::script::Script| {
+        let stage = &script.runner.stage;
+        let mut written = Vec::new();
+        for line in bb_game::art::all_named(stage, &[], "modsWords") {
+            written.extend(stage.child(&line).unwrap().said.clone());
+        }
+        written
+    };
+    let ticked = |script: &bb_game::script::Script| {
+        let stage = &script.runner.stage;
+        bb_game::art::all_named(stage, &[], "modTick")
+            .iter()
+            .map(|tick| stage.child(tick).unwrap().visible)
+            .collect::<Vec<bool>>()
+    };
+    let written = said(&script);
+    for wanted in ["MODS", "TIMING INDICATOR"] {
+        assert!(written.iter().any(|text| text == wanted), "{written:?}");
+    }
+    // The page is the high-score page put to another use: none of the
+    // table is written on it.
+    assert!(bb_game::art::all_named(&script.runner.stage, &[], "scoreLine").is_empty());
+    assert_eq!(ticked(&script), [false]);
+
+    // A click anywhere on a mod's line switches it, and another switches
+    // it back.
+    let tick = format!("{FIRST_MOD}; wait 2; state");
+    assert_eq!(
+        state_after(&mut script, &tick),
+        "Menu, Mods, Medium, with timing_indicator"
+    );
+    assert_eq!(ticked(&script), [true]);
+    assert_eq!(state_after(&mut script, &tick), "Menu, Mods, Medium");
+    assert_eq!(ticked(&script), [false]);
+
+    // What was chosen lasts through the rest of the menu, and the page
+    // shows it on coming back.
+    let steps = format!("{FIRST_MOD}; wait 2; {BACK}; wait 90; state");
+    assert_eq!(
+        state_after(&mut script, &steps),
+        "Menu, Main, Medium, with timing_indicator"
+    );
+    let steps = format!("{MODS}; wait 90; state");
+    assert_eq!(
+        state_after(&mut script, &steps),
+        "Menu, Mods, Medium, with timing_indicator"
+    );
+    assert_eq!(ticked(&script), [true]);
+}
+
+#[test]
+fn the_high_score_page_is_itself_again_after_the_mods_page() {
+    let Some(mut script) = game("menu") else {
+        return;
+    };
+    let steps = format!("wait 60; {MODS}; wait 90; {BACK}; wait 90; click 250 275; wait 90; state");
+    assert_eq!(state_after(&mut script, &steps), "Menu, HighScores, Medium");
+    let stage = &script.runner.stage;
+    assert!(bb_game::art::all_named(stage, &[], "modsWords").is_empty());
+    assert!(bb_game::art::all_named(stage, &[], "modsPanel").is_empty());
+    assert!(!bb_game::art::all_named(stage, &[], "scoreLine").is_empty());
+}
+
+#[test]
+fn the_start_menu_no_longer_names_its_author() {
+    let Some(mut script) = game("menu") else {
+        return;
+    };
+    script.run("wait 60").unwrap();
+    let stage = &script.runner.stage;
+    let menu = bb_game::art::in_shell(stage, bb_game::art::MENU).unwrap();
+    assert!(
+        stage
+            .find_symbol(&menu, bb_game::art::MENU_CREDIT)
+            .is_none()
+    );
 }

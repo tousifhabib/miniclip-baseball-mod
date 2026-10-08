@@ -8,10 +8,10 @@
 use serde::Deserialize;
 
 use crate::rng::Rng;
-use crate::rules::{PitchRules, ThrowRules};
+use crate::rules::{Band, PitchRules, ThrowRules};
 
-/// How well the bat met the ball.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
+/// How well the bat met the ball, from the worst to the best.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Quality {
     Poor,
@@ -47,6 +47,13 @@ pub struct Sample {
     pub size: f32,
     /// How solid both are, from 1 down to 0 as they fade past the batter.
     pub alpha: f32,
+}
+
+impl Sample {
+    /// Whether the ball can be hit on this frame: its shadow is in the band.
+    pub fn in_band(&self, band: Band) -> bool {
+        self.shadow.1 > band.top && self.shadow.1 < band.bottom
+    }
 }
 
 /// One pitch, worked out from the hand to past the batter.
@@ -147,6 +154,21 @@ impl Pitch {
             }
         }
         pitch
+    }
+
+    /// What a swing begun on `step` of this pitch comes to: the step on
+    /// which the bat meets the ball, how well, and with what power. `None`
+    /// is a miss. The bat meets the ball on the first frame the ball is in
+    /// the band with the swing at a point in its window.
+    pub fn swing_from(&self, rules: &PitchRules, step: usize) -> Option<(usize, Quality, f32)> {
+        let rest = self.samples.get(step..)?;
+        rest.iter().enumerate().find_map(|(frames, sample)| {
+            let (quality, power) = sample
+                .in_band(rules.band)
+                .then(|| meets(rules, frames as u32))
+                .flatten()?;
+            Some((step + frames, quality, power))
+        })
     }
 }
 

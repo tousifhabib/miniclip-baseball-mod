@@ -11,6 +11,7 @@ use bb_engine::stage::Stage;
 use bb_engine::window::{self, Options};
 use bb_game::baseball::{Baseball, Screen};
 use bb_game::locate;
+use bb_game::mods::{Mod, Mods};
 use bb_game::scores::Scores;
 use bb_game::script::Script;
 use clap::Parser;
@@ -45,6 +46,10 @@ struct Args {
     /// out from.
     #[arg(long)]
     seed: Option<u64>,
+    /// Switch a mod on for this run, by its name: `timing_indicator`. May
+    /// be given more than once.
+    #[arg(long = "mod", value_name = "NAME")]
+    mods: Vec<String>,
     /// With `--run`: picture pixels per stage pixel.
     #[arg(long, default_value_t = 1.0)]
     scale: f32,
@@ -86,11 +91,25 @@ fn run() -> Result<()> {
     if let Some(seed) = args.seed {
         logic.seed(seed);
     }
-    // A scripted run is a test, and leaves the player's own table alone.
-    if args.run.is_none()
-        && let Some(file) = Scores::usual_file()
-    {
-        logic.keep_scores_in(file);
+    // A scripted run is a test, and leaves the player's own table and
+    // choice of mods alone.
+    if args.run.is_none() {
+        if let Some(file) = Scores::usual_file() {
+            logic.keep_scores_in(file);
+        }
+        if let Some(file) = Mods::usual_file() {
+            logic.keep_mods_in(file);
+        }
+    }
+    for name in &args.mods {
+        let which = Mod::from_key(name).with_context(|| {
+            let known: Vec<&str> = Mod::ALL.iter().map(|each| each.key()).collect();
+            format!(
+                "there is no mod called `{name}`: the mods are {}",
+                known.join(", ")
+            )
+        })?;
+        logic.switch_mod(which, true);
     }
     if let Some(label) = &args.screen {
         let screen = Screen::from_label(label)

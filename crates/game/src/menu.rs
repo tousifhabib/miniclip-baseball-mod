@@ -5,6 +5,7 @@ use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use crate::art;
+use crate::mods::Mods;
 use crate::rules::Rules;
 use crate::settings::{Difficulty, Settings};
 
@@ -18,6 +19,9 @@ pub enum MenuPage {
     MatchSetup,
     ArcadeSetup,
     HighScores,
+    /// The mods, each with a box to tick. It is shown on the high-score
+    /// page's section of the menu.
+    Mods,
     MatchSummary,
     ArcadeSummary,
     /// Fading out on the way to a match.
@@ -33,7 +37,7 @@ impl MenuPage {
             MenuPage::Opening | MenuPage::Main => "menuFadeIn",
             MenuPage::MatchSetup => "matchIn",
             MenuPage::ArcadeSetup => "arcadeIn",
-            MenuPage::HighScores => "highScoresIn",
+            MenuPage::HighScores | MenuPage::Mods => "highScoresIn",
             MenuPage::MatchSummary => "matchSummary",
             MenuPage::ArcadeSummary => "arcadeSummary",
             MenuPage::ToMatch => "fadeOutMatch",
@@ -50,12 +54,13 @@ pub enum Leave {
     Arcade,
 }
 
-/// What every screen works from: the numbers the game is played by, and
-/// what the player has chosen.
+/// What every screen works from: the numbers the game is played by, what
+/// the player has chosen, and the mods that are switched on.
 #[derive(Clone, Debug, Default)]
 pub struct Game {
     pub rules: Rules,
     pub settings: Settings,
+    pub mods: Mods,
 }
 
 pub struct Menu {
@@ -138,7 +143,8 @@ impl Menu {
             (Main, "ARCADE") => ArcadeSetup,
             (Main, "INSTRUCTIONS") => return Some(Leave::Instructions),
             (Main, label) if label.starts_with("HIGH SCORES") => HighScores,
-            (MatchSetup | ArcadeSetup | HighScores, "BACK") => Main,
+            (Main, "MODS") => Mods,
+            (MatchSetup | ArcadeSetup | HighScores | Mods, "BACK") => Main,
             (MatchSummary, "BACK") => MatchSetup,
             (ArcadeSummary, "BACK") => ArcadeSetup,
             (MatchSetup, "NEXT") => MatchSummary,
