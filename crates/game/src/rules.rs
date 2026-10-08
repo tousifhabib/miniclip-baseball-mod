@@ -38,9 +38,23 @@ pub struct Rules {
     pub knuckleball: KnuckleballRules,
     /// The heat check mod.
     pub heat: HeatRules,
+    /// The mystery pitch mod.
+    pub mystery: MysteryRules,
     pub arcade: ArcadeRules,
     pub team: TeamRules,
     pub sound: SoundRules,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct MysteryRules {
+    /// How long a fastball and a change-up take, the usual being 1.
+    pub fast: f32,
+    pub slow: f32,
+    /// How much more a curve swings and drops each frame.
+    pub curve_swing: f32,
+    pub curve_dip: f32,
+    pub told_time: u32,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]

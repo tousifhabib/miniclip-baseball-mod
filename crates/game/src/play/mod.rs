@@ -27,7 +27,7 @@ use crate::rng::Rng;
 use crate::rules::{HitRules, PitchRules};
 use field::{Ball, Contact, Happened};
 use overlay::Notice;
-use pitch::{Choice, Mound, Pitch, Point, Quality};
+use pitch::{Choice, Kind, Mound, Pitch, Point, Quality};
 use zinger::Zinger;
 
 /// How a match ended.
@@ -161,6 +161,8 @@ pub(crate) struct AtBat {
     /// Where the marker shows the pitch crossing, which the knuckleball
     /// mod makes only roughly right.
     pub marker_at: Point,
+    /// What the pitch is, with the mystery pitch mod on.
+    pub kind: Option<Kind>,
     pub aim: Point,
     /// Where the hit would go sideways, as the art's indicator shows it.
     pub aim_area_x: f32,
@@ -245,6 +247,9 @@ const PITCH: &str = "pitch";
 /// Where the heat check mod says how much heat is on: the middle of the top
 /// of its words, under the little field in the corner of the batting view.
 const HEAT_AT: Point = (60.0, 88.0);
+/// How far down the batting view the mystery pitch mod names the pitch,
+/// which is between the scoreboard and the pitcher.
+const MYSTERY_TOP: f32 = 141.0;
 /// The button on the next-ball panel.
 const NEXT_BALL_BUTTON: SymbolId = 1618;
 
@@ -727,8 +732,30 @@ impl Match {
         self.show_numbers(stage);
 
         let mound = Match::mound(&parts, stage, library)?;
+        // A pitcher waits longer before a slower pitch. A mystery pitch
+        // would be no mystery if he did, so before one he waits as long as
+        // for a pitch of the usual pace, and the marker is not shown until
+        // the ball has left his hand.
+        let usual_pace = table.speed.high as f32;
+        let mut kind = None;
+        if game.mods.is_on(Mod::MysteryPitch) {
+            let which = Kind::ALL[self.rng.below(Kind::ALL.len() as u32) as usize];
+            which.shape(&mut table, &rules.mystery, self.rng.below(2) == 0);
+            table.marker_frame = rules.throw.release_frame;
+            kind = Some(which);
+        }
         let choice = Choice::pick(&table, &rules.throw, &mut self.rng);
         let mut pitch = Pitch::throw(&choice, &mound, &rules.throw);
+        let wait = match kind {
+            Some(_) => {
+                let usual = Choice {
+                    speed: usual_pace,
+                    ..choice
+                };
+                Pitch::throw(&usual, &mound, &rules.throw).samples.len()
+            }
+            None => pitch.samples.len(),
+        };
         // The marker shows where the pitch was going before a knuckleball
         // began to sway.
         let marker_at = pitch.crosses;
@@ -754,7 +781,7 @@ impl Match {
             })
             .flatten();
         self.phase = Phase::Settling {
-            left: rules.throw.settle + pitch.samples.len() as u32,
+            left: rules.throw.settle + wait as u32,
         };
         self.at = Some(AtBat {
             aim: at(stage, &parts.aim),
@@ -764,6 +791,7 @@ impl Match {
             pitch,
             marker_shown: false,
             marker_at,
+            kind,
             swing: None,
             under: 0.0,
             across: 0.0,
@@ -949,6 +977,23 @@ impl Match {
                         arcade.left = arcade.left.saturating_sub(1);
                     }
                     self.show_numbers(stage);
+                    if let Some(kind) = at_bat.kind {
+                        // Now it can be told what he threw.
+                        let top = (at_bat.parts.centre_x, MYSTERY_TOP);
+                        let frames = Some(rules.mystery.told_time);
+                        Notice::put(
+                            &mut at_bat.notices,
+                            &at_bat.parts,
+                            "mysteryPitch",
+                            kind.words(),
+                            top,
+                            1.0,
+                            [0xff, 0xf2, 0x8a],
+                            frames,
+                            stage,
+                            library,
+                        );
+                    }
                     self.phase = Phase::Flight { step: 0 };
                 }
             }
@@ -1326,10 +1371,13 @@ impl Match {
         // steps it shows as the best to swing on are given too, and how far
         // the ball went if it was hit for a zinger.
         let pitch = self.at.as_ref().map_or(String::new(), |at_bat| {
-            let zinger = at_bat
+            let mut zinger = at_bat
                 .zinger
                 .map(|zinger| format!(", a zinger of {} feet", zinger.feet))
                 .unwrap_or_default();
+            if let Some(kind) = at_bat.kind {
+                zinger += &format!(", mystery {}", kind.words().to_lowercase());
+            }
             let best = at_bat
                 .timing
                 .as_ref()

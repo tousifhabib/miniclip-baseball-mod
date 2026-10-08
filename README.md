@@ -68,6 +68,7 @@ switched on.
 | Butterfingers | `butterfingers` | Fielders drop and fumble the ball, as often as you set |
 | Knuckleball | `knuckleball` | Pitches sway from side to side, and the crossing marker is only roughly right |
 | Heat check | `heat_check` | Every run makes the next pitch faster, and every strike slows them again |
+| Mystery pitch | `mystery_pitch` | Each pitch is a fastball, a change-up or a curve, and you find out as it is thrown |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -152,6 +153,15 @@ fast. Every strike, a foul that counts as one included, puts one run's worth
 back. How much heat is on is written under the little field in the corner of
 the batting view. The arcade game has no runs, and plays as it did. The
 numbers are under `[heat]` in `data/rules.toml`.
+
+With the mystery pitch, each pitch is one of three kinds, by chance: a
+fastball, which takes seven tenths of the usual time, a change-up, which
+takes half as long again, or a curve, which swings a pixel and a half more
+each frame to one side or the other and drops more as well. Nothing gives it
+away beforehand: the pitcher stands as long before one as before another,
+and the marker of where the pitch will cross is not shown until the ball has
+left his hand. Then the pitch is named over him. The numbers are under
+`[mystery]` in `data/rules.toml`.
 
 ## Changing the game
 

@@ -39,6 +39,9 @@ pub enum Mod {
     /// Every run scored makes the next pitch faster, and every strike
     /// slows the pitches down again.
     HeatCheck,
+    /// Each pitch is a fastball, a slow change-up or a big curve, by
+    /// chance, and nothing shows which until it leaves his hand.
+    MysteryPitch,
 }
 
 /// What the menu and the files know a mod by.
@@ -56,13 +59,14 @@ struct Info {
 
 impl Mod {
     /// Every mod, in the order the menu lists them.
-    pub const ALL: [Mod; 6] = [
+    pub const ALL: [Mod; 7] = [
         Mod::TimingIndicator,
         Mod::LonePitcher,
         Mod::ZingerHit,
         Mod::Butterfingers,
         Mod::Knuckleball,
         Mod::HeatCheck,
+        Mod::MysteryPitch,
     ];
 
     fn info(self) -> Info {
@@ -101,6 +105,12 @@ impl Mod {
                 key: "heat_check",
                 name: "HEAT CHECK",
                 about: "RUNS MAKE THE PITCHES FASTER, STRIKES SLOW THEM",
+                setting: None,
+            },
+            Mod::MysteryPitch => Info {
+                key: "mystery_pitch",
+                name: "MYSTERY PITCH",
+                about: "FASTBALL, CHANGE-UP OR CURVE: FIND OUT AS IT IS THROWN",
                 setting: None,
             },
         }
