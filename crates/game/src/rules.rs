@@ -64,9 +64,32 @@ pub struct Rules {
     pub tired_arm: TiredArmRules,
     /// The stolen bases mod.
     pub steal: StealRules,
+    /// The hit the sign mod.
+    pub sign: SignRules,
     pub arcade: ArcadeRules,
     pub team: TeamRules,
     pub sound: SoundRules,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SignRules {
+    /// How many signs the wall has.
+    pub count: u32,
+    /// How far across the field the middle of the first is, and of the
+    /// last, from 0 on the left foul line to 1 on the right, and how wide
+    /// each is, the same way.
+    pub first: f32,
+    pub last: f32,
+    pub width: f32,
+    /// How high a ball can be at the wall and still strike a sign.
+    pub high: f32,
+    /// The runs a ball that strikes the lit sign is worth, and one that
+    /// strikes any other.
+    pub lit: u32,
+    pub unlit: u32,
+    /// Frames the word that a sign was struck stays up.
+    pub told_time: u32,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]

@@ -476,6 +476,31 @@ their_third = 0.25
 their_safe = 0.72
 
 # ---------------------------------------------------------------------------
+# The hit the sign mod: signs on the outfield wall that pay for being struck.
+[sign]
+# How many signs there are, side by side along the wall.
+count = 5
+# How far across the field the middle of the first sign is, and of the
+# last, from 0 on the left foul line to 1 on the right. The rest are spread
+# evenly between. Each is this wide, the same way. As they are, all five can
+# be seen on the wall in the batting view, where the red pointer on a sign
+# is a hit at it.
+first = 0.24
+last = 0.80
+width = 0.10
+# A ball that comes to the wall at a sign no higher than this has struck it.
+# The wall itself is cleared at 25, under [field]: lower than that the ball
+# comes back off the sign, and higher it goes off the top of the sign and
+# out, a home run all the same.
+high = 60.0
+# The runs a ball that strikes the lit sign is worth, on top of whatever it
+# earns the usual way, and one that strikes any other sign.
+lit = 3
+unlit = 1
+# Frames the word that a sign was struck stays up.
+told_time = 150
+
+# ---------------------------------------------------------------------------
 # The arcade game: hit a target on the outfield.
 [arcade]
 pitches = 10

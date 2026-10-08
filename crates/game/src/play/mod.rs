@@ -17,6 +17,7 @@ pub mod paper;
 mod pinball;
 pub mod pitch;
 pub mod shift;
+pub mod sign;
 mod steal;
 pub mod timing;
 pub mod zinger;
@@ -232,6 +233,8 @@ pub(crate) struct AtBat {
     /// The runners' marks on the little field, with the stolen bases mod
     /// on and anyone on base.
     pub leads: Option<steal::Leads>,
+    /// The signs on the wall, with the hit the sign mod on.
+    pub signs: Option<sign::Board>,
 }
 
 impl Parts {
@@ -313,6 +316,14 @@ pub struct Match {
     /// are coming, and the score when that was last worked out.
     pub(crate) heat: u32,
     heat_score: u32,
+    /// With the hit the sign mod on: the innings a sign was last lit for
+    /// and which it was, what the next is drawn by, the sign a ball has
+    /// just struck and the runs that was worth, until that has been told,
+    /// and the same for the pitch in hand once it has.
+    sign: Option<(u32, usize)>,
+    sign_rng: Rng,
+    sign_news: Option<(usize, u32)>,
+    sign_struck: Option<(usize, u32)>,
     /// With the stolen bases mod on: how many bases have been stolen in
     /// this game and how many runners caught at it, whether the play in the
     /// field is one on which a base can be stolen, and how the last try
@@ -364,6 +375,10 @@ const MYSTERY_TOP: f32 = 141.0;
 /// How much of the green and the blue of a pitcher goes when he is spent,
 /// with the tired arm mod on: he is flushed.
 const FLUSH: f32 = 0.22;
+/// What makes the choice of the lit sign, with the hit the sign mod on,
+/// come out differently from the pitches, which are drawn from the seed
+/// itself: the same pitches come whether the mod is on or not.
+const SIGN_SEED: u64 = 0xbb67_ae85_84ca_a73b;
 /// The button on the next-ball panel.
 const NEXT_BALL_BUTTON: SymbolId = 1618;
 
@@ -466,6 +481,10 @@ impl Match {
             hurry: 0.0,
             heat: 0,
             heat_score: 0,
+            sign: None,
+            sign_rng: Rng::new(seed ^ SIGN_SEED),
+            sign_news: None,
+            sign_struck: None,
             stolen: 0,
             caught: 0,
             steal_play: false,
@@ -1075,6 +1094,18 @@ impl Match {
         let leads = (game.mods.is_on(Mod::StolenBases) && self.runners.iter().any(on_base))
             .then(|| steal::Leads::put(&self.runners, corner.line(), &parts, stage, library))
             .flatten();
+        // With the hit the sign mod on, the wall has its signs, one lit for
+        // the innings. The arcade game has no runs for a sign to be worth.
+        self.sign_struck = None;
+        let signs = if game.mods.is_on(Mod::HitTheSign) && self.arcade.is_none() {
+            let signs = sign::Signs::of(&rules.sign);
+            let lit = self.lit_sign(&signs);
+            let ground = parts.ground(&rules.field);
+            let (sign, field) = (&rules.sign, &rules.field);
+            sign::Board::put(&signs, lit, sign, field, &parts, &ground, stage, library)
+        } else {
+            None
+        };
         if let Some(mark) = stage.find(&parts.main, &["runnerOnSecond"]) {
             let label = if self.on_base(2).is_some() {
                 "full"
@@ -1187,6 +1218,7 @@ impl Match {
             swing_off: None,
             met: None,
             leads,
+            signs,
         });
         None
     }
@@ -1347,6 +1379,9 @@ impl Match {
         if let Some(leads) = &mut at_bat.leads {
             leads.keep(self, self.phase == Phase::WindUp, stage);
             self.hold_stealers(stage);
+        }
+        if let Some(signs) = &mut at_bat.signs {
+            signs.keep(stage);
         }
         if at_bat.contact.is_none() {
             Match::aim(&mut at_bat, stage);
@@ -1762,10 +1797,19 @@ impl Match {
             }
         }
         // The ball is already on its way over the field, out of sight.
-        if let Some(ball) = &mut at_bat.ball
-            && ball.step(parts.home, contact.miss(), &rules.field) == Happened::Cleared
-        {
-            at_bat.over_wall = true;
+        let ground = parts.ground(&rules.field);
+        let mut at_wall = None;
+        if let Some(ball) = &mut at_bat.ball {
+            let happened = ball.step(parts.home, contact.miss(), &rules.field);
+            if happened == Happened::Cleared {
+                at_bat.over_wall = true;
+            }
+            if matches!(happened, Happened::Cleared | Happened::HitWall) {
+                at_wall = Some((ground.across(ball.at), ball.height));
+            }
+        }
+        if let Some((across, height)) = at_wall {
+            self.strike_sign(at_bat, across, height, &rules.sign);
         }
     }
 
@@ -1879,6 +1923,12 @@ impl Match {
         }
         if self.streak > 0 {
             let_go += &format!(", hits in a row {}", self.streak);
+        }
+        if let Some((_, lit)) = self.sign {
+            let_go += &format!(", sign {} lit", lit + 1);
+        }
+        if let Some((sign, runs)) = self.sign_struck.or(self.sign_news) {
+            let_go += &format!(", struck sign {} for {runs}", sign + 1);
         }
         for runner in &self.runners {
             if let (Some(_), Some(to)) = (runner.stole_from, runner.running_to) {
