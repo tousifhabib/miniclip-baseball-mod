@@ -311,9 +311,12 @@ move over before each pitch: the middle of the field is taken to be where
 the last eight went on the whole, and they stand to either side of that as
 they stood of the real middle, squeezed up on the side it has moved to and
 spread out on the other. The pitcher and the men at the bases stay where
-they are. The little field in the corner of the batting view shows where
-everyone is standing, with SHIFT LEFT or SHIFT RIGHT under it, and hitting
-the other way brings them back. The arcade game has no fielders. The numbers
+they are. The men behind the pitcher in the batting view move over with
+them, each as far across it as the pointer goes for a ball hit that much
+further over, so one may leave the picture and the left fielder, who stands
+just out of it, may come in. The little field in the corner of the batting
+view shows where everyone is standing, with SHIFT LEFT or SHIFT RIGHT under
+it, and hitting the other way brings them back. The arcade game has no fielders. The numbers
 are under `[shift]` in `data/rules.toml`.
 
 With the tired arm, the pitcher wears out. His first ten pitches are as they

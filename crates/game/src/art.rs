@@ -162,6 +162,14 @@ pub fn ground(library: &Library, rules: &Rules) -> Ground {
 /// fielder and the right fielder.
 pub const LITTLE_FIELD: SymbolId = 1092;
 pub const LITTLE_FIELDERS: [(usize, u16); 4] = [(0, 6), (1, 8), (3, 10), (4, 12)];
+/// The men drawn behind the pitcher in the batting view: a fielder and an
+/// umpire, and for each of the fielders there who roams, which he is,
+/// counting from 0, and the depth he is drawn at. They are the shortstop,
+/// the centre fielder and the right fielder. The left fielder stands just
+/// out of the picture, and the second baseman stays where he is.
+pub const VIEW_FIELDER: SymbolId = 616;
+pub const VIEW_UMPIRE: SymbolId = 611;
+pub const VIEW_FIELDERS: [(usize, u16); 3] = [(1, 131), (3, 103), (4, 149)];
 /// Where a runner on first, second and third is marked on the little field,
 /// by the stolen bases mod: just outside the corners of its diamond.
 pub const LITTLE_BASES: [(f32, f32); 3] = [(76.5, 57.5), (50.25, 33.5), (24.0, 57.5)];
