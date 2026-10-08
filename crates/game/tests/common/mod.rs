@@ -6,7 +6,7 @@
 
 #![allow(dead_code)]
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use bb_engine::app::Runner;
 use bb_engine::library::Library;
@@ -35,12 +35,18 @@ pub fn game_with(screen: &str, seed: Option<u64>) -> Option<Script> {
 
 /// The same, played by `rules` instead of the ones built in.
 pub fn game_ruled(screen: &str, seed: Option<u64>, rules: Option<Rules>) -> Option<Script> {
-    game_made(screen, seed, rules, &[])
+    game_made(screen, seed, rules, &[], None)
 }
 
 /// The game opened on a screen, with these mods switched on.
 pub fn game_modded(screen: &str, seed: u64, mods: &[Mod]) -> Option<Script> {
-    game_made(screen, Some(seed), None, mods)
+    game_made(screen, Some(seed), None, mods, None)
+}
+
+/// The same, keeping its scores in `scores` and starting from what is
+/// there.
+pub fn game_keeping(screen: &str, seed: u64, mods: &[Mod], scores: &Path) -> Option<Script> {
+    game_made(screen, Some(seed), None, mods, Some(scores))
 }
 
 fn game_made(
@@ -48,6 +54,7 @@ fn game_made(
     seed: Option<u64>,
     rules: Option<Rules>,
     mods: &[Mod],
+    scores: Option<&Path>,
 ) -> Option<Script> {
     let Some(dir) = extracted() else {
         eprintln!("skipped: there is no extracted art to play");
@@ -65,6 +72,9 @@ fn game_made(
     }
     for &which in mods {
         logic.switch_mod(which, true);
+    }
+    if let Some(scores) = scores {
+        logic.keep_scores_in(scores.to_owned());
     }
     let runner = Runner::new(library, stage, logic, None);
     Some(Script::new(runner).expect("a renderer with no window"))

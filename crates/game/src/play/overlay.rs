@@ -70,6 +70,15 @@ impl Words {
         Some(Words(paths))
     }
 
+    /// Takes the words out of sight.
+    pub fn hide(&self, stage: &mut Stage) {
+        for path in &self.0 {
+            if let Some(words) = stage.child_mut(path) {
+                words.set_visible(false);
+            }
+        }
+    }
+
     /// Shows the words saying `text`, in `colour`.
     pub fn say(&self, text: &str, colour: Rgb, stage: &mut Stage) {
         for (path, colour) in self.0.iter().zip([DARK, colour]) {

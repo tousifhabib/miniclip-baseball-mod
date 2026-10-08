@@ -19,6 +19,10 @@ pub struct Entry {
 
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct Scores {
+    /// The longest zinger there has been, in feet. Nought until there has
+    /// been one.
+    #[serde(default)]
+    pub longest_zinger: u32,
     /// The best first.
     #[serde(default)]
     pub entries: Vec<Entry>,
@@ -116,6 +120,7 @@ mod tests {
         let mut scores = Scores::default();
         scores.add("Red Sox", 450);
         scores.add("A \"quoted\" name", 75);
+        scores.longest_zinger = 812;
         scores.save(&file).unwrap();
         assert_eq!(Scores::load(&file), scores);
         std::fs::remove_file(&file).unwrap();

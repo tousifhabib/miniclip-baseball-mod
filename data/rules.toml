@@ -187,20 +187,58 @@ medium = 0.45
 hard = 0.49
 
 # ---------------------------------------------------------------------------
-# The zinger hit mod: in a match, every ball the bat meets is a home run.
-# Each number is given twice: for the worst-timed swing that still meets the
-# ball, and for the best. A swing between the two gets a number between.
+# The zinger hit mod: every ball the bat meets is a home run.
 [zinger]
 # How far from home the ball comes down, the distance to the wall being 1.
-carry = { worst = 1.1, best = 2.0 }
-# Frames the ball is in the air. Too few and it is still under the top of
-# the wall when it gets there.
+# This is the least: for the worst-timed swing that still meets the ball,
+# with the ring held well off it. The most is given for each skill level
+# further down.
+carry_worst = 1.1
+# Of the most, this much is for holding the ring on the ball, and the rest is
+# for the timing. A ring `aim_reach` pixels off the ball or more gets none of
+# it. Keep it smaller than what one frame of timing is worth, or a worse-timed
+# swing could go further than a better one.
+aim = 0.15
+aim_reach = 80.0
+# Frames a ball hit level is in the air, and the power it leaves the bat with
+# in the batting view, where lower is faster: for the worst-timed swing that
+# still meets the ball, and for the best. A swing between the two gets a
+# number between.
 hang = { worst = 170.0, best = 200.0 }
-# The power it leaves the bat with in the batting view, where lower is
-# faster.
 power = { worst = 14.0, best = 9.0 }
+# How high a ball hit level goes, in pixels of the field.
+level_peak = 130.0
+# Holding the ring below the ball skies it, and holding it above drives it
+# low. The whole effect comes with the ring `shape_reach` pixels above or
+# below, and less of it nearer. `hang` is how many times as long the ball is
+# in the air as one hit level, and `peak` how high it goes. A ball is never
+# kept so low that it would not clear the wall.
+shape_reach = 50.0
+sky = { hang = 2.5, peak = 380.0 }
+drive = { hang = 0.6, peak = 45.0 }
+# A ball that comes down no further off than this is in the stands. Further,
+# it is out of the park.
+stands = 1.3
+# How many times its usual size the ball is drawn over the field. At its
+# usual size it is two pixels across and easily lost against the crowd. At
+# three times that it is half as tall as a fielder.
+ball_size = 1.5
 # How far the wall is in feet, for telling the player how far the ball went.
 wall_feet = 400.0
+
+# The most a zinger does at each skill level: the best-timed swing with the
+# ring on the ball.
+[zinger.carry_best]
+easy = 2.0
+medium = 2.125
+hard = 2.25
+
+# With the mod on a match takes more winning: this is how many runs behind
+# you start, in place of the numbers under [match].
+[zinger.runs_down]
+easy = 3
+medium = 5
+hard = 8
 
 # ---------------------------------------------------------------------------
 # The arcade game: hit a target on the outfield.

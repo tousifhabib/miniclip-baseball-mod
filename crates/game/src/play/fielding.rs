@@ -6,9 +6,9 @@ use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 use bb_format::SymbolId;
 
-use super::field::{Facing, Happened, distance, reach};
+use super::field::{Facing, Happened, distance, reach, seen_size};
 use super::pitch::Point;
-use super::zinger::Zinger;
+use super::zinger;
 use super::{AtBat, Match, Parts, Phase, Place, at, frame_of, put, show};
 use crate::menu::Game;
 use crate::mods::Mod;
@@ -39,9 +39,12 @@ pub(crate) struct Fielding {
     walk: bool,
     foul: bool,
     home_run: bool,
-    /// The home run was a zinger, and the ball is still being shown on its
-    /// way to wherever it comes down.
-    followed: bool,
+    /// A zinger is over the wall, and nothing is called until it comes
+    /// down.
+    gone: bool,
+    /// The outfielders on their way back to the wall to watch a zinger go
+    /// over it, counting from 0.
+    watchers: Vec<usize>,
     /// The ball is in play: runners may be put out, and may go on.
     live: bool,
     caught: bool,
@@ -80,6 +83,12 @@ const SLIDE_BUTTONS: [SymbolId; 5] = [1494, 1495, 1502, 1519, 1521];
 /// The fielder who stands on the mound, counting from 0 as
 /// [`Fielding::fielder`] does: the art's `fielder3`.
 const PITCHER: usize = 2;
+/// How many of the five in the field are outfielders: the ones who stand
+/// furthest from home.
+const OUTFIELDERS: usize = 3;
+/// How far short of the wall an outfielder stops to watch a zinger go over
+/// it, as the field measures distance.
+const WARNING_TRACK: f32 = 40.0;
 
 /// The frames of a fielder on which he picks the ball up, throws it or
 /// catches it. Each shows a clip inside him that is meant to play once.
@@ -232,7 +241,8 @@ impl Match {
             walk,
             foul: false,
             home_run: false,
-            followed: false,
+            gone: false,
+            watchers: Vec::new(),
             live: !walk,
             caught: false,
             fielder: 0,
@@ -280,6 +290,21 @@ impl Match {
                 };
                 fielding.job = Job::Chase;
                 self.start_runners(stage, library);
+                if let Some(zinger) = at_bat.zinger {
+                    at_bat.zinger_show =
+                        zinger::Show::new(zinger, &ball, &parts, rules, stage, library);
+                    // The outfielders go back to the wall to watch it over,
+                    // unless the pitcher has been left to do it all.
+                    if !game.mods.is_on(Mod::LonePitcher) {
+                        let far =
+                            |index: usize| reach(parts.home, at(stage, &parts.fielders[index]));
+                        let mut field: Vec<usize> = (0..5.min(parts.fielders.len())).collect();
+                        field.sort_by(|&a, &b| far(b).total_cmp(&far(a)));
+                        field.truncate(OUTFIELDERS);
+                        field.retain(|&index| index != fielding.fielder);
+                        fielding.watchers = field;
+                    }
+                }
             }
         }
         self.show_numbers(stage);
@@ -324,30 +349,52 @@ impl Match {
         // The ball, for as long as nobody has hold of it.
         let loose = matches!(state.job, Job::Chase | Job::WaitCatch | Job::Rest);
         if let (Some(ball), true, false) = (&mut at_bat.ball, loose, state.walk || state.foul) {
-            let happened = if state.home_run && !state.followed {
+            let mut happened = if state.home_run {
                 Happened::Nothing
             } else {
                 ball.step(parts.home, miss, rules)
             };
-            let size = (0.6 + (ball.at.1 - parts.home.1) / 1000.0).max(0.1);
-            put(stage, &parts.field_ball, ball.at, size);
+            // A ball that went over the wall before the view changed has
+            // gone over it as far as this view knows now.
+            if std::mem::take(&mut at_bat.over_wall) && happened == Happened::Nothing {
+                happened = Happened::Cleared;
+            }
+            put(
+                stage,
+                &parts.field_ball,
+                ball.at,
+                seen_size(parts.home, ball.at),
+            );
             if let Some(inner) = stage.child_mut(&parts.field_ball_inner) {
                 inner.move_to(inner.matrix.tx, -ball.height);
             }
+            if let (Some(shown), false) = (&mut at_bat.zinger_show, ball.bounced) {
+                shown.follow(ball, &parts, stage);
+            }
             match happened {
+                // A zinger is followed on to where it comes down before
+                // anything is called.
+                Happened::Cleared if state.live && at_bat.zinger_show.is_some() => {
+                    state.gone = true;
+                    state.job = Job::Rest;
+                    let fielder = parts.fielders[state.fielder].clone();
+                    stage.goto_label(&fielder, "waiting", false, library);
+                }
                 Happened::Cleared if state.live => {
-                    self.home_run(&mut state, at_bat.zinger, &parts, stage, library);
+                    self.home_run(&mut state, &parts, stage, library);
                 }
                 // Back off the wall: somebody has to go and get it.
                 Happened::HitWall if state.live => state.job = Job::Chase,
-                // A zinger has come down, somewhere beyond the wall.
-                Happened::Landed if state.followed => {
-                    state.followed = false;
-                    show(stage, &parts.field_ball, false);
+                Happened::Landed if state.gone && !state.home_run => {
+                    self.home_run(&mut state, &parts, stage, library);
+                    if let Some(shown) = &mut at_bat.zinger_show {
+                        self.zinger_down(shown, stage, library);
+                    }
                 }
                 _ => {}
             }
         }
+        Match::watch_zinger(&mut state, &parts, game, stage, library);
 
         let fielder = parts.fielders[state.fielder].clone();
         let here = at(stage, &fielder);
@@ -476,10 +523,6 @@ impl Match {
             !state.live || state.frames > rules.longest
         };
         if over {
-            if state.followed {
-                state.followed = false;
-                show(stage, &parts.field_ball, false);
-            }
             // Anyone still between bases when a play is called dead is given
             // the base he was making for.
             for runner in 0..self.runners.len() {
@@ -555,18 +598,15 @@ impl Match {
         }
     }
 
-    /// The ball has cleared the wall: everybody scores. A zinger is
-    /// followed on over the wall, and the player is told how far it went.
+    /// The ball has cleared the wall: everybody scores.
     fn home_run(
         &mut self,
         state: &mut Fielding,
-        zinger: Option<Zinger>,
         parts: &Parts,
         stage: &mut Stage,
         library: &Library,
     ) {
         state.home_run = true;
-        state.followed = zinger.is_some();
         state.live = false;
         state.job = Job::Rest;
         for runner in &mut self.runners {
@@ -584,13 +624,43 @@ impl Match {
         self.announce = true;
         let fielder = parts.fielders[state.fielder].clone();
         stage.goto_label(&fielder, "waiting", false, library);
-        show(stage, &parts.field_ball, state.followed);
-        if let Some(zinger) = zinger {
-            zinger.tell(parts, stage, library);
-        }
+        show(stage, &parts.field_ball, false);
         let transitions = parts.transitions.clone();
         self.play_section(&transitions, "homeRun", 117, stage, library);
         self.show_numbers(stage);
+    }
+
+    /// Moves the outfielders who are going back to watch a zinger a step
+    /// nearer the wall, straight away from home. Each stops at the foot of
+    /// it, and they all stop where they are once the home run is called.
+    fn watch_zinger(
+        state: &mut Fielding,
+        parts: &Parts,
+        game: &Game,
+        stage: &mut Stage,
+        library: &Library,
+    ) {
+        let rules = &game.rules.field;
+        let speed = rules.fielder_speed.at(game.settings.difficulty);
+        let called = state.home_run;
+        state.watchers.retain(|&index| {
+            let fielder = &parts.fielders[index];
+            let here = at(stage, fielder);
+            let far = distance(parts.home, here).max(0.001);
+            let next = (
+                here.0 + (here.0 - parts.home.0) / far * speed,
+                here.1 + (here.1 - parts.home.1) / far * speed,
+            );
+            let out = reach(parts.home, next);
+            if called || out >= rules.wall - WARNING_TRACK {
+                stage.goto_label(fielder, "waiting", false, library);
+                return false;
+            }
+            let label = Facing::towards(here, next).run_label();
+            stage.goto_label(fielder, label, false, library);
+            put(stage, fielder, next, (0.6 - out / 5000.0).max(0.2));
+            true
+        });
     }
 
     /// Brings in the runners who have got to their bases, and keeps the
@@ -689,6 +759,7 @@ fn unreachable_ball(at: Point) -> super::field::Ball {
         speed: (0.0, 0.0),
         height: 0.0,
         lift: 0.0,
+        fall: 0.0,
         bounced: true,
         walled: true,
     }

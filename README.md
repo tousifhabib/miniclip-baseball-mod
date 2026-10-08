@@ -63,7 +63,7 @@ switched on.
 |---|---|---|
 | Timing indicator | `timing_indicator` | A bar under the plate that shows when to swing |
 | Lone pitcher | `lone_pitcher` | Only the pitcher goes after a ball that has been hit |
-| Zinger hit | `zinger_hit` | Every hit in a match is a home run, bigger the better it was timed |
+| Zinger hit | `zinger_hit` | Every hit is a home run, bigger the better it was timed |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -81,16 +81,41 @@ throw beats is out. Nobody else moves, and the fielder at the base does not
 throw the ball on, so the play ends there and anyone still running is given
 his base.
 
-With the zinger hit, every ball the bat meets in a match goes over the wall.
-A swing still has to be timed to meet the ball, but how well it was timed
-now decides only how far the ball goes: from 440 feet, just over the wall,
-for the worst-timed swing that still meets it, to 800 feet for the best. The
-best moment is the middle of the timing bar's green. The distance is written
-under the home-run banner. Where the ring is held still sends the
-ball to one side or the other, but no longer lifts it or drags on it, and a
-hit that would have gone foul stays just inside the line. The arcade game is
-left as it was, since a ball over the wall scores nothing there. The mod's
-numbers are under `[zinger]` in `data/rules.toml`.
+With the zinger hit, every ball the bat meets goes over the wall. A swing
+still has to be timed to meet the ball, but how well it was timed now
+decides only how far the ball goes:
+
+- The worst-timed swing that still meets the ball sends it 440 feet, just
+  over the wall. The best sends it 800 feet on easy, 850 on medium and 900
+  on hard. The best moment is the middle of the timing bar's green.
+- Sixty of those feet are for holding the ring on the ball, and are lost
+  little by little as it is held further off. That is always less than a
+  frame of timing is worth.
+- Holding the ring below the ball skies it: it goes far higher and hangs in
+  the air up to two and a half times as long before it drops. Holding the
+  ring above the ball drives it low and gets it there sooner.
+- To one side or the other still sends the ball that way, but a hit that
+  would have gone foul stays just inside the line.
+
+The home run is called when the ball comes down, not when it crosses the
+wall. Until then the ball is drawn large with a trail behind it, a gold mark
+beats where it will land, and the distance it has gone is counted up in the
+middle of the field. When it lands the count stops, and the place it went is
+named: into the stands, off the scoreboard, or out of the park. The crowd
+makes more of a better-timed hit and of a longer one, and the outfielders go
+back to the wall to watch it over.
+
+The longest zinger there has been is kept beside the high scores. One that
+beats it is called a new record as it lands, and the result screen gives the
+longest of the game just played with the longest ever. With the timing bar
+on as well, a figure over each of the bar's colours says how far a swing on
+that colour sends the ball at the most.
+
+Because every hit scores, a match with the mod on starts further behind: 3
+runs on easy, 5 on medium and 8 on hard. In the arcade game there is no
+target: a hit scores the feet it goes.
+
+The mod's numbers are under `[zinger]` in `data/rules.toml`.
 
 ## Changing the game
 

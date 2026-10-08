@@ -9,10 +9,11 @@ use bb_engine::library::Library;
 use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
 
-use super::field::{Happened, distance};
+use super::field::{Happened, distance, seen_size};
 use super::pitch::Point;
-use super::{AtBat, Match, Parts, at, put, show};
+use super::{AtBat, Match, Parts, at, put, show, zinger};
 use crate::menu::Game;
+use crate::mods::Mod;
 use crate::rules::ArcadeRules;
 
 pub(crate) struct Arcade {
@@ -30,6 +31,9 @@ pub(crate) struct Arcade {
     cleared: bool,
     /// The overhead view is up and the ball is being followed.
     flying: bool,
+    /// The feet a zinger that is still in the air will score when it comes
+    /// down: with that mod on, a hit scores by how far it goes.
+    pub owed: Option<u32>,
 }
 
 impl Arcade {
@@ -42,6 +46,7 @@ impl Arcade {
             last_distance: f32::MAX,
             cleared: false,
             flying: false,
+            owed: None,
         }
     }
 
@@ -88,6 +93,9 @@ impl Match {
         arcade.last_distance = f32::MAX;
         arcade.cleared = false;
         arcade.flying = false;
+        arcade.owed = None;
+        // With the zinger mod on there is no target to drop the ball on.
+        let target_shown = !game.mods.is_on(Mod::ZingerHit);
         let area = &rules.target;
         arcade.target = (
             area.x + self.rng.below(area.width as u32) as f32,
@@ -101,6 +109,7 @@ impl Match {
             let _ = y;
             if let Some(child) = stage.child_mut(&mark) {
                 child.move_to(target.0, target.1);
+                child.set_visible(target_shown);
             }
         }
         // The batting view has a copy of the target lying on the outfield,
@@ -126,6 +135,7 @@ impl Match {
                 ty: horizon + 0.3 * depth,
                 ..Matrix::IDENTITY
             });
+            child.set_visible(target_shown);
         }
         // One ball lit for every pitch still to come, this one included.
         if let Some(row) = stage.find(&parts.main, &["onScreen_ballsLeft"]) {
@@ -154,7 +164,23 @@ impl Match {
         if let Some(arcade) = &mut self.arcade {
             arcade.flying = true;
         }
+        if let (Some(zinger), Some(ball)) = (at_bat.zinger, at_bat.ball) {
+            at_bat.zinger_show =
+                zinger::Show::new(zinger, &ball, &parts, &game.rules, stage, library);
+        }
         self.ready(&parts, stage, library);
+    }
+
+    /// A zinger still in the air when the view is left for the next pitch
+    /// scores what it was going to, unseen.
+    pub(crate) fn zinger_unseen(&mut self) {
+        let Some(arcade) = &mut self.arcade else {
+            return;
+        };
+        if let Some(feet) = arcade.owed.take() {
+            arcade.points += feet;
+            self.count_zinger(feet);
+        }
     }
 
     /// One frame of the ball over the arcade game's field.
@@ -176,25 +202,51 @@ impl Match {
         }
         let parts = &at_bat.parts;
         let happened = ball.step(parts.home, contact.miss(), &rules.field);
-        let size = (0.6 + (ball.at.1 - parts.home.1) / 1000.0).max(0.1);
-        put(stage, &parts.field_ball, ball.at, size);
+        put(
+            stage,
+            &parts.field_ball,
+            ball.at,
+            seen_size(parts.home, ball.at),
+        );
         if let Some(inner) = stage.child_mut(&parts.field_ball_inner) {
             inner.move_to(inner.matrix.tx, -ball.height);
         }
+        if let (Some(shown), false) = (&mut at_bat.zinger_show, ball.bounced) {
+            shown.follow(ball, parts, stage);
+        }
+        // The ring a ball lit, if it lit one, and the points it scored.
         let mut scored = None;
+        let mut zinger_down = false;
         match happened {
+            // A zinger scores by how far it went, wherever it came down.
+            Happened::Landed if arcade.owed.is_some() => {
+                let feet = arcade.owed.take().unwrap_or(0);
+                arcade.points += feet;
+                scored = Some((None, feet));
+                zinger_down = true;
+                show(stage, &parts.field_ball, false);
+            }
             Happened::Cleared => arcade.cleared = true,
             Happened::Landed if arcade.cleared => show(stage, &parts.field_ball, false),
-            Happened::Landed => scored = arcade.touch(arcade.last_distance, &rules.arcade),
+            Happened::Landed => {
+                scored = arcade
+                    .touch(arcade.last_distance, &rules.arcade)
+                    .map(|(ring, points)| (Some(ring), points));
+            }
             _ => {}
         }
         arcade.last_distance = arcade.off_target(ball.at, &rules.arcade);
+        if zinger_down && let Some(shown) = &mut at_bat.zinger_show {
+            self.zinger_down(shown, stage, library);
+        }
 
         if let Some((ring, points)) = scored {
-            // The art numbers its rings from the outside in.
-            let name = format!("ring{}", rules.arcade.rings.len() - ring);
-            if let Some(path) = stage.find(&parts.field, &["landMarker", &name]) {
-                stage.goto_clip(&path, 2, library);
+            if let Some(ring) = ring {
+                // The art numbers its rings from the outside in.
+                let name = format!("ring{}", rules.arcade.rings.len() - ring);
+                if let Some(path) = stage.find(&parts.field, &["landMarker", &name]) {
+                    stage.goto_clip(&path, 2, library);
+                }
             }
             stage.set_text("thisScore", points.to_string());
             if let Some(pulse) = stage.find(&parts.main, &["onScreenScore", "scoreAnim"]) {

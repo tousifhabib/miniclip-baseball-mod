@@ -50,6 +50,8 @@ pub struct Ball {
     pub height: f32,
     /// How fast it is going up. Negative coming down.
     pub lift: f32,
+    /// How much of that it loses each frame.
+    pub fall: f32,
     pub bounced: bool,
     /// It has been to the wall, one way or the other.
     pub walled: bool,
@@ -60,6 +62,12 @@ pub struct Ball {
 pub fn reach(home: Point, at: Point) -> f32 {
     let plain = ((at.0 - home.0).powi(2) + (at.1 - home.1).powi(2)).sqrt();
     plain - ((at.1 - home.1) * 3.0 + at.0 / 5.6)
+}
+
+/// The size the ball is drawn at over a point of the field, its own being
+/// 1: smaller the further up the field it is.
+pub fn seen_size(home: Point, at: Point) -> f32 {
+    (0.6 + (at.1 - home.1) / 1000.0).max(0.1)
 }
 
 pub fn distance(a: Point, b: Point) -> f32 {
@@ -81,16 +89,18 @@ impl Ball {
             speed: ((mark.0 - home.0) / frames, (mark.1 - home.1) / frames),
             height: 0.0,
             lift: contact.lift(hit) * rules.lift_share,
+            fall: rules.gravity,
             bounced: false,
             walled: false,
         }
     }
 
     /// A ball sent off towards `mark` to come down `carry` from home, as
-    /// [`reach`] measures it, after `frames` in the air.
-    pub fn sent(home: Point, mark: Point, carry: f32, frames: f32, rules: &FieldRules) -> Ball {
-        // It takes two frames to go up and come down at all.
-        let frames = frames.max(2.0);
+    /// [`reach`] measures it, after `frames` in the air, going `peak` high
+    /// on the way.
+    pub fn sent(home: Point, mark: Point, carry: f32, frames: f32, peak: f32) -> Ball {
+        // It takes a few frames to go up and come down at all.
+        let frames = frames.max(4.0);
         let way = distance(home, mark).max(0.001);
         let towards = ((mark.0 - home.0) / way, (mark.1 - home.1) / way);
         // Along a straight line reach grows evenly, so its first pixel
@@ -98,13 +108,16 @@ impl Ball {
         let from = reach(home, home);
         let each = reach(home, (home.0 + towards.0, home.1 + towards.1)) - from;
         let pace = (carry - from) / each / frames;
+        // What takes a ball that high and back in that many frames.
+        let fall = 8.0 * peak / (frames * frames);
         Ball {
             at: home,
             speed: (towards.0 * pace, towards.1 * pace),
             height: 0.0,
-            // Gravity has taken all of this back between the last frame
-            // but one and the last, which is the frame it comes down on.
-            lift: rules.gravity * (frames - 1.5) / 2.0,
+            // All of this has been lost between the last frame but one and
+            // the last, which is the frame it comes down on.
+            lift: fall * (frames - 1.5) / 2.0,
+            fall,
             bounced: false,
             walled: false,
         }
@@ -122,7 +135,7 @@ impl Ball {
         self.speed.0 -= self.speed.0 * lost;
         self.speed.1 -= self.speed.1 * lost;
         self.height += self.lift;
-        self.lift -= rules.gravity;
+        self.lift -= self.fall;
 
         let mut happened = Happened::Nothing;
         if self.height < 0.0 {
@@ -298,16 +311,20 @@ mod tests {
     fn a_ball_sent_a_distance_comes_down_that_far_off_whichever_way_it_goes() {
         let rules = Rules::default();
         for across in [-40.0, 120.0, STRAIGHT.0, 480.0, 620.0] {
-            let mark = (across, STRAIGHT.1);
-            let mut ball = Ball::sent(HOME, mark, 600.0, 150.0, &rules.field);
-            let mut frames = 1;
-            while ball.step(HOME, 0.0, &rules.field) != Happened::Landed {
-                frames += 1;
-                assert!(frames < 400, "towards {across}: it never came down");
+            for (frames, peak) in [(150, 100.0), (90, 30.0), (420, 300.0)] {
+                let mark = (across, STRAIGHT.1);
+                let mut ball = Ball::sent(HOME, mark, 600.0, frames as f32, peak);
+                let (mut taken, mut highest) = (1, 0.0f32);
+                while ball.step(HOME, 0.0, &rules.field) != Happened::Landed {
+                    taken += 1;
+                    highest = highest.max(ball.height);
+                    assert!(taken < 900, "towards {across}: it never came down");
+                }
+                assert_eq!(taken, frames, "towards {across}");
+                assert!((highest - peak).abs() < peak * 0.05, "{highest} for {peak}");
+                let far = reach(HOME, ball.at);
+                assert!((far - 600.0).abs() < 1.0, "towards {across}: {far}");
             }
-            assert_eq!(frames, 150, "towards {across}");
-            let far = reach(HOME, ball.at);
-            assert!((far - 600.0).abs() < 1.0, "towards {across}: {far}");
         }
     }
 
