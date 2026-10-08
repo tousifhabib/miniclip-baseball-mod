@@ -3,7 +3,9 @@
 
 use bb_format::SymbolId;
 
-use crate::display::{Child, ClipState, Command, Content, Event, Path, Texts, commands, text_key};
+use crate::display::{
+    Child, ClipState, Command, Content, Event, Path, Texts, commands_upright, text_key,
+};
 use crate::input::{Geometry, Key, Pointer, field_at};
 use crate::library::Library;
 use crate::math::Matrix;
@@ -20,6 +22,9 @@ pub struct Stage {
     pub hide_pointer: bool,
     /// The keys the player is holding down.
     keys_down: Vec<Key>,
+    /// Whether what is written is drawn the right way round even where the
+    /// game has mirrored the clip it is in.
+    pub upright_text: bool,
     /// Frames played, for blinking the caret.
     ticks: u32,
     /// How loud each sound is to be played, where the game has said.
@@ -52,6 +57,7 @@ impl Stage {
             focus: None,
             hide_pointer: false,
             keys_down: Vec::new(),
+            upright_text: false,
             ticks: 0,
             levels: std::collections::HashMap::new(),
             events,
@@ -374,7 +380,8 @@ impl Stage {
 
     /// Lists what to draw, back to front.
     pub fn commands(&self, base: Matrix, library: &Library) -> Vec<Command> {
-        let mut list = commands(&self.root, base, library, &self.texts);
+        let upright = self.upright_text;
+        let mut list = commands_upright(&self.root, base, library, &self.texts, upright);
         // The field being typed in shows a caret after its text, on and off.
         if let Some(focus) = &self.focus
             && (self.ticks / BLINK).is_multiple_of(2)

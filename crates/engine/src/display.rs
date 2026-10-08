@@ -736,10 +736,26 @@ pub fn text_key(variable: &str) -> &str {
 
 /// Lists what to draw for a clip, back to front.
 pub fn commands(clip: &ClipState, base: Matrix, library: &Library, texts: &Texts) -> Vec<Command> {
+    commands_upright(clip, base, library, texts, false)
+}
+
+/// The same. With `upright_text`, a text or a text field that would have
+/// been drawn mirrored, because a clip it is in has been turned over, is
+/// drawn the right way round: turned over again about its own middle, so
+/// that it stays where it was. A game that mirrors a figure has no wish to
+/// mirror the number on his shirt.
+pub fn commands_upright(
+    clip: &ClipState,
+    base: Matrix,
+    library: &Library,
+    texts: &Texts,
+    upright_text: bool,
+) -> Vec<Command> {
     let mut out = Vec::new();
     let context = Context {
         library,
         texts,
+        upright_text,
         // Filter sizes are in stage pixels, so they grow with the view.
         view_scale: (base.a * base.d - base.b * base.c).abs().sqrt(),
     };
@@ -757,7 +773,35 @@ pub fn commands(clip: &ClipState, base: Matrix, library: &Library, texts: &Texts
 struct Context<'a> {
     library: &'a Library,
     texts: &'a Texts,
+    upright_text: bool,
     view_scale: f32,
+}
+
+/// The transform to draw a graphic by, given the one its place in the tree
+/// gives it: the same, unless that would mirror text that is to be kept
+/// the right way round.
+fn righted(child: &Child, matrix: Matrix, context: &Context) -> Matrix {
+    if !context.upright_text || matrix.a * matrix.d - matrix.b * matrix.c >= 0.0 {
+        return matrix;
+    }
+    let library = context.library;
+    let bounds = match library.manifest.symbols.get(&child.symbol).map(|s| &s.info) {
+        Some(SymbolInfo::Text) => library.texts.get(&child.symbol).map(|text| &text.bounds),
+        Some(SymbolInfo::EditText) => library
+            .edit_texts
+            .get(&child.symbol)
+            .map(|field| &field.bounds),
+        _ => None,
+    };
+    let Some(bounds) = bounds else {
+        return matrix;
+    };
+    // Turned over about the middle of what it covers.
+    matrix.then_inner(Matrix {
+        a: -1.0,
+        tx: (bounds.x_min + bounds.x_max) as f32,
+        ..Matrix::IDENTITY
+    })
 }
 
 fn draw_children(
@@ -838,7 +882,7 @@ fn draw_child(
         Content::Graphic => out.push(Command::Draw {
             symbol: child.symbol,
             ratio: child.ratio,
-            matrix,
+            matrix: righted(child, matrix, context),
             color,
             text: child.said.clone().or_else(|| {
                 context
@@ -1261,6 +1305,39 @@ pub(crate) mod tests {
         // Only the last part of the field's variable name counts.
         let texts = Texts::from([("score".to_owned(), "12".to_owned())]);
         assert_eq!(said(&texts), Some("12".to_owned()));
+    }
+
+    #[test]
+    fn text_in_a_mirrored_clip_is_drawn_the_right_way_round_when_asked() {
+        let mut library = library(vec![frame(vec![put(1, FIELD)])], 1);
+        add_field(&mut library, "score", &["read_only"]);
+        let root = start(&library);
+        // The whole thing turned over about the line 100 across.
+        let mirror = Matrix {
+            a: -1.0,
+            tx: 200.0,
+            ..Matrix::IDENTITY
+        };
+        let drawn = |upright: bool| {
+            let texts = Texts::new();
+            match &commands_upright(&root, mirror, &library, &texts, upright)[0] {
+                Command::Draw { matrix, .. } => *matrix,
+                other => panic!("expected a draw, found {other:?}"),
+            }
+        };
+        // Left alone it is mirrored: the field, 50 wide, runs from 200
+        // back to 150.
+        let plain = drawn(false);
+        assert_eq!((plain.a, plain.apply(0.0, 0.0).0), (-1.0, 200.0));
+        // Kept upright it covers the same 150 to 200, and reads forwards.
+        let upright = drawn(true);
+        assert_eq!(upright.a, 1.0);
+        assert_eq!(upright.apply(0.0, 0.0).0, 150.0);
+        assert_eq!(upright.apply(50.0, 0.0).0, 200.0);
+        // Nothing is done to what is not mirrored.
+        let texts = Texts::new();
+        let same = commands_upright(&root, Matrix::IDENTITY, &library, &texts, true);
+        assert_eq!(same, commands(&root, Matrix::IDENTITY, &library, &texts));
     }
 
     #[test]

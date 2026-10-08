@@ -19,6 +19,7 @@ mod pinball;
 pub mod pitch;
 pub mod shift;
 pub mod sign;
+pub mod southpaw;
 mod steal;
 pub mod timing;
 pub mod zinger;
@@ -334,6 +335,8 @@ pub struct Match {
     /// The pitch in hand is one the clutch mod makes runs count for more
     /// on.
     clutch: bool,
+    /// The batter bats left-handed, by the southpaw mod.
+    southpaw: bool,
     /// With the hit the sign mod on: the innings a sign was last lit for
     /// and which it was, what the next is drawn by, the sign a ball has
     /// just struck and the runs that was worth, until that has been told,
@@ -506,6 +509,7 @@ impl Match {
             rally: 0,
             rallying: false,
             clutch: false,
+            southpaw: false,
             sign: None,
             sign_rng: Rng::new(seed ^ SIGN_SEED),
             sign_news: None,
@@ -888,9 +892,16 @@ impl Match {
     /// Gets a freshly built batting view ready for a pitch. Returns how the
     /// match ended if it has.
     fn set_up(&mut self, game: &Game, stage: &mut Stage, library: &Library) -> Option<Outcome> {
-        let parts = Match::parts(stage, library)?;
+        let mut parts = Match::parts(stage, library)?;
         self.cues.clear();
         self.put_away.clear();
+        // With the southpaw mod on the batter stands on the other side of
+        // the plate, turned round. The number on his shirt is not.
+        self.southpaw = game.mods.is_on(Mod::Southpaw);
+        stage.upright_text = self.southpaw;
+        if self.southpaw {
+            southpaw::stand(&mut parts, stage);
+        }
         if let Some(outcome) = self.outcome() {
             self.phase = Phase::Over;
             return Some(self.close_half(outcome));
@@ -1240,7 +1251,11 @@ impl Match {
             table.marker_frame = rules.throw.release_frame;
             kind = Some(which);
         }
-        let choice = Choice::pick(&table, &rules.throw, &mut self.rng);
+        let mut choice = Choice::pick(&table, &rules.throw, &mut self.rng);
+        if self.southpaw {
+            // A left-hander is pitched to as a right-hander was.
+            southpaw::turn(&mut choice, parts.centre_x);
+        }
         let mut pitch = Pitch::throw(&choice, &mound, &rules.throw);
         let wait = match kind {
             Some(_) => {
@@ -1904,6 +1919,9 @@ impl Match {
             if left == 0 {
                 at_bat.run_in = None;
                 stage.goto_label(&parts.hitter, "run", true, library);
+                if self.southpaw {
+                    southpaw::run(parts, stage, library);
+                }
                 let last = stage
                     .clip(&parts.hitter)
                     .map_or(1, |clip| clip.frame_count(library));
@@ -2053,6 +2071,9 @@ impl Match {
         }
         if self.clutch {
             let_go += ", clutch";
+        }
+        if self.southpaw {
+            let_go += ", southpaw";
         }
         if let Some(left) = self.bullet {
             let_go += &format!(", bullet time {left}");

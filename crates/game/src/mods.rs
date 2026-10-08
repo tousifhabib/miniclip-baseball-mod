@@ -88,6 +88,9 @@ pub enum Mod {
     /// Holding the space bar slows the pitch as it comes to the plate, for
     /// as long as a meter lasts that hits fill up again.
     BulletTime,
+    /// The batter bats left-handed, from the other side of the plate, and
+    /// the pitches are thrown to him as they were to a right-hander.
+    Southpaw,
 }
 
 /// What the menu and the files know a mod by.
@@ -105,7 +108,7 @@ struct Info {
 
 impl Mod {
     /// Every mod, in the order the menu lists them.
-    pub const ALL: [Mod; 22] = [
+    pub const ALL: [Mod; 23] = [
         Mod::TimingIndicator,
         Mod::LonePitcher,
         Mod::ZingerHit,
@@ -128,6 +131,7 @@ impl Mod {
         Mod::Rally,
         Mod::Clutch,
         Mod::BulletTime,
+        Mod::Southpaw,
     ];
 
     fn info(self) -> Info {
@@ -262,6 +266,12 @@ impl Mod {
                 key: "bullet_time",
                 name: "BULLET TIME",
                 about: "HOLD SPACE TO SLOW THE PITCH: HITS REFILL THE METER",
+                setting: None,
+            },
+            Mod::Southpaw => Info {
+                key: "southpaw",
+                name: "SOUTHPAW",
+                about: "BAT LEFT-HANDED, FROM THE OTHER SIDE OF THE PLATE",
                 setting: None,
             },
         }

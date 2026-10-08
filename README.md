@@ -137,6 +137,7 @@ switched on.
 | Rally | `rally` | Each batter in a row who reaches base makes every run worth one more, until somebody is out |
 | Clutch | `clutch` | With two out and a runner on second or third, every run counts double |
 | Bullet time | `bullet_time` | Hold the space bar to slow the pitch as it comes to the plate, on a meter that hits refill |
+| Southpaw | `southpaw` | You bat left-handed, from the other side of the plate |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -399,6 +400,22 @@ and a home run fills it. A walk puts back nothing. With the mod off the
 space bar pauses the game, as it always did, and with it on F2 still does.
 The arcade game has it too, where any ball that scores puts half the meter
 back. The numbers are under `[bullet_time]` in `data/rules.toml`.
+
+With southpaw, the batter bats left-handed. He stands on the other side of
+the plate, turned round, and swings from there. Nothing else in the view
+moves: the stadium, the scoreboard, the little field, the timing bar and
+whatever else the mods draw are where they always are, and the field from
+over it is as it was. The number on his shirt still reads the right way
+round.
+
+He is pitched to as a right-hander was. Each pitch is aimed as far to the
+other side of the middle of the plate, as high, and curves the other way, so
+that one which broke in on a right-hander's hands breaks in on his, and it
+is a strike or a ball just as it would have been. The ring starts on the
+side away from him, and the box it is kept to reaches as much further
+towards him as it did towards a right-hander. When he hits the ball he runs
+to first as anyone does, to the right, from where he stands. The arcade game
+has him too. The mod has no numbers.
 
 ## Changing the game
 
