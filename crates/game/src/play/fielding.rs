@@ -6,6 +6,7 @@ use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 use bb_format::SymbolId;
 
+use super::book::{End, Hit, Thrown};
 use super::field::{Ball, Facing, Happened, distance, reach, seen_size};
 use super::overlay::Notice;
 use super::pinball;
@@ -76,6 +77,9 @@ pub(crate) struct Fielding {
     fumbled: bool,
     /// Who hit the ball: his place among the runners.
     batter: Option<usize>,
+    /// A fielder had the ball in his glove before it came down, and let it
+    /// go.
+    dropped: bool,
 }
 
 /// The runner clip's frame labels for running and sliding to each base.
@@ -283,6 +287,7 @@ impl Match {
             since_settled: 0,
             fumbled: false,
             batter: self.batter(),
+            dropped: false,
         };
         self.phase = Phase::Fielding;
 
@@ -469,11 +474,14 @@ impl Match {
                     stage.goto_label(&fielder, "waiting", false, library);
                 }
                 Happened::Cleared if state.live => {
+                    // Where it would come down, beyond the wall.
+                    state.land = ball.landing(parts.home, miss, rules);
                     self.home_run(&mut state, &parts, stage, library);
                 }
                 // Back off the wall: somebody has to go and get it.
                 Happened::HitWall if state.live => state.job = Job::Chase,
                 Happened::Landed if state.gone && !state.home_run => {
+                    state.land = ball.at;
                     self.home_run(&mut state, &parts, stage, library);
                     if let Some(shown) = &mut at_bat.zinger_show {
                         self.zinger_down(shown, stage, library);
@@ -552,6 +560,7 @@ impl Match {
                     {
                         // It is in his glove and out again: nobody is out,
                         // and the ball is on the ground.
+                        state.dropped = true;
                         self.let_go(&mut at_bat.ball, &parts, game);
                         Match::sound(stage, library, "ballCatch_3");
                         Match::sound(stage, library, "crowd_smallCheer");
@@ -675,9 +684,56 @@ impl Match {
                     self.arrive(runner, &parts, stage, library);
                 }
             }
+            self.book_play(at_bat, &state);
             self.ready(&parts, stage, library);
         }
         at_bat.fielding = Some(state);
+    }
+
+    /// In a full match, writes a play that is over into the book: a foul,
+    /// a walk, or what came of a ball that was put in play.
+    fn book_play(&mut self, at_bat: &AtBat, state: &Fielding) {
+        let Some(ground) = self.full.as_ref().map(|full| *full.ground()) else {
+            return;
+        };
+        if state.foul {
+            return self.book_pitch(at_bat, Thrown::Foul);
+        }
+        if state.walk {
+            return self.book_end(End::Walk, None);
+        }
+        self.book_pitch(at_bat, Thrown::InPlay);
+        let (score, outs) = self.thrown_at;
+        let place = state
+            .batter
+            .and_then(|batter| self.runners.get(batter))
+            .map(|runner| runner.place);
+        let safe = matches!(place, Some(Place::Base(_) | Place::Home));
+        let end = match place {
+            // He would have been out, had the catch been held.
+            _ if safe && state.dropped => End::Error,
+            Some(Place::Home) => End::HomeRun,
+            Some(Place::Base(2)) => End::Double,
+            Some(Place::Base(3)) => End::Triple,
+            Some(Place::Base(_)) => End::Single,
+            // A run that came in on a catch that was not the last out.
+            _ if state.caught && self.score > score && outs < 2 => End::SacrificeFly,
+            _ if state.caught => End::FlyOut,
+            _ if self.outs >= outs + 2 => End::DoublePlay,
+            _ => End::GroundOut,
+        };
+        // It was in the air if it was caught, went out of the park, or
+        // first came down beyond the infield.
+        let deep = reach(ground.home, state.land) >= ground.infield;
+        let fly = state.caught || state.dropped || state.home_run || deep;
+        let feet = at_bat.zinger.map(|zinger| zinger.feet);
+        let hit = Hit::at(&ground, state.land, fly, feet);
+        if end == End::Error
+            && let Some(full) = &mut self.full
+        {
+            full.book.theirs.errors += 1;
+        }
+        self.book_end(end, Some(hit));
     }
 
     /// Turns the fielder to face the base and starts his throw.

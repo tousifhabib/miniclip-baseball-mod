@@ -217,6 +217,21 @@ pub fn said(script: &Script, name: &str) -> Vec<String> {
     said
 }
 
+/// What every line of words with this name says, where they can be seen,
+/// in the order they were written. Unlike [`said`], lines that say the same
+/// thing one after another are each given.
+pub fn written(script: &Script, name: &str) -> Vec<String> {
+    let stage = &script.runner.stage;
+    let all: Vec<String> = all_named(stage, &[], name)
+        .iter()
+        .map(|words| stage.child(words).unwrap())
+        .filter(|words| words.visible)
+        .filter_map(|words| words.said.clone())
+        .collect();
+    // Each line is there twice, once as its own shadow.
+    all.chunks(2).map(|pair| pair[0].clone()).collect()
+}
+
 /// The sounds asked for since this was last asked, by their names in the
 /// art.
 pub fn sounds(script: &mut Script) -> Vec<String> {

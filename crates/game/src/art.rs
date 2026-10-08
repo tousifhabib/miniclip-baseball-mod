@@ -10,6 +10,9 @@ use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 use bb_format::{Op, PlaceAction, SymbolId, SymbolInfo};
 
+use crate::play::field::{Ground, reach};
+use crate::rules::Rules;
+
 /// The clip that holds every screen, one per labelled frame.
 pub const SHELL: SymbolId = 2027;
 /// The opening animation, on the shell's `intro` frame.
@@ -107,6 +110,51 @@ pub const BOARD_WORDS_FRAME: u16 = 38;
 /// The word over the score to beat on the game's scoreboards, as its two
 /// drawings. In a full match the other side's score is shown there.
 pub const TARGET_LABEL: [SymbolId; 2] = [505, 517];
+/// The figures the art puts on the boards a match ends on: one clip on the
+/// board for a match won, and another on the one for a match lost. A full
+/// match has pages of its own figures, and these are the first of them.
+pub const RESULT_FIGURES: [SymbolId; 2] = [1756, 1722];
+/// The field from over it, which a match is played on, the picture of the
+/// stadium that is drawn under it, and the picture of the ball over it: a
+/// white disc five pixels across.
+pub const FIELD: SymbolId = 1548;
+pub const FIELD_PICTURE: SymbolId = 1094;
+pub const DOT: SymbolId = 1545;
+/// An arrow, pointing right, that turns the pages on those boards.
+pub const BOARD_TURN: SymbolId = 2053;
+
+/// The fixed points of the field as the art places them, for placing a hit
+/// by when there is no match on the stage to find them on.
+pub fn ground(library: &Library, rules: &Rules) -> Ground {
+    let placed = |name: &str| -> Option<(f32, f32)> {
+        let field = library.clips.get(&FIELD)?;
+        field.frames.first()?.ops.iter().find_map(|op| match op {
+            Op::Place(place) if place.name.as_deref() == Some(name) => {
+                let matrix = place.matrix?;
+                Some((matrix[4] as f32, matrix[5] as f32))
+            }
+            _ => None,
+        })
+    };
+    let mut ground = Ground {
+        wall: rules.field.wall,
+        feet_each: rules.zinger.wall_feet / rules.field.wall,
+        ..Ground::default()
+    };
+    if let Some(home) = placed("startPointMarker") {
+        ground.home = home;
+    }
+    if let Some(mark) = placed("shadowFlyMarker") {
+        ground.mark_y = mark.1;
+    }
+    if let (Some(left), Some(right)) = (placed("foulMarkerLeft"), placed("foulMarkerRight")) {
+        ground.foul = (left.0, right.0);
+    }
+    if let Some(second) = placed("base2") {
+        ground.infield = reach(ground.home, second);
+    }
+    ground
+}
 
 /// The pictures of the stadium: behind the batter, and from over the field
 /// in a match and in the arcade game. The match's has the stands nearest

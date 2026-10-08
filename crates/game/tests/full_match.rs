@@ -82,13 +82,14 @@ fn away_the_side_bats_first_and_the_board_follows_its_innings() {
     // art's own.
     script.run("wait 90").unwrap();
     assert_eq!(said(&script, "boardHeading"), ["END OF THE 1ST"]);
+    let lines = said(&script, "boardLine");
+    assert!(
+        lines[0].starts_with("THE HOME SIDE MADE 2 RUNS ON "),
+        "{lines:?}"
+    );
     assert_eq!(
-        said(&script, "boardLine"),
-        [
-            "THE HOME SIDE MADE 2 RUNS",
-            "YOU TRAIL 0 - 2",
-            "YOU BAT IN THE TOP OF THE 2ND"
-        ]
+        lines[1..],
+        ["YOU TRAIL 0 - 2", "YOU BAT IN THE TOP OF THE 2ND"]
     );
     assert_eq!(said(&script, "boardSide"), ["YOU", "THEM"]);
     assert_eq!(said(&script, "boardRuns"), ["0", "2"]);
@@ -159,7 +160,7 @@ fn a_match_lost_says_what_each_side_made() {
     assert_eq!(text(&script, "out"), "6");
     assert_eq!(text(&script, "score"), "0");
     assert_eq!(said(&script, "boardVerdict"), ["YOU LOST 0 - 1"]);
-    assert_eq!(said(&script, "boardInnings"), ["1", "2", "R"]);
+    assert_eq!(said(&script, "boardInnings"), ["1", "2", "R", "H", "E"]);
     // The visitors' two noughts read as one: what is said twice running
     // is given once.
     assert_eq!(said(&script, "boardCell"), ["0", "1", "X"]);

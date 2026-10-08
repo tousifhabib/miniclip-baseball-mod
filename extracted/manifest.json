@@ -16452,6 +16452,10 @@
     "2052": {
       "file": "buttons/2052.json",
       "kind": "button"
+    },
+    "2053": {
+      "file": "buttons/2053.json",
+      "kind": "button"
     }
   },
   "exports": {

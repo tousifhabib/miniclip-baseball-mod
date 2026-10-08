@@ -61,12 +61,13 @@ that game is the last innings of a match already nearly lost, this one is
 the whole match: nine innings a side.
 
 Only your own innings are played. You bat until three are out, as in the
-other game, and then the other side's half of the innings is made up: how
-many runs they are likely to make goes by the skill level. A board comes up
-between innings to say what they made, with every innings of both sides and
-how the match stands, and its button brings your side in again with nobody
-out and nobody on base. Nine batters make up the order, and come round
-again.
+other game, and then the other side has its half of the innings on paper.
+How many runs they make goes by the skill level. Once that is settled the
+half is played out a pitch at a time until it comes to just that many: who
+struck out, who walked, who hit what and where. A board comes up between
+innings to say what they made, with every innings of both sides and how the
+match stands, and its button brings your side in again with nobody out and
+nobody on base. Nine batters make up the order, and come round again.
 
 The setup page has a choice under the skill levels: Home, Away or Toss.
 Away, you bat first, in the top of each innings. At home you bat second, so
@@ -78,10 +79,31 @@ of the ninth if it is already ahead, and wins the moment it goes ahead
 there. A match that is level after nine goes on, an innings at a time, until
 one side is in front. The board the game ends on has every innings on it.
 
+Every pitch to every batter of both sides goes in a scorebook, and when the
+match is over the board has pages of what it says, turned by the arrows
+under them:
+
+| Page | What is on it |
+|---|---|
+| Stats | Who won, and each side's runs, hits and errors by innings |
+| Your batting, their batting | At-bats, runs, hits, doubles, triples, home runs, runs batted in, walks, strikeouts and average for each of the nine, and for the side, with the figures of the pitcher who threw to them |
+| The figures | The two sides side by side: average, on-base, slugging and the two together, average on balls in play and with runners on second or third, and of the pitches the share that were strikes, were swung at, were met, were missed and were chased outside the zone |
+| Where you hit it, where they hit it | The field, with a mark where each ball that was put in play came down, coloured by what came of it, and how the hits were spread |
+| Your timing | How many frames early or late each of your swings began, and what became of them |
+| An innings each | Every turn of both halves in a line: who, what he did, where it went, the runs it brought in and the pitches he saw |
+
+Everything said of either side is added up from that one record by the same
+sums, so the pages agree with one another and with the scores. The other
+side's figures are of innings that were made up, but made up a pitch at a
+time and not to fit: they can be checked turn by turn against the pages of
+the innings. Scores run high in this game, so averages do too. A hit's
+length is taken from the wall being four hundred feet from the plate.
+
 Every mod is played by in a full match just as in the last innings alone.
 With the zinger hit mod on, when every ball you hit is a home run, the other
 side makes about three times its usual runs. The numbers are under
-`[full_match]` in `data/rules.toml`.
+`[full_match]` in `data/rules.toml`, with the chances their innings are
+played out by under `[full_match.their_batting]`.
 
 ## Mods
 
@@ -309,8 +331,9 @@ cargo run --release -p bb-modtools --bin clip-sheet -- extracted --clip 688 --ev
 
 The rules are in `crates/game/src`. `baseball.rs` decides which screen is
 showing, `menu.rs` is the menu, `play/` is a game in progress, with a full
-match's innings in `play/full.rs` and what it writes on the boards in
-`board.rs`, `look.rs` dresses the batting side, `scores.rs` keeps the high
+match's innings in `play/full.rs`, its scorebook in `play/book.rs`, the
+other side's innings in `play/paper.rs` and what is written on the boards
+in `board.rs`, `look.rs` dresses the batting side, `scores.rs` keeps the high
 scores, `mods.rs` is the mods and their page of the menu, and `art.rs`
 describes how the art is put together: which clip is which, and what each
 button is.

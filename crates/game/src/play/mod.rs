@@ -6,12 +6,14 @@
 //! the outs, and where every runner stands.
 
 mod arcade;
+pub mod book;
 mod called;
 pub mod field;
 mod fielding;
 pub mod full;
 pub mod night;
 pub(crate) mod overlay;
+pub mod paper;
 mod pinball;
 pub mod pitch;
 pub mod timing;
@@ -29,6 +31,7 @@ use crate::menu::Game;
 use crate::mods::Mod;
 use crate::rng::Rng;
 use crate::rules::{HitRules, PitchRules};
+use book::{End, ORDER, Thrown};
 use field::{Ball, Contact, Happened};
 use overlay::Notice;
 use pitch::{Choice, Kind, Mound, Pitch, Point, Quality};
@@ -218,6 +221,10 @@ pub(crate) struct AtBat {
     /// In a full match, the word on each scoreboard over the other side's
     /// score.
     pub them: Vec<full::Them>,
+    /// For a full match's book: how many frames after the best moment for
+    /// it the swing began, and how well the bat met the ball.
+    pub swing_off: Option<i32>,
+    pub met: Option<Quality>,
 }
 
 impl AtBat {
@@ -262,6 +269,9 @@ pub struct Match {
     /// outs there were, in the innings gone by.
     pub(crate) tally: Vec<u32>,
     pub(crate) outs_before: u32,
+    /// The score and the outs when the pitch in hand was thrown, by which a
+    /// full match's book knows what came of it.
+    pub(crate) thrown_at: (u32, u32),
     /// How many times a fielder has let the ball go in this game, with the
     /// butterfingers mod on.
     pub(crate) slips: u32,
@@ -292,8 +302,6 @@ pub struct Match {
 
 /// The pitcher's frame label for his wind-up.
 const PITCH: &str = "pitch";
-/// How many batters a full match's order has before it comes round again.
-const ORDER: usize = 9;
 /// Where a full match says which half of which innings it is: the middle of
 /// the top of its words, under the little field in the corner of the
 /// batting view. What the mods write there goes this much further down to
@@ -393,6 +401,7 @@ impl Match {
             line_up: Vec::new(),
             tally: Vec::new(),
             outs_before: 0,
+            thrown_at: (0, 0),
             slips: 0,
             streak: 0,
             run_worth: 1,
@@ -593,7 +602,7 @@ impl Match {
     }
 
     /// The runs made by each place in the batting order.
-    fn runs_by_order(&self) -> Vec<u32> {
+    pub(crate) fn runs_by_order(&self) -> Vec<u32> {
         let mut runs = self.tally.clone();
         for runner in &self.runners {
             if runs.len() <= runner.order {
@@ -1028,6 +1037,8 @@ impl Match {
             came_down: None,
             rebounds: 0,
             them,
+            swing_off: None,
+            met: None,
         });
         None
     }
@@ -1224,6 +1235,7 @@ impl Match {
                     show(stage, &at_bat.parts.ball, true);
                     show(stage, &at_bat.parts.shadow, true);
                     self.pitched += 1;
+                    self.book_thrown();
                     if let Some(arcade) = &mut self.arcade {
                         arcade.left = arcade.left.saturating_sub(1);
                     }
@@ -1351,6 +1363,11 @@ impl Match {
                 Match::sound(stage, library, "batSwing_fast");
             }
             at_bat.swing = Some(0);
+            if self.full.is_some() {
+                at_bat.swing_off = timing::Timing::of(&at_bat.pitch, &at_bat.table)
+                    .best()
+                    .map(|(first, last)| step as i32 - step.clamp(first, last) as i32);
+            }
             at_bat.under = at_bat.aim.1 - at_bat.pitch.crosses.1;
             at_bat.across = at_bat.aim.0 - at_bat.pitch.crosses.0;
             if let Some(bar) = &mut at_bat.timing {
@@ -1366,6 +1383,7 @@ impl Match {
             Some((frames, quality, power))
         });
         if let (true, Some((frames, quality, power))) = (in_band, met) {
+            at_bat.met = Some(quality);
             if game.mods.is_on(Mod::HotBat) {
                 self.streak += 1;
             }
@@ -1474,6 +1492,7 @@ impl Match {
         }
         Match::sound(stage, library, "ballCatch_1");
         if !at_bat.pitch.in_zone && at_bat.swing.is_none() {
+            self.book_pitch(at_bat, Thrown::Ball);
             self.balls += 1;
             if let Some(board) = &parts.scoreboard {
                 self.play_section(board, "noBall", 261, stage, library);
@@ -1488,6 +1507,11 @@ impl Match {
             }
             return;
         }
+        let thrown = match at_bat.swing {
+            Some(_) => Thrown::Swinging,
+            None => Thrown::Called,
+        };
+        self.book_pitch(at_bat, thrown);
         self.strikes += 1;
         if at_bat.golden {
             // A strike on a golden ball is all the strikes there are.
@@ -1515,6 +1539,7 @@ impl Match {
             self.outs += 1;
             self.clear_count();
             self.announce = true;
+            self.book_end(End::Strikeout, None);
         } else {
             Match::sound(stage, library, "umpire_Strike_grunt");
             if self.strikes + 1 == self.strikes_allowed(game) {

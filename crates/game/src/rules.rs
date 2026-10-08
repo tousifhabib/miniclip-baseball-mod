@@ -513,6 +513,28 @@ pub struct FullMatchRules {
     /// How likely the other side is to make each number of runs in an
     /// innings, from none up.
     pub runs: BySkillRef<Vec<u32>>,
+    /// The chances their innings are played out on paper by.
+    pub their_batting: TheirBattingRules,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct TheirBattingRules {
+    /// The share of the pitches to them that are in the strike zone.
+    pub zone: f32,
+    /// How often they swing at a pitch in the zone, and at one outside it.
+    pub swing: [f32; 2],
+    /// How often such a swing meets the ball.
+    pub contact: [f32; 2],
+    /// The share of the balls they meet that go foul.
+    pub foul: f32,
+    /// How likely a ball put in play is to come to each of these.
+    pub ground_out: f32,
+    pub fly_out: f32,
+    pub single: f32,
+    pub double: f32,
+    pub triple: f32,
+    pub home_run: f32,
 }
 
 impl FullMatchRules {
