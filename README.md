@@ -44,6 +44,12 @@ Escape quits. `--mute` turns the sound off, `--screen match` (or `menu`,
 for that run, and `--ground home` (or `away`, or `toss`) says where a full
 match is played.
 
+The game plays sixty frames a second. On a screen that redraws sixty times a
+second, or a whole number of times that, it plays a frame every so many
+redraws and not by the clock, so that each is on the screen for as long as
+the last; the inspector says which it is doing. A click is acted on by the
+next frame even if the button is up again before then.
+
 To build it as a Mac app:
 
 ```bash

@@ -21,6 +21,7 @@ use crate::gpu::Renderer;
 use crate::input;
 use crate::inspector::{Action, Info, Inspector};
 use crate::math::Matrix;
+use crate::pace::Pace;
 
 pub struct Options {
     pub title: String,
@@ -45,13 +46,14 @@ pub struct Summary {
 pub fn run(runner: Runner, options: Options) -> Result<Summary> {
     let mut inspector = Inspector::new();
     inspector.open = options.inspect;
+    let frame = Duration::from_secs_f64(1.0 / runner.library.manifest.stage.frame_rate);
     let mut app = App {
         runner,
         options,
         inspector,
         paused: false,
         last_redraw: Instant::now(),
-        owed: Duration::ZERO,
+        pace: Pace::new(frame),
         frame_time: 1.0 / 60.0,
         drawn: 0,
         cursor: (0.0, 0.0),
@@ -89,8 +91,8 @@ struct App {
     inspector: Inspector,
     paused: bool,
     last_redraw: Instant,
-    /// Time that has passed but not yet been played.
-    owed: Duration,
+    /// When the game's frames are played.
+    pace: Pace,
     /// A running average of the time between redraws.
     frame_time: f32,
     drawn: u32,
@@ -138,6 +140,10 @@ impl App {
         if let Some(format) = formats.into_iter().find(|format| !format.is_srgb()) {
             config.format = format;
         }
+        // Keep one finished picture waiting for the screen and no more. A
+        // frame takes a small part of a redraw to draw, so a longer queue
+        // would only put more time between a click and what it does.
+        config.desired_maximum_frame_latency = 1;
         surface.configure(&device, &config);
 
         let egui = egui_winit::State::new(
@@ -214,7 +220,7 @@ impl App {
     fn apply(&mut self, action: Action) {
         let stage = &mut self.runner.stage;
         match action {
-            Action::TogglePause => self.paused = !self.paused,
+            Action::TogglePause => self.toggle_pause(),
             Action::Step => self.step(),
             Action::SetPlaying(path, playing) => {
                 if let Some(clip) = stage.clip_mut(&path) {
@@ -238,6 +244,16 @@ impl App {
         }
     }
 
+    /// Stops the game where it is, or lets it go on.
+    fn toggle_pause(&mut self) {
+        self.paused = !self.paused;
+        // A click made while it was stopped was not meant for the game as
+        // it goes on. One made for a single step still is.
+        if !self.paused {
+            self.runner.stage.pointer.went_down = None;
+        }
+    }
+
     /// Plays one frame.
     fn step(&mut self) {
         if let Some(view) = &mut self.view {
@@ -250,13 +266,12 @@ impl App {
         let elapsed = now - self.last_redraw;
         self.last_redraw = now;
         self.frame_time += (elapsed.as_secs_f32() - self.frame_time) * 0.1;
-        let frame = Duration::from_secs_f64(1.0 / self.runner.library.manifest.stage.frame_rate);
+        // The pace is kept while paused too, so that it still knows the
+        // screen's rate when play goes on.
+        let frames = self.pace.frames(elapsed);
         if !self.paused {
-            // After a long stall, skip ahead instead of replaying it all.
-            self.owed = (self.owed + elapsed).min(frame * 5);
-            while self.owed >= frame {
+            for _ in 0..frames {
                 self.step();
-                self.owed -= frame;
             }
         }
         for note in self.runner.take_notes() {
@@ -283,11 +298,16 @@ impl App {
         let texture = match view.surface.get_current_texture() {
             wgpu::CurrentSurfaceTexture::Success(texture)
             | wgpu::CurrentSurfaceTexture::Suboptimal(texture) => texture,
-            wgpu::CurrentSurfaceTexture::Timeout | wgpu::CurrentSurfaceTexture::Occluded => return,
+            // The window is out of sight.
+            wgpu::CurrentSurfaceTexture::Timeout | wgpu::CurrentSurfaceTexture::Occluded => {
+                self.pace.undrawn();
+                return;
+            }
             // The window changed under us: set the surface up again and
             // draw on the next round.
             _ => {
                 view.surface.configure(&view.renderer.device, &view.config);
+                self.pace.undrawn();
                 return;
             }
         };
@@ -312,6 +332,7 @@ impl App {
             stats: view.renderer.stats,
             paused: self.paused,
             frames_per_second: 1.0 / self.frame_time.max(1e-6),
+            redraws_to_a_frame: self.pace.in_step(),
             base,
         };
         let input = view.egui.take_egui_input(&view.window);
@@ -468,7 +489,7 @@ impl ApplicationHandler for App {
                 match &event.logical_key {
                     // The window's own keys, which no game is offered.
                     Key::Named(NamedKey::F1) => self.inspector.open = !self.inspector.open,
-                    Key::Named(NamedKey::F2) => self.paused = !self.paused,
+                    Key::Named(NamedKey::F2) => self.toggle_pause(),
                     Key::Named(NamedKey::F3) => {
                         if self.paused {
                             self.step();
@@ -504,7 +525,7 @@ impl ApplicationHandler for App {
                         }
                         if !used {
                             match logical {
-                                Key::Named(NamedKey::Space) => self.paused = !self.paused,
+                                Key::Named(NamedKey::Space) => self.toggle_pause(),
                                 Key::Named(NamedKey::ArrowRight) if self.paused => self.step(),
                                 Key::Named(NamedKey::Escape) => event_loop.exit(),
                                 _ => {}

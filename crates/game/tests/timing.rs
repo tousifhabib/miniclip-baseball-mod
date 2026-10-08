@@ -92,6 +92,29 @@ fn the_bar_is_there_only_with_the_mod_on() {
 }
 
 #[test]
+fn a_click_that_is_over_before_the_frame_is_played_swings_all_the_same() {
+    for screen in ["match", "arcade"] {
+        let (Some(mut held), Some(mut tapped), Some(mut left)) =
+            (modded(screen, 1), modded(screen, 1), modded(screen, 1))
+        else {
+            return;
+        };
+        for script in [&mut held, &mut tapped, &mut left] {
+            script.run("move 300 250").unwrap();
+            to_step(script, 0);
+        }
+        // The button is held down while a frame is played, as a slow hand
+        // holds it, or is down and up again before any frame is.
+        held.run("press; wait 1; release; wait 30").unwrap();
+        tapped.run("press; release; wait 31").unwrap();
+        left.run("wait 31").unwrap();
+        assert_eq!(verdict(&tapped), ["PERFECT", "PERFECT"], "{screen}");
+        assert_eq!(state(&mut tapped), state(&mut held), "{screen}");
+        assert!(verdict(&left).is_empty(), "{screen}");
+    }
+}
+
+#[test]
 fn a_swing_on_a_step_the_bar_calls_best_meets_the_ball() {
     for screen in ["match", "arcade"] {
         for seed in [1, 2, 3, 4, 5] {
