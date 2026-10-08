@@ -1,5 +1,5 @@
 //! A match in progress: the last innings, batting to overtake the other
-//! side.
+//! side, or every innings of a full match.
 //!
 //! The art builds the batting view afresh for every pitch, so everything
 //! that lasts from one pitch to the next is kept here: the score, the count,
@@ -9,6 +9,7 @@ mod arcade;
 mod called;
 pub mod field;
 mod fielding;
+pub mod full;
 pub mod night;
 pub(crate) mod overlay;
 mod pinball;
@@ -41,6 +42,9 @@ pub enum Outcome {
     Tied,
     /// The arcade game's pitches are used up.
     ArcadeOver,
+    /// In a full match, the player's side is out and the other side has
+    /// batted: there is a board to read, and then more to play.
+    Interval,
 }
 
 /// Where a batter has got to.
@@ -62,6 +66,9 @@ pub(crate) struct Runner {
     pub running_to: Option<u8>,
     pub sliding: bool,
     pub runs: u32,
+    /// His place in the batting order, counting from nought. A full match
+    /// has nine, who come round again. Otherwise every batter is new.
+    pub order: usize,
     pub skin: Option<Rgb>,
     pub logo: Option<String>,
     /// His clip on the field, for as long as this pitch's view lasts.
@@ -208,6 +215,9 @@ pub(crate) struct AtBat {
     /// How many times the wall or a foul line has sent the ball back, in
     /// a pinball park.
     pub rebounds: u32,
+    /// In a full match, the word on each scoreboard over the other side's
+    /// score.
+    pub them: Vec<full::Them>,
 }
 
 impl AtBat {
@@ -241,6 +251,17 @@ pub struct Match {
     put_away: Vec<(Path, u32)>,
     /// The arcade game's own state, when that is what is being played.
     pub(crate) arcade: Option<arcade::Arcade>,
+    /// The match all of whose innings are being played, when that is the
+    /// game.
+    pub(crate) full: Option<full::FullMatch>,
+    /// How many batters have come to the plate, and the skins of those in
+    /// a full match's batting order, as far as they have been seen.
+    came_up: usize,
+    line_up: Vec<Option<Rgb>>,
+    /// In a full match: the runs made by each place in the order, and the
+    /// outs there were, in the innings gone by.
+    pub(crate) tally: Vec<u32>,
+    pub(crate) outs_before: u32,
     /// How many times a fielder has let the ball go in this game, with the
     /// butterfingers mod on.
     pub(crate) slips: u32,
@@ -271,6 +292,14 @@ pub struct Match {
 
 /// The pitcher's frame label for his wind-up.
 const PITCH: &str = "pitch";
+/// How many batters a full match's order has before it comes round again.
+const ORDER: usize = 9;
+/// Where a full match says which half of which innings it is: the middle of
+/// the top of its words, under the little field in the corner of the
+/// batting view. What the mods write there goes this much further down to
+/// make room.
+const INNINGS_AT: Point = (60.0, 88.0);
+const INNINGS_ROOM: f32 = 16.0;
 /// Where the heat check mod says how much heat is on: the middle of the top
 /// of its words, under the little field in the corner of the batting view.
 const HEAT_AT: Point = (60.0, 88.0);
@@ -359,6 +388,11 @@ impl Match {
             cues: Vec::new(),
             put_away: Vec::new(),
             arcade: None,
+            full: None,
+            came_up: 0,
+            line_up: Vec::new(),
+            tally: Vec::new(),
+            outs_before: 0,
             slips: 0,
             streak: 0,
             run_worth: 1,
@@ -459,6 +493,16 @@ impl Match {
         if let Some(arcade) = &self.arcade {
             return (arcade.left == 0).then_some(Outcome::ArcadeOver);
         }
+        if let Some(full) = &self.full {
+            // Batting last with every innings all but played, to be ahead
+            // is to have won. Otherwise the side bats until it is out, and
+            // what that comes to is worked out once the other side has
+            // batted.
+            if full.sudden() && self.score > full.theirs() {
+                return Some(Outcome::Won);
+            }
+            return (self.outs >= self.max_outs).then_some(Outcome::Interval);
+        }
         let level = self.target - 1;
         if self.score >= self.target {
             Some(Outcome::Won)
@@ -516,13 +560,21 @@ impl Match {
 
     /// Writes the numbers the scoreboards show.
     pub(crate) fn show_numbers(&self, stage: &mut Stage) {
-        let batter = self.batter().map_or(self.runners.len(), |index| index + 1);
+        let batter = self
+            .batter()
+            .map_or(self.came_up, |index| self.runners[index].order + 1);
+        // In a full match the board shows the other side's score where it
+        // would show the score to beat.
+        let shown_target = match self.full {
+            Some(_) => self.target - 1,
+            None => self.target,
+        };
         for (name, value) in [
             ("score", self.score),
             ("out", self.outs),
             ("strikes", self.strikes),
             ("noBalls", self.balls),
-            ("scoreTarget", self.target),
+            ("scoreTarget", shown_target),
             ("oppositionScore", self.target - 1),
             ("maximumOuts", self.max_outs),
             ("runsToGet", self.target.saturating_sub(self.score)),
@@ -535,19 +587,32 @@ impl Match {
         ] {
             stage.set_text(name, value.to_string());
         }
-        for (index, runner) in self.runners.iter().enumerate() {
-            stage.set_text(
-                &format!("batsman{}_score", index + 1),
-                runner.runs.to_string(),
-            );
+        for (order, runs) in self.runs_by_order().into_iter().enumerate() {
+            stage.set_text(&format!("batsman{}_score", order + 1), runs.to_string());
         }
+    }
+
+    /// The runs made by each place in the batting order.
+    fn runs_by_order(&self) -> Vec<u32> {
+        let mut runs = self.tally.clone();
+        for runner in &self.runners {
+            if runs.len() <= runner.order {
+                runs.resize(runner.order + 1, 0);
+            }
+            runs[runner.order] += runner.runs;
+        }
+        runs
     }
 
     /// What the result screens say about the match just played.
     pub fn show_result(&self, stage: &mut Stage) {
         self.show_numbers(stage);
-        for index in self.runners.len()..9 {
-            stage.set_text(&format!("batsman{}_score", index + 1), "0");
+        // A full match's outs are those of all its innings. A play that
+        // put out more than were left to get is not counted for more.
+        let outs = self.outs_before + self.outs.min(self.max_outs);
+        stage.set_text("out", outs.to_string());
+        for order in self.runs_by_order().len()..ORDER {
+            stage.set_text(&format!("batsman{}_score", order + 1), "0");
         }
     }
 
@@ -692,28 +757,41 @@ impl Match {
         self.put_away.clear();
         if let Some(outcome) = self.outcome() {
             self.phase = Phase::Over;
-            return Some(outcome);
+            return Some(self.close_half(outcome));
         }
         if self.batter().is_none() {
             // Each batter in a match has his own skin, and they carry the
             // bat logos in turn. The arcade game's one batter is as chosen.
+            // A full match's nine come round again, each as he was.
             let team = &game.rules.team;
+            let order = match self.full {
+                Some(_) => self.came_up % ORDER,
+                None => self.came_up,
+            };
             let (skin, logo) = if self.arcade.is_some() {
                 (game.settings.skin, game.settings.logo.clone())
             } else {
-                let pick = self.rng.below(team.skins.len() as u32) as usize;
+                let known = self.full.as_ref().and(self.line_up.get(order).copied());
+                let skin = known.unwrap_or_else(|| {
+                    let pick = self.rng.below(team.skins.len() as u32) as usize;
+                    team.skins.get(pick).and_then(|skin| look::rgb(skin))
+                });
+                if self.full.is_some() && self.line_up.len() <= order {
+                    self.line_up.resize(order + 1, None);
+                    self.line_up[order] = skin;
+                }
                 (
-                    team.skins.get(pick).and_then(|skin| look::rgb(skin)),
-                    team.logos
-                        .get(self.runners.len() % team.logos.len().max(1))
-                        .cloned(),
+                    skin,
+                    team.logos.get(order % team.logos.len().max(1)).cloned(),
                 )
             };
+            self.came_up += 1;
             self.runners.push(Runner {
                 place: Place::AtBat,
                 running_to: None,
                 sliding: false,
                 runs: 0,
+                order,
                 skin,
                 logo,
                 path: None,
@@ -724,6 +802,24 @@ impl Match {
         let rules = &game.rules;
         let mut table = rules.pitch.at(game.settings.difficulty).clone();
         let mut notices = Vec::new();
+        // A full match says which half of which innings this is, and what
+        // the mods say goes under that.
+        let mut room = 0.0;
+        if let Some(full) = &self.full {
+            room = INNINGS_ROOM;
+            Notice::put(
+                &mut notices,
+                &parts,
+                "innings",
+                &full.half_words(),
+                INNINGS_AT,
+                0.8,
+                [0xfd, 0xf6, 0xc0],
+                None,
+                stage,
+                library,
+            );
+        }
         // The pitch about to be thrown is one more than have been. The
         // arcade game has no runs and no outs for a golden ball to change.
         let golden = game.mods.is_on(Mod::GoldenBall)
@@ -741,7 +837,7 @@ impl Match {
                 &parts,
                 "goldenBall",
                 "GOLDEN BALL",
-                GOLDEN_AT,
+                (GOLDEN_AT.0, GOLDEN_AT.1 + room),
                 0.8,
                 [0xff, 0xd2, 0x40],
                 None,
@@ -759,7 +855,7 @@ impl Match {
                 let hot = self.heat as f32 / rules.heat.most.max(1) as f32;
                 let colour = [0xff, (0xe0 as f32 - 0xa0 as f32 * hot) as u8, 0x30];
                 let says = format!("HEAT {}", self.heat);
-                let top = HEAT_AT;
+                let top = (HEAT_AT.0, HEAT_AT.1 + room);
                 Notice::put(
                     &mut notices,
                     &parts,
@@ -786,7 +882,7 @@ impl Match {
                 &parts,
                 "hotBat",
                 &says,
-                HOT_BAT_AT,
+                (HOT_BAT_AT.0, HOT_BAT_AT.1 + room),
                 0.8,
                 colour,
                 None,
@@ -837,10 +933,17 @@ impl Match {
         }
         if self.announce {
             self.announce = false;
-            if let Some(board) = parts.scoreboard.clone() {
+            // In a full match there is a number of runs that wins it only
+            // when getting ahead ends it.
+            let to_win = self.full.as_ref().is_none_or(|full| full.sudden());
+            if let (true, Some(board)) = (to_win, parts.scoreboard.clone()) {
                 self.play_section(&board, "runsToGet", 361, stage, library);
             }
         }
+        let them = match self.full {
+            Some(_) => full::Them::put(&parts, stage, library),
+            None => Vec::new(),
+        };
         self.set_up_arcade(&parts, game, stage, library);
         self.show_numbers(stage);
 
@@ -924,6 +1027,7 @@ impl Match {
             notices,
             came_down: None,
             rebounds: 0,
+            them,
         });
         None
     }
@@ -1077,6 +1181,9 @@ impl Match {
             }
         }
         Match::settle_fielders(&at_bat.parts, stage, library);
+        for them in &at_bat.them {
+            them.keep(stage);
+        }
         overlay::Notice::fade(&mut at_bat.notices, stage);
         if at_bat.contact.is_none() {
             Match::aim(&mut at_bat, stage);
@@ -1577,9 +1684,24 @@ impl Match {
         if self.streak > 0 {
             let_go += &format!(", hits in a row {}", self.streak);
         }
+        // A full match has no score to reach: it says which innings it
+        // is, and what both sides have made.
+        let score = match &self.full {
+            Some(full) => format!(
+                "{}, score {} to {}",
+                full.batting_in(),
+                self.score,
+                full.theirs()
+            ),
+            None => format!("score {} of {}", self.score, self.target),
+        };
+        // And, at the end, what each side made in every innings so far.
+        if let Some(full) = &self.full {
+            let_go += &format!(", {}", full.describe());
+        }
         format!(
-            "{:?}, score {} of {}, outs {}, count {}-{}, bases {bases}, pitched {}{pitch}{let_go}",
-            self.phase, self.score, self.target, self.outs, self.balls, self.strikes, self.pitched
+            "{:?}, {score}, outs {}, count {}-{}, bases {bases}, pitched {}{pitch}{let_go}",
+            self.phase, self.outs, self.balls, self.strikes, self.pitched
         )
     }
 }
@@ -1589,7 +1711,7 @@ pub fn result_screen(outcome: Outcome) -> &'static str {
     match outcome {
         Outcome::Won => "matchWon",
         Outcome::Lost => "matchLost",
-        Outcome::Tied => "inningsTied",
+        Outcome::Tied | Outcome::Interval => "inningsTied",
         Outcome::ArcadeOver => "arcadeFinish",
     }
 }

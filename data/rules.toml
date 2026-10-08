@@ -21,6 +21,27 @@ strikes = 3
 balls = 4
 
 # ---------------------------------------------------------------------------
+# The full match: innings after innings against another side. Only your own
+# innings are played. The other side's are made up.
+[full_match]
+# The innings each side has. A match that is level after them goes on, an
+# innings at a time, until one side is ahead.
+innings = 9
+# With the zinger hit mod on every ball you hit is a home run, so the other
+# side is given this many innings' worth of runs in each of theirs.
+zinger_innings = 3
+
+# How likely the other side is to make each number of runs in an innings,
+# for each skill level: the first number is for no runs, the second for
+# one, and so on. Only how the numbers compare with one another matters.
+# As they are, the other side makes about one run an innings on easy, a
+# little under two on medium and two and a half on hard.
+[full_match.runs]
+easy = [44, 30, 15, 7, 3, 1]
+medium = [28, 24, 19, 13, 8, 4, 3, 1]
+hard = [16, 19, 20, 17, 12, 8, 4, 3, 1]
+
+# ---------------------------------------------------------------------------
 # The pitch. One table for each skill level.
 #
 # speed    How long the pitch takes: the larger, the slower. A whole number

@@ -14,6 +14,7 @@ use bb_game::locate;
 use bb_game::mods::{Mod, Mods};
 use bb_game::scores::Scores;
 use bb_game::script::Script;
+use bb_game::settings::Ground;
 use clap::Parser;
 
 #[derive(Parser)]
@@ -34,9 +35,14 @@ struct Args {
     exit_after: Option<u32>,
     /// Start on this screen instead of the intro, by its label in the art:
     /// `menu`, `match`, `arcade`, `matchWon`, `matchLost`, `inningsTied`,
-    /// `arcadeFinish` or `instructionsAll`.
+    /// `arcadeFinish` or `instructionsAll`. `fullMatch` starts a full
+    /// match.
     #[arg(long)]
     screen: Option<String>,
+    /// Where the side plays a full match: `home`, `away` or `toss`, which
+    /// leaves it to a coin.
+    #[arg(long, value_name = "WHERE")]
+    ground: Option<String>,
     /// Play with no window, following these steps, separated by semicolons:
     /// `wait N`, `click X Y`, `move X Y`, `press`, `release`, `type TEXT`,
     /// `key NAME`, `state`, `events`, `tree` and `shot FILE`.
@@ -122,6 +128,11 @@ fn run() -> Result<()> {
                 .with_context(|| format!("`{level}` is not a level for the mod `{name}`"))?;
             logic.set_mod_level(which, level);
         }
+    }
+    if let Some(word) = &args.ground {
+        let ground = Ground::from_word(word)
+            .with_context(|| format!("`{word}` is not home, away or toss"))?;
+        logic.play_on(ground);
     }
     if let Some(label) = &args.screen {
         let screen = Screen::from_label(label)
