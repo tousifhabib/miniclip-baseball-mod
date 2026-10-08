@@ -74,6 +74,8 @@ pub(crate) struct Fielding {
     /// The ball on the ground has been fumbled once, and will not be
     /// again before somebody has hold of it.
     fumbled: bool,
+    /// Who hit the ball: his place among the runners.
+    batter: Option<usize>,
 }
 
 /// The runner clip's frame labels for running and sliding to each base.
@@ -280,6 +282,7 @@ impl Match {
             frames: 0,
             since_settled: 0,
             fumbled: false,
+            batter: self.batter(),
         };
         self.phase = Phase::Fielding;
 
@@ -563,12 +566,21 @@ impl Match {
                         Match::sound(stage, library, "ballCatch_3");
                         Match::sound(stage, library, "umpire_out_1");
                         Match::sound(stage, library, "crowd_unhappy");
-                        // Caught: the batter is out wherever he has got to.
-                        let batter = self
-                            .runners
-                            .iter()
-                            .position(|runner| runner.place == Place::AtBat);
+                        // Caught: the batter is out wherever he has got to,
+                        // which on a ball that hung a long time may be a
+                        // base, or all the way round. A run he scored on it
+                        // is no run.
+                        let batter = state.batter.filter(|&batter| {
+                            self.runners
+                                .get(batter)
+                                .is_some_and(|runner| runner.place != Place::Out)
+                        });
                         if let Some(batter) = batter {
+                            if self.runners[batter].place == Place::Home {
+                                let worth = self.run_worth.min(self.runners[batter].runs);
+                                self.runners[batter].runs -= worth;
+                                self.score = self.score.saturating_sub(worth);
+                            }
                             self.put_out(batter, stage, library);
                         }
                         state.throw_to = self.pick_base(here, &parts);

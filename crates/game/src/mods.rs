@@ -57,6 +57,9 @@ pub enum Mod {
     /// wall like a ball off a cushion, and is kept in by the foul lines
     /// too. How much it keeps is set on the menu.
     PinballPark,
+    /// A hit floats: it goes where it would have gone, taking several
+    /// times as long to get there. How many times is set on the menu.
+    MoonBall,
 }
 
 /// What the menu and the files know a mod by.
@@ -74,7 +77,7 @@ struct Info {
 
 impl Mod {
     /// Every mod, in the order the menu lists them.
-    pub const ALL: [Mod; 12] = [
+    pub const ALL: [Mod; 13] = [
         Mod::TimingIndicator,
         Mod::LonePitcher,
         Mod::ZingerHit,
@@ -87,6 +90,7 @@ impl Mod {
         Mod::SuddenDeath,
         Mod::GoldenBall,
         Mod::PinballPark,
+        Mod::MoonBall,
     ];
 
     fn info(self) -> Info {
@@ -163,6 +167,12 @@ impl Mod {
                 about: "THE BALL BOUNCES OFF THE WALL AND THE GROUND, AND ON",
                 setting: Some(("BOUNCE", 3)),
             },
+            Mod::MoonBall => Info {
+                key: "moon_ball",
+                name: "MOON BALL",
+                about: "EVERY HIT FLOATS: THE SAME FLIGHT, MANY TIMES SLOWER",
+                setting: Some(("FLOAT", 2)),
+            },
         }
     }
 
@@ -204,6 +214,7 @@ impl Mod {
         match self {
             Mod::Butterfingers => rules.butterfingers.levels(),
             Mod::PinballPark => rules.pinball.keeps.len() as u8,
+            Mod::MoonBall => rules.moon.slow.len() as u8,
             _ => 0,
         }
     }
@@ -215,6 +226,10 @@ impl Mod {
             Mod::PinballPark => {
                 let keeps = crate::rules::level_of(&rules.pinball.keeps, level).unwrap_or(0.0);
                 format!("{:.0}%", keeps * 100.0)
+            }
+            Mod::MoonBall => {
+                let slow = crate::rules::level_of(&rules.moon.slow, level).unwrap_or(1.0);
+                format!("{slow}X")
             }
             _ => String::new(),
         }
