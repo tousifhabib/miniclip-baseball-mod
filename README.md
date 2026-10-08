@@ -72,6 +72,7 @@ switched on.
 | Called shot | `called_shot` | Click a spot on the outfield before a pitch; a hit that lands near it is worth extra runs |
 | Hot bat | `hot_bat` | Each hit in a row widens your timing window, and a strike resets it |
 | Sudden death | `sudden_death` | One strike and you are out, but every run counts double |
+| Golden ball | `golden_ball` | Every fifth pitch is gold: runs off it count triple, and a strike on it is an out |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -188,6 +189,13 @@ With sudden death, one strike puts a batter out, and every run counts for
 two. A foul is still never the last strike, so with only one to give it is
 no strike at all. Runs a called shot is worth are not doubled. The numbers
 are under `[sudden_death]` in `data/rules.toml`.
+
+With the golden ball, every fifth pitch of a match is gold, and says so in
+the corner of the batting view. Every run scored off it counts for three: on
+a home run, each runner's and the batter's. A strike on it, swung at or
+called, puts the batter out whatever the count, though a foul is a foul and
+a ball is a ball. The arcade game has no runs or outs, and plays as it did.
+The numbers are under `[golden]` in `data/rules.toml`.
 
 ## Changing the game
 

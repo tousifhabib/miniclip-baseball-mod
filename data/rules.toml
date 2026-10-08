@@ -325,6 +325,14 @@ strikes = 1
 runs = 2
 
 # ---------------------------------------------------------------------------
+# The golden ball mod: now and then a pitch is gold.
+[golden]
+# One pitch in this many is gold: the fifth, the tenth, and so on.
+every = 5
+# How many each run scored off a golden ball counts for.
+runs = 3
+
+# ---------------------------------------------------------------------------
 # The arcade game: hit a target on the outfield.
 [arcade]
 pitches = 10
