@@ -7,7 +7,7 @@ use bb_engine::stage::Stage;
 use bb_format::SymbolId;
 
 use super::field::{Ball, Facing, Happened, distance, reach, seen_size};
-use super::overlay::{self, Words};
+use super::overlay::Notice;
 use super::pitch::Point;
 use super::zinger;
 use super::{AtBat, Match, Parts, Phase, Place, at, frame_of, put, show};
@@ -43,29 +43,6 @@ enum Job {
         left: u32,
     },
     Rest,
-}
-
-/// The word that is up over a fielder who has let the ball go.
-pub(crate) struct Told {
-    /// The clip the word is in.
-    holder: Path,
-    /// Frames it has left.
-    left: u32,
-}
-
-impl Told {
-    /// Counts a frame off the word's time, and takes it down when it has
-    /// had its time.
-    pub(crate) fn fade(told: &mut Option<Told>, stage: &mut Stage) {
-        match told {
-            Some(word) if word.left == 0 => {
-                stage.remove(&word.holder);
-                *told = None;
-            }
-            Some(word) => word.left -= 1,
-            None => {}
-        }
-    }
 }
 
 pub(crate) struct Fielding {
@@ -475,7 +452,7 @@ impl Match {
                         stage.goto_label(&fielder, state.facing.pick_label(), false, library);
                         self.let_go(&mut at_bat.ball, &parts, game);
                         Match::sound(stage, library, "crowd_smallCheer");
-                        let told = &mut at_bat.told;
+                        let told = &mut at_bat.notices;
                         Match::tell(told, "FUMBLED!", next, &parts, game, stage, library);
                         state.job = Job::Fumbling {
                             left: game.rules.butterfingers.fumble_time,
@@ -511,7 +488,7 @@ impl Match {
                         self.let_go(&mut at_bat.ball, &parts, game);
                         Match::sound(stage, library, "ballCatch_3");
                         Match::sound(stage, library, "crowd_smallCheer");
-                        let told = &mut at_bat.told;
+                        let told = &mut at_bat.notices;
                         Match::tell(told, "DROPPED!", here, &parts, game, stage, library);
                         state.job = Job::Fumbling {
                             left: game.rules.butterfingers.fumble_time,
@@ -571,7 +548,7 @@ impl Match {
                         inner.move_to(inner.matrix.tx, -ball.height);
                     }
                     if distance(ball.at, to) < rules.throw_near {
-                        let told = &mut at_bat.told;
+                        let told = &mut at_bat.notices;
                         self.ball_at_base(&mut state, told, &parts, game, stage, library);
                     }
                 }
@@ -651,7 +628,7 @@ impl Match {
     fn ball_at_base(
         &mut self,
         state: &mut Fielding,
-        told: &mut Option<Told>,
+        told: &mut Vec<Notice>,
         parts: &Parts,
         game: &Game,
         stage: &mut Stage,
@@ -759,7 +736,7 @@ impl Match {
     /// Puts a word up over a fielder who has let the ball go, for a
     /// moment. `over` is where he is on the field.
     fn tell(
-        told: &mut Option<Told>,
+        told: &mut Vec<Notice>,
         word: &str,
         over: Point,
         parts: &Parts,
@@ -767,34 +744,26 @@ impl Match {
         stage: &mut Stage,
         library: &Library,
     ) {
-        if let Some(old) = told.take() {
-            stage.remove(&old.holder);
-        }
         // The field is drawn at a size and a place of its own in the view.
         let Some(field) = stage.child(&parts.field).map(|field| field.matrix) else {
-            return;
-        };
-        let Some(holder) = overlay::holder(parts, "butterfingers", stage, library) else {
             return;
         };
         let middle =
             (field.tx + field.a * over.0).clamp(TOLD_MARGIN, parts.centre_x * 2.0 - TOLD_MARGIN);
         let top = field.ty + field.d * over.1 - TOLD_ABOVE;
-        if let Some(words) = Words::new(
-            &holder,
-            1,
+        let frames = Some(game.rules.butterfingers.told_time);
+        Notice::put(
+            told,
+            parts,
             "butterWord",
+            word,
             (middle, top),
             TOLD_SIZE,
+            TOLD_COLOUR,
+            frames,
             stage,
             library,
-        ) {
-            words.say(word, TOLD_COLOUR, stage);
-        }
-        *told = Some(Told {
-            holder,
-            left: game.rules.butterfingers.told_time,
-        });
+        );
     }
 
     /// The ball has cleared the wall: everybody scores.

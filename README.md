@@ -55,7 +55,8 @@ game's, so both can be installed side by side.
 ## Mods
 
 The menu's first page has a Mods row. It leads to a list of the mods, each
-with a box to tick. What is ticked is kept from one run to the next, beside
+with a box to tick. The list has pages of its own, turned by the arrows under
+it. What is ticked is kept from one run to the next, beside
 the scores. Every mod starts off, so the game plays as it did until one is
 switched on.
 

@@ -11,13 +11,16 @@ const MODS: &str = "click 330 360";
 /// The mods listed on the mods' page, from the top.
 const FIRST_MOD: &str = "click 300 140";
 const SECOND_MOD: &str = "click 300 175";
-const THIRD_MOD: &str = "click 300 215";
-const FOURTH_MOD: &str = "click 300 255";
+const THIRD_MOD: &str = "click 300 210";
+const FOURTH_MOD: &str = "click 300 245";
 /// The first, third and last of the boxes that set how often the fourth
 /// mod's fielders let the ball go.
-const SELDOM: &str = "click 329 276";
-const MIDDLING: &str = "click 353 276";
-const ALWAYS: &str = "click 379 276";
+const SELDOM: &str = "click 329 271";
+const MIDDLING: &str = "click 353 271";
+const ALWAYS: &str = "click 379 271";
+/// The arrows that turn the pages of the list of mods, on and back.
+const NEXT_PAGE: &str = "click 419 290";
+const LAST_PAGE: &str = "click 338 290";
 const NEXT: &str = "click 490 362";
 const BACK: &str = "click 290 362";
 const PLAY_BALL: &str = "click 480 362";
@@ -263,6 +266,58 @@ fn the_menu_lists_the_mods_each_with_a_box_to_tick() {
         "Menu, Mods, Medium, with timing_indicator"
     );
     assert_eq!(ticked(&script), [true, false, false, false]);
+}
+
+#[test]
+fn every_mod_is_listed_on_one_of_the_pages_of_the_list() {
+    use bb_game::mods::Mod;
+    let Some(mut script) = game("menu") else {
+        return;
+    };
+    script.run(&format!("wait 60; {MODS}; wait 90")).unwrap();
+    // What a page of the list says, and whether it has a page after it.
+    let page = |script: &bb_game::script::Script| {
+        let stage = &script.runner.stage;
+        let said: Vec<String> = bb_game::art::all_named(stage, &[], "modsWords")
+            .iter()
+            .filter_map(|words| stage.child(words).unwrap().said.clone())
+            .collect();
+        let boxes = bb_game::art::all_named(stage, &[], "modBox").len();
+        let more = bb_game::art::all_named(stage, &[], "modsOn")
+            .iter()
+            .any(|arrow| stage.child(arrow).unwrap().visible);
+        (said, boxes, more)
+    };
+    let (first, ..) = page(&script);
+    let (mut listed, mut boxes, mut pages) = (Vec::new(), 0, 0);
+    loop {
+        let (said, on_page, more) = page(&script);
+        listed.extend(said);
+        boxes += on_page;
+        pages += 1;
+        if !more {
+            break;
+        }
+        assert!(pages < 20);
+        script.run(&format!("{NEXT_PAGE}; wait 3")).unwrap();
+    }
+    for which in Mod::ALL {
+        assert!(listed.iter().any(|said| said == which.name()), "{which:?}");
+        assert!(listed.iter().any(|said| said == which.about()), "{which:?}");
+    }
+    assert_eq!(boxes, Mod::ALL.len());
+    // The arrow back leads to the first page again.
+    for _ in 1..pages {
+        script.run(&format!("{LAST_PAGE}; wait 3")).unwrap();
+    }
+    assert_eq!(page(&script).0, first);
+    if pages > 1 {
+        assert!(
+            first
+                .iter()
+                .any(|said| said == &format!("PAGE 1 OF {pages}"))
+        );
+    }
 }
 
 #[test]

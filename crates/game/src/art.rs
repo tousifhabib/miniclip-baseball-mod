@@ -77,6 +77,8 @@ pub const MOD_TICK: SymbolId = 2040;
 /// A small box for one level of a mod's setting. The rules fill it with a
 /// [`BLOCK`] when the setting is at that level or above.
 pub const MOD_PIP: SymbolId = 2043;
+/// An arrow, pointing right, that turns the page of the list of mods.
+pub const PAGE_TURN: SymbolId = 2045;
 /// An empty clip, for the rules to put things in and move as one.
 pub const HOLDER: SymbolId = 2042;
 

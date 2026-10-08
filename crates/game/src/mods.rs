@@ -35,6 +35,19 @@ pub enum Mod {
     Butterfingers,
 }
 
+/// What the menu and the files know a mod by.
+struct Info {
+    /// The name it is saved under, and asked for by on the command line.
+    key: &'static str,
+    /// What the menu calls it, and what the menu says it does.
+    name: &'static str,
+    about: &'static str,
+    /// What the menu calls its setting, if it has one besides being on or
+    /// off, and the level that is at until it is set to another. A setting
+    /// is a level, counted from 1.
+    setting: Option<(&'static str, u8)>,
+}
+
 impl Mod {
     /// Every mod, in the order the menu lists them.
     pub const ALL: [Mod; 4] = [
@@ -44,15 +57,39 @@ impl Mod {
         Mod::Butterfingers,
     ];
 
+    fn info(self) -> Info {
+        match self {
+            Mod::TimingIndicator => Info {
+                key: "timing_indicator",
+                name: "TIMING INDICATOR",
+                about: "A BAR THAT SHOWS WHEN TO SWING",
+                setting: None,
+            },
+            Mod::LonePitcher => Info {
+                key: "lone_pitcher",
+                name: "LONE PITCHER",
+                about: "ONLY THE PITCHER GOES AFTER THE BALL",
+                setting: None,
+            },
+            Mod::ZingerHit => Info {
+                key: "zinger_hit",
+                name: "ZINGER HIT",
+                about: "EVERY HIT IS A HOME RUN, BIGGER THE BETTER TIMED",
+                setting: None,
+            },
+            Mod::Butterfingers => Info {
+                key: "butterfingers",
+                name: "BUTTERFINGERS",
+                about: "FIELDERS DROP AND FUMBLE THE BALL",
+                setting: Some(("HOW OFTEN", 3)),
+            },
+        }
+    }
+
     /// The name the mod is saved under, and asked for by on the command
     /// line.
     pub fn key(self) -> &'static str {
-        match self {
-            Mod::TimingIndicator => "timing_indicator",
-            Mod::LonePitcher => "lone_pitcher",
-            Mod::ZingerHit => "zinger_hit",
-            Mod::Butterfingers => "butterfingers",
-        }
+        self.info().key
     }
 
     /// The mod with this key.
@@ -62,31 +99,23 @@ impl Mod {
 
     /// What the menu calls it.
     pub fn name(self) -> &'static str {
-        match self {
-            Mod::TimingIndicator => "TIMING INDICATOR",
-            Mod::LonePitcher => "LONE PITCHER",
-            Mod::ZingerHit => "ZINGER HIT",
-            Mod::Butterfingers => "BUTTERFINGERS",
-        }
+        self.info().name
     }
 
     /// What the menu says it does.
     pub fn about(self) -> &'static str {
-        match self {
-            Mod::TimingIndicator => "A BAR THAT SHOWS WHEN TO SWING",
-            Mod::LonePitcher => "ONLY THE PITCHER GOES AFTER THE BALL",
-            Mod::ZingerHit => "EVERY HIT IS A HOME RUN, BIGGER THE BETTER TIMED",
-            Mod::Butterfingers => "FIELDERS DROP AND FUMBLE THE BALL",
-        }
+        self.info().about
     }
 
     /// What the menu calls the mod's setting, if it has one besides being
-    /// on or off. A setting is a level, counted from 1.
+    /// on or off.
     pub fn setting(self) -> Option<&'static str> {
-        match self {
-            Mod::Butterfingers => Some("HOW OFTEN"),
-            Mod::TimingIndicator | Mod::LonePitcher | Mod::ZingerHit => None,
-        }
+        self.info().setting.map(|(name, _)| name)
+    }
+
+    /// The level the mod's setting is at until it is set to another.
+    pub fn usual_level(self) -> u8 {
+        self.info().setting.map_or(1, |(_, usual)| usual)
     }
 
     /// How many levels the mod's setting has. None, for a mod with no
@@ -94,15 +123,7 @@ impl Mod {
     pub fn levels(self, rules: &Rules) -> u8 {
         match self {
             Mod::Butterfingers => rules.butterfingers.levels(),
-            Mod::TimingIndicator | Mod::LonePitcher | Mod::ZingerHit => 0,
-        }
-    }
-
-    /// The level the mod's setting is at until it is set to another.
-    pub fn usual_level(self) -> u8 {
-        match self {
-            Mod::Butterfingers => 3,
-            Mod::TimingIndicator | Mod::LonePitcher | Mod::ZingerHit => 1,
+            _ => 0,
         }
     }
 
@@ -110,7 +131,7 @@ impl Mod {
     pub fn level_words(self, level: u8, rules: &Rules) -> String {
         match self {
             Mod::Butterfingers => format!("{}%", rules.butterfingers.chance_at(level)),
-            Mod::TimingIndicator | Mod::LonePitcher | Mod::ZingerHit => String::new(),
+            _ => String::new(),
         }
     }
 }
@@ -245,33 +266,91 @@ pub enum Asked {
     Level(Mod, u8),
 }
 
+/// What turns the pages of the list, when it has more than one: the arrows
+/// back and on, and the words between them that say which page is up.
+struct Pager {
+    back: Path,
+    on: Path,
+    words: Path,
+}
+
 /// The page of the menu the mods are listed on. It is the high-score page
 /// with the table's own drawings taken off its panel and the list put there
-/// instead, so it arrives, leaves and has a way back as that page does.
+/// instead, so it arrives, leaves and has a way back as that page does. The
+/// list has pages of its own, as many as it takes to hold every mod.
 #[derive(Default)]
 pub struct ModsPage {
-    /// The lines on the panel, while the page is up.
+    /// The panel has been made ready for the list. Its heading is kept, to
+    /// tell when the panel has gone.
+    heading: Option<Path>,
+    pager: Option<Pager>,
+    /// Which page of the list is up, counting from 0, which has been asked
+    /// for, and how many there are.
+    page: usize,
+    wanted: usize,
+    pages: usize,
+    /// The lines of the page that is up, and everything on the panel that
+    /// goes when the page is turned.
     lines: Vec<Line>,
+    drawn: Vec<Path>,
+    /// The depth the last thing was put on the panel at.
+    depth: u16,
 }
+
+const DARK: Rgb = [0x0b, 0x3a, 0x5e];
+const SOFT: Rgb = [0x4a, 0x6f, 0x8c];
+const WHITE: Rgb = [0xff, 0xff, 0xff];
 
 impl ModsPage {
     /// Where the first line's box goes on the panel, and how far down each
     /// line after it is.
     const FIRST: (f32, f32) = (-164.0, -78.0);
-    const PITCH: f32 = 40.0;
-    /// How far under a mod's own line its setting is, how far along the
-    /// row the first of its boxes is, and how far apart they are.
+    const PITCH: f32 = 38.0;
+    /// How much of the panel's height one page of the list may take up.
+    const ROOM: f32 = 176.0;
+    /// The sizes of a mod's name and of what is said about it, the
+    /// lettering's own size being 1.
+    const NAME_SIZE: f32 = 0.85;
+    const ABOUT_SIZE: f32 = 0.6;
+    /// How far under a mod's own line its setting is, how much room the
+    /// setting takes, how far along the row the first of its boxes is, and
+    /// how far apart they are.
     const SETTING_DOWN: f32 = 31.0;
+    const SETTING_ROOM: f32 = 22.0;
     const PIPS_ALONG: f32 = 82.0;
     const PIP_PITCH: f32 = 14.0;
     /// The size of what fills a level's box, the art's block being 1, and
     /// how far into the box it sits.
     const FILL_SIZE: f32 = 0.58;
     const FILL_IN: f32 = 2.0;
-    /// The sizes of a mod's name and of what is said about it, the
-    /// lettering's own size being 1.
-    const NAME_SIZE: f32 = 0.85;
-    const ABOUT_SIZE: f32 = 0.6;
+    /// How far down the panel the arrows that turn the page are, how far
+    /// across the one back, the words between them, and the one on.
+    const PAGER_DOWN: f32 = 88.0;
+    const PAGER_ACROSS: [f32; 3] = [-38.0, -30.0, 42.0];
+
+    /// The mods that go on each page of the list, a page holding as many
+    /// as there is room for.
+    pub fn pages(rules: &Rules) -> Vec<Vec<Mod>> {
+        let mut pages: Vec<Vec<Mod>> = Vec::new();
+        let mut room = 0.0;
+        for which in Mod::ALL {
+            let needs = ModsPage::room_for(which, rules);
+            if pages.is_empty() || room < needs {
+                pages.push(Vec::new());
+                room = ModsPage::ROOM;
+            }
+            room -= needs;
+            pages.last_mut().expect("a page to put it on").push(which);
+        }
+        pages
+    }
+
+    /// How much of the panel's height a mod's line takes, with the row for
+    /// its setting if it has one.
+    fn room_for(which: Mod, rules: &Rules) -> f32 {
+        let setting = which.setting().is_some() && which.levels(rules) > 0;
+        ModsPage::PITCH + if setting { ModsPage::SETTING_ROOM } else { 0.0 }
+    }
 
     /// Puts the list on the panel once the page has arrived, and keeps its
     /// ticks and levels true to `mods` for as long as it is up.
@@ -283,19 +362,33 @@ impl ModsPage {
         stage: &mut Stage,
         library: &Library,
     ) {
-        // The lines go when the panel does, as the page is left.
+        // Everything goes when the panel does, as the page is left. The
+        // list opens at its first page again the next time.
         if self
-            .lines
-            .first()
-            .is_some_and(|line| stage.child(&line.button).is_none())
+            .heading
+            .as_ref()
+            .is_some_and(|heading| stage.child(heading).is_none())
         {
-            self.lines.clear();
+            *self = ModsPage::default();
         }
         if !showing {
             return;
         }
-        if self.lines.is_empty() {
-            self.lay_out(rules, stage, library);
+        let Some(panel) =
+            art::shell(stage).and_then(|shell| stage.find_symbol(&shell, art::SCORE_PANEL))
+        else {
+            return;
+        };
+        if self.heading.is_none() && !self.make_ready(&panel, rules, stage, library) {
+            return;
+        }
+        if self.lines.is_empty() || self.wanted != self.page {
+            for path in self.drawn.drain(..) {
+                stage.remove(&path);
+            }
+            self.lines.clear();
+            self.page = self.wanted;
+            self.lay_out(&panel, rules, stage, library);
         }
         for line in &self.lines {
             if let Some(tick) = stage.child_mut(&line.tick) {
@@ -318,11 +411,35 @@ impl ModsPage {
                 }
             }
         }
+        if let Some(pager) = &self.pager {
+            let says = format!("PAGE {} OF {}", self.page + 1, self.pages);
+            if let Some(words) = stage.child_mut(&pager.words)
+                && words.said.as_deref() != Some(says.as_str())
+            {
+                words.said = Some(says);
+            }
+            // An arrow with nowhere to go is not there.
+            for (arrow, there) in [
+                (&pager.back, self.page > 0),
+                (&pager.on, self.page + 1 < self.pages),
+            ] {
+                if let Some(arrow) = stage.child_mut(arrow) {
+                    arrow.set_visible(there);
+                }
+            }
+        }
     }
 
     /// What a click on the button at `path` asks for, if that is one of
-    /// the page's boxes.
-    pub fn clicked(&self, path: &[u16]) -> Option<Asked> {
+    /// the page's boxes. A click on one of the arrows turns the page.
+    pub fn clicked(&mut self, path: &[u16]) -> Option<Asked> {
+        if let Some(pager) = &self.pager {
+            if pager.back == path {
+                self.wanted = self.page.saturating_sub(1);
+            } else if pager.on == path {
+                self.wanted = (self.page + 1).min(self.pages.saturating_sub(1));
+            }
+        }
         self.lines.iter().find_map(|line| {
             if line.button == path {
                 return Some(Asked::Switch(line.which));
@@ -332,15 +449,19 @@ impl ModsPage {
         })
     }
 
-    fn lay_out(&mut self, rules: &Rules, stage: &mut Stage, library: &Library) {
-        let Some(panel) =
-            art::shell(stage).and_then(|shell| stage.find_symbol(&shell, art::SCORE_PANEL))
-        else {
-            return;
-        };
+    /// Takes the score table's drawings off the panel and puts on what
+    /// every page of the list has. Returns whether the panel was there to
+    /// do it to.
+    fn make_ready(
+        &mut self,
+        panel: &Path,
+        rules: &Rules,
+        stage: &mut Stage,
+        library: &Library,
+    ) -> bool {
         // What the panel was drawn with for the scores: its backing with
         // the table's tabs, the publisher's mark, and the notice.
-        let table: Vec<Path> = stage.clip(&panel).map_or(Vec::new(), |clip| {
+        let table: Vec<Path> = stage.clip(panel).map_or(Vec::new(), |clip| {
             clip.children
                 .iter()
                 .filter(|(_, child)| {
@@ -356,7 +477,7 @@ impl ModsPage {
         });
         if table.is_empty() {
             // The panel has not finished arriving.
-            return;
+            return false;
         }
         for path in table {
             if let Some(child) = stage.child_mut(&path) {
@@ -366,25 +487,60 @@ impl ModsPage {
         // A backing without the tabs goes under the panel's border, which
         // stays.
         stage.attach(
-            &panel,
+            panel,
             art::MODS_PANEL,
             art::MODS_PANEL_DEPTH,
             "modsPanel",
             library,
         );
-
-        const DARK: Rgb = [0x0b, 0x3a, 0x5e];
-        const SOFT: Rgb = [0x4a, 0x6f, 0x8c];
-        const WHITE: Rgb = [0xff, 0xff, 0xff];
-        let mut panel = Panel {
-            path: panel,
+        self.pages = ModsPage::pages(rules).len();
+        let mut on = Panel {
+            path: panel.clone(),
             depth: Stage::RULES_DEPTH + 300,
             library,
+            added: Vec::new(),
         };
-        panel.write(stage, "MODS", (-166.0, -123.0), 0.8, WHITE);
+        self.heading = on.write(stage, "MODS", (-166.0, -123.0), 0.8, WHITE);
+        if self.pages > 1 {
+            let down = ModsPage::PAGER_DOWN;
+            let [back, words, forward] = ModsPage::PAGER_ACROSS;
+            let size = ModsPage::ABOUT_SIZE;
+            let back = on.add(stage, art::PAGE_TURN, "modsBack", (back, down), 1.0);
+            // The art's arrow points on. The one back is the same, turned
+            // round.
+            if let Some(arrow) = back.as_ref().and_then(|path| stage.child_mut(path)) {
+                let mut turned = arrow.matrix;
+                turned.a = -turned.a;
+                arrow.set_matrix(turned);
+            }
+            let forward = on.add(stage, art::PAGE_TURN, "modsOn", (forward, down), 1.0);
+            let words = on.write(stage, "", (words, down + 1.0), size, SOFT);
+            if let (Some(back), Some(forward), Some(words)) = (back, forward, words) {
+                self.pager = Some(Pager {
+                    back,
+                    on: forward,
+                    words,
+                });
+            }
+        }
+        self.depth = on.depth;
+        self.heading.is_some()
+    }
 
+    /// Puts the mods of the page that is up on the panel.
+    fn lay_out(&mut self, panel: &Path, rules: &Rules, stage: &mut Stage, library: &Library) {
+        let listed = ModsPage::pages(rules)
+            .into_iter()
+            .nth(self.page)
+            .unwrap_or_default();
+        let mut panel = Panel {
+            path: panel.clone(),
+            depth: self.depth,
+            library,
+            added: Vec::new(),
+        };
         let (left, mut down) = ModsPage::FIRST;
-        for which in Mod::ALL {
+        for which in listed {
             let words = left + 24.0;
             let size = ModsPage::NAME_SIZE;
             panel.write(stage, which.name(), (words, down - 5.0), size, DARK);
@@ -406,41 +562,44 @@ impl ModsPage {
             };
             // Its setting goes under it, clear of the band, so that a
             // click on a level sets the level and does nothing else.
-            if let Some(setting) = which.setting() {
+            let levels = which.levels(rules);
+            if let (Some(setting), true) = (which.setting(), levels > 0) {
                 let row = down + ModsPage::SETTING_DOWN;
                 panel.write(stage, setting, (words, row), size, SOFT);
                 let along =
                     |pip: u8| words + ModsPage::PIPS_ALONG + f32::from(pip) * ModsPage::PIP_PITCH;
-                let levels = which.levels(rules);
                 for pip in 0..levels {
                     let at = (along(pip), row + 1.0);
                     let inside = (at.0 + ModsPage::FILL_IN, at.1 + ModsPage::FILL_IN);
-                    let box_ = panel.add(stage, art::MOD_PIP, "modPip", at, 1.0);
+                    let small = panel.add(stage, art::MOD_PIP, "modPip", at, 1.0);
                     let fill =
                         panel.add(stage, art::BLOCK, "modPipFill", inside, ModsPage::FILL_SIZE);
-                    if let (Some(box_), Some(fill)) = (box_, fill) {
+                    if let (Some(small), Some(fill)) = (small, fill) {
                         if let Some(fill) = stage.child_mut(&fill) {
                             fill.set_color(look::tint(DARK));
                         }
-                        line.pips.push((box_, fill));
+                        line.pips.push((small, fill));
                     }
                 }
                 let after = (along(levels) + 4.0, row);
                 line.level_words = panel.write(stage, "", after, size, DARK);
-                down += ModsPage::SETTING_DOWN - 9.0;
             }
+            down += ModsPage::room_for(which, rules);
             self.lines.push(line);
-            down += ModsPage::PITCH;
         }
+        self.depth = panel.depth;
+        self.drawn = panel.added;
     }
 }
 
-/// The panel while the list is being put on it.
+/// The panel while things are being put on it.
 struct Panel<'a> {
     path: Path,
     /// The depth the last thing was put at.
     depth: u16,
     library: &'a Library,
+    /// Everything that has been put on it.
+    added: Vec<Path>,
 }
 
 impl Panel<'_> {
@@ -462,6 +621,7 @@ impl Panel<'_> {
             ty: at.1,
             ..Matrix::IDENTITY
         });
+        self.added.push(path.clone());
         Some(path)
     }
 
@@ -494,6 +654,24 @@ mod tests {
         let keys: BTreeSet<&str> = Mod::ALL.iter().map(|each| each.key()).collect();
         assert_eq!(keys.len(), Mod::ALL.len());
         assert_eq!(Mod::from_key("no_such_mod"), None);
+    }
+
+    #[test]
+    fn the_list_has_as_many_pages_as_it_takes_and_every_mod_is_on_one() {
+        let rules = Rules::default();
+        let pages = ModsPage::pages(&rules);
+        let listed: Vec<Mod> = pages.iter().flatten().copied().collect();
+        assert_eq!(listed, Mod::ALL);
+        for page in &pages {
+            assert!(!page.is_empty());
+            let room: f32 = page
+                .iter()
+                .map(|&which| ModsPage::room_for(which, &rules))
+                .sum();
+            assert!(room <= ModsPage::ROOM, "{page:?}");
+        }
+        // The first four fit on a page between them.
+        assert_eq!(pages[0].len(), 4);
     }
 
     #[test]
