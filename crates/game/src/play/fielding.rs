@@ -80,6 +80,9 @@ pub(crate) struct Fielding {
     /// A fielder had the ball in his glove before it came down, and let it
     /// go.
     dropped: bool,
+    /// Nobody hit it: the catcher is throwing to a base that a runner is
+    /// stealing.
+    steal: bool,
 }
 
 /// The runner clip's frame labels for running and sliding to each base.
@@ -92,7 +95,7 @@ const SLIDE: [&str; 4] = [
 ];
 /// The frame on which a runner gets to each base, the frame his slide ends
 /// on, and the frame a slide rejoins the run at.
-const ARRIVES: [u16; 4] = [211, 421, 630, 840];
+pub(super) const ARRIVES: [u16; 4] = [211, 421, 630, 840];
 const SLIDE_ENDS: [u16; 4] = [873, 890, 906, 922];
 const SLIDE_JOINS: [u16; 4] = [210, 420, 629, 839];
 /// Frames from here on are slides, not the run round the bases.
@@ -104,6 +107,8 @@ const SLIDE_BUTTONS: [SymbolId; 5] = [1494, 1495, 1502, 1519, 1521];
 /// The fielder who stands on the mound, counting from 0 as
 /// [`Fielding::fielder`] does: the art's `fielder3`.
 const PITCHER: usize = 2;
+/// The fielder behind the plate, the same way: the art's `fielder9`.
+const CATCHER: usize = 8;
 /// How many of the five in the field are outfielders: the ones who stand
 /// furthest from home.
 const OUTFIELDERS: usize = 3;
@@ -162,7 +167,7 @@ impl Match {
     }
 
     /// Sets a runner off for a base.
-    fn send(&mut self, runner: usize, to: u8, stage: &mut Stage, library: &Library) {
+    pub(super) fn send(&mut self, runner: usize, to: u8, stage: &mut Stage, library: &Library) {
         self.runners[runner].running_to = Some(to);
         self.runners[runner].sliding = false;
         if let Some(path) = &self.runners[runner].path {
@@ -192,10 +197,16 @@ impl Match {
 
     /// Puts a runner out.
     fn put_out(&mut self, runner: usize, stage: &mut Stage, library: &Library) {
+        let stealing = self.runners[runner].stole_from.take();
+        let making_for = self.runners[runner].running_to.take();
         self.runners[runner].place = Place::Out;
-        self.runners[runner].running_to = None;
         self.outs += 1;
-        self.clear_count();
+        match (stealing, making_for) {
+            // A runner caught stealing is out, and the batter's count is
+            // as it was.
+            (Some(_), Some(base)) if self.steal_play => self.stole(runner, base, false),
+            _ => self.clear_count(),
+        }
         self.announce = true;
         let Some(path) = self.runners[runner].path.clone() else {
             return;
@@ -227,6 +238,9 @@ impl Match {
         let was_batting = self.runners[runner].place == Place::AtBat;
         let path = self.runners[runner].path.clone();
         self.runners[runner].sliding = false;
+        if self.runners[runner].stole_from.take().is_some() && self.steal_play {
+            self.stole(runner, base, true);
+        }
         if base == 4 {
             self.runners[runner].place = Place::Home;
             self.runners[runner].runs += self.run_worth;
@@ -288,11 +302,13 @@ impl Match {
             fumbled: false,
             batter: self.batter(),
             dropped: false,
+            steal: false,
         };
         self.phase = Phase::Fielding;
 
         if walk {
             show(stage, &parts.field_ball, false);
+            self.steals_on_a_walk();
             self.start_runners(stage, library);
         } else if let (Some(ball), Some(contact)) = (at_bat.ball, at_bat.contact) {
             let mark_x = parts.field_mark.0 + contact.aside / rules.field.aim_share;
@@ -300,6 +316,7 @@ impl Match {
                 // A foul is a strike, but never the last one.
                 fielding.foul = true;
                 fielding.live = false;
+                self.steals_go_back(stage, library);
                 if self.strikes + 1 < self.strikes_allowed(game) {
                     self.strikes += 1;
                     self.cool(game);
@@ -326,6 +343,7 @@ impl Match {
                         .unwrap_or(0)
                 };
                 fielding.job = Job::Chase;
+                self.steals_are_runs();
                 self.start_runners(stage, library);
                 if let Some(zinger) = at_bat.zinger {
                     at_bat.zinger_show =
@@ -346,6 +364,74 @@ impl Match {
         }
         self.show_numbers(stage);
         at_bat.fielding = Some(fielding);
+    }
+
+    /// Changes the view to the field for a pitch that nobody hit, with a
+    /// runner on his way to steal a base: the catcher throws there.
+    pub(crate) fn show_steal(
+        &mut self,
+        at_bat: &mut AtBat,
+        game: &Game,
+        stage: &mut Stage,
+        library: &Library,
+    ) {
+        let rules = &game.rules;
+        let parts = at_bat.parts.clone();
+        // He throws for the runner who is furthest on.
+        let to = self
+            .runners
+            .iter()
+            .filter(|runner| runner.stole_from.is_some())
+            .filter_map(|runner| runner.running_to)
+            .max();
+        let (Some(to), Some(catcher)) = (to, parts.fielders.get(CATCHER)) else {
+            return self.ready(&parts, stage, library);
+        };
+        at_bat.leave_batting_view(stage);
+        let y = at(stage, &parts.field).1;
+        if let Some(field) = stage.child_mut(&parts.field) {
+            field.move_to(rules.field.x, y);
+        }
+        // The badge that says a strike was called would lie over second
+        // base. The scoreboard over the field has the count.
+        if let Some(badge) = &parts.strike_anim {
+            show(stage, badge, false);
+        }
+        // The ball is in his glove, and stays out of sight until he lets
+        // go of it.
+        at_bat.ball = Some(Ball {
+            height: rules.field.catch_height,
+            ..unreachable_ball(at(stage, catcher))
+        });
+        show(stage, &parts.field_ball, false);
+        let pop = &rules.steal.pop;
+        let wait = pop.low + self.rng.below(pop.high.saturating_sub(pop.low) + 1);
+        self.steal_play = true;
+        self.phase = Phase::Fielding;
+        at_bat.fielding = Some(Fielding {
+            walk: false,
+            foul: false,
+            home_run: false,
+            gone: false,
+            watchers: Vec::new(),
+            live: true,
+            caught: false,
+            fielder: CATCHER,
+            // The last of his wait is the drawing back of his arm.
+            job: Job::PickUp {
+                left: wait.saturating_sub(rules.field.throw_time),
+            },
+            land: parts.home,
+            facing: Facing::Down,
+            throw_to: to,
+            frames: 0,
+            since_settled: 0,
+            fumbled: false,
+            batter: None,
+            dropped: false,
+            steal: true,
+        });
+        self.show_numbers(stage);
     }
 
     /// The base to throw to: the nearest one that a runner is making for.
@@ -609,10 +695,14 @@ impl Match {
                 if left == 0 {
                     let to = parts.bases[usize::from(state.throw_to) - 1];
                     let gap = distance(here, to).max(0.001);
-                    let step = (
-                        (to.0 - here.0) / gap * rules.throw_speed,
-                        (to.1 - here.1) / gap * rules.throw_speed,
-                    );
+                    // A catcher's throw to a base being stolen has a speed
+                    // of its own.
+                    let speed = if state.steal && state.fielder == CATCHER {
+                        game.rules.steal.throw_speed
+                    } else {
+                        rules.throw_speed
+                    };
+                    let step = ((to.0 - here.0) / gap * speed, (to.1 - here.1) / gap * speed);
                     if let Some(ball) = &mut at_bat.ball {
                         ball.at = here;
                         ball.height = rules.catch_height;
@@ -659,6 +749,7 @@ impl Match {
 
         let down = at_bat.ball.is_some_and(|ball| ball.bounced);
         self.move_runners(&state, down, &parts, game, stage, library);
+        self.tell_steal(at_bat, game.rules.steal.told_time, stage, library);
 
         // How the play ends.
         let over = if state.foul || state.home_run {
@@ -684,7 +775,7 @@ impl Match {
                     self.arrive(runner, &parts, stage, library);
                 }
             }
-            if !state.walk && !state.foul {
+            if !state.walk && !state.foul && !state.steal {
                 // Where it went is remembered, for the shift to go by.
                 let ground = parts.ground(rules);
                 self.spray.push(ground.across(state.land));
@@ -701,6 +792,10 @@ impl Match {
         let Some(ground) = self.full.as_ref().map(|full| *full.ground()) else {
             return;
         };
+        if state.steal {
+            // The pitch is in the book already: nobody hit it.
+            return;
+        }
         if state.foul {
             return self.book_pitch(at_bat, Thrown::Foul);
         }

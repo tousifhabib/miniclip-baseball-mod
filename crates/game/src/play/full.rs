@@ -9,7 +9,7 @@ use bb_engine::display::Path;
 use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
-use super::book::{Book, End, Hit, ORDER, Pitch, Thrown};
+use super::book::{Book, End, Hit, ORDER, Pitch, Steal, Thrown};
 use super::field::Ground;
 use super::overlay::Words;
 use super::paper;
@@ -20,7 +20,7 @@ use crate::look::Rgb;
 use crate::menu::Game;
 use crate::mods::Mod;
 use crate::rng::Rng;
-use crate::rules::FullMatchRules;
+use crate::rules::{FullMatchRules, StealRules};
 use crate::settings::Difficulty;
 
 /// How things stand when the player's side is out.
@@ -86,6 +86,8 @@ pub struct FullMatch {
     seed: u64,
     ground: Ground,
     their_turn: usize,
+    /// What the other side's runners steal bases by, with that mod on.
+    steals: Option<StealRules>,
     /// Every pitch to every batter of both sides.
     pub book: Book,
 }
@@ -129,13 +131,15 @@ pub fn hits_words(hits: u32) -> String {
 impl FullMatch {
     /// A match about to begin, with the player's side at home or away. If
     /// it is at home the other side has batted already when this returns.
-    /// `zinger` is whether every ball the player hits is a home run, and
-    /// `ground` the field the match is played on.
+    /// `zinger` is whether every ball the player hits is a home run,
+    /// `steals` what the other side's runners steal bases by, if they do,
+    /// and `ground` the field the match is played on.
     pub fn new(
         home: bool,
         rules: &FullMatchRules,
         difficulty: Difficulty,
         zinger: bool,
+        steals: Option<StealRules>,
         ground: Ground,
         seed: u64,
     ) -> FullMatch {
@@ -152,6 +156,7 @@ impl FullMatch {
             seed,
             ground,
             their_turn: 0,
+            steals,
             book: Book::default(),
         };
         if home {
@@ -175,11 +180,20 @@ impl FullMatch {
             innings,
             first_up,
             rules,
+            self.steals.as_ref(),
             &self.ground,
             &mut rng,
         );
         self.their_turn = half.next;
         let theirs = &mut self.book.theirs;
+        // A steal is told by how many of the side's turns were over.
+        let before = theirs.turns.len();
+        theirs
+            .steals
+            .extend(half.steals.into_iter().map(|steal| Steal {
+                at: steal.at + before,
+                ..steal
+            }));
         theirs.turns.extend(half.turns);
         theirs.left.push(half.left);
         for (all, more) in theirs.runs.iter_mut().zip(half.runs) {
@@ -534,6 +548,9 @@ impl Match {
             &game.rules.full_match,
             game.settings.difficulty,
             game.mods.is_on(Mod::ZingerHit),
+            game.mods
+                .is_on(Mod::StolenBases)
+                .then(|| game.rules.steal.clone()),
             art::ground(library, &game.rules),
             seed ^ THEIR_SEED,
         );
@@ -583,7 +600,12 @@ impl Match {
     pub(crate) fn book_thrown(&mut self) {
         self.thrown_at = (self.score, self.outs);
         let order = self.batter().map(|batter| self.runners[batter].order);
-        let on = [1, 2, 3].map(|base| self.on_base(base).is_some());
+        // A runner who has set off to steal is still the runner from his
+        // base.
+        let on = [1, 2, 3].map(|base| {
+            let there = |runner: &super::Runner| runner.place == Place::Base(base);
+            self.runners.iter().any(there)
+        });
         if let (Some(full), Some(order)) = (&mut self.full, order) {
             let innings = full.innings();
             full.book
@@ -661,6 +683,7 @@ mod tests {
             &rules,
             Difficulty::Medium,
             false,
+            None,
             Ground::default(),
             7,
         )
@@ -831,7 +854,8 @@ mod tests {
         let total = |zinger: bool| {
             (0..40)
                 .map(|seed| {
-                    FullMatch::new(true, &rules, Difficulty::Hard, zinger, ground, seed).theirs()
+                    FullMatch::new(true, &rules, Difficulty::Hard, zinger, None, ground, seed)
+                        .theirs()
                 })
                 .sum::<u32>()
         };
@@ -860,9 +884,19 @@ mod tests {
         assert_eq!(figures.runs_in, full.theirs());
         let line = full.lines().into_iter().find(|line| !line.ours).unwrap();
         assert_eq!((line.runs, line.hits), (figures.runs, figures.hits));
-        // Everyone who came up was put out, came home or was left on.
-        let outs: u32 = theirs.turns.iter().map(|turn| turn.outs_made).sum();
-        assert_eq!(figures.turns, outs + figures.runs + figures.left);
+        // Everyone who came up was put out, at the plate or on the bases,
+        // came home or was left on.
+        assert_eq!(figures.turns, theirs.outs() + figures.runs + figures.left);
+        // A steal is told among the turns of the innings it was in.
+        for steal in &theirs.steals {
+            assert!(steal.at <= theirs.turns.len());
+            let before = theirs.turns[..steal.at].last().map(|turn| turn.innings);
+            let after = theirs.turns.get(steal.at).map(|turn| turn.innings);
+            assert!(
+                before == Some(steal.innings) || after == Some(steal.innings),
+                "{steal:?}"
+            );
+        }
     }
 
     #[test]
@@ -873,7 +907,21 @@ mod tests {
             let home = seed % 2 == 0;
             let difficulty = [Difficulty::Easy, Difficulty::Medium, Difficulty::Hard][seed % 3];
             let zinger = seed % 5 == 0;
-            let mut full = FullMatch::new(home, &rules, difficulty, zinger, ground, seed as u64);
+            // In some of them their runners steal, and in some of those
+            // every chance they get.
+            let steals = match seed % 4 {
+                0 => Some(Rules::default().steal),
+                1 => Some(StealRules {
+                    their_chance: 1.0,
+                    their_safe: 0.5,
+                    ..Rules::default().steal
+                }),
+                _ => None,
+            };
+            let stealing = steals.is_some();
+            let seed_of = seed as u64;
+            let mut full =
+                FullMatch::new(home, &rules, difficulty, zinger, steals, ground, seed_of);
             book_agrees(&full);
             for innings in 0..30 {
                 // Sometimes ahead and sometimes behind, so that matches
@@ -887,8 +935,15 @@ mod tests {
             // Three were out in every half of theirs that ran its course.
             let theirs = &full.book.theirs;
             let won_at_bat = !home && full.theirs() > full.ours() && !full.unneeded;
+            assert!(stealing || theirs.steals.is_empty());
             for innings in 1..=full.theirs.len() as u32 {
-                let outs: u32 = theirs.innings(innings).map(|turn| turn.outs_made).sum();
+                let caught = |steal: &&Steal| steal.innings == innings && !steal.safe;
+                let caught = theirs.steals.iter().filter(caught).count() as u32;
+                let outs = theirs
+                    .innings(innings)
+                    .map(|turn| turn.outs_made)
+                    .sum::<u32>()
+                    + caught;
                 let last = innings as usize == full.theirs.len();
                 if last && won_at_bat && full.over {
                     assert!(outs < 3, "a winning half that went on");
@@ -904,7 +959,8 @@ mod tests {
         let rules = Rules::default().full_match;
         let ground = Ground::default();
         let play = |seed| {
-            let mut full = FullMatch::new(false, &rules, Difficulty::Medium, false, ground, seed);
+            let mut full =
+                FullMatch::new(false, &rules, Difficulty::Medium, false, None, ground, seed);
             for _ in 0..8 {
                 full.side_out(1);
             }

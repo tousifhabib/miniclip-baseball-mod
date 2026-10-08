@@ -17,6 +17,7 @@ pub mod paper;
 mod pinball;
 pub mod pitch;
 pub mod shift;
+mod steal;
 pub mod timing;
 pub mod zinger;
 
@@ -73,6 +74,8 @@ pub(crate) struct Runner {
     /// His place in the batting order, counting from nought. A full match
     /// has nine, who come round again. Otherwise every batter is new.
     pub order: usize,
+    /// The base he left to steal the next, on the pitch in hand.
+    pub stole_from: Option<u8>,
     pub skin: Option<Rgb>,
     pub logo: Option<String>,
     /// His clip on the field, for as long as this pitch's view lasts.
@@ -226,6 +229,9 @@ pub(crate) struct AtBat {
     /// it the swing began, and how well the bat met the ball.
     pub swing_off: Option<i32>,
     pub met: Option<Quality>,
+    /// The runners' marks on the little field, with the stolen bases mod
+    /// on and anyone on base.
+    pub leads: Option<steal::Leads>,
 }
 
 impl Parts {
@@ -307,6 +313,14 @@ pub struct Match {
     /// are coming, and the score when that was last worked out.
     pub(crate) heat: u32,
     heat_score: u32,
+    /// With the stolen bases mod on: how many bases have been stolen in
+    /// this game and how many runners caught at it, whether the play in the
+    /// field is one on which a base can be stolen, and how the last try
+    /// came out, until that has been told.
+    pub(crate) stolen: u32,
+    pub(crate) caught: u32,
+    pub(crate) steal_play: bool,
+    steal_news: Option<(&'static str, Rgb)>,
     /// How many pitches the pitcher on the mound has thrown, and how many
     /// pitchers have come in for the one before, which the tired arm mod
     /// goes by.
@@ -452,6 +466,10 @@ impl Match {
             hurry: 0.0,
             heat: 0,
             heat_score: 0,
+            stolen: 0,
+            caught: 0,
+            steal_play: false,
+            steal_news: None,
             arm: 0,
             relieved: 0,
             tired: None,
@@ -848,6 +866,7 @@ impl Match {
                 sliding: false,
                 runs: 0,
                 order,
+                stole_from: None,
                 skin,
                 logo,
                 path: None,
@@ -1026,9 +1045,11 @@ impl Match {
         }
         // Every runner still in the game stands where the last pitch left
         // him.
+        self.steal_play = false;
         for index in 0..self.runners.len() {
             self.runners[index].path = None;
             self.runners[index].running_to = None;
+            self.runners[index].stole_from = None;
             self.runners[index].sliding = false;
             let label = match self.runners[index].place {
                 Place::AtBat => "waiting".to_owned(),
@@ -1048,6 +1069,12 @@ impl Match {
                 self.runners[index].path = Some(path);
             }
         }
+        // With the stolen bases mod on, each runner is marked on the little
+        // field in the corner, and the mod has a line under it to write on.
+        let on_base = |runner: &Runner| matches!(runner.place, Place::Base(_));
+        let leads = (game.mods.is_on(Mod::StolenBases) && self.runners.iter().any(on_base))
+            .then(|| steal::Leads::put(&self.runners, corner.line(), &parts, stage, library))
+            .flatten();
         if let Some(mark) = stage.find(&parts.main, &["runnerOnSecond"]) {
             let label = if self.on_base(2).is_some() {
                 "full"
@@ -1159,6 +1186,7 @@ impl Match {
             them,
             swing_off: None,
             met: None,
+            leads,
         });
         None
     }
@@ -1316,6 +1344,10 @@ impl Match {
             them.keep(stage);
         }
         overlay::Notice::fade(&mut at_bat.notices, stage);
+        if let Some(leads) = &mut at_bat.leads {
+            leads.keep(self, self.phase == Phase::WindUp, stage);
+            self.hold_stealers(stage);
+        }
         if at_bat.contact.is_none() {
             Match::aim(&mut at_bat, stage);
             Match::point_hit(&mut at_bat, &rules.hit, stage, library);
@@ -1341,11 +1373,20 @@ impl Match {
                 if left == 0 {
                     stage.goto_label(&at_bat.parts.pitcher, PITCH, true, library);
                     self.phase = Phase::WindUp;
+                    self.ask_for_steals(&mut at_bat, stage, library);
                 } else {
                     self.phase = Phase::Settling { left: left - 1 };
                 }
             }
             Phase::WindUp => {
+                // While he winds up, a click on the little field sends a
+                // runner.
+                if pressed
+                    && let Some(pointer) =
+                        stage.from_stage(&at_bat.parts.main, stage.pointer.x, stage.pointer.y)
+                {
+                    self.steal_click(&mut at_bat, pointer, stage, library);
+                }
                 let frame = frame_of(stage, &at_bat.parts.pitcher);
                 if !at_bat.marker_shown && frame >= at_bat.table.marker_frame {
                     at_bat.marker_shown = true;
@@ -1356,6 +1397,7 @@ impl Match {
                     show(stage, &at_bat.parts.shadow, true);
                     self.pitched += 1;
                     self.arm += 1;
+                    self.stop_asking_for_steals(&mut at_bat, stage);
                     self.book_thrown();
                     if let Some(arcade) = &mut self.arcade {
                         arcade.left = arcade.left.saturating_sub(1);
@@ -1623,6 +1665,9 @@ impl Match {
                 self.phase = Phase::Walking {
                     left: rules.hit.walk_wait,
                 };
+            } else if self.anyone_stealing() {
+                // The catcher has the ball, and a runner to throw out.
+                self.show_steal(at_bat, game, stage, library);
             } else {
                 self.ready(&parts, stage, library);
             }
@@ -1669,6 +1714,11 @@ impl Match {
             }
         }
         self.show_numbers(stage);
+        if self.anyone_stealing() && self.outs < self.max_outs {
+            return self.show_steal(at_bat, game, stage, library);
+        }
+        // With the side out, nobody has anywhere to steal to.
+        self.steals_go_back(stage, library);
         // The call is left up for a moment before the next pitch is offered.
         self.phase = Phase::Called { left: 58 };
     }
@@ -1829,6 +1879,14 @@ impl Match {
         }
         if self.streak > 0 {
             let_go += &format!(", hits in a row {}", self.streak);
+        }
+        for runner in &self.runners {
+            if let (Some(_), Some(to)) = (runner.stole_from, runner.running_to) {
+                let_go += &format!(", stealing {to}");
+            }
+        }
+        if self.stolen + self.caught > 0 {
+            let_go += &format!(", stolen {}, caught {}", self.stolen, self.caught);
         }
         if let Some(tired) = self.tired {
             let_go += &format!(", arm {} tired {tired:.2}", self.arm);

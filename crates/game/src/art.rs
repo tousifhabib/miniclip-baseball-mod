@@ -162,6 +162,9 @@ pub fn ground(library: &Library, rules: &Rules) -> Ground {
 /// fielder and the right fielder.
 pub const LITTLE_FIELD: SymbolId = 1092;
 pub const LITTLE_FIELDERS: [(usize, u16); 4] = [(0, 6), (1, 8), (3, 10), (4, 12)];
+/// Where a runner on first, second and third is marked on the little field,
+/// by the stolen bases mod: just outside the corners of its diamond.
+pub const LITTLE_BASES: [(f32, f32); 3] = [(76.5, 57.5), (50.25, 33.5), (24.0, 57.5)];
 
 /// The pictures of the stadium: behind the batter, and from over the field
 /// in a match and in the arcade game. The match's has the stands nearest
