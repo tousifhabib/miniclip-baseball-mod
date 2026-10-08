@@ -60,6 +60,10 @@ pub enum Mod {
     /// A hit floats: it goes where it would have gone, taking several
     /// times as long to get there. How many times is set on the menu.
     MoonBall,
+    /// Runners go round the bases several times as fast, and can be
+    /// sent on at any time while the ball is in play, in the air or not.
+    /// How fast is set on the menu.
+    TurboRunners,
 }
 
 /// What the menu and the files know a mod by.
@@ -77,7 +81,7 @@ struct Info {
 
 impl Mod {
     /// Every mod, in the order the menu lists them.
-    pub const ALL: [Mod; 13] = [
+    pub const ALL: [Mod; 14] = [
         Mod::TimingIndicator,
         Mod::LonePitcher,
         Mod::ZingerHit,
@@ -91,6 +95,7 @@ impl Mod {
         Mod::GoldenBall,
         Mod::PinballPark,
         Mod::MoonBall,
+        Mod::TurboRunners,
     ];
 
     fn info(self) -> Info {
@@ -173,6 +178,12 @@ impl Mod {
                 about: "EVERY HIT FLOATS: THE SAME FLIGHT, MANY TIMES SLOWER",
                 setting: Some(("FLOAT", 2)),
             },
+            Mod::TurboRunners => Info {
+                key: "turbo_runners",
+                name: "TURBO RUNNERS",
+                about: "RUNNERS ARE FAST, AND CAN GO ON WITH THE BALL IN THE AIR",
+                setting: Some(("SPEED", 2)),
+            },
         }
     }
 
@@ -215,6 +226,7 @@ impl Mod {
             Mod::Butterfingers => rules.butterfingers.levels(),
             Mod::PinballPark => rules.pinball.keeps.len() as u8,
             Mod::MoonBall => rules.moon.slow.len() as u8,
+            Mod::TurboRunners => rules.turbo.speed.len() as u8,
             _ => 0,
         }
     }
@@ -230,6 +242,10 @@ impl Mod {
             Mod::MoonBall => {
                 let slow = crate::rules::level_of(&rules.moon.slow, level).unwrap_or(1.0);
                 format!("{slow}X")
+            }
+            Mod::TurboRunners => {
+                let speed = crate::rules::level_of(&rules.turbo.speed, level).unwrap_or(1.0);
+                format!("{speed}X")
             }
             _ => String::new(),
         }

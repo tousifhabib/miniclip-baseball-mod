@@ -649,7 +649,7 @@ impl Match {
         }
 
         let down = at_bat.ball.is_some_and(|ball| ball.bounced);
-        self.move_runners(&state, down, &parts, stage, library);
+        self.move_runners(&state, down, &parts, game, stage, library);
 
         // How the play ends.
         let over = if state.foul || state.home_run {
@@ -915,17 +915,46 @@ impl Match {
         state: &Fielding,
         ball_down: bool,
         parts: &Parts,
+        game: &Game,
         stage: &mut Stage,
         library: &Library,
     ) {
         // Once the ball has been caught or has come down, a runner on a
-        // base may try for the next.
-        let may_go_on = state.live && (state.caught || ball_down);
+        // base may try for the next. Turbo runners may at any time.
+        let turbo = game.mods.is_on(Mod::TurboRunners);
+        let may_go_on = state.live && (turbo || state.caught || ball_down);
+        // A runner's run is a clip that plays a frame at a time. Turbo
+        // runners are hurried on through it by more frames than that.
+        let mut hurried = 0;
+        if turbo {
+            let level = game.mods.level(Mod::TurboRunners);
+            let speed = crate::rules::level_of(&game.rules.turbo.speed, level).unwrap_or(1.0);
+            self.hurry += (speed - 1.0).max(0.0);
+            hurried = self.hurry.floor() as u16;
+            self.hurry -= f32::from(hurried);
+        }
         for runner in 0..self.runners.len() {
             let Some(path) = self.runners[runner].path.clone() else {
                 continue;
             };
-            let frame = frame_of(stage, &path);
+            let mut frame = frame_of(stage, &path);
+            if let (Some(base), true) = (self.runners[runner].running_to, hurried > 0) {
+                // As far as the base, or the end of his slide, and no
+                // further: what comes after belongs to the next base.
+                let index = usize::from(base) - 1;
+                let end = if self.runners[runner].sliding {
+                    SLIDE_ENDS[index]
+                } else {
+                    ARRIVES[index]
+                };
+                if frame < end {
+                    frame = (frame + hurried).min(end);
+                    stage.goto_clip(&path, frame, library);
+                    if let Some(clip) = stage.clip_mut(&path) {
+                        clip.playing = true;
+                    }
+                }
+            }
             if let Some(base) = self.runners[runner].running_to {
                 let index = usize::from(base) - 1;
                 if self.runners[runner].sliding && frame >= SLIDE_ENDS[index] {
