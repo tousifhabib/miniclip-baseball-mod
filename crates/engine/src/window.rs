@@ -11,8 +11,8 @@ use std::time::{Duration, Instant};
 use anyhow::{Context, Result};
 use winit::application::ApplicationHandler;
 use winit::dpi::LogicalSize;
-use winit::event::{ElementState, MouseButton, WindowEvent};
-use winit::event_loop::{ActiveEventLoop, EventLoop};
+use winit::event::{ElementState, MouseButton, StartCause, WindowEvent};
+use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoop};
 use winit::keyboard::{Key, NamedKey};
 use winit::window::{CursorIcon, Window, WindowId};
 
@@ -53,6 +53,7 @@ pub fn run(runner: Runner, options: Options) -> Result<Summary> {
         inspector,
         paused: false,
         last_redraw: Instant::now(),
+        frame,
         pace: Pace::new(frame),
         frame_time: 1.0 / 60.0,
         drawn: 0,
@@ -91,6 +92,8 @@ struct App {
     inspector: Inspector,
     paused: bool,
     last_redraw: Instant,
+    /// How long a frame of the game lasts.
+    frame: Duration,
     /// When the game's frames are played.
     pace: Pace,
     /// A running average of the time between redraws.
@@ -261,7 +264,9 @@ impl App {
         }
     }
 
-    fn redraw(&mut self) {
+    /// Plays what frames are due and draws the stage. Returns whether it
+    /// was drawn: a window that is hidden or covered is not.
+    fn redraw(&mut self) -> bool {
         let now = Instant::now();
         let elapsed = now - self.last_redraw;
         self.last_redraw = now;
@@ -279,9 +284,31 @@ impl App {
         }
 
         let Some((width, height)) = self.size() else {
-            return;
+            return false;
         };
         let (base, scissor) = self.layout(width, height);
+        let Some(view) = &mut self.view else {
+            return false;
+        };
+
+        let texture = match view.surface.get_current_texture() {
+            wgpu::CurrentSurfaceTexture::Success(texture)
+            | wgpu::CurrentSurfaceTexture::Suboptimal(texture) => texture,
+            // The window is out of sight.
+            wgpu::CurrentSurfaceTexture::Timeout | wgpu::CurrentSurfaceTexture::Occluded => {
+                self.pace.undrawn();
+                return false;
+            }
+            // The window changed under us: set the surface up again and
+            // draw on the next round.
+            _ => {
+                view.surface.configure(&view.renderer.device, &view.config);
+                self.pace.undrawn();
+                return false;
+            }
+        };
+        // What to draw is only worked out once there is something to draw
+        // it on.
         let library = &self.runner.library;
         let commands = self.runner.stage.commands(base, library);
         let background = library
@@ -291,26 +318,6 @@ impl App {
             .map_or([0.0, 0.0, 0.0, 1.0], |c| {
                 [c.r, c.g, c.b, c.a].map(|channel| f64::from(channel) / 255.0)
             });
-        let Some(view) = &mut self.view else {
-            return;
-        };
-
-        let texture = match view.surface.get_current_texture() {
-            wgpu::CurrentSurfaceTexture::Success(texture)
-            | wgpu::CurrentSurfaceTexture::Suboptimal(texture) => texture,
-            // The window is out of sight.
-            wgpu::CurrentSurfaceTexture::Timeout | wgpu::CurrentSurfaceTexture::Occluded => {
-                self.pace.undrawn();
-                return;
-            }
-            // The window changed under us: set the surface up again and
-            // draw on the next round.
-            _ => {
-                view.surface.configure(&view.renderer.device, &view.config);
-                self.pace.undrawn();
-                return;
-            }
-        };
         let target = texture
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
@@ -400,6 +407,7 @@ impl App {
         for action in actions {
             self.apply(action);
         }
+        true
     }
 }
 
@@ -418,6 +426,15 @@ impl ApplicationHandler for App {
                 self.error = Some(error);
                 event_loop.exit();
             }
+        }
+    }
+
+    fn new_events(&mut self, _: &ActiveEventLoop, cause: StartCause) {
+        // The wait after a redraw that drew nothing is over.
+        if matches!(cause, StartCause::ResumeTimeReached { .. })
+            && let Some(view) = &self.view
+        {
+            view.window.request_redraw();
         }
     }
 
@@ -450,9 +467,20 @@ impl ApplicationHandler for App {
                     event_loop.exit();
                     return;
                 }
-                self.redraw();
-                if let Some(view) = &self.view {
-                    view.window.request_redraw();
+                if self.redraw() {
+                    // Drawing waits for the screen, so the next redraw can
+                    // be asked for at once.
+                    event_loop.set_control_flow(ControlFlow::Wait);
+                    if let Some(view) = &self.view {
+                        view.window.request_redraw();
+                    }
+                } else {
+                    // Nothing was drawn: the window is hidden or covered,
+                    // and there is no screen to wait for. Asked again at
+                    // once it would be answered at once, over and over, so
+                    // the next is left until the game's next frame is due.
+                    let next = self.last_redraw + self.frame;
+                    event_loop.set_control_flow(ControlFlow::WaitUntil(next));
                 }
             }
             WindowEvent::CursorMoved { position, .. } => {
