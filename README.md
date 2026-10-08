@@ -67,6 +67,7 @@ switched on.
 | Zinger hit | `zinger_hit` | Every hit is a home run, bigger the better it was timed |
 | Butterfingers | `butterfingers` | Fielders drop and fumble the ball, as often as you set |
 | Knuckleball | `knuckleball` | Pitches sway from side to side, and the crossing marker is only roughly right |
+| Heat check | `heat_check` | Every run makes the next pitch faster, and every strike slows them again |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -144,6 +145,13 @@ the outfield answers to the marker. The hit goes by where the ball really
 was: a ring held on the marker sends it off to one side by as much as the
 ball was out. A pitch that sways out of the strike zone is a ball. The
 numbers are under `[knuckleball]` in `data/rules.toml`.
+
+With the heat check, every run you score takes six hundredths off the time
+the next pitch takes, up to eight runs' worth, which is nearly twice as
+fast. Every strike, a foul that counts as one included, puts one run's worth
+back. How much heat is on is written under the little field in the corner of
+the batting view. The arcade game has no runs, and plays as it did. The
+numbers are under `[heat]` in `data/rules.toml`.
 
 ## Changing the game
 
