@@ -74,6 +74,7 @@ switched on.
 | Sudden death | `sudden_death` | One strike and you are out, but every run counts double |
 | Golden ball | `golden_ball` | Every fifth pitch is gold: runs off it count triple, and a strike on it is an out |
 | Pinball park | `pinball_park` | The ball ricochets off the wall, the ground and the foul lines, as bouncily as you set |
+| Moon ball | `moon_ball` | Every hit floats to where it was going, several times slower, as you set |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -209,6 +210,15 @@ sent back whoever is nearest takes up the chase. How bouncy it all is is
 set on the Mods page: the ball keeps from six tenths of its speed at each
 bounce to nine. The arcade game is left as it was. The numbers are under
 `[pinball]` in `data/rules.toml`.
+
+With the moon ball, a hit floats. It goes the way it would have gone and
+comes down where it would have come down, and takes several times as long
+over it: how many is set on the Mods page, from one and a half to five, and
+starts at two. A home run is still a home run. What changes is what the
+time is worth: a fielder who could not have got under a ball has it, and
+the runners have longer to go round. A batter is out to a catch wherever he
+has got to by then. A ball a fielder has thrown is as fast as ever. The arcade game is left as it was. The numbers are under `[moon]`
+in `data/rules.toml`.
 
 ## Changing the game
 

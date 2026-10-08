@@ -50,9 +50,40 @@ pub struct Rules {
     pub golden: GoldenRules,
     /// The pinball park mod.
     pub pinball: PinballRules,
+    /// The moon ball mod.
+    pub moon: MoonRules,
     pub arcade: ArcadeRules,
     pub team: TeamRules,
     pub sound: SoundRules,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct MoonRules {
+    /// How many times as long the ball takes over its flight, for each
+    /// level the mod can be set to, the lowest first.
+    pub slow: Vec<f32>,
+}
+
+impl MoonRules {
+    /// The numbers the ball flies by on the moon at this level, counting
+    /// from 1, given the ones it flies by as the game was: the same flight
+    /// in every way but the time it takes.
+    pub fn float(&self, level: u8, field: &FieldRules) -> FieldRules {
+        let slow = level_of(&self.slow, level).unwrap_or(1.0).max(0.01);
+        FieldRules {
+            // It sets off this many times slower, along and up, and what
+            // pulls it down and holds it back is as much weaker as keeps it
+            // to the path it would have taken.
+            pace: field.pace * slow,
+            lift_share: field.lift_share / slow,
+            gravity: field.gravity / (slow * slow),
+            drag: field.drag / slow,
+            bounce_cap: field.bounce_cap / slow,
+            bounce_loss: field.bounce_loss / slow,
+            ..field.clone()
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
@@ -573,6 +604,37 @@ mod tests {
         assert_eq!(back, rules.field);
         assert_eq!(level_of(&[1.0, 2.0], 9), Some(2.0));
         assert_eq!(level_of(&[], 1), None);
+    }
+
+    #[test]
+    fn a_moon_ball_goes_where_it_would_have_gone_and_takes_longer_over_it() {
+        use crate::play::field::{Ball, Contact, Happened};
+        let rules = Rules::default();
+        let (home, mark) = ((240.8, 336.85), (303.8, 168.7));
+        // A well-timed hit, and one topped a little.
+        for under in [0.0, -12.0] {
+            let contact = Contact {
+                power: 17.0,
+                under,
+                aside: 0.0,
+            };
+            let lands = |field: &FieldRules| {
+                let mut ball = Ball::hit(home, mark, &contact, &rules.hit, field);
+                let mut frames = 1;
+                while ball.step(home, contact.miss(), field) != Happened::Landed {
+                    frames += 1;
+                }
+                (ball.at, frames)
+            };
+            let (usual, quick) = lands(&rules.field);
+            for (level, slow) in [(1, 1.5), (2, 2.0), (5, 5.0)] {
+                let (floated, frames) = lands(&rules.moon.float(level, &rules.field));
+                let off = (floated.0 - usual.0).hypot(floated.1 - usual.1);
+                assert!(off < 6.0, "level {level}: {off} from {usual:?}");
+                let longer = frames as f32 / quick as f32;
+                assert!((longer - slow).abs() < 0.1, "level {level}: {longer}");
+            }
+        }
     }
 
     #[test]
