@@ -71,6 +71,7 @@ switched on.
 | Mystery pitch | `mystery_pitch` | Each pitch is a fastball, a change-up or a curve, and you find out as it is thrown |
 | Called shot | `called_shot` | Click a spot on the outfield before a pitch; a hit that lands near it is worth extra runs |
 | Hot bat | `hot_bat` | Each hit in a row widens your timing window, and a strike resets it |
+| Sudden death | `sudden_death` | One strike and you are out, but every run counts double |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -182,6 +183,11 @@ frame that was the end. A strike that is not a foul takes the window back to
 what it was. How hot the bat is is written in the corner of the batting
 view, and the mark on the bat glows, redder the hotter. The number is under
 `[hot_bat]` in `data/rules.toml`.
+
+With sudden death, one strike puts a batter out, and every run counts for
+two. A foul is still never the last strike, so with only one to give it is
+no strike at all. Runs a called shot is worth are not doubled. The numbers
+are under `[sudden_death]` in `data/rules.toml`.
 
 ## Changing the game
 

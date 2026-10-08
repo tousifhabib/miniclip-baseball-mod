@@ -240,6 +240,9 @@ pub struct Match {
     /// With the hot bat mod on: how many swings in a row have met the
     /// ball.
     pub(crate) streak: u32,
+    /// How many a run counts for on the pitch being played: one, unless a
+    /// mod says more.
+    pub(crate) run_worth: u32,
     /// With the heat check mod on: how many runs' worth faster the pitches
     /// are coming, and the score when that was last worked out.
     pub(crate) heat: u32,
@@ -337,6 +340,7 @@ impl Match {
             arcade: None,
             slips: 0,
             streak: 0,
+            run_worth: 1,
             heat: 0,
             heat_score: 0,
             longest_zinger: 0,
@@ -351,6 +355,25 @@ impl Match {
         let mut arcade = Match::new(game, seed, library);
         arcade.arcade = Some(arcade::Arcade::new(game.rules.arcade.pitches));
         arcade
+    }
+
+    /// How many strikes put a batter out: three, unless a mod says
+    /// otherwise.
+    pub(crate) fn strikes_allowed(&self, game: &Game) -> u32 {
+        if game.mods.is_on(Mod::SuddenDeath) {
+            game.rules.sudden_death.strikes
+        } else {
+            game.rules.count.strikes
+        }
+    }
+
+    /// How many a run counts for on the pitch about to be thrown.
+    fn worth_of_a_run(&self, game: &Game) -> u32 {
+        let mut worth = 1;
+        if game.mods.is_on(Mod::SuddenDeath) {
+            worth *= game.rules.sudden_death.runs;
+        }
+        worth
     }
 
     /// A strike has been called: with the heat check mod on, the pitches
@@ -675,6 +698,7 @@ impl Match {
         let rules = &game.rules;
         let mut table = rules.pitch.at(game.settings.difficulty).clone();
         let mut notices = Vec::new();
+        self.run_worth = self.worth_of_a_run(game);
         if game.mods.is_on(Mod::HeatCheck) {
             // Every run since the last pitch makes this one faster.
             let runs = self.score.saturating_sub(self.heat_score);
@@ -1311,7 +1335,7 @@ impl Match {
         if let Some(board) = &parts.scoreboard {
             self.play_section(board, "strike", 136, stage, library);
         }
-        if self.strikes >= rules.count.strikes {
+        if self.strikes >= self.strikes_allowed(game) {
             let call = ["1", "2", "3"][self.rng.below(3) as usize];
             Match::sound(stage, library, &format!("umpire_yourOuttaHere_{call}"));
             Match::sound(stage, library, "crowd_unhappy");
@@ -1323,7 +1347,7 @@ impl Match {
             self.announce = true;
         } else {
             Match::sound(stage, library, "umpire_Strike_grunt");
-            if self.strikes + 1 == rules.count.strikes {
+            if self.strikes + 1 == self.strikes_allowed(game) {
                 let organ = ["baseball_organ_FX", "baseball_organ_tense_FX"];
                 Match::sound(stage, library, organ[self.rng.below(2) as usize]);
             }

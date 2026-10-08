@@ -316,6 +316,15 @@ told_time = 150
 most = 3
 
 # ---------------------------------------------------------------------------
+# The sudden death mod: one strike and the batter is out, but runs count
+# double.
+[sudden_death]
+# Strikes that put a batter out, in place of the number under [count].
+strikes = 1
+# How many each run counts for.
+runs = 2
+
+# ---------------------------------------------------------------------------
 # The arcade game: hit a target on the outfield.
 [arcade]
 pitches = 10
