@@ -8,8 +8,9 @@ use common::{game, state_after};
 const BOTTOM_OF_THE_NINTH: &str = "click 200 192";
 const ARCADE: &str = "click 200 237";
 const MODS: &str = "click 330 360";
-/// The first mod listed on the mods' page.
+/// The first two mods listed on the mods' page.
 const FIRST_MOD: &str = "click 300 140";
+const SECOND_MOD: &str = "click 300 175";
 const NEXT: &str = "click 490 362";
 const BACK: &str = "click 290 362";
 const PLAY_BALL: &str = "click 480 362";
@@ -201,24 +202,31 @@ fn the_menu_lists_the_mods_each_with_a_box_to_tick() {
             .collect::<Vec<bool>>()
     };
     let written = said(&script);
-    for wanted in ["MODS", "TIMING INDICATOR"] {
+    for wanted in ["MODS", "TIMING INDICATOR", "LONE PITCHER"] {
         assert!(written.iter().any(|text| text == wanted), "{written:?}");
     }
     // The page is the high-score page put to another use: none of the
     // table is written on it.
     assert!(bb_game::art::all_named(&script.runner.stage, &[], "scoreLine").is_empty());
-    assert_eq!(ticked(&script), [false]);
+    assert_eq!(ticked(&script), [false, false]);
 
-    // A click anywhere on a mod's line switches it, and another switches
-    // it back.
+    // A click anywhere on a mod's line switches it and no other, and
+    // another switches it back.
     let tick = format!("{FIRST_MOD}; wait 2; state");
     assert_eq!(
         state_after(&mut script, &tick),
         "Menu, Mods, Medium, with timing_indicator"
     );
-    assert_eq!(ticked(&script), [true]);
+    assert_eq!(ticked(&script), [true, false]);
     assert_eq!(state_after(&mut script, &tick), "Menu, Mods, Medium");
-    assert_eq!(ticked(&script), [false]);
+    assert_eq!(ticked(&script), [false, false]);
+    let second = format!("{SECOND_MOD}; wait 2; state");
+    assert_eq!(
+        state_after(&mut script, &second),
+        "Menu, Mods, Medium, with lone_pitcher"
+    );
+    assert_eq!(ticked(&script), [false, true]);
+    assert_eq!(state_after(&mut script, &second), "Menu, Mods, Medium");
 
     // What was chosen lasts through the rest of the menu, and the page
     // shows it on coming back.
@@ -232,7 +240,7 @@ fn the_menu_lists_the_mods_each_with_a_box_to_tick() {
         state_after(&mut script, &steps),
         "Menu, Mods, Medium, with timing_indicator"
     );
-    assert_eq!(ticked(&script), [true]);
+    assert_eq!(ticked(&script), [true, false]);
 }
 
 #[test]

@@ -10,6 +10,7 @@ use super::field::{Facing, Happened, distance, reach};
 use super::pitch::Point;
 use super::{AtBat, Match, Parts, Phase, Place, at, frame_of, put, show};
 use crate::menu::Game;
+use crate::mods::Mod;
 
 /// What the fielder with the ball, or going for it, is doing.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -71,6 +72,10 @@ const FIRST_SLIDE_FRAME: u16 = 850;
 /// The buttons that send a runner on from first, second and third.
 const RUN_BUTTONS: [SymbolId; 3] = [1501, 1503, 1520];
 const SLIDE_BUTTONS: [SymbolId; 5] = [1494, 1495, 1502, 1519, 1521];
+
+/// The fielder who stands on the mound, counting from 0 as
+/// [`Fielding::fielder`] does: the art's `fielder3`.
+const PITCHER: usize = 2;
 
 /// The frames of a fielder on which he picks the ball up, throws it or
 /// catches it. Each shows a clip inside him that is meant to play once.
@@ -254,15 +259,20 @@ impl Match {
                 } else {
                     ball.landing(parts.home, contact.miss(), &rules.field)
                 };
-                // Whoever of the five in the field is nearest goes for it.
-                fielding.fielder = (0..5)
-                    .min_by(|&a, &b| {
-                        let far = |index: usize| {
-                            distance(at(stage, &parts.fielders[index]), fielding.land)
-                        };
-                        far(a).total_cmp(&far(b))
-                    })
-                    .unwrap_or(0);
+                // Whoever of the five in the field is nearest goes for it,
+                // unless the pitcher has been left to do it all.
+                fielding.fielder = if game.mods.is_on(Mod::LonePitcher) {
+                    PITCHER
+                } else {
+                    (0..5)
+                        .min_by(|&a, &b| {
+                            let far = |index: usize| {
+                                distance(at(stage, &parts.fielders[index]), fielding.land)
+                            };
+                            far(a).total_cmp(&far(b))
+                        })
+                        .unwrap_or(0)
+                };
                 fielding.job = Job::Chase;
                 self.start_runners(stage, library);
             }
@@ -515,7 +525,11 @@ impl Match {
             }
         }
         self.show_numbers(stage);
-        if self.anyone_running() {
+        // With the pitcher fielding alone nobody throws the ball on: the
+        // play ends where his throw does, and anyone still running is given
+        // his base.
+        let thrown_on = self.anyone_running() && !game.mods.is_on(Mod::LonePitcher);
+        if thrown_on {
             // Somebody is still between bases: on it goes.
             let fielder = parts.fielders[state.fielder].clone();
             let here = at(stage, &fielder);

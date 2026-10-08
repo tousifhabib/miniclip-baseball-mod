@@ -23,17 +23,21 @@ use crate::look::{self, Rgb};
 pub enum Mod {
     /// A bar in the batting view that shows when to swing.
     TimingIndicator,
+    /// Only the pitcher goes after a ball that has been hit. The rest of
+    /// the side stands where it is, and nobody throws the ball on.
+    LonePitcher,
 }
 
 impl Mod {
     /// Every mod, in the order the menu lists them.
-    pub const ALL: [Mod; 1] = [Mod::TimingIndicator];
+    pub const ALL: [Mod; 2] = [Mod::TimingIndicator, Mod::LonePitcher];
 
     /// The name the mod is saved under, and asked for by on the command
     /// line.
     pub fn key(self) -> &'static str {
         match self {
             Mod::TimingIndicator => "timing_indicator",
+            Mod::LonePitcher => "lone_pitcher",
         }
     }
 
@@ -46,6 +50,7 @@ impl Mod {
     pub fn name(self) -> &'static str {
         match self {
             Mod::TimingIndicator => "TIMING INDICATOR",
+            Mod::LonePitcher => "LONE PITCHER",
         }
     }
 
@@ -53,6 +58,7 @@ impl Mod {
     pub fn about(self) -> &'static str {
         match self {
             Mod::TimingIndicator => "A BAR THAT SHOWS WHEN TO SWING",
+            Mod::LonePitcher => "ONLY THE PITCHER GOES AFTER THE BALL",
         }
     }
 }
