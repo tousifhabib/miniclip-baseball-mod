@@ -50,6 +50,9 @@ pub enum Mod {
     HotBat,
     /// One strike puts a batter out, and every run counts for two.
     SuddenDeath,
+    /// Every fifth pitch is a golden ball: runs scored off it count for
+    /// three, and a strike on it puts the batter out.
+    GoldenBall,
 }
 
 /// What the menu and the files know a mod by.
@@ -67,7 +70,7 @@ struct Info {
 
 impl Mod {
     /// Every mod, in the order the menu lists them.
-    pub const ALL: [Mod; 10] = [
+    pub const ALL: [Mod; 11] = [
         Mod::TimingIndicator,
         Mod::LonePitcher,
         Mod::ZingerHit,
@@ -78,6 +81,7 @@ impl Mod {
         Mod::CalledShot,
         Mod::HotBat,
         Mod::SuddenDeath,
+        Mod::GoldenBall,
     ];
 
     fn info(self) -> Info {
@@ -140,6 +144,12 @@ impl Mod {
                 key: "sudden_death",
                 name: "SUDDEN DEATH",
                 about: "ONE STRIKE AND YOU ARE OUT, BUT RUNS COUNT DOUBLE",
+                setting: None,
+            },
+            Mod::GoldenBall => Info {
+                key: "golden_ball",
+                name: "GOLDEN BALL",
+                about: "EVERY FIFTH PITCH IS GOLD: TRIPLE RUNS, OR OUT ON A MISS",
                 setting: None,
             },
         }

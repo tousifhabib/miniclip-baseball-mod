@@ -46,9 +46,28 @@ pub struct Rules {
     pub hot_bat: HotBatRules,
     /// The sudden death mod.
     pub sudden_death: SuddenDeathRules,
+    /// The golden ball mod.
+    pub golden: GoldenRules,
     pub arcade: ArcadeRules,
     pub team: TeamRules,
     pub sound: SoundRules,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct GoldenRules {
+    /// One pitch in this many is gold.
+    pub every: u32,
+    /// How many each run scored off a golden ball counts for.
+    pub runs: u32,
+}
+
+impl GoldenRules {
+    /// Whether a pitch is gold: `number` is which pitch of the game it is,
+    /// counting from 1.
+    pub fn is_gold(&self, number: u32) -> bool {
+        self.every > 0 && number > 0 && number.is_multiple_of(self.every)
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
@@ -486,6 +505,15 @@ mod tests {
         let span = Span { low: 35, high: 49 };
         assert_eq!(span.times(0.5), Span { low: 18, high: 25 });
         assert_eq!(span.times(0.0), Span { low: 1, high: 1 });
+    }
+
+    #[test]
+    fn every_fifth_pitch_is_gold() {
+        let rules = Rules::default().golden;
+        let gold: Vec<u32> = (0..=16).filter(|&number| rules.is_gold(number)).collect();
+        assert_eq!(gold, [5, 10, 15]);
+        let never = GoldenRules { every: 0, ..rules };
+        assert!(!never.is_gold(5));
     }
 
     #[test]

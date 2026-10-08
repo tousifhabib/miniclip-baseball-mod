@@ -16,7 +16,7 @@ pub mod zinger;
 
 use bb_engine::display::{ButtonEvent, Content, Event, Path, child_bounds};
 use bb_engine::library::Library;
-use bb_engine::math::Matrix;
+use bb_engine::math::{ColorTransform, Matrix};
 use bb_engine::stage::Stage;
 use bb_format::SymbolId;
 
@@ -164,6 +164,8 @@ pub(crate) struct AtBat {
     pub marker_at: Point,
     /// What the pitch is, with the mystery pitch mod on.
     pub kind: Option<Kind>,
+    /// The pitch is a golden ball.
+    pub golden: bool,
     /// Where the batter has said his hit will come down, with the called
     /// shot mod on.
     pub called: Option<called::Called>,
@@ -262,6 +264,13 @@ const PITCH: &str = "pitch";
 const HEAT_AT: Point = (60.0, 88.0);
 /// Where the hot bat mod says how hot the bat is, under that.
 const HOT_BAT_AT: Point = (60.0, 104.0);
+/// Where the golden ball mod says that the pitch is one, under those, and
+/// what turns the white of the ball to gold.
+const GOLDEN_AT: Point = (60.0, 120.0);
+const GOLD: ColorTransform = ColorTransform {
+    mult: [1.0, 0.8, 0.22, 1.0],
+    add: [0.0, 0.0, 0.0, 0.0],
+};
 /// How far down the batting view the mystery pitch mod names the pitch,
 /// which is between the scoreboard and the pitcher.
 const MYSTERY_TOP: f32 = 141.0;
@@ -367,9 +376,10 @@ impl Match {
         }
     }
 
-    /// How many a run counts for on the pitch about to be thrown.
-    fn worth_of_a_run(&self, game: &Game) -> u32 {
-        let mut worth = 1;
+    /// How many a run counts for on the pitch about to be thrown, which is
+    /// a golden ball or is not.
+    fn worth_of_a_run(&self, golden: bool, game: &Game) -> u32 {
+        let mut worth = if golden { game.rules.golden.runs } else { 1 };
         if game.mods.is_on(Mod::SuddenDeath) {
             worth *= game.rules.sudden_death.runs;
         }
@@ -698,7 +708,31 @@ impl Match {
         let rules = &game.rules;
         let mut table = rules.pitch.at(game.settings.difficulty).clone();
         let mut notices = Vec::new();
-        self.run_worth = self.worth_of_a_run(game);
+        // The pitch about to be thrown is one more than have been. The
+        // arcade game has no runs and no outs for a golden ball to change.
+        let golden = game.mods.is_on(Mod::GoldenBall)
+            && self.arcade.is_none()
+            && rules.golden.is_gold(self.pitched + 1);
+        self.run_worth = self.worth_of_a_run(golden, game);
+        if golden {
+            for ball in [&parts.ball, &parts.fly_ball, &parts.field_ball] {
+                if let Some(ball) = stage.child_mut(ball) {
+                    ball.set_color(GOLD);
+                }
+            }
+            Notice::put(
+                &mut notices,
+                &parts,
+                "goldenBall",
+                "GOLDEN BALL",
+                GOLDEN_AT,
+                0.8,
+                [0xff, 0xd2, 0x40],
+                None,
+                stage,
+                library,
+            );
+        }
         if game.mods.is_on(Mod::HeatCheck) {
             // Every run since the last pitch makes this one faster.
             let runs = self.score.saturating_sub(self.heat_score);
@@ -855,6 +889,7 @@ impl Match {
             marker_shown: false,
             marker_at,
             kind,
+            golden,
             called: None,
             swing: None,
             under: 0.0,
@@ -1323,6 +1358,10 @@ impl Match {
             return;
         }
         self.strikes += 1;
+        if at_bat.golden {
+            // A strike on a golden ball is all the strikes there are.
+            self.strikes = self.strikes.max(self.strikes_allowed(game));
+        }
         self.streak = 0;
         self.cool(game);
         if let Some(anim) = &parts.strike_anim {
@@ -1466,6 +1505,9 @@ impl Match {
                 .unwrap_or_default();
             if let Some(kind) = at_bat.kind {
                 zinger += &format!(", mystery {}", kind.words().to_lowercase());
+            }
+            if at_bat.golden {
+                zinger += ", golden";
             }
             if let Some(called) = &at_bat.called {
                 zinger += &format!(", called {:.0},{:.0}", called.at.0, called.at.1);
