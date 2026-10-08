@@ -409,6 +409,10 @@ impl Baseball {
         self.pages = None;
         // What was written on the board went with the board.
         self.board = None;
+        // A game with the southpaw mod on has the stage draw what is
+        // written the right way round, for the number on the batter's
+        // shirt. Nothing on any other screen is mirrored.
+        stage.upright_text = false;
         self.result_frames = 0;
         stage.goto_label(&shell, label, false, library);
         self.screen = screen;
