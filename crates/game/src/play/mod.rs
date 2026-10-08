@@ -8,8 +8,10 @@
 mod arcade;
 pub mod field;
 mod fielding;
+mod overlay;
 pub mod pitch;
 pub mod timing;
+pub mod zinger;
 
 use bb_engine::display::{ButtonEvent, Content, Event, Path, child_bounds};
 use bb_engine::library::Library;
@@ -25,6 +27,7 @@ use crate::rng::Rng;
 use crate::rules::{HitRules, PitchRules};
 use field::{Ball, Contact};
 use pitch::{Choice, Mound, Pitch, Point, Quality};
+use zinger::Zinger;
 
 /// How a match ended.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -174,6 +177,8 @@ pub(crate) struct AtBat {
     pub fielding: Option<fielding::Fielding>,
     /// The timing bar, while that mod is on and the batting view is up.
     pub timing: Option<timing::Indicator>,
+    /// The hit, if that mod made a zinger of it.
+    pub zinger: Option<Zinger>,
 }
 
 impl AtBat {
@@ -624,6 +629,7 @@ impl Match {
             ball: None,
             fielding: None,
             timing,
+            zinger: None,
         });
         None
     }
@@ -908,10 +914,19 @@ impl Match {
         }
 
         let in_band = sample.in_band(at_bat.table.band);
-        let met = at_bat
-            .swing
-            .and_then(|frames| pitch::meets(&at_bat.table, frames));
-        if let (true, Some((quality, power))) = (in_band, met) {
+        let met = at_bat.swing.and_then(|frames| {
+            let (quality, power) = pitch::meets(&at_bat.table, frames)?;
+            Some((frames, quality, power))
+        });
+        if let (true, Some((frames, quality, power))) = (in_band, met) {
+            // With the zinger mod on, whatever the bat meets in a match is
+            // on its way out of the ground, and is heard to be well hit.
+            // The arcade game is left alone: a ball over the wall scores
+            // nothing there.
+            let zinger = (self.arcade.is_none() && game.mods.is_on(Mod::ZingerHit))
+                .then(|| Zinger::of(&at_bat.table, frames, rules))
+                .flatten();
+            let quality = zinger.map_or(quality, |_| Quality::Good);
             let (hit, cheer): (&str, &[&str]) = match quality {
                 Quality::Poor => ("batHit_poorly", &["crowd_smallClap"]),
                 Quality::MediumPoor => ("batHit_mediumPoor", &["crowd_smallCheer"]),
@@ -922,10 +937,17 @@ impl Match {
             for name in cheer {
                 Match::sound(stage, library, name);
             }
-            let contact = Contact {
-                power,
-                under: at_bat.under,
-                aside: at_bat.aim_area_x - at_bat.parts.centre_x,
+            if zinger.is_some() {
+                at_bat.aim_area_x = zinger::fair(at_bat.aim_area_x, &at_bat.parts, &rules.field);
+            }
+            let aside = at_bat.aim_area_x - at_bat.parts.centre_x;
+            let contact = match &zinger {
+                Some(zinger) => zinger.contact(aside),
+                None => Contact {
+                    power,
+                    under: at_bat.under,
+                    aside,
+                },
             };
             // In the batting view the ball flies off towards where the
             // art's pointer showed, dropping further the weaker the hit.
@@ -944,7 +966,7 @@ impl Match {
             }
             at_bat.fly_target = (
                 at_bat.aim_area_x,
-                parts.fly_mark.1 + power + contact.miss() / 2.0,
+                parts.fly_mark.1 + contact.power + contact.miss() / 2.0,
             );
             // And over the field it heads for the mark, pushed aside by
             // the same amount.
@@ -952,13 +974,11 @@ impl Match {
                 parts.field_mark.0 + contact.aside / rules.field.aim_share,
                 parts.field_mark.1,
             );
-            at_bat.ball = Some(Ball::hit(
-                parts.home,
-                mark,
-                &contact,
-                &rules.hit,
-                &rules.field,
-            ));
+            at_bat.ball = Some(match &zinger {
+                Some(zinger) => zinger.ball(parts.home, mark, &rules.field),
+                None => Ball::hit(parts.home, mark, &contact, &rules.hit, &rules.field),
+            });
+            at_bat.zinger = zinger;
             show(stage, &parts.ball, false);
             show(stage, &parts.shadow, false);
             at_bat.contact = Some(contact);
@@ -1134,8 +1154,13 @@ impl Match {
             .collect();
         // Where this pitch crosses and how many frames it takes, which a
         // script needs to know to time a swing. With the timing bar up, the
-        // steps it shows as the best to swing on are given too.
+        // steps it shows as the best to swing on are given too, and how far
+        // the ball went if it was hit for a zinger.
         let pitch = self.at.as_ref().map_or(String::new(), |at_bat| {
+            let zinger = at_bat
+                .zinger
+                .map(|zinger| format!(", a zinger of {} feet", zinger.feet))
+                .unwrap_or_default();
             let best = at_bat
                 .timing
                 .as_ref()
@@ -1143,7 +1168,7 @@ impl Match {
                 .map(|(first, last)| format!(", best swung on steps {first} to {last}"))
                 .unwrap_or_default();
             format!(
-                ", crossing {:.0},{:.0} after {} frames{}{best}",
+                ", crossing {:.0},{:.0} after {} frames{}{best}{zinger}",
                 at_bat.pitch.crosses.0,
                 at_bat.pitch.crosses.1,
                 at_bat.pitch.samples.len(),

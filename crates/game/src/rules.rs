@@ -30,9 +30,38 @@ pub struct Rules {
     pub hit: HitRules,
     /// The ball over the field.
     pub field: FieldRules,
+    /// The zinger hit mod.
+    pub zinger: ZingerRules,
     pub arcade: ArcadeRules,
     pub team: TeamRules,
     pub sound: SoundRules,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ZingerRules {
+    /// How far the ball comes down, the distance to the wall being 1.
+    pub carry: ByTiming,
+    /// Frames the ball is in the air.
+    pub hang: ByTiming,
+    pub power: ByTiming,
+    pub wall_feet: f32,
+}
+
+/// A number that goes by how well a swing was timed.
+#[derive(Clone, Copy, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ByTiming {
+    /// For the worst-timed swing that still meets the ball.
+    pub worst: f32,
+    pub best: f32,
+}
+
+impl ByTiming {
+    /// The number for a swing timed this near the best, from 0 to 1.
+    pub fn at(&self, timed: f32) -> f32 {
+        self.worst + (self.best - self.worst) * timed.clamp(0.0, 1.0)
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]

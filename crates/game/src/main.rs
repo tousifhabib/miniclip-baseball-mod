@@ -46,8 +46,8 @@ struct Args {
     /// out from.
     #[arg(long)]
     seed: Option<u64>,
-    /// Switch a mod on for this run, by its name: `timing_indicator`. May
-    /// be given more than once.
+    /// Switch a mod on for this run, by its name: `timing_indicator`,
+    /// `lone_pitcher` or `zinger_hit`. May be given more than once.
     #[arg(long = "mod", value_name = "NAME")]
     mods: Vec<String>,
     /// With `--run`: picture pixels per stage pixel.

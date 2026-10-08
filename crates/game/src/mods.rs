@@ -26,11 +26,14 @@ pub enum Mod {
     /// Only the pitcher goes after a ball that has been hit. The rest of
     /// the side stands where it is, and nobody throws the ball on.
     LonePitcher,
+    /// In a match, every ball the bat meets is a home run, and the better
+    /// the swing was timed the further it goes.
+    ZingerHit,
 }
 
 impl Mod {
     /// Every mod, in the order the menu lists them.
-    pub const ALL: [Mod; 2] = [Mod::TimingIndicator, Mod::LonePitcher];
+    pub const ALL: [Mod; 3] = [Mod::TimingIndicator, Mod::LonePitcher, Mod::ZingerHit];
 
     /// The name the mod is saved under, and asked for by on the command
     /// line.
@@ -38,6 +41,7 @@ impl Mod {
         match self {
             Mod::TimingIndicator => "timing_indicator",
             Mod::LonePitcher => "lone_pitcher",
+            Mod::ZingerHit => "zinger_hit",
         }
     }
 
@@ -51,6 +55,7 @@ impl Mod {
         match self {
             Mod::TimingIndicator => "TIMING INDICATOR",
             Mod::LonePitcher => "LONE PITCHER",
+            Mod::ZingerHit => "ZINGER HIT",
         }
     }
 
@@ -59,6 +64,7 @@ impl Mod {
         match self {
             Mod::TimingIndicator => "A BAR THAT SHOWS WHEN TO SWING",
             Mod::LonePitcher => "ONLY THE PITCHER GOES AFTER THE BALL",
+            Mod::ZingerHit => "EVERY HIT IS A HOME RUN, BIGGER THE BETTER TIMED",
         }
     }
 }

@@ -8,6 +8,7 @@ use bb_format::SymbolId;
 
 use super::field::{Facing, Happened, distance, reach};
 use super::pitch::Point;
+use super::zinger::Zinger;
 use super::{AtBat, Match, Parts, Phase, Place, at, frame_of, put, show};
 use crate::menu::Game;
 use crate::mods::Mod;
@@ -38,6 +39,9 @@ pub(crate) struct Fielding {
     walk: bool,
     foul: bool,
     home_run: bool,
+    /// The home run was a zinger, and the ball is still being shown on its
+    /// way to wherever it comes down.
+    followed: bool,
     /// The ball is in play: runners may be put out, and may go on.
     live: bool,
     caught: bool,
@@ -228,6 +232,7 @@ impl Match {
             walk,
             foul: false,
             home_run: false,
+            followed: false,
             live: !walk,
             caught: false,
             fielder: 0,
@@ -319,7 +324,7 @@ impl Match {
         // The ball, for as long as nobody has hold of it.
         let loose = matches!(state.job, Job::Chase | Job::WaitCatch | Job::Rest);
         if let (Some(ball), true, false) = (&mut at_bat.ball, loose, state.walk || state.foul) {
-            let happened = if state.home_run {
+            let happened = if state.home_run && !state.followed {
                 Happened::Nothing
             } else {
                 ball.step(parts.home, miss, rules)
@@ -331,10 +336,15 @@ impl Match {
             }
             match happened {
                 Happened::Cleared if state.live => {
-                    self.home_run(&mut state, &parts, stage, library);
+                    self.home_run(&mut state, at_bat.zinger, &parts, stage, library);
                 }
                 // Back off the wall: somebody has to go and get it.
                 Happened::HitWall if state.live => state.job = Job::Chase,
+                // A zinger has come down, somewhere beyond the wall.
+                Happened::Landed if state.followed => {
+                    state.followed = false;
+                    show(stage, &parts.field_ball, false);
+                }
                 _ => {}
             }
         }
@@ -466,6 +476,10 @@ impl Match {
             !state.live || state.frames > rules.longest
         };
         if over {
+            if state.followed {
+                state.followed = false;
+                show(stage, &parts.field_ball, false);
+            }
             // Anyone still between bases when a play is called dead is given
             // the base he was making for.
             for runner in 0..self.runners.len() {
@@ -541,15 +555,18 @@ impl Match {
         }
     }
 
-    /// The ball has cleared the wall: everybody scores.
+    /// The ball has cleared the wall: everybody scores. A zinger is
+    /// followed on over the wall, and the player is told how far it went.
     fn home_run(
         &mut self,
         state: &mut Fielding,
+        zinger: Option<Zinger>,
         parts: &Parts,
         stage: &mut Stage,
         library: &Library,
     ) {
         state.home_run = true;
+        state.followed = zinger.is_some();
         state.live = false;
         state.job = Job::Rest;
         for runner in &mut self.runners {
@@ -567,7 +584,10 @@ impl Match {
         self.announce = true;
         let fielder = parts.fielders[state.fielder].clone();
         stage.goto_label(&fielder, "waiting", false, library);
-        show(stage, &parts.field_ball, false);
+        show(stage, &parts.field_ball, state.followed);
+        if let Some(zinger) = zinger {
+            zinger.tell(parts, stage, library);
+        }
         let transitions = parts.transitions.clone();
         self.play_section(&transitions, "homeRun", 117, stage, library);
         self.show_numbers(stage);

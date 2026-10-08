@@ -182,6 +182,39 @@ pub fn meets(rules: &PitchRules, frames_since_swing: u32) -> Option<(Quality, f3
         .map(|&(_, quality, power)| (quality, power))
 }
 
+/// How near the best a swing that meets the ball this many frames after it
+/// began was timed: 1 on the best frame of the window, falling evenly to 0
+/// on the frame of the window furthest from it. `None` for a miss.
+///
+/// The best frames are the ones that meet the ball best and, of those, the
+/// ones with the least power, which send it furthest.
+pub fn nearness(rules: &PitchRules, frames_since_swing: u32) -> Option<f32> {
+    meets(rules, frames_since_swing)?;
+    let top = rules.window.iter().map(|&(_, quality, _)| quality).max()?;
+    let least = rules
+        .window
+        .iter()
+        .filter(|&&(_, quality, _)| quality == top)
+        .map(|&(.., power)| power)
+        .fold(f32::INFINITY, f32::min);
+    // How many frames off the nearest of the best frames.
+    let off = |frames: u32| {
+        rules
+            .window
+            .iter()
+            .filter(|&&(_, quality, power)| quality == top && power == least)
+            .map(|&(best, ..)| best.abs_diff(frames))
+            .min()
+    };
+    let here = off(frames_since_swing)?;
+    let furthest = rules.window.iter().filter_map(|&(frames, ..)| off(frames));
+    Some(match furthest.max() {
+        Some(furthest) if furthest > 0 => 1.0 - here as f32 / furthest as f32,
+        // Every frame of the window is as good as the next.
+        _ => 1.0,
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -292,5 +325,53 @@ mod tests {
         let frames = |d| rules.pitch.at(d).window.len();
         assert!(frames(Difficulty::Easy) > frames(Difficulty::Medium));
         assert!(frames(Difficulty::Medium) > frames(Difficulty::Hard));
+    }
+
+    #[test]
+    fn a_swing_is_nearest_the_best_on_the_frame_that_sends_the_ball_furthest() {
+        let rules = Rules::default();
+        let easy = rules.pitch.at(Difficulty::Easy);
+        // Three frames of the easy window are good. The middle one has the
+        // least power, and the others are judged by how far off it they
+        // are.
+        assert_eq!(nearness(easy, 11), Some(1.0));
+        assert_eq!(nearness(easy, 10), Some(0.75));
+        assert_eq!(nearness(easy, 12), Some(0.75));
+        assert_eq!(nearness(easy, 13), Some(0.5));
+        assert_eq!(nearness(easy, 7), Some(0.0));
+        // A miss is not near anything.
+        assert_eq!(nearness(easy, 6), None);
+        assert_eq!(nearness(easy, 14), None);
+        // Two frames of the medium window are as good as each other.
+        let medium = rules.pitch.at(Difficulty::Medium);
+        assert_eq!(nearness(medium, 10), Some(1.0));
+        assert_eq!(nearness(medium, 11), Some(1.0));
+        assert_eq!(nearness(medium, 12), Some(0.5));
+        assert_eq!(nearness(medium, 8), Some(0.0));
+    }
+
+    #[test]
+    fn at_every_level_one_frame_is_the_best_and_one_the_worst() {
+        let rules = Rules::default();
+        for difficulty in [Difficulty::Easy, Difficulty::Medium, Difficulty::Hard] {
+            let table = rules.pitch.at(difficulty);
+            let near: Vec<f32> = table
+                .window
+                .iter()
+                .map(|&(frames, ..)| nearness(table, frames).unwrap())
+                .collect();
+            assert!(near.contains(&1.0), "{difficulty:?}: {near:?}");
+            assert!(near.contains(&0.0), "{difficulty:?}: {near:?}");
+            assert!(near.iter().all(|near| (0.0..=1.0).contains(near)));
+        }
+    }
+
+    #[test]
+    fn a_window_of_one_frame_is_all_best() {
+        let rules = Rules::default();
+        let mut table = rules.pitch.at(Difficulty::Hard).clone();
+        table.window.truncate(1);
+        let (frames, ..) = table.window[0];
+        assert_eq!(nearness(&table, frames), Some(1.0));
     }
 }
