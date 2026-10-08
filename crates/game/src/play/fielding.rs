@@ -8,6 +8,7 @@ use bb_format::SymbolId;
 
 use super::field::{Ball, Facing, Happened, distance, reach, seen_size};
 use super::overlay::Notice;
+use super::pinball;
 use super::pitch::Point;
 use super::zinger;
 use super::{AtBat, Match, Parts, Phase, Place, at, frame_of, put, show};
@@ -380,12 +381,38 @@ impl Match {
             Job::Chase | Job::WaitCatch | Job::Rest | Job::Fumbling { .. }
         );
         if let (Some(ball), true, false) = (&mut at_bat.ball, loose, state.walk || state.foul) {
-            let was_down = ball.bounced;
+            let before = *ball;
+            let was_down = before.bounced;
+            let pinball = game.mods.is_on(Mod::PinballPark);
+            // In a pinball park the air takes nothing from a ball that has
+            // been down, however it was hit.
+            let miss = if pinball && was_down { 0.0 } else { miss };
             let mut happened = if state.home_run {
                 Happened::Nothing
             } else {
                 ball.step(parts.home, miss, rules)
             };
+            if pinball && !state.home_run && !state.gone {
+                // In a pinball park the wall and the foul lines send it
+                // back, and whoever is nearest takes up the chase.
+                let park = pinball::Park::of(&parts);
+                happened = pinball::rebound(ball, before, happened, &park, rules);
+                if happened == Happened::HitWall {
+                    at_bat.rebounds += 1;
+                    if state.live && !game.mods.is_on(Mod::LonePitcher) {
+                        let far =
+                            |index: usize| distance(at(stage, &parts.fielders[index]), ball.at);
+                        let nearest = (0..5.min(parts.fielders.len()))
+                            .min_by(|&a, &b| far(a).total_cmp(&far(b)))
+                            .unwrap_or(state.fielder);
+                        if nearest != state.fielder {
+                            let was = parts.fielders[state.fielder].clone();
+                            stage.goto_label(&was, "waiting", false, library);
+                            state.fielder = nearest;
+                        }
+                    }
+                }
+            }
             // A ball that went over the wall before the view changed has
             // gone over it as far as this view knows now.
             if std::mem::take(&mut at_bat.over_wall) && happened == Happened::Nothing {
@@ -477,7 +504,12 @@ impl Match {
                 // He is drawn smaller the further up the field he is.
                 let out = reach(parts.home, next);
                 put(stage, &fielder, next, (0.6 - out / 5000.0).max(0.2));
-                if distance(next, target) <= 2.0 {
+                // In a pinball park a ball that is hopping goes by over his
+                // head.
+                let too_high = ball.bounced
+                    && game.mods.is_on(Mod::PinballPark)
+                    && ball.height > game.rules.pinball.low;
+                if distance(next, target) <= 2.0 && !too_high {
                     if ball.bounced && !state.fumbled && self.lets_go(game) {
                         // It squirts out of his hands as he bends for it.
                         state.fumbled = true;

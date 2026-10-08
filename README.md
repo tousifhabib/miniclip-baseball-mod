@@ -73,6 +73,7 @@ switched on.
 | Hot bat | `hot_bat` | Each hit in a row widens your timing window, and a strike resets it |
 | Sudden death | `sudden_death` | One strike and you are out, but every run counts double |
 | Golden ball | `golden_ball` | Every fifth pitch is gold: runs off it count triple, and a strike on it is an out |
+| Pinball park | `pinball_park` | The ball ricochets off the wall, the ground and the foul lines, as bouncily as you set |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -196,6 +197,18 @@ a home run, each runner's and the batter's. A strike on it, swung at or
 called, puts the batter out whatever the count, though a foul is a foul and
 a ball is a ball. The arcade game has no runs or outs, and plays as it did.
 The numbers are under `[golden]` in `data/rules.toml`.
+
+In the pinball park, a ball keeps most of its speed when it bounces, and
+the air takes nothing from it once it has been down. The wall sends it back
+as a cushion would, at the angle it came in at, and a ball that has bounced
+never goes over the wall however high it hops: only a hit that clears it on
+the fly is a home run. The foul lines are cushions too once the ball has
+been down, so it cannot get out. A fielder can only get hold of a ball that
+is low, so one that is hopping goes by over his head, and each time it is
+sent back whoever is nearest takes up the chase. How bouncy it all is is
+set on the Mods page: the ball keeps from six tenths of its speed at each
+bounce to nine. The arcade game is left as it was. The numbers are under
+`[pinball]` in `data/rules.toml`.
 
 ## Changing the game
 

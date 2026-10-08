@@ -78,6 +78,9 @@ pub struct Baseball {
     screen: Screen,
     menu: Menu,
     game: Game,
+    /// The game as the one in hand is being played: with what the mods
+    /// change of its numbers laid over them.
+    playing: Game,
     labels: ButtonLabels,
     /// The screen to open on, if not the intro.
     first: Option<Screen>,
@@ -125,6 +128,7 @@ impl Baseball {
             screen: Screen::Loading,
             menu: Menu::default(),
             game: Game::default(),
+            playing: Game::default(),
             labels: ButtonLabels::read(library),
             first: None,
             play: None,
@@ -370,8 +374,14 @@ impl Baseball {
         self.sound_for(screen, stage, library);
         let seed = self.seed.unwrap_or_else(Rng::seed_from_clock);
         self.play = match screen {
-            Screen::Match => Some(Match::new(&self.game, seed, library)),
-            Screen::Arcade => Some(Match::new_arcade(&self.game, seed, library)),
+            Screen::Match => {
+                self.playing = self.game.as_played(true);
+                Some(Match::new(&self.playing, seed, library))
+            }
+            Screen::Arcade => {
+                self.playing = self.game.as_played(false);
+                Some(Match::new_arcade(&self.playing, seed, library))
+            }
             _ => None,
         };
         if let Some(play) = &mut self.play {
@@ -549,7 +559,7 @@ impl Baseball {
 impl Logic for Baseball {
     fn event(&mut self, event: &Event, stage: &mut Stage, library: &Library) {
         if let Some(play) = &mut self.play {
-            play.event(event, &self.game, stage, library);
+            play.event(event, &self.playing, stage, library);
         }
         if let Event::Button {
             symbol,
@@ -577,13 +587,13 @@ impl Logic for Baseball {
         let outcome = self
             .play
             .as_mut()
-            .and_then(|play| play.tick(&self.game, stage, library));
+            .and_then(|play| play.tick(&self.playing, stage, library));
         self.keep_zinger_record();
         if let (Some(play), Some(outcome)) = (&mut self.play, outcome) {
             let longest = play.longest_zinger();
             play.show_result(stage);
-            play.show_arcade_result(&self.game, stage);
-            if let Some(points) = play.arcade_score(&self.game) {
+            play.show_arcade_result(&self.playing, stage);
+            if let Some(points) = play.arcade_score(&self.playing) {
                 // Under the name typed on the setup page, if one was.
                 let name = stage
                     .text("playerName")

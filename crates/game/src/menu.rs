@@ -5,7 +5,7 @@ use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use crate::art;
-use crate::mods::Mods;
+use crate::mods::{Mod, Mods};
 use crate::rules::Rules;
 use crate::settings::{Difficulty, Settings};
 
@@ -61,6 +61,24 @@ pub struct Game {
     pub rules: Rules,
     pub settings: Settings,
     pub mods: Mods,
+}
+
+impl Game {
+    /// The game as it is to be played: the same, with what the mods that
+    /// are on change of the numbers laid over them. `a_match` is whether
+    /// it is a match and not the arcade game, which the mods that change
+    /// how the ball flies over the field leave alone.
+    pub fn as_played(&self, a_match: bool) -> Game {
+        let mut played = self.clone();
+        if !a_match {
+            return played;
+        }
+        if self.mods.is_on(Mod::PinballPark) {
+            let level = self.mods.level(Mod::PinballPark);
+            played.rules.field = self.rules.pinball.park(level, &played.rules.field);
+        }
+        played
+    }
 }
 
 pub struct Menu {
