@@ -157,6 +157,9 @@ pub(crate) struct AtBat {
     pub table: PitchRules,
     pub pitch: Pitch,
     pub marker_shown: bool,
+    /// Where the marker shows the pitch crossing, which the knuckleball
+    /// mod makes only roughly right.
+    pub marker_at: Point,
     pub aim: Point,
     /// Where the hit would go sideways, as the art's indicator shows it.
     pub aim_area_x: f32,
@@ -260,6 +263,15 @@ pub(crate) fn show(stage: &mut Stage, path: &[u16], visible: bool) {
     if let Some(child) = stage.child_mut(path) {
         child.set_visible(visible);
     }
+}
+
+/// Where across the batting view the art's pointer shows a hit going, for a
+/// ball that crosses at `crosses` with the ring held at `aim`. Aiming to
+/// one side sends the ball the other way, and a ball that comes in
+/// off-centre goes off further still.
+fn hit_towards(crosses: f32, aim: f32, centre: f32, pull: f32) -> f32 {
+    let off = (crosses - aim) + (crosses - centre);
+    (crosses + off * pull).ceil()
 }
 
 pub(crate) fn frame_of(stage: &Stage, path: &[u16]) -> u16 {
@@ -672,7 +684,15 @@ impl Match {
 
         let mound = Match::mound(&parts, stage, library)?;
         let choice = Choice::pick(&table, &rules.throw, &mut self.rng);
-        let pitch = Pitch::throw(&choice, &mound, &rules.throw);
+        let mut pitch = Pitch::throw(&choice, &mound, &rules.throw);
+        // The marker shows where the pitch was going before a knuckleball
+        // began to sway.
+        let marker_at = pitch.crosses;
+        if game.mods.is_on(Mod::Knuckleball) {
+            let knuckle = &rules.knuckleball;
+            let start = self.rng.unit();
+            pitch.knuckle(knuckle.sway, knuckle.turns, start, &mound);
+        }
         // With the zinger mod on as well, the timing bar says how far a
         // swing on each of its colours sends the ball at the most.
         let difficulty = game.settings.difficulty;
@@ -699,6 +719,7 @@ impl Match {
             table,
             pitch,
             marker_shown: false,
+            marker_at,
             swing: None,
             under: 0.0,
             across: 0.0,
@@ -799,15 +820,14 @@ impl Match {
         );
         // Until the player has been shown where this pitch will cross, the
         // pointer answers the ring as if it were coming down the middle.
+        // It answers to where the player has been shown the ball crossing,
+        // which is not always quite where it will.
         let crosses = if at_bat.marker_shown {
-            at_bat.pitch.crosses.0
+            at_bat.marker_at.0
         } else {
             parts.centre_x
         };
-        // Aiming to one side sends the ball the other way, and a ball that
-        // comes in off-centre goes off further still.
-        let off = (crosses - at_bat.aim.0) + (crosses - parts.centre_x);
-        at_bat.aim_area_x = (crosses + off * pull).ceil();
+        at_bat.aim_area_x = hit_towards(crosses, at_bat.aim.0, parts.centre_x, pull);
         let y = at(stage, &parts.aim_area).1;
         if let Some(area) = stage.child_mut(&parts.aim_area) {
             area.move_to(at_bat.aim_area_x, y);
@@ -875,7 +895,7 @@ impl Match {
                 let frame = frame_of(stage, &at_bat.parts.pitcher);
                 if !at_bat.marker_shown && frame >= at_bat.table.marker_frame {
                     at_bat.marker_shown = true;
-                    put(stage, &at_bat.parts.marker, at_bat.pitch.crosses, 1.0);
+                    put(stage, &at_bat.parts.marker, at_bat.marker_at, 1.0);
                 }
                 if frame >= rules.throw.release_frame {
                     show(stage, &at_bat.parts.ball, true);
@@ -1028,6 +1048,12 @@ impl Match {
             Match::sound(stage, library, hit);
             for name in cheer {
                 Match::sound(stage, library, name);
+            }
+            // The hit goes by where the ball really was, if that is not
+            // where the marker showed it.
+            if at_bat.marker_at != at_bat.pitch.crosses {
+                let (crosses, centre) = (at_bat.pitch.crosses.0, at_bat.parts.centre_x);
+                at_bat.aim_area_x = hit_towards(crosses, at_bat.aim.0, centre, rules.hit.pull);
             }
             if zinger.is_some() {
                 at_bat.aim_area_x = zinger::fair(at_bat.aim_area_x, &at_bat.parts, &rules.field);

@@ -46,10 +46,10 @@ struct Args {
     /// out from.
     #[arg(long)]
     seed: Option<u64>,
-    /// Switch a mod on for this run, by its name: `timing_indicator`,
-    /// `lone_pitcher`, `zinger_hit` or `butterfingers`. A mod with a
-    /// setting takes its level after an equals sign, as in
-    /// `butterfingers=5`. May be given more than once.
+    /// Switch a mod on for this run, by its name, such as `zinger_hit`:
+    /// the README lists them. A mod with a setting takes its level after
+    /// an equals sign, as in `butterfingers=5`. May be given more than
+    /// once.
     #[arg(long = "mod", value_name = "NAME")]
     mods: Vec<String>,
     /// With `--run`: picture pixels per stage pixel.

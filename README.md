@@ -66,6 +66,7 @@ switched on.
 | Lone pitcher | `lone_pitcher` | Only the pitcher goes after a ball that has been hit |
 | Zinger hit | `zinger_hit` | Every hit is a home run, bigger the better it was timed |
 | Butterfingers | `butterfingers` | Fielders drop and fumble the ball, as often as you set |
+| Knuckleball | `knuckleball` | Pitches sway from side to side, and the crossing marker is only roughly right |
 
 The timing bar lays out the frames of the pitch from left to right. The
 frames on which a swing would meet the ball are coloured by how well: green
@@ -134,6 +135,15 @@ is off. On the command line it goes after the mod's name, as in
 `--mod butterfingers=5`. What each level comes to, how far a dropped ball
 rolls and how long a fielder is at a loss are under `[butterfingers]` in
 `data/rules.toml`.
+
+With the knuckleball, every pitch sways from side to side on its way in, a
+little while it is far off and up to 16 pixels either way as it comes by. The
+marker still shows where the pitch was going before it began to sway, so the
+ball crosses somewhere near it and not always on it, and the red pointer on
+the outfield answers to the marker. The hit goes by where the ball really
+was: a ring held on the marker sends it off to one side by as much as the
+ball was out. A pitch that sways out of the strike zone is a ball. The
+numbers are under `[knuckleball]` in `data/rules.toml`.
 
 ## Changing the game
 
