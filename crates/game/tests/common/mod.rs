@@ -56,8 +56,15 @@ pub fn full_match(seed: u64, ground: Ground, mods: &[Mod], rules: Option<Rules>)
 /// tests that need a good many pitches: forty runs behind, with thirty outs
 /// to get them in.
 pub fn long_match(seed: u64, mods: &[Mod]) -> Option<Script> {
+    long_match_ruled(seed, mods, "")
+}
+
+/// The same, with the numbers in `layer` laid over the rules: what a test
+/// changes of them to see a mod's whole effect in a few pitches.
+pub fn long_match_ruled(seed: u64, mods: &[Mod], layer: &str) -> Option<Script> {
     let long = "[match]\nouts = 30\n[match.runs_down]\neasy = 40\nmedium = 40\nhard = 40\n";
-    let rules = Rules::layered(&[("a long match", long)]).expect("rules that read");
+    let rules = Rules::layered(&[("a long match", long), ("the test's own rules", layer)])
+        .expect("rules that read");
     game_made("match", Some(seed), Some(rules), mods, None, None, None)
 }
 

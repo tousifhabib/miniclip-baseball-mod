@@ -60,9 +60,59 @@ pub struct Rules {
     pub night: NightRules,
     /// The shift mod.
     pub shift: ShiftRules,
+    /// The tired arm mod.
+    pub tired_arm: TiredArmRules,
     pub arcade: ArcadeRules,
     pub team: TeamRules,
     pub sound: SoundRules,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct TiredArmRules {
+    /// How many pitches a pitcher throws before he begins to tire, and by
+    /// how many he is spent.
+    pub fresh: u32,
+    pub spent: u32,
+    /// How many he throws before another comes in for him.
+    pub relief: u32,
+    /// Spent, how many times as long his pitches take, and how many times
+    /// as wide and as high the area he aims at is.
+    pub slow: f32,
+    pub wild: f32,
+    /// Frames the word of a new pitcher stays up.
+    pub told_time: u32,
+}
+
+impl TiredArmRules {
+    /// How tired a pitcher is who has thrown this many pitches: from 0, as
+    /// good as ever, to 1, spent.
+    pub fn tired(&self, thrown: u32) -> f32 {
+        let over = thrown.saturating_sub(self.fresh) as f32;
+        let all = self.spent.saturating_sub(self.fresh).max(1) as f32;
+        (over / all).clamp(0.0, 1.0)
+    }
+
+    /// The table a pitch is picked from when the pitcher is this tired,
+    /// given the one it is picked from when he is not: slower, and aimed
+    /// less surely at the same place.
+    pub fn pitch(&self, table: &PitchRules, tired: f32) -> PitchRules {
+        let tired = tired.clamp(0.0, 1.0);
+        let slow = 1.0 + (self.slow - 1.0) * tired;
+        let wild = 1.0 + (self.wild - 1.0) * tired;
+        let target = table.target;
+        let (width, height) = (target.width * wild, target.height * wild);
+        PitchRules {
+            speed: table.speed.times(slow),
+            target: Area {
+                x: target.x - (width - target.width) / 2.0,
+                y: target.y - (height - target.height) / 2.0,
+                width,
+                height,
+            },
+            ..table.clone()
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
@@ -671,6 +721,33 @@ mod tests {
         let span = Span { low: 35, high: 49 };
         assert_eq!(span.times(0.5), Span { low: 18, high: 25 });
         assert_eq!(span.times(0.0), Span { low: 1, high: 1 });
+    }
+
+    #[test]
+    fn a_pitcher_tires_between_his_fresh_pitches_and_the_ones_that_spend_him() {
+        let rules = Rules::default();
+        let arm = &rules.tired_arm;
+        assert_eq!(arm.tired(0), 0.0);
+        assert_eq!(arm.tired(arm.fresh), 0.0);
+        assert_eq!(arm.tired(arm.spent), 1.0);
+        assert_eq!(arm.tired(arm.spent + 50), 1.0);
+        let half = arm.tired((arm.fresh + arm.spent) / 2);
+        assert!((half - 0.5).abs() < 0.05, "{half}");
+        // Fresh, he pitches as he always did.
+        let usual = rules.pitch.at(Difficulty::Medium);
+        assert_eq!(arm.pitch(usual, 0.0), *usual);
+        // Spent, he is slower, and aims at more than the strike zone
+        // about the same middle.
+        let spent = arm.pitch(usual, 1.0);
+        assert_eq!(
+            spent.speed.low,
+            (usual.speed.low as f32 * arm.slow).round() as u32
+        );
+        let middle = |area: &Area| (area.x + area.width / 2.0, area.y + area.height / 2.0);
+        assert_eq!(middle(&spent.target), middle(&usual.target));
+        assert_eq!(spent.target.width, usual.target.width * arm.wild);
+        assert_eq!(spent.target.height, usual.target.height * arm.wild);
+        assert_eq!(spent.window, usual.window);
     }
 
     #[test]

@@ -70,6 +70,9 @@ pub enum Mod {
     /// The fielders stand where the last few balls were hit, so that
     /// hitting the same way every time stops paying.
     TheShift,
+    /// The pitcher tires as his pitches mount up: they come slower and
+    /// miss the strike zone more, until a fresh pitcher comes in for him.
+    TiredArm,
 }
 
 /// What the menu and the files know a mod by.
@@ -87,7 +90,7 @@ struct Info {
 
 impl Mod {
     /// Every mod, in the order the menu lists them.
-    pub const ALL: [Mod; 16] = [
+    pub const ALL: [Mod; 17] = [
         Mod::TimingIndicator,
         Mod::LonePitcher,
         Mod::ZingerHit,
@@ -104,6 +107,7 @@ impl Mod {
         Mod::TurboRunners,
         Mod::NightGame,
         Mod::TheShift,
+        Mod::TiredArm,
     ];
 
     fn info(self) -> Info {
@@ -202,6 +206,12 @@ impl Mod {
                 key: "the_shift",
                 name: "THE SHIFT",
                 about: "FIELDERS STAND WHERE YOU HIT IT: GO THE OTHER WAY",
+                setting: None,
+            },
+            Mod::TiredArm => Info {
+                key: "tired_arm",
+                name: "TIRED ARM",
+                about: "THE PITCHER TIRES AS HE THROWS, UNTIL A NEW ONE COMES IN",
                 setting: None,
             },
         }
