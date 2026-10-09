@@ -109,99 +109,101 @@ impl Tessellator {
         opacity: f32,
         from_shape: Matrix,
     ) -> Result<([u8; 4], Paint)> {
-        const WHITE: [u8; 4] = [255; 4];
-        let alpha = |opacity: f32| (opacity * 255.0).round().clamp(0.0, 255.0) as u8;
-        let spread = |method: usvg::SpreadMethod| match method {
-            usvg::SpreadMethod::Pad => Spread::Pad,
-            usvg::SpreadMethod::Reflect => Spread::Reflect,
-            usvg::SpreadMethod::Repeat => Spread::Repeat,
-        };
-        let stops = |stops: &[usvg::Stop]| -> Vec<f::GradientStop> {
-            stops
-                .iter()
-                .map(|stop| f::GradientStop {
-                    offset: f64::from(stop.offset().get()),
-                    color: f::Color {
-                        r: stop.color().red,
-                        g: stop.color().green,
-                        b: stop.color().blue,
-                        a: alpha(stop.opacity().get() * opacity),
-                    },
-                })
-                .collect()
-        };
-        // From the shape's coordinates into a gradient's or pattern's own.
-        let into = |transform: usvg::Transform| {
-            matrix_of(transform)
-                .inverse()
-                .map(|inverse| inverse.then_inner(from_shape))
-        };
-
         Ok(match paint {
             usvg::Paint::Color(color) => (
                 [color.red, color.green, color.blue, alpha(opacity)],
                 Paint::Solid,
             ),
             usvg::Paint::LinearGradient(gradient) => {
-                let Some(matrix) = into(gradient.transform()) else {
-                    return Ok(([0; 4], Paint::Solid));
-                };
-                let (dx, dy) = (gradient.x2() - gradient.x1(), gradient.y2() - gradient.y1());
-                let length_squared = (dx * dx + dy * dy).max(1e-12);
-                // Position along the line from the first point to the second.
-                let along = Matrix {
-                    a: dx / length_squared,
-                    b: 0.0,
-                    c: dy / length_squared,
-                    d: 0.0,
-                    tx: -(dx * gradient.x1() + dy * gradient.y1()) / length_squared,
-                    ty: 0.0,
-                };
-                let paint = Paint::Linear {
-                    ramp: self.ramp(&stops(gradient.stops())),
-                    matrix: along.then_inner(matrix),
-                    spread: spread(gradient.spread_method()),
-                };
-                (WHITE, paint)
+                self.linear_gradient(gradient, opacity, from_shape)
             }
             usvg::Paint::RadialGradient(gradient) => {
-                let Some(matrix) = into(gradient.transform()) else {
-                    return Ok(([0; 4], Paint::Solid));
-                };
-                let r = gradient.r().get().max(1e-6);
-                // Distance from the centre, in radii.
-                let from_centre = Matrix::scale(1.0 / r, 1.0 / r)
-                    .then_inner(Matrix::translate(-gradient.cx(), -gradient.cy()));
-                let paint = Paint::Radial {
-                    ramp: self.ramp(&stops(gradient.stops())),
-                    matrix: from_centre.then_inner(matrix),
-                    spread: spread(gradient.spread_method()),
-                };
-                (WHITE, paint)
+                self.radial_gradient(gradient, opacity, from_shape)
             }
-            usvg::Paint::Pattern(pattern) => {
-                let Some(image) = first_image(pattern.root()) else {
-                    bail!("a pattern fill has no image in it");
-                };
-                let Some(matrix) = into(pattern.transform()) else {
-                    return Ok(([0; 4], Paint::Solid));
-                };
-                let size = image.size();
-                let to_unit = Matrix::scale(1.0 / size.width(), 1.0 / size.height());
-                let smooth = !matches!(
-                    image.rendering_mode(),
-                    usvg::ImageRendering::OptimizeSpeed
-                        | usvg::ImageRendering::CrispEdges
-                        | usvg::ImageRendering::Pixelated
-                );
-                let paint = Paint::Image {
-                    image: self.image(image.kind())?,
-                    matrix: to_unit.then_inner(matrix),
-                    smooth,
-                };
-                ([255, 255, 255, alpha(opacity)], paint)
-            }
+            usvg::Paint::Pattern(pattern) => self.pattern(pattern, opacity, from_shape)?,
         })
+    }
+
+    /// The paint of a gradient that runs along a line, from its first point
+    /// to its second.
+    fn linear_gradient(
+        &mut self,
+        gradient: &usvg::LinearGradient,
+        opacity: f32,
+        from_shape: Matrix,
+    ) -> ([u8; 4], Paint) {
+        let Some(matrix) = into_paint(gradient.transform(), from_shape) else {
+            return UNSEEN;
+        };
+        let (dx, dy) = (gradient.x2() - gradient.x1(), gradient.y2() - gradient.y1());
+        let length_squared = (dx * dx + dy * dy).max(1e-12);
+        // Position along the line from the first point to the second.
+        let along = Matrix {
+            a: dx / length_squared,
+            b: 0.0,
+            c: dy / length_squared,
+            d: 0.0,
+            tx: -(dx * gradient.x1() + dy * gradient.y1()) / length_squared,
+            ty: 0.0,
+        };
+        let paint = Paint::Linear {
+            ramp: self.ramp(&stops(gradient.stops(), opacity)),
+            matrix: along.then_inner(matrix),
+            spread: spread(gradient.spread_method()),
+        };
+        (WHITE, paint)
+    }
+
+    /// The paint of a gradient that runs outwards from a centre.
+    fn radial_gradient(
+        &mut self,
+        gradient: &usvg::RadialGradient,
+        opacity: f32,
+        from_shape: Matrix,
+    ) -> ([u8; 4], Paint) {
+        let Some(matrix) = into_paint(gradient.transform(), from_shape) else {
+            return UNSEEN;
+        };
+        let r = gradient.r().get().max(1e-6);
+        // Distance from the centre, in radii.
+        let from_centre = Matrix::scale(1.0 / r, 1.0 / r)
+            .then_inner(Matrix::translate(-gradient.cx(), -gradient.cy()));
+        let paint = Paint::Radial {
+            ramp: self.ramp(&stops(gradient.stops(), opacity)),
+            matrix: from_centre.then_inner(matrix),
+            spread: spread(gradient.spread_method()),
+        };
+        (WHITE, paint)
+    }
+
+    /// The paint of a pattern, which is how an SVG says a shape is filled
+    /// with an image.
+    fn pattern(
+        &mut self,
+        pattern: &usvg::Pattern,
+        opacity: f32,
+        from_shape: Matrix,
+    ) -> Result<([u8; 4], Paint)> {
+        let Some(image) = first_image(pattern.root()) else {
+            bail!("a pattern fill has no image in it");
+        };
+        let Some(matrix) = into_paint(pattern.transform(), from_shape) else {
+            return Ok(UNSEEN);
+        };
+        let size = image.size();
+        let to_unit = Matrix::scale(1.0 / size.width(), 1.0 / size.height());
+        let smooth = !matches!(
+            image.rendering_mode(),
+            usvg::ImageRendering::OptimizeSpeed
+                | usvg::ImageRendering::CrispEdges
+                | usvg::ImageRendering::Pixelated
+        );
+        let paint = Paint::Image {
+            image: self.image(image.kind())?,
+            matrix: to_unit.then_inner(matrix),
+            smooth,
+        };
+        Ok(([255, 255, 255, alpha(opacity)], paint))
     }
 
     /// The slot of this image, decoding and adding it if it is new.
@@ -230,6 +232,53 @@ impl Tessellator {
         self.image_slots.insert(key, self.images.len() - 1);
         Ok(self.images.len() - 1)
     }
+}
+
+/// What the corners carry when the paint brings colours of its own: white,
+/// which leaves those colours as they are.
+const WHITE: [u8; 4] = [255; 4];
+
+/// What a paint comes to when it has been squashed flat and cannot be placed
+/// in the shape: nothing that can be seen.
+const UNSEEN: ([u8; 4], Paint) = ([0; 4], Paint::Solid);
+
+/// How solid, from 0 to 255, for an opacity from 0 to 1.
+fn alpha(opacity: f32) -> u8 {
+    (opacity * 255.0).round().clamp(0.0, 255.0) as u8
+}
+
+/// How an SVG's gradient goes on past its ends, in the engine's words.
+fn spread(method: usvg::SpreadMethod) -> Spread {
+    match method {
+        usvg::SpreadMethod::Pad => Spread::Pad,
+        usvg::SpreadMethod::Reflect => Spread::Reflect,
+        usvg::SpreadMethod::Repeat => Spread::Repeat,
+    }
+}
+
+/// An SVG gradient's stops as a ramp is made from them, each made less
+/// solid by the `opacity` of the fill or stroke they paint.
+fn stops(stops: &[usvg::Stop], opacity: f32) -> Vec<f::GradientStop> {
+    stops
+        .iter()
+        .map(|stop| f::GradientStop {
+            offset: f64::from(stop.offset().get()),
+            color: f::Color {
+                r: stop.color().red,
+                g: stop.color().green,
+                b: stop.color().blue,
+                a: alpha(stop.opacity().get() * opacity),
+            },
+        })
+        .collect()
+}
+
+/// From the shape's coordinates into a gradient's or pattern's own, given
+/// the transform that places it. `None` if that transform cannot be undone.
+fn into_paint(transform: usvg::Transform, from_shape: Matrix) -> Option<Matrix> {
+    matrix_of(transform)
+        .inverse()
+        .map(|inverse| inverse.then_inner(from_shape))
 }
 
 /// One of the SVG reader's transforms as one of the engine's.
