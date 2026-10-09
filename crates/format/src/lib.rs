@@ -695,4 +695,34 @@ mod tests {
         assert!(Color::try_from("#1+2+3+4+".to_owned()).is_err());
         assert!(Color::try_from("#-1-2-3-4".to_owned()).is_err());
     }
+
+    #[test]
+    fn a_word_the_format_has_reads_to_its_name_and_is_written_back_as_it_was() {
+        for (word, look) in [
+            ("up", Look::Up),
+            ("over", Look::Over),
+            ("down", Look::Down),
+            ("hit", Look::Hit),
+        ] {
+            assert_eq!(Look::from(word), look);
+            assert_eq!(String::from(look), word);
+        }
+        assert_eq!(FieldFlag::from("read_only"), FieldFlag::ReadOnly);
+        assert_eq!(FieldFlag::from("html"), FieldFlag::Html);
+        assert_eq!(String::from(FieldFlag::UseOutlines), "use_outlines");
+        assert_eq!(Align::from("center"), Align::Center);
+        assert_eq!(String::from(Align::Right), "right");
+    }
+
+    #[test]
+    fn a_word_the_format_does_not_have_is_kept_just_as_it_was_written() {
+        // A later extractor may write words this version has never heard
+        // of. A file with one in it still reads, and writes back unchanged.
+        let odd = Align::from("justify");
+        assert_eq!(odd, Align::Other("justify".to_owned()));
+        assert_eq!(String::from(odd), "justify");
+        // Nothing is made of how it is spelt: a known word in capitals is
+        // another word.
+        assert_eq!(Look::from("UP"), Look::Other("UP".to_owned()));
+    }
 }
