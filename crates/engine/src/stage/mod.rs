@@ -1,15 +1,23 @@
 //! A running movie: the display tree, the pointer, what the text fields say,
 //! and a record of what has happened for the caller to act on.
+//!
+//! The sounds the rules ask for are in `sound`, and the keys and typing
+//! into a text field are in `typing`.
 
-use bb_format::{EnvelopePoint, SoundEvent, SoundStart, SymbolId};
+mod sound;
+mod typing;
 
-pub use crate::display::CARET;
+use bb_format::SymbolId;
+
 use crate::display::{
     Child, ClipState, Command, Content, Event, Path, Texts, commands_upright, text_key,
 };
-use crate::input::{Geometry, Key, Pointer, field_at};
+use crate::input::{Geometry, Key, Pointer};
 use crate::library::Library;
 use crate::math::Matrix;
+
+pub use crate::display::CARET;
+pub use typing::Focus;
 
 pub struct Stage {
     pub root: ClipState,
@@ -32,16 +40,6 @@ pub struct Stage {
     levels: std::collections::HashMap<SymbolId, f32>,
     events: Vec<Event>,
 }
-
-/// A text field the player is typing in.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Focus {
-    pub path: Path,
-    pub symbol: SymbolId,
-}
-
-/// How many frames the caret shows for, and then hides for.
-const BLINK: u32 = 30;
 
 impl Stage {
     /// Starts playing a clip, or the main timeline for `None`.
@@ -70,14 +68,7 @@ impl Stage {
         self.ticks = self.ticks.wrapping_add(1);
         self.root
             .advance(library, &mut self.events, &mut Path::new());
-        // A field that has gone takes the typing with it.
-        if let Some(focus) = &self.focus
-            && self
-                .child(&focus.path)
-                .is_none_or(|child| child.symbol != focus.symbol)
-        {
-            self.focus = None;
-        }
+        self.end_typing_if_its_field_has_gone();
         // Things have moved, so what is under the pointer may have changed.
         let (x, y, down) = (self.pointer.x, self.pointer.y, self.pointer.down);
         self.pointer_changed(x, y, down, library, geometry);
@@ -285,16 +276,8 @@ impl Stage {
             geometry,
             &mut self.events,
         );
-        // A press on a field that can be typed in gives it the typing, and a
-        // press anywhere else takes the typing away.
         if pressed {
-            self.focus = if self.pointer.on_button() {
-                None
-            } else {
-                field_at(&self.root.children, x, y, library, &mut Path::new())
-                    .map(|(path, symbol)| Focus { path, symbol })
-            };
-            self.ticks = 0;
+            self.give_the_typing_to_what_was_pressed(x, y, library);
         }
     }
 
@@ -309,71 +292,6 @@ impl Stage {
         self.pointer.went_down = None;
     }
 
-    /// Whether the player is holding this key down.
-    pub fn key_down(&self, key: Key) -> bool {
-        self.keys_down.contains(&key)
-    }
-
-    /// Takes in that a key has gone down, or has come up again.
-    pub fn key_changed(&mut self, key: Key, down: bool) {
-        self.keys_down.retain(|held| *held != key);
-        if down {
-            self.keys_down.push(key);
-        }
-    }
-
-    /// No key is being held down any more, as far as can be told: the
-    /// window has lost the keyboard, say.
-    pub fn keys_let_go(&mut self) {
-        self.keys_down.clear();
-    }
-
-    /// Takes in a key the player has pressed. Returns whether a text field
-    /// used it, so that the caller knows not to act on it too.
-    pub fn key(&mut self, key: &Key, library: &Library) -> bool {
-        let Some(focus) = &self.focus else {
-            return false;
-        };
-        let Some(field) = library.edit_texts.get(&focus.symbol) else {
-            return false;
-        };
-        let variable = text_key(&field.variable).to_owned();
-        let mut said = self
-            .texts
-            .get(&variable)
-            .cloned()
-            .or_else(|| field.initial_text.clone())
-            .unwrap_or_default();
-        match key {
-            Key::Char(c) => {
-                let room = field
-                    .max_length
-                    .is_none_or(|most| said.chars().count() < usize::from(most));
-                // A field can only show the letters its font has.
-                let drawable = field
-                    .font
-                    .and_then(|font| library.fonts.get(&font))
-                    .is_none_or(|font| font.glyphs.iter().any(|glyph| glyph.char.starts_with(*c)));
-                if room && drawable && !c.is_control() {
-                    said.push(*c);
-                }
-            }
-            Key::Backspace => {
-                said.pop();
-            }
-            Key::Enter | Key::Escape | Key::Tab => {
-                self.focus = None;
-                return true;
-            }
-            // Other keys are not for the field, but while it has the typing
-            // they are not for anything else either.
-            _ => return true,
-        }
-        self.texts.insert(variable, said);
-        self.ticks = 0;
-        true
-    }
-
     /// Adds something for the caller to act on, as if the timelines had
     /// reported it.
     fn push_event(&mut self, event: Event) {
@@ -384,24 +302,7 @@ impl Stage {
     pub fn commands(&self, base: Matrix, library: &Library) -> Vec<Command> {
         let upright = self.upright_text;
         let mut list = commands_upright(&self.root, base, library, &self.texts, upright);
-        // The field being typed in shows a caret after its text, on and off.
-        if let Some(focus) = &self.focus
-            && (self.ticks / BLINK).is_multiple_of(2)
-            && let Some(field) = library.edit_texts.get(&focus.symbol)
-        {
-            for command in &mut list {
-                if let Command::Draw { symbol, text, .. } = command
-                    && *symbol == focus.symbol
-                {
-                    let mut said = text
-                        .take()
-                        .or_else(|| field.initial_text.clone())
-                        .unwrap_or_default();
-                    said.push(CARET);
-                    *text = Some(said);
-                }
-            }
-        }
+        self.add_the_caret(&mut list, library);
         list
     }
 
@@ -412,143 +313,12 @@ impl Stage {
     }
 }
 
-impl Stage {
-    /// Asks for a sound by its export name, as `attachSound` used: played
-    /// `loops` times. Returns whether there is a sound with that name.
-    pub fn play_sound(&mut self, name: &str, loops: u16, library: &Library) -> bool {
-        self.sound(name, SoundEvent::Event, loops, library)
-    }
-
-    /// Sets how loud the sound with this export name is whenever the game
-    /// asks for it, from 0 to 1, as `setVolume` did. Returns whether there is
-    /// a sound with that name.
-    pub fn set_sound_level(&mut self, name: &str, level: f32, library: &Library) -> bool {
-        let Some(&sound) = library.manifest.exports.get(name) else {
-            return false;
-        };
-        self.levels.insert(sound, level.clamp(0.0, 1.0));
-        true
-    }
-
-    /// Stops every copy of the sound with this export name.
-    pub fn stop_sound(&mut self, name: &str, library: &Library) -> bool {
-        self.sound(name, SoundEvent::Stop, 0, library)
-    }
-
-    fn sound(&mut self, name: &str, event: SoundEvent, loops: u16, library: &Library) -> bool {
-        let Some(&sound) = library.manifest.exports.get(name) else {
-            return false;
-        };
-        // A sound the game has turned down starts at that level.
-        let envelope = self
-            .levels
-            .get(&sound)
-            .map(|&level| EnvelopePoint {
-                sample: 0,
-                left: level,
-                right: level,
-            })
-            .into_iter()
-            .collect();
-        self.push_event(Event::Sound(SoundStart {
-            sound,
-            event,
-            loops,
-            in_sample: None,
-            out_sample: None,
-            envelope,
-        }));
-        true
-    }
-}
-
 #[cfg(test)]
 mod tests {
-    use bb_format::{FieldFlag, Op, Place, PlaceAction};
+    use bb_format::{Op, Place, PlaceAction};
 
     use super::*;
-    use crate::testing::{Empty, FIELD, INNER, SHAPE, add_field, frame, library_with, place, put};
-
-    fn click(stage: &mut Stage, library: &Library, x: f32, y: f32) {
-        stage.pointer_changed(x, y, false, library, &mut Empty);
-        stage.pointer_changed(x, y, true, library, &mut Empty);
-        stage.pointer_changed(x, y, false, library, &mut Empty);
-    }
-
-    /// A main timeline with a text field at (100, 100) that can be typed in.
-    fn with_field() -> Library {
-        let at = Place {
-            matrix: Some([1.0, 0.0, 0.0, 1.0, 100.0, 100.0]),
-            ..place(1, PlaceAction::Place(FIELD))
-        };
-        let mut library = library_with(vec![frame(vec![Op::Place(Box::new(at))])], vec![]);
-        add_field(&mut library, "_root.teamName", &[]);
-        library.edit_texts.get_mut(&FIELD).unwrap().initial_text = None;
-        library.edit_texts.get_mut(&FIELD).unwrap().max_length = Some(5);
-        library
-    }
-
-    #[test]
-    fn typing_goes_to_the_field_that_was_clicked() {
-        let library = with_field();
-        let mut stage = Stage::new(None, &library);
-        // Nothing has the typing yet, so the key is free for the rules.
-        assert!(!stage.key(&Key::Char('a'), &library));
-        assert_eq!(stage.text("teamName"), None);
-
-        click(&mut stage, &library, 110.0, 110.0);
-        assert_eq!(stage.focus.as_ref().map(|focus| focus.symbol), Some(FIELD));
-        for c in "abcdefg".chars() {
-            assert!(stage.key(&Key::Char(c), &library));
-        }
-        // The field holds five letters at most.
-        assert_eq!(stage.text("teamName"), Some("abcde"));
-        stage.key(&Key::Backspace, &library);
-        assert_eq!(stage.text("teamName"), Some("abcd"));
-
-        // A click anywhere else ends the typing.
-        click(&mut stage, &library, 10.0, 10.0);
-        assert_eq!(stage.focus, None);
-        assert!(!stage.key(&Key::Char('z'), &library));
-        assert_eq!(stage.text("teamName"), Some("abcd"));
-    }
-
-    #[test]
-    fn a_field_that_only_shows_text_cannot_be_typed_in() {
-        let mut library = with_field();
-        library.edit_texts.get_mut(&FIELD).unwrap().flags = vec![FieldFlag::ReadOnly];
-        let mut stage = Stage::new(None, &library);
-        click(&mut stage, &library, 110.0, 110.0);
-        assert_eq!(stage.focus, None);
-    }
-
-    #[test]
-    fn the_field_being_typed_in_shows_a_caret_that_blinks() {
-        let library = with_field();
-        let mut stage = Stage::new(None, &library);
-        click(&mut stage, &library, 110.0, 110.0);
-        stage.key(&Key::Char('a'), &library);
-        let said = |stage: &Stage| match &stage.commands(Matrix::IDENTITY, &library)[0] {
-            Command::Draw { text, .. } => text.clone(),
-            other => panic!("expected a draw, found {other:?}"),
-        };
-        assert_eq!(said(&stage), Some(format!("a{CARET}")));
-        for _ in 0..BLINK {
-            stage.advance(&library, &mut Empty);
-        }
-        assert_eq!(said(&stage), Some("a".to_owned()));
-        // The caret is only drawn: it is no part of what the field says.
-        assert_eq!(stage.text("teamName"), Some("a"));
-    }
-
-    #[test]
-    fn enter_ends_the_typing() {
-        let library = with_field();
-        let mut stage = Stage::new(None, &library);
-        click(&mut stage, &library, 110.0, 110.0);
-        assert!(stage.key(&Key::Enter, &library));
-        assert_eq!(stage.focus, None);
-    }
+    use crate::testing::{INNER, SHAPE, frame, library_with, place, put};
 
     #[test]
     fn a_point_is_carried_into_and_out_of_a_nested_clip() {
@@ -590,74 +360,5 @@ mod tests {
         assert_eq!(stage.find_named(&[], "extra"), None);
         // There is no such clip to add to.
         assert_eq!(stage.attach(&[7], INNER, 1, "lost", &library), None);
-    }
-
-    /// The sound the art exports as "crowd".
-    const CROWD: SymbolId = 40;
-
-    fn with_a_sound() -> Library {
-        let mut library = library_with(vec![frame(vec![])], vec![frame(vec![])]);
-        library.manifest.exports.insert("crowd".to_owned(), CROWD);
-        library
-    }
-
-    /// What asking for the crowd puts in the stage's events.
-    fn asked(event: SoundEvent, loops: u16, envelope: Vec<EnvelopePoint>) -> Event {
-        Event::Sound(SoundStart {
-            sound: CROWD,
-            event,
-            loops,
-            in_sample: None,
-            out_sample: None,
-            envelope,
-        })
-    }
-
-    #[test]
-    fn the_rules_ask_for_a_sound_and_stop_it_by_the_name_it_is_exported_under() {
-        let library = with_a_sound();
-        let mut stage = Stage::new(None, &library);
-        assert!(stage.play_sound("crowd", 3, &library));
-        assert!(stage.stop_sound("crowd", &library));
-        let events = [
-            asked(SoundEvent::Event, 3, Vec::new()),
-            asked(SoundEvent::Stop, 0, Vec::new()),
-        ];
-        assert_eq!(stage.take_events(), events);
-
-        // There is no sound of this name, so nothing is asked for.
-        assert!(!stage.play_sound("organ", 1, &library));
-        assert!(!stage.stop_sound("organ", &library));
-        assert!(!stage.set_sound_level("organ", 0.5, &library));
-        assert!(stage.take_events().is_empty());
-    }
-
-    #[test]
-    fn a_sound_the_rules_have_turned_down_starts_at_that_level() {
-        let library = with_a_sound();
-        let mut stage = Stage::new(None, &library);
-        let at = |level: f32| {
-            vec![EnvelopePoint {
-                sample: 0,
-                left: level,
-                right: level,
-            }]
-        };
-        assert!(stage.set_sound_level("crowd", 0.25, &library));
-        // Setting the level asks for nothing by itself.
-        assert!(stage.take_events().is_empty());
-        stage.play_sound("crowd", 1, &library);
-        assert_eq!(stage.take_events(), [asked(SoundEvent::Event, 1, at(0.25))]);
-
-        // A level is kept between nothing and full.
-        stage.set_sound_level("crowd", 7.0, &library);
-        stage.play_sound("crowd", 1, &library);
-        stage.set_sound_level("crowd", -1.0, &library);
-        stage.play_sound("crowd", 1, &library);
-        let events = [
-            asked(SoundEvent::Event, 1, at(1.0)),
-            asked(SoundEvent::Event, 1, at(0.0)),
-        ];
-        assert_eq!(stage.take_events(), events);
     }
 }
