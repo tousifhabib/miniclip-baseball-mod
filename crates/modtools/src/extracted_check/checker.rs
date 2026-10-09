@@ -1,71 +1,29 @@
-//! Reads an extracted folder back with the format's own types and checks
-//! that everything one file says about another is true.
+//! The checks themselves: every symbol's file read, and everything it
+//! says of another followed.
 
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::PathBuf;
 
-use anyhow::{Result, ensure};
+use anyhow::Result;
 use bb_engine::library::read_json;
 use bb_format::{
-    Align, Button, Clip, EditText, FORMAT_VERSION, FieldFlag, Font, Look, Manifest, MorphShape, Op,
-    PlaceAction, SoundStart, Symbol, SymbolId, SymbolInfo, Text,
+    Align, Button, Clip, EditText, FieldFlag, Font, Look, Manifest, MorphShape, Op, PlaceAction,
+    SoundStart, Symbol, SymbolId, SymbolInfo, Text,
 };
-use clap::Parser;
 use serde::de::DeserializeOwned;
 
-#[derive(Parser)]
-#[command(about = "Checks that an extracted folder is complete and consistent")]
-struct Args {
-    /// The folder that holds the art.
-    dir: PathBuf,
-}
-
-struct Checker {
-    dir: PathBuf,
-    manifest: Manifest,
-    glyph_counts: BTreeMap<SymbolId, usize>,
-    files: usize,
-    references: usize,
-    problems: Vec<String>,
-}
-
-fn main() -> Result<()> {
-    let args = Args::parse();
-    let manifest: Manifest = read_json(&args.dir.join("manifest.json"))?;
-    ensure!(
-        manifest.format_version == FORMAT_VERSION,
-        "the folder is format version {}, this tool reads version {FORMAT_VERSION}",
-        manifest.format_version
-    );
-
-    let mut checker = Checker {
-        dir: args.dir,
-        manifest,
-        glyph_counts: BTreeMap::new(),
-        files: 1,
-        references: 0,
-        problems: Vec::new(),
-    };
-    checker.run()?;
-
-    println!(
-        "Read {} files and followed {} references.",
-        checker.files, checker.references
-    );
-    if checker.problems.is_empty() {
-        println!("No problems.");
-        return Ok(());
-    }
-    println!("Problems ({}):", checker.problems.len());
-    for problem in &checker.problems {
-        println!("  {problem}");
-    }
-    std::process::exit(1);
+pub(super) struct Checker {
+    pub(super) dir: PathBuf,
+    pub(super) manifest: Manifest,
+    pub(super) glyph_counts: BTreeMap<SymbolId, usize>,
+    pub(super) files: usize,
+    pub(super) references: usize,
+    pub(super) problems: Vec<String>,
 }
 
 impl Checker {
-    fn run(&mut self) -> Result<()> {
+    pub(super) fn run(&mut self) -> Result<()> {
         let symbols = self.manifest.symbols.clone();
 
         // Fonts first, because texts are checked against their glyph counts.

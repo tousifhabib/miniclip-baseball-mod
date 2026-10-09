@@ -2,44 +2,15 @@
 //! shader, what it is told for each layer and each draw, the ways a draw
 //! may treat a mask, and the ways a texture may be read.
 
-use bytemuck::{Pod, Zeroable};
+mod samplers;
+mod uniforms;
 
 use super::{SAMPLES, STENCIL_FORMAT};
 use crate::tess::Vertex;
+pub(super) use samplers::Samplers;
+pub(super) use uniforms::{Globals, Item, Mode};
 
-const SHADER: &str = include_str!("shader.wgsl");
-
-/// What the shader is told once for each layer.
-#[repr(C)]
-#[derive(Clone, Copy, Pod, Zeroable)]
-pub(super) struct Globals {
-    pub view: [f32; 4],
-    pub limits: [f32; 4],
-}
-
-/// What the shader is told for each draw, and for each blur.
-#[repr(C)]
-#[derive(Clone, Copy, Pod, Zeroable)]
-pub(super) struct Item {
-    pub world_abcd: [f32; 4],
-    pub world_t: [f32; 4],
-    pub color_mult: [f32; 4],
-    pub color_add: [f32; 4],
-    pub paint_abcd: [f32; 4],
-    pub paint_t: [f32; 4],
-    pub kind: [u32; 4],
-}
-
-/// How a draw treats the stencil buffer.
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub(super) enum Mode {
-    /// Draws colour where the stencil matches.
-    Content = 0,
-    /// Raises the stencil where it matches, drawing no colour.
-    MaskWrite = 1,
-    /// Lowers the stencil where it matches, drawing no colour.
-    MaskClear = 2,
-}
+const SHADER: &str = include_str!("../shader.wgsl");
 
 /// The shader, made ready for the graphics card.
 pub(super) fn shader(device: &wgpu::Device) -> wgpu::ShaderModule {
@@ -262,34 +233,4 @@ fn blur_pipeline(
         multiview_mask: None,
         cache: None,
     })
-}
-
-/// The ways a texture is read.
-pub(super) struct Samplers {
-    /// For the gradients' ramps and for finished layers: smoothed, and the
-    /// edge colour carried on past the edge.
-    pub ramp: wgpu::Sampler,
-    /// For an image used as a fill, smoothed. It repeats past its edges.
-    pub smooth: wgpu::Sampler,
-    /// For an image used as a fill, with its pixels left square.
-    pub crisp: wgpu::Sampler,
-}
-
-impl Samplers {
-    pub(super) fn new(device: &wgpu::Device) -> Samplers {
-        let sampler = |filter: wgpu::FilterMode, address: wgpu::AddressMode| {
-            device.create_sampler(&wgpu::SamplerDescriptor {
-                address_mode_u: address,
-                address_mode_v: address,
-                mag_filter: filter,
-                min_filter: filter,
-                ..wgpu::SamplerDescriptor::default()
-            })
-        };
-        Samplers {
-            ramp: sampler(wgpu::FilterMode::Linear, wgpu::AddressMode::ClampToEdge),
-            smooth: sampler(wgpu::FilterMode::Linear, wgpu::AddressMode::Repeat),
-            crisp: sampler(wgpu::FilterMode::Nearest, wgpu::AddressMode::Repeat),
-        }
-    }
 }
