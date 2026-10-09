@@ -110,7 +110,7 @@ mod tests {
     use proptest::prelude::*;
 
     use super::*;
-    use crate::play::pitch::tests::any_choice;
+    use crate::play::pitch::properties::any_choice;
 
     #[test]
     fn a_pitch_turned_over_is_aimed_as_far_the_other_side_and_curves_the_other_way() {

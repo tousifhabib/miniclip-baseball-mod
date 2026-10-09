@@ -4,73 +4,59 @@
 //! Nothing in the language stops one of them reaching for the stage one
 //! day. This does, by reading them.
 
-/// The files that are sums and nothing else, with what each holds.
-const SUMS: [(&str, &str); 25] = [
-    ("rng.rs", include_str!("../src/rng.rs")),
-    ("rules.rs", include_str!("../src/rules.rs")),
-    ("settings.rs", include_str!("../src/settings.rs")),
-    ("scores.rs", include_str!("../src/scores.rs")),
-    ("kept.rs", include_str!("../src/kept.rs")),
-    ("locate.rs", include_str!("../src/locate.rs")),
-    ("play/pitch.rs", include_str!("../src/play/pitch.rs")),
-    ("play/field.rs", include_str!("../src/play/field.rs")),
-    ("play/book.rs", include_str!("../src/play/book.rs")),
-    ("play/paper.rs", include_str!("../src/play/paper.rs")),
-    ("play/snapshot.rs", include_str!("../src/play/snapshot.rs")),
-    ("play/mode.rs", include_str!("../src/play/mode.rs")),
-    (
-        "play/mods/butterfingers.rs",
-        include_str!("../src/play/mods/butterfingers.rs"),
-    ),
-    (
-        "play/mods/clutch.rs",
-        include_str!("../src/play/mods/clutch.rs"),
-    ),
-    (
-        "play/mods/heat_check.rs",
-        include_str!("../src/play/mods/heat_check.rs"),
-    ),
-    (
-        "play/mods/hot_bat.rs",
-        include_str!("../src/play/mods/hot_bat.rs"),
-    ),
-    (
-        "play/mods/knuckleball.rs",
-        include_str!("../src/play/mods/knuckleball.rs"),
-    ),
-    (
-        "play/mods/lone_pitcher.rs",
-        include_str!("../src/play/mods/lone_pitcher.rs"),
-    ),
-    (
-        "play/mods/moon_ball.rs",
-        include_str!("../src/play/mods/moon_ball.rs"),
-    ),
-    (
-        "play/mods/mystery_pitch.rs",
-        include_str!("../src/play/mods/mystery_pitch.rs"),
-    ),
-    (
-        "play/mods/pinball_park.rs",
-        include_str!("../src/play/mods/pinball_park.rs"),
-    ),
-    (
-        "play/mods/rally.rs",
-        include_str!("../src/play/mods/rally.rs"),
-    ),
-    (
-        "play/mods/sudden_death.rs",
-        include_str!("../src/play/mods/sudden_death.rs"),
-    ),
-    (
-        "play/mods/tired_arm.rs",
-        include_str!("../src/play/mods/tired_arm.rs"),
-    ),
-    (
-        "play/mods/turbo_runners.rs",
-        include_str!("../src/play/mods/turbo_runners.rs"),
-    ),
+use std::fs;
+use std::path::{Path, PathBuf};
+
+/// The files that are sums and nothing else, as they are found under
+/// `src`. A folder is named for every file in it.
+const SUMS: [&str; 25] = [
+    "rng.rs",
+    "rules.rs",
+    "settings.rs",
+    "scores.rs",
+    "kept.rs",
+    "locate.rs",
+    "play/pitch",
+    "play/field",
+    "play/book",
+    "play/paper",
+    "play/snapshot",
+    "play/mode.rs",
+    "play/mods/butterfingers.rs",
+    "play/mods/clutch.rs",
+    "play/mods/heat_check.rs",
+    "play/mods/hot_bat.rs",
+    "play/mods/knuckleball.rs",
+    "play/mods/lone_pitcher.rs",
+    "play/mods/moon_ball.rs",
+    "play/mods/mystery_pitch.rs",
+    "play/mods/pinball_park.rs",
+    "play/mods/rally.rs",
+    "play/mods/sudden_death.rs",
+    "play/mods/tired_arm.rs",
+    "play/mods/turbo_runners.rs",
 ];
+
+/// The game's own code.
+fn src() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("src")
+}
+
+/// Every file of code at a place, which is one file or a folder of them,
+/// with what each holds.
+fn files_at(place: &Path) -> Vec<(PathBuf, String)> {
+    if place.is_dir() {
+        let mut inside: Vec<PathBuf> = fs::read_dir(place)
+            .unwrap()
+            .map(|entry| entry.unwrap().path())
+            .collect();
+        inside.sort();
+        return inside.iter().flat_map(|path| files_at(path)).collect();
+    }
+    let text = fs::read_to_string(place)
+        .unwrap_or_else(|fault| panic!("{} is not to be read: {fault}", place.display()));
+    vec![(place.to_owned(), text)]
+}
 
 #[test]
 fn the_files_that_are_sums_never_name_the_stage() {
@@ -84,11 +70,13 @@ fn the_files_that_are_sums_never_name_the_stage() {
     ];
     let reaching: Vec<String> = SUMS
         .iter()
+        .flat_map(|sums| files_at(&src().join(sums)))
         .flat_map(|(file, text)| {
             barred
                 .iter()
                 .filter(|word| text.contains(*word))
-                .map(move |word| format!("{file} names {word}"))
+                .map(|word| format!("{} names {word}", file.display()))
+                .collect::<Vec<_>>()
         })
         .collect();
     assert!(
@@ -101,18 +89,15 @@ fn the_files_that_are_sums_never_name_the_stage() {
 fn no_mod_does_its_work_as_a_function_of_the_match() {
     // A mod answers what it is asked and says what to write. It is the
     // play that acts on the answer, where it does everything else.
-    let mods = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/play/mods");
-    let mut read = 0;
-    for entry in std::fs::read_dir(&mods).unwrap() {
-        let file = entry.unwrap().path();
-        let text = std::fs::read_to_string(&file).unwrap();
+    let mods = src().join("play/mods");
+    for (file, text) in files_at(&mods) {
         assert!(
             !text.contains("impl Match"),
             "{} reaches into the match",
             file.display()
         );
-        read += 1;
     }
-    // Every mod's file, and the one that lists them.
-    assert_eq!(read, 24, "in {}", mods.display());
+    // Every mod's file or folder, and the one that lists them.
+    let listed = fs::read_dir(&mods).unwrap().count();
+    assert_eq!(listed, 24, "in {}", mods.display());
 }

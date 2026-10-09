@@ -407,7 +407,7 @@ mod tests {
     use proptest::prelude::*;
 
     use super::*;
-    use crate::play::pitch::tests::{any_choice, any_window};
+    use crate::play::pitch::properties::{any_choice, any_window};
     use crate::play::pitch::{Choice, Mound, meets};
     use crate::rules::Rules;
     use crate::settings::Difficulty;
