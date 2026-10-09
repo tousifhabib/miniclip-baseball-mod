@@ -7,9 +7,63 @@ use super::targets::flat_texture;
 use crate::display::Command;
 use crate::library::Library;
 
+/// How many times running a frame has to come out the same before the
+/// picture of it is believed, and how many draws it is given to do that in.
+/// The card has been seen to take three or four draws to settle, over its
+/// first hundredth of a second, and then to draw the same for as long as it
+/// was watched.
+const SAME_RUNNING: usize = 6;
+const MOST_DRAWS: usize = 30;
+
+/// Draws with `draw` until what it draws has come out the same
+/// `same_running` times running, and gives that back. After `most` draws it
+/// gives back the last, settled or not.
+fn settled<T: PartialEq>(
+    mut draw: impl FnMut() -> Result<T>,
+    same_running: usize,
+    most: usize,
+) -> Result<T> {
+    let mut picture = draw()?;
+    let mut same = 1;
+    for _ in 1..most {
+        if same >= same_running {
+            break;
+        }
+        let again = draw()?;
+        if again == picture {
+            same += 1;
+        } else {
+            picture = again;
+            same = 1;
+        }
+    }
+    Ok(picture)
+}
+
 impl Renderer {
     /// Draws `commands` to a new image.
+    ///
+    /// A graphics card that has only just been put to work does not draw
+    /// the same frame the same way every time. For its first few draws a
+    /// pixel here and there on a gradient can come out a step of one colour
+    /// away from where it settles, and which draws those are differs from
+    /// one run to the next. Nothing that is sent to the card differs: it
+    /// is the card's own doing, and has been seen on Apple's. A picture is
+    /// for comparing with another, so the frame is drawn until it has come
+    /// out the same several times running, and that is the picture.
     pub fn capture(
+        &mut self,
+        library: &Library,
+        commands: &[Command],
+        size: (u32, u32),
+        background: [f64; 4],
+    ) -> Result<image::RgbaImage> {
+        let draw = || self.capture_once(library, commands, size, background);
+        settled(draw, SAME_RUNNING, MOST_DRAWS)
+    }
+
+    /// Draws `commands` to a new image, once.
+    fn capture_once(
         &mut self,
         library: &Library,
         commands: &[Command],
@@ -68,5 +122,51 @@ impl Renderer {
             pixels.extend_from_slice(&line[..width as usize * 4]);
         }
         image::RgbaImage::from_raw(width, height, pixels).context("building the image")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Something that draws these, one after another, and counts how many
+    /// it was asked for.
+    fn drawing(
+        pictures: &[u8],
+    ) -> (
+        impl FnMut() -> Result<u8> + '_,
+        std::rc::Rc<std::cell::Cell<usize>>,
+    ) {
+        let drawn = std::rc::Rc::new(std::cell::Cell::new(0));
+        let count = drawn.clone();
+        let draw = move || {
+            let next = pictures[count.get().min(pictures.len() - 1)];
+            count.set(count.get() + 1);
+            Ok(next)
+        };
+        (draw, drawn)
+    }
+
+    #[test]
+    fn a_picture_is_what_came_out_the_same_enough_times_running() {
+        // Out by a little for its first few draws, as a card just woken is.
+        let (draw, drawn) = drawing(&[1, 2, 2, 1, 1, 1, 1, 9]);
+        assert_eq!(settled(draw, 4, 30).unwrap(), 1);
+        // And it is not drawn again once it has settled.
+        assert_eq!(drawn.get(), 7);
+    }
+
+    #[test]
+    fn one_that_is_steady_from_the_first_is_drawn_no_more_than_it_has_to_be() {
+        let (draw, drawn) = drawing(&[5]);
+        assert_eq!(settled(draw, 6, 30).unwrap(), 5);
+        assert_eq!(drawn.get(), 6);
+    }
+
+    #[test]
+    fn one_that_never_settles_is_given_up_on_and_the_last_drawn_is_had() {
+        let (draw, drawn) = drawing(&[1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 3]);
+        assert_eq!(settled(draw, 3, 5).unwrap(), 1);
+        assert_eq!(drawn.get(), 5);
     }
 }

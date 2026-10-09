@@ -16,10 +16,11 @@
 # The pictures are not kept in the repository: one graphics card does not
 # draw quite as another does.
 #
-# One of them is not steady even on one machine. The match's setup page
-# comes out one of two ways from the same program, a few times in a dozen,
-# eleven pixels apart by one step of one colour. If match-setup.png alone
-# is not the same, draw it again before believing it.
+# A card just put to work does not draw quite the same for its first few
+# draws either, a pixel on a gradient here and there coming out a step of
+# one colour away. The programs that take these pictures draw each frame
+# until it has come out the same several times running, so a set drawn
+# twice on one machine is the same set.
 
 set -euo pipefail
 
