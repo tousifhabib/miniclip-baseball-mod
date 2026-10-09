@@ -178,7 +178,7 @@ impl Match {
         };
         if let Some(feet) = arcade.owed.take() {
             arcade.points += feet;
-            self.count_zinger(feet);
+            self.mods.a_zinger_went(feet);
         }
     }
 

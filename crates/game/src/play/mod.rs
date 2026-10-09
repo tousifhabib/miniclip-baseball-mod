@@ -317,10 +317,6 @@ pub struct Match {
     pub(crate) caught: u32,
     pub(crate) steal_play: bool,
     steal_news: Option<(&'static str, Rgb)>,
-    /// The longest zinger of this game, in feet, and the longest there has
-    /// ever been.
-    pub(crate) longest_zinger: u32,
-    pub(crate) zinger_record: u32,
     runner_symbol: Option<SymbolId>,
 }
 
@@ -431,8 +427,6 @@ impl Match {
             caught: 0,
             steal_play: false,
             steal_news: None,
-            longest_zinger: 0,
-            zinger_record: 0,
             runner_symbol: library.manifest.exports.get("runner").copied(),
         }
     }
@@ -469,27 +463,17 @@ impl Match {
 
     /// The longest zinger of this game, in feet. Nought if there was none.
     pub fn longest_zinger(&self) -> u32 {
-        self.longest_zinger
+        self.mods.longest_zinger()
     }
 
     /// The longest zinger there has ever been, as far as this game knows.
     pub fn zinger_record(&self) -> u32 {
-        self.zinger_record
+        self.mods.zinger_record()
     }
 
     /// Tells the game the record its zingers have to beat.
     pub fn set_zinger_record(&mut self, feet: u32) {
-        self.zinger_record = feet;
-    }
-
-    /// A zinger has gone `feet`: it is counted, and may be a record.
-    fn count_zinger(&mut self, feet: u32) -> bool {
-        self.longest_zinger = self.longest_zinger.max(feet);
-        let record = feet > self.zinger_record;
-        if record {
-            self.zinger_record = feet;
-        }
-        record
+        self.mods.set_zinger_record(feet);
     }
 
     /// A zinger has come down: the player is told how far it went and
@@ -500,7 +484,7 @@ impl Match {
         stage: &mut Stage,
         library: &Library,
     ) {
-        let record = self.count_zinger(show.zinger.feet);
+        let record = self.mods.a_zinger_went(show.zinger.feet);
         show.landed(record, stage);
         self.mods.a_home_run_was_hit();
         let mut sounds = show.place.cheers().to_vec();

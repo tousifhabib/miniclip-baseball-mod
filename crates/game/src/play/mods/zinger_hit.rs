@@ -30,9 +30,42 @@ use crate::play::{Parts, put};
 use crate::rules::{FieldRules, HitRules, PitchRules, Rules, ZingerRules};
 use crate::settings::Difficulty;
 
-/// The mod, in play. What a zinger is made of is below; the match keeps the
-/// longest of the game and the record it has to beat.
-pub(crate) struct ZingerHit;
+/// The mod, in play: the longest zinger of the game, and the record its
+/// zingers have to beat. What a zinger is made of is below.
+#[derive(Default)]
+pub(crate) struct ZingerHit {
+    /// The longest zinger of this game, in feet. Nought if there has been
+    /// none.
+    longest: u32,
+    /// The longest there has ever been, as far as this game knows.
+    record: u32,
+}
+
+impl ZingerHit {
+    pub fn longest(&self) -> u32 {
+        self.longest
+    }
+
+    pub fn record(&self) -> u32 {
+        self.record
+    }
+
+    /// Tells the game the record its zingers have to beat.
+    pub fn set_record(&mut self, feet: u32) {
+        self.record = feet;
+    }
+
+    /// A zinger has gone `feet`: it is counted. Returns whether it is a new
+    /// record.
+    pub fn count(&mut self, feet: u32) -> bool {
+        self.longest = self.longest.max(feet);
+        let record = feet > self.record;
+        if record {
+            self.record = feet;
+        }
+        record
+    }
+}
 
 /// How far inside a foul line a zinger is kept, in pixels of the field
 /// where the lines are marked.

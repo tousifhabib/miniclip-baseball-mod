@@ -137,7 +137,7 @@ impl ModsInPlay {
             pinball_park: on(Mod::PinballPark).then_some(PinballPark),
             stolen_bases: on(Mod::StolenBases).then_some(StolenBases),
             timing_indicator: on(Mod::TimingIndicator).then_some(TimingIndicator),
-            zinger_hit: on(Mod::ZingerHit).then_some(ZingerHit),
+            zinger_hit: on(Mod::ZingerHit).then(ZingerHit::default),
             butterfingers: on(Mod::Butterfingers)
                 .then(|| Butterfingers::new(&rules.butterfingers, level(Mod::Butterfingers))),
             clutch: (on(Mod::Clutch) && !arcade).then(|| Clutch::new(&rules.clutch)),
@@ -384,6 +384,30 @@ impl ModsInPlay {
     /// Whether whatever the bat meets goes out of the ground.
     pub fn every_hit_is_a_home_run(&self) -> bool {
         self.zinger_hit.is_some()
+    }
+
+    /// The longest zinger of this game, in feet. Nought if there was none.
+    pub fn longest_zinger(&self) -> u32 {
+        self.zinger_hit.as_ref().map_or(0, ZingerHit::longest)
+    }
+
+    /// The longest zinger there has ever been, as far as this game knows.
+    pub fn zinger_record(&self) -> u32 {
+        self.zinger_hit.as_ref().map_or(0, ZingerHit::record)
+    }
+
+    /// Tells the game the record its zingers have to beat.
+    pub fn set_zinger_record(&mut self, feet: u32) {
+        if let Some(zinger) = &mut self.zinger_hit {
+            zinger.set_record(feet);
+        }
+    }
+
+    /// A zinger has gone `feet`. Returns whether it is a new record.
+    pub fn a_zinger_went(&mut self, feet: u32) -> bool {
+        self.zinger_hit
+            .as_mut()
+            .is_some_and(|zinger| zinger.count(feet))
     }
 
     /// A ball that was hit fair has come down this far across the field,
