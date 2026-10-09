@@ -15,9 +15,9 @@ use lyon::tessellation::{
     StrokeOptions, StrokeTessellator, StrokeVertex, VertexBuffers,
 };
 
+use crate::display::CARET;
 use crate::library::Library;
 use crate::math::Matrix;
-use crate::stage::CARET;
 
 /// How far, in pixels at normal size, a flattened curve may stray from the
 /// true curve.

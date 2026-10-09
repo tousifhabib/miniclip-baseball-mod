@@ -734,6 +734,10 @@ pub fn text_key(variable: &str) -> &str {
     variable.rsplit(['.', ':', '/']).next().unwrap_or(variable)
 }
 
+/// Stands for the caret in the text handed to the renderer. It is in the
+/// range set aside for private use, so no font has a letter for it.
+pub const CARET: char = '\u{e000}';
+
 /// Lists what to draw for a clip, back to front.
 pub fn commands(clip: &ClipState, base: Matrix, library: &Library, texts: &Texts) -> Vec<Command> {
     commands_upright(clip, base, library, texts, false)
