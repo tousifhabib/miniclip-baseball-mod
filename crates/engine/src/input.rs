@@ -108,7 +108,10 @@ impl Pointer {
     /// Takes in the pointer's new position and button state, and works out
     /// what that does to the buttons in `root`. The position is in `root`'s
     /// coordinates.
-    #[allow(clippy::too_many_arguments)]
+    #[allow(
+        clippy::too_many_arguments,
+        reason = "it takes each thing it needs on its own, until they are gathered up"
+    )]
     pub fn update(
         &mut self,
         root: &mut ClipState,

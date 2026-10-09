@@ -237,8 +237,8 @@ mod tests {
         fn roll(&mut self) -> f64 {
             self.0 = self
                 .0
-                .wrapping_mul(6364136223846793005)
-                .wrapping_add(1442695040888963407);
+                .wrapping_mul(6_364_136_223_846_793_005)
+                .wrapping_add(1_442_695_040_888_963_407);
             ((self.0 >> 33) as f64 / (1u64 << 31) as f64) * 2.0 - 1.0
         }
     }
@@ -360,7 +360,7 @@ mod tests {
         let steady = vec![FRAME / 2; 200];
         let mut pace = Pace::new(FRAME);
         played(&mut pace, Duration::ZERO, &steady);
-        let (late, early) = (Duration::from_micros(14_000), Duration::from_micros(2_667));
+        let (late, early) = (Duration::from_millis(14), Duration::from_micros(2_667));
         let mut bumpy = Vec::new();
         for _ in 0..20 {
             bumpy.extend([FRAME / 2, late, early, FRAME / 2, FRAME / 2]);

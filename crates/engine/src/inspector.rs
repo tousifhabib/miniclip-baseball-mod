@@ -68,7 +68,7 @@ impl Inspector {
         self.log.push_back(line);
     }
 
-    pub fn ui(&mut self, ctx: &egui::Context, info: &Info) -> Vec<Action> {
+    pub fn ui(&mut self, ctx: &egui::Context, info: &Info<'_>) -> Vec<Action> {
         let mut actions = Vec::new();
         if !self.open {
             return actions;
@@ -153,7 +153,7 @@ impl Inspector {
         ui: &mut egui::Ui,
         clip: &ClipState,
         path: &Path,
-        info: &Info,
+        info: &Info<'_>,
         actions: &mut Vec<Action>,
     ) {
         let count = clip.frame_count(info.library);
@@ -182,7 +182,7 @@ impl Inspector {
         children: &Children,
         path: &mut Path,
         reachable: bool,
-        info: &Info,
+        info: &Info<'_>,
         actions: &mut Vec<Action>,
     ) {
         for (&depth, child) in children.iter().rev() {
@@ -255,7 +255,7 @@ impl Inspector {
     }
 
     /// Draws a box on the stage around the selected object.
-    fn outline_selected(&mut self, ctx: &egui::Context, info: &Info) {
+    fn outline_selected(&mut self, ctx: &egui::Context, info: &Info<'_>) {
         let Some(path) = &self.selected else {
             return;
         };

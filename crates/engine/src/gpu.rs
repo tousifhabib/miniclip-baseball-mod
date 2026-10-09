@@ -705,7 +705,7 @@ impl Renderer {
             .retain(|target| frame - target.last_used < LAYER_LIFETIME);
     }
 
-    fn draw_steps(&self, pass: &mut wgpu::RenderPass, layers: &[Layer], steps: &[Step]) {
+    fn draw_steps(&self, pass: &mut wgpu::RenderPass<'_>, layers: &[Layer], steps: &[Step]) {
         let mut mode = None;
         let mut key = None;
         let mut texture = None;
@@ -727,7 +727,7 @@ impl Renderer {
                         &textures.b_bind
                     }
                 }
-                image => &self.image_binds[&image],
+                image @ Texture::Image { .. } => &self.image_binds[&image],
             };
             if mode != Some(step.mode) {
                 pass.set_pipeline(&self.pipelines[step.mode as usize]);

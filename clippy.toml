@@ -1,0 +1,16 @@
+# The limits clippy holds the code to, beyond its own.
+#
+# The first three are only as loose as the worst function needs today: the
+# longest is `set_up` at 397 lines, the most tangled is `field` at 58, and
+# nothing is nested more than eight deep. They come down as those are broken
+# up, and are never to go up.
+too-many-lines-threshold = 400
+excessive-nesting-threshold = 8
+cognitive-complexity-threshold = 60
+
+# A test may say what it expects and fall over if it is wrong.
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
+
+# Names that are proper nouns, not code to be put in backticks.
+doc-valid-idents = ["ActionScript", "SplitMix64", ".."]

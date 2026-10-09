@@ -60,7 +60,11 @@ pub fn said(script: &Script, into: &mut impl Sink) {
 /// The notes made since this was last asked, and the sounds in full.
 pub fn heard(script: &mut Script, sounds: &Sounds, into: &mut impl Sink) {
     for note in script.runner.take_notes() {
-        into.words("note", &note.to_string());
+        // Written out as whatever a note is: text today, and anything that
+        // prints as the same text later.
+        #[expect(clippy::implicit_clone, reason = "a note may not always be a String")]
+        let note = note.to_string();
+        into.words("note", &note);
         into.next();
     }
     for sound in sounds.borrow_mut().drain(..) {

@@ -268,7 +268,10 @@ impl Menu {
 
     /// Puts something of the art's into a clip of the full match's, at a
     /// point.
-    #[allow(clippy::too_many_arguments)]
+    #[allow(
+        clippy::too_many_arguments,
+        reason = "it takes each thing it needs on its own, until they are gathered up"
+    )]
     fn add(
         holder: &[u16],
         symbol: SymbolId,
@@ -291,7 +294,10 @@ impl Menu {
     }
 
     /// Writes a line in the menu's own lettering.
-    #[allow(clippy::too_many_arguments)]
+    #[allow(
+        clippy::too_many_arguments,
+        reason = "it takes each thing it needs on its own, until they are gathered up"
+    )]
     fn write(
         holder: &[u16],
         depth: u16,
@@ -548,7 +554,10 @@ impl Menu {
         stage: &mut Stage,
         library: &Library,
     ) -> Option<Leave> {
-        use MenuPage::*;
+        use MenuPage::{
+            ArcadeSetup, ArcadeSummary, FullSetup, FullSummary, HighScores, Main, MatchSetup,
+            MatchSummary, Mods, ToArcade, ToFull, ToMatch,
+        };
         // A page that is still arriving cannot be used yet.
         if Menu::clip(stage).is_none_or(|menu| menu.playing) {
             return None;

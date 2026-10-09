@@ -3,6 +3,10 @@
 //! Lengths and positions are in pixels (Flash stores twentieths of a pixel).
 //! Frame numbers start at 1, as they do in ActionScript.
 
+// Outside the tests nothing is taken for granted: what may be missing is
+// dealt with, or the reason it cannot be is given.
+#![warn(clippy::unwrap_used)]
+
 use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
@@ -162,6 +166,10 @@ pub struct Frame {
     pub stops: bool,
 }
 
+#[expect(
+    clippy::trivially_copy_pass_by_ref,
+    reason = "serde hands the field over by reference"
+)]
 fn is_false(b: &bool) -> bool {
     !*b
 }
@@ -237,6 +245,10 @@ pub struct SoundStart {
     pub envelope: Vec<EnvelopePoint>,
 }
 
+#[expect(
+    clippy::trivially_copy_pass_by_ref,
+    reason = "serde hands the field over by reference"
+)]
 fn is_zero(n: &u16) -> bool {
     *n == 0
 }
@@ -480,6 +492,10 @@ pub enum Paint {
     },
 }
 
+#[expect(
+    clippy::trivially_copy_pass_by_ref,
+    reason = "serde hands the field over by reference"
+)]
 fn is_zero_f64(n: &f64) -> bool {
     *n == 0.0
 }

@@ -862,7 +862,10 @@ impl Match {
     }
 
     /// Turns the fielder to face the base and starts his throw.
-    #[allow(clippy::too_many_arguments)]
+    #[allow(
+        clippy::too_many_arguments,
+        reason = "it takes each thing it needs on its own, until they are gathered up"
+    )]
     fn wind_up(
         &self,
         state: &Fielding,
@@ -1213,8 +1216,8 @@ impl Match {
 
 /// A ball that is not there: nothing was hit. Only reached if a fielder is
 /// somehow sent after one, and then he runs to where he was told.
-fn unreachable_ball(at: Point) -> super::field::Ball {
-    super::field::Ball {
+fn unreachable_ball(at: Point) -> Ball {
+    Ball {
         at,
         speed: (0.0, 0.0),
         height: 0.0,

@@ -128,7 +128,7 @@ impl Audio {
                 }
                 self.playing.entry(start.sound).or_default().push(handle);
             }
-            Err(error) => self.problem(start.sound, format!("could not be played: {error}")),
+            Err(error) => self.problem(start.sound, &format!("could not be played: {error}")),
         }
     }
 
@@ -157,16 +157,16 @@ impl Audio {
                     Some(data.start_position(PlaybackPosition::Samples(skip)))
                 }
                 (SymbolInfo::Sound { .. }, Err(error)) => {
-                    self.problem(id, format!("could not be loaded: {error}"));
+                    self.problem(id, &format!("could not be loaded: {error}"));
                     None
                 }
                 _ => {
-                    self.problem(id, "is not a sound".to_owned());
+                    self.problem(id, "is not a sound");
                     None
                 }
             },
             None => {
-                self.problem(id, "does not exist".to_owned());
+                self.problem(id, "does not exist");
                 None
             }
         };
@@ -174,7 +174,7 @@ impl Audio {
         loaded
     }
 
-    fn problem(&mut self, id: SymbolId, what: String) {
+    fn problem(&mut self, id: SymbolId, what: &str) {
         let message = format!("sound {id} {what}");
         if !self.problems.contains(&message) {
             self.problems.push(message);

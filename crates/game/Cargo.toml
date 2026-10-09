@@ -22,3 +22,6 @@ clap = { version = "4", features = ["derive"] }
 serde = { workspace = true, features = ["derive"] }
 resvg = "0.48"
 toml = "1"
+
+[lints]
+workspace = true

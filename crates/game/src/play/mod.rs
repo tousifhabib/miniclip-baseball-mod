@@ -218,7 +218,7 @@ pub(crate) struct AtBat {
     /// the bat, which the view of the field has yet to be told.
     pub over_wall: bool,
     /// What the mods have written up in the view.
-    pub notices: Vec<overlay::Notice>,
+    pub notices: Vec<Notice>,
     /// Where the hit first came down, if it has and the called shot mod
     /// wants to know.
     pub came_down: Option<Point>,
@@ -1504,7 +1504,7 @@ impl Match {
         for them in &at_bat.them {
             them.keep(stage);
         }
-        overlay::Notice::fade(&mut at_bat.notices, stage);
+        Notice::fade(&mut at_bat.notices, stage);
         if let Some(leads) = &mut at_bat.leads {
             leads.keep(self, self.phase == Phase::WindUp, stage);
             self.hold_stealers(stage);

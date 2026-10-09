@@ -338,22 +338,24 @@ impl Baseball {
     }
 
     /// The colour under the pointer on one of the setup pages' strips.
-    fn picked(stage: &Stage, strip: &Option<Swatch>, name: &str) -> Option<Rgb> {
+    fn picked(stage: &Stage, strip: Option<&Swatch>, name: &str) -> Option<Rgb> {
         let shell = art::shell(stage)?;
         let path = stage.find_named(&shell, name)?;
         let (x, y) = stage.from_stage(&path, stage.pointer.x, stage.pointer.y)?;
-        strip.as_ref()?.at(x, y)
+        strip?.at(x, y)
     }
 
     /// Acts on a click on one of the setup pages' colour and logo choices.
     fn choose_look(&mut self, button: SymbolId, stage: &Stage) {
         let settings = &mut self.game.settings;
         if art::CLOTHES_STRIP_BUTTONS.contains(&button) {
-            if let Some(colour) = Baseball::picked(stage, &self.clothes_strip, "clothesPicker") {
+            if let Some(colour) =
+                Baseball::picked(stage, self.clothes_strip.as_ref(), "clothesPicker")
+            {
                 settings.clothes = Some(colour);
             }
         } else if art::SKIN_STRIP_BUTTONS.contains(&button) {
-            if let Some(colour) = Baseball::picked(stage, &self.skin_strip, "skinPicker") {
+            if let Some(colour) = Baseball::picked(stage, self.skin_strip.as_ref(), "skinPicker") {
                 settings.skin = Some(colour);
             }
         } else if button == art::CLOTHES_BUTTON.0 {

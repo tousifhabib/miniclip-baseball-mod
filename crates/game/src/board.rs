@@ -179,7 +179,7 @@ impl Sheet<'_> {
 /// first.
 fn innings(
     full: &FullMatch,
-    sheet: &mut Sheet,
+    sheet: &mut Sheet<'_>,
     middle: f32,
     top: f32,
     size: f32,
@@ -482,7 +482,7 @@ fn innings_pitched(batting: &Side) -> String {
 /// The page of what each batter of a side did. `fielding` is the side that
 /// was in the field, whose errors and whose pitcher's figures these are
 /// too.
-fn batting(side: &Side, fielding: &Side, ours: bool, sheet: &mut Sheet, stage: &mut Stage) {
+fn batting(side: &Side, fielding: &Side, ours: bool, sheet: &mut Sheet<'_>, stage: &mut Stage) {
     const ACROSS: [f32; 11] = [
         62.0, 108.0, 150.0, 192.0, 234.0, 276.0, 318.0, 364.0, 408.0, 450.0, 506.0,
     ];
@@ -540,7 +540,7 @@ fn batting(side: &Side, fielding: &Side, ours: bool, sheet: &mut Sheet, stage: &
 }
 
 /// The page of the two sides' figures, side by side.
-fn figures(ours: &Side, theirs: &Side, sheet: &mut Sheet, stage: &mut Stage) {
+fn figures(ours: &Side, theirs: &Side, sheet: &mut Sheet<'_>, stage: &mut Stage) {
     const SIZE: f32 = 0.68;
     const TOP: f32 = 90.0;
     const PITCH: f32 = 16.2;
@@ -686,7 +686,7 @@ fn mark(end: End) -> Rgb {
 
 /// The page of where a side's hits went: a picture of the field with a
 /// mark where each ball came down, and what they come to beside it.
-fn field(side: &Side, sheet: &mut Sheet, stage: &mut Stage) {
+fn field(side: &Side, sheet: &mut Sheet<'_>, stage: &mut Stage) {
     const SIZE: f32 = 0.68;
     let [left, top, wide, high] = FIELD_SEEN.map(|pixels| pixels * FIELD_SIZE);
     let (left, top) = (FIELD_AT.0 + left, FIELD_AT.1 + top);
@@ -767,7 +767,7 @@ fn field(side: &Side, sheet: &mut Sheet, stage: &mut Stage) {
 /// The page of how the player's swings were timed: a bar for each frame
 /// early or late, as tall as the swings that began on it are many, and what
 /// they come to under it.
-fn timing(side: &Side, sheet: &mut Sheet, stage: &mut Stage) {
+fn timing(side: &Side, sheet: &mut Sheet<'_>, stage: &mut Stage) {
     const SIZE: f32 = 0.66;
     const FLOOR: f32 = 228.0;
     const TALL: f32 = 96.0;
@@ -872,7 +872,7 @@ fn timing(side: &Side, sheet: &mut Sheet, stage: &mut Stage) {
 
 /// A page of an innings: the turns of the visitors' half down the left,
 /// and of the home side's down the right.
-fn turns(full: &FullMatch, innings: u32, part: usize, sheet: &mut Sheet, stage: &mut Stage) {
+fn turns(full: &FullMatch, innings: u32, part: usize, sheet: &mut Sheet<'_>, stage: &mut Stage) {
     const SIZE: f32 = 0.62;
     const TOP: f32 = 90.0;
     const PITCH: f32 = 13.6;

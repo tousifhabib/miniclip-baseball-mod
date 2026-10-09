@@ -96,7 +96,7 @@ impl Shift {
     /// the field, behind the pitcher in the batting view, and on the little
     /// field in its corner.
     pub(crate) fn place(
-        &self,
+        self,
         parts: &Parts,
         field: &FieldRules,
         stage: &mut Stage,

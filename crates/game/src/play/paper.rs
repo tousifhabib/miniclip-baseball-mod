@@ -89,7 +89,10 @@ enum Miss {
 /// is whether those runs win the match, which then ends the moment the
 /// last of them is in. `first_up` is whose turn it is. With `steals` their
 /// runners try for a base now and then, as those rules say.
-#[allow(clippy::too_many_arguments)]
+#[allow(
+    clippy::too_many_arguments,
+    reason = "it takes each thing it needs on its own, until they are gathered up"
+)]
 pub fn half(
     made: u32,
     winning: bool,
@@ -682,7 +685,7 @@ mod tests {
             match turn.end {
                 End::DoublePlay => assert_eq!(turn.outs_made, 2),
                 End::Strikeout | End::FlyOut | End::GroundOut | End::SacrificeFly => {
-                    assert_eq!(turn.outs_made, 1)
+                    assert_eq!(turn.outs_made, 1);
                 }
                 _ => assert_eq!(turn.outs_made, 0),
             }

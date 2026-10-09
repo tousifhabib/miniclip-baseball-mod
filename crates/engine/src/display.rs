@@ -780,7 +780,7 @@ struct Context<'a> {
 /// The transform to draw a graphic by, given the one its place in the tree
 /// gives it: the same, unless that would mirror text that is to be kept
 /// the right way round.
-fn righted(child: &Child, matrix: Matrix, context: &Context) -> Matrix {
+fn righted(child: &Child, matrix: Matrix, context: &Context<'_>) -> Matrix {
     if !context.upright_text || matrix.a * matrix.d - matrix.b * matrix.c >= 0.0 {
         return matrix;
     }
@@ -809,7 +809,7 @@ fn draw_children(
     matrix: Matrix,
     color: ColorTransform,
     in_mask: bool,
-    context: &Context,
+    context: &Context<'_>,
     out: &mut Vec<Command>,
 ) {
     // Masks that are in force, innermost last, with the depth each ends at.
@@ -850,7 +850,7 @@ fn draw_child(
     parent_matrix: Matrix,
     parent_color: ColorTransform,
     in_mask: bool,
-    context: &Context,
+    context: &Context<'_>,
     out: &mut Vec<Command>,
 ) {
     // A mask is only an outline, so filters do nothing to it.

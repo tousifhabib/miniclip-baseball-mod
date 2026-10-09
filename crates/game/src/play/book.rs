@@ -641,6 +641,7 @@ mod tests {
         }
     }
 
+    #[expect(clippy::unnecessary_wraps, reason = "it is handed straight to `close`")]
     fn ball(across: f32, far: f32, fly: bool) -> Option<Hit> {
         let ground = Ground::default();
         Some(Hit::at(&ground, ground.point(across, far), fly, None))

@@ -4,7 +4,10 @@
 //! These tests need the extracted art. Where it is missing they pass
 //! without checking anything, and say so.
 
-#![allow(dead_code)]
+#![allow(
+    dead_code,
+    reason = "each file of tests uses some of these and not the rest"
+)]
 
 use std::path::{Path, PathBuf};
 

@@ -27,3 +27,6 @@ image = { version = "0.25", default-features = false, features = ["png"] }
 resvg = "0.48"
 serde.workspace = true
 serde_json.workspace = true
+
+[lints]
+workspace = true

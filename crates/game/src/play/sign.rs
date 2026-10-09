@@ -112,7 +112,10 @@ pub(crate) struct Board {
 
 /// Puts a block of the art's on the stage as the four-sided shape with
 /// these two bottom corners, standing `tall` up from them.
-#[allow(clippy::too_many_arguments)]
+#[allow(
+    clippy::too_many_arguments,
+    reason = "it takes each thing it needs on its own, until they are gathered up"
+)]
 fn stand(
     holder: &[u16],
     depth: u16,
@@ -138,7 +141,10 @@ fn stand(
 impl Board {
     /// Draws the signs on the wall in both views, with `lit` the one that
     /// is lit.
-    #[allow(clippy::too_many_arguments)]
+    #[allow(
+        clippy::too_many_arguments,
+        reason = "it takes each thing it needs on its own, until they are gathered up"
+    )]
     pub fn put(
         signs: &Signs,
         lit: usize,

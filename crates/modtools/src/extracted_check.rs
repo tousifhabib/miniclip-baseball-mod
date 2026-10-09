@@ -81,7 +81,7 @@ impl Checker {
                 SymbolInfo::Shape { .. } | SymbolInfo::Bitmap { .. } | SymbolInfo::Sound { .. } => {
                     self.files += 1;
                     let path = self.dir.join(&symbol.file);
-                    let size = fs::metadata(&path).map(|meta| meta.len()).unwrap_or(0);
+                    let size = fs::metadata(&path).map_or(0, |meta| meta.len());
                     if size == 0 {
                         self.problem(format!("{} is missing or empty", symbol.file));
                     }

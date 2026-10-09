@@ -348,12 +348,7 @@ fn changed(game: &Game, written: &[Line], played: &[Line], whole: bool) -> Optio
             agreed = now.frame;
             continue;
         }
-        let what = if now.frame != then.frame {
-            format!(
-                "it ended after {} frames, where it had ended after {}",
-                now.frame, then.frame
-            )
-        } else {
+        let what = if now.frame == then.frame {
             let which = [
                 ("said", &now.said, &then.said),
                 ("heard", &now.heard, &then.heard),
@@ -365,6 +360,11 @@ fn changed(game: &Game, written: &[Line], played: &[Line], whole: bool) -> Optio
             .collect::<Vec<_>>()
             .join(", ");
             format!("by frame {} what was {which} had changed", now.frame)
+        } else {
+            format!(
+                "it ended after {} frames, where it had ended after {}",
+                now.frame, then.frame
+            )
         };
         return Some(format!(
             "`{}` went as it was written down for {agreed} frames, and {what}.\n    \

@@ -147,7 +147,7 @@ impl Builder {
             .tessellate_path(
                 path,
                 &options,
-                &mut BuffersBuilder::new(&mut self.buffers, |vertex: FillVertex| Vertex {
+                &mut BuffersBuilder::new(&mut self.buffers, |vertex: FillVertex<'_>| Vertex {
                     position: vertex.position().to_array(),
                     normal: [0.0, 0.0],
                     half_width: 0.0,
@@ -172,11 +172,13 @@ impl Builder {
             .tessellate_path(
                 path,
                 options,
-                &mut BuffersBuilder::new(&mut self.buffers, |vertex: StrokeVertex| Vertex {
-                    position: vertex.position_on_path().to_array(),
-                    normal: vertex.normal().to_array(),
-                    half_width,
-                    color,
+                &mut BuffersBuilder::new(&mut self.buffers, |vertex: StrokeVertex<'_, '_>| {
+                    Vertex {
+                        position: vertex.position_on_path().to_array(),
+                        normal: vertex.normal().to_array(),
+                        half_width,
+                        color,
+                    }
                 }),
             )
             .map_err(|error| anyhow!("tessellating a stroke: {error:?}"))?;

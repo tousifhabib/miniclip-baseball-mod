@@ -63,7 +63,10 @@ impl Words {
 
     /// The same in the lettering of another of the art's text fields, which
     /// has to be one that centres what it says.
-    #[allow(clippy::too_many_arguments)]
+    #[allow(
+        clippy::too_many_arguments,
+        reason = "it takes each thing it needs on its own, until they are gathered up"
+    )]
     pub fn in_field(
         symbol: SymbolId,
         holder: &[u16],
@@ -153,7 +156,10 @@ impl Notice {
     /// Puts `text` up with the middle of its top edge at `top`, taking the
     /// place of any notice of the same name. `size` is the size of the
     /// lettering, its own being 1.
-    #[allow(clippy::too_many_arguments)]
+    #[allow(
+        clippy::too_many_arguments,
+        reason = "it takes each thing it needs on its own, until they are gathered up"
+    )]
     pub fn put(
         notices: &mut Vec<Notice>,
         parts: &Parts,
