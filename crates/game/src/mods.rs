@@ -4,7 +4,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path as FilePath, PathBuf};
 
-use anyhow::{Context, Result};
+use anyhow::Result;
 use bb_engine::display::Path;
 use bb_engine::library::Library;
 use bb_engine::math::Matrix;
@@ -13,7 +13,7 @@ use bb_format::SymbolId;
 use serde::{Deserialize, Serialize};
 
 use crate::art;
-use crate::locate::APP_ID;
+use crate::kept;
 use crate::look::{self, Rgb};
 use crate::rules::Rules;
 
@@ -402,23 +402,14 @@ impl Mods {
     /// Where the choice is kept: beside the scores, in the game's folder
     /// under Application Support.
     pub fn usual_file() -> Option<PathBuf> {
-        let home = std::env::var_os("HOME")?;
-        Some(
-            PathBuf::from(home)
-                .join("Library/Application Support")
-                .join(APP_ID)
-                .join("mods.toml"),
-        )
+        kept::usual_file("mods.toml")
     }
 
     /// Reads which mods are on. A file that is missing or cannot be read
     /// leaves every mod off, and a mod the game no longer has is passed
     /// over: neither should stop anyone playing.
     pub fn load(file: &FilePath) -> Mods {
-        let saved: Saved = std::fs::read_to_string(file)
-            .ok()
-            .and_then(|text| toml::from_str(&text).ok())
-            .unwrap_or_default();
+        let saved: Saved = kept::read(file).unwrap_or_default();
         Mods {
             on: saved
                 .on
@@ -434,10 +425,6 @@ impl Mods {
     }
 
     pub fn save(&self, file: &FilePath) -> Result<()> {
-        if let Some(folder) = file.parent() {
-            std::fs::create_dir_all(folder)
-                .with_context(|| format!("making {}", folder.display()))?;
-        }
         let saved = Saved {
             on: self.all_on().map(|each| each.key().to_owned()).collect(),
             levels: self
@@ -446,8 +433,7 @@ impl Mods {
                 .map(|(which, &level)| (which.key().to_owned(), level))
                 .collect(),
         };
-        let text = toml::to_string(&saved).context("writing out the mods")?;
-        std::fs::write(file, text).with_context(|| format!("writing {}", file.display()))
+        kept::write(file, &saved, "the mods")
     }
 }
 

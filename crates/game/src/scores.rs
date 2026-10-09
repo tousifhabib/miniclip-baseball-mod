@@ -6,10 +6,10 @@
 
 use std::path::{Path, PathBuf};
 
-use anyhow::{Context, Result};
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
-use crate::locate::APP_ID;
+use crate::kept;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Entry {
@@ -35,22 +35,13 @@ impl Scores {
     /// Where the table is kept: in the game's folder under Application
     /// Support.
     pub fn usual_file() -> Option<PathBuf> {
-        let home = std::env::var_os("HOME")?;
-        Some(
-            PathBuf::from(home)
-                .join("Library/Application Support")
-                .join(APP_ID)
-                .join("scores.toml"),
-        )
+        kept::usual_file("scores.toml")
     }
 
     /// Reads the table. A file that is missing or cannot be read is an empty
     /// table: a damaged file should not stop anyone playing.
     pub fn load(file: &Path) -> Scores {
-        std::fs::read_to_string(file)
-            .ok()
-            .and_then(|text| toml::from_str(&text).ok())
-            .unwrap_or_default()
+        kept::read(file).unwrap_or_default()
     }
 
     /// Puts a score in its place. Among equal scores the earlier stays
@@ -76,12 +67,7 @@ impl Scores {
     }
 
     pub fn save(&self, file: &Path) -> Result<()> {
-        if let Some(folder) = file.parent() {
-            std::fs::create_dir_all(folder)
-                .with_context(|| format!("making {}", folder.display()))?;
-        }
-        let text = toml::to_string(self).context("writing out the scores")?;
-        std::fs::write(file, text).with_context(|| format!("writing {}", file.display()))
+        kept::write(file, self, "the scores")
     }
 }
 
