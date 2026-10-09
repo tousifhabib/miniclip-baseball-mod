@@ -8,17 +8,16 @@
 //! what the step before left.
 
 use bb_engine::library::Library;
-use bb_engine::math::ColorTransform;
 use bb_engine::stage::Stage;
 
 use super::book::ORDER;
-use super::mods::{GoldenBall, Line};
+use super::mods::{GoldenBall, Line, TiredArm};
 use super::overlay::{Notices, Says};
 use super::pitch::{Choice, Kind, Mound, Pitch, Point};
 use super::zinger::Zinger;
 use super::{
-    AtBat, Corner, FLUSH, MYSTERY_TOP, Match, Outcome, Parts, Phase, Place, Runner, at, bullet,
-    full, shift, show, sign, southpaw, steal, timing,
+    AtBat, Corner, MYSTERY_TOP, Match, Outcome, Parts, Phase, Place, Runner, at, bullet, full,
+    shift, show, sign, southpaw, steal, timing,
 };
 use crate::look;
 use crate::menu::Game;
@@ -93,7 +92,7 @@ impl Match {
         self.say_the_innings(&mut coming, stage, library);
         self.gild_the_ball(&mut coming, stage);
         self.heat_the_pitch(&mut coming, stage, library);
-        self.tire_the_arm(&mut coming, game, stage, library);
+        self.tire_the_arm(&mut coming, stage, library);
         self.widen_for_a_hot_bat(&mut coming, stage, library);
         Match::say_the_ball_is_golden(&mut coming, stage, library);
         self.say_it_is_the_clutch(&mut coming, stage, library);
@@ -257,58 +256,25 @@ impl Match {
 
     /// With the tired arm mod on, the pitcher is slower and wilder the more
     /// he has thrown, and one who has thrown his last gives way to a fresh
-    /// one. The arcade game is over before any arm tires.
-    fn tire_the_arm(
-        &mut self,
-        coming: &mut Coming,
-        game: &Game,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
-        if !game.mods.is_on(Mod::TiredArm) || self.mode.is_arcade() {
+    /// one.
+    fn tire_the_arm(&mut self, coming: &mut Coming, stage: &mut Stage, library: &Library) {
+        let Some(arm) = &mut self.mods.tired_arm else {
             return;
-        }
-        let arm = &game.rules.tired_arm;
-        if self.arm >= arm.relief.max(1) {
-            self.arm = 0;
-            self.relieved += 1;
+        };
+        if arm.relieve() {
             Match::sound(stage, library, "baseball_organ_FX");
             coming.notices.put(
-                Says::news(
-                    "newPitcher",
-                    "NEW PITCHER",
-                    [0xc8, 0xf0, 0xff],
-                    arm.told_time,
-                )
-                .at((coming.parts.centre_x, MYSTERY_TOP)),
+                arm.news().at((coming.parts.centre_x, MYSTERY_TOP)),
                 &coming.parts,
                 stage,
                 library,
             );
         }
-        let tired = arm.tired(self.arm);
-        self.tired = Some(tired);
-        coming.table = arm.pitch(&coming.table, tired);
+        let tired = arm.tire(&mut coming.table);
         if let Some(pitcher) = stage.child_mut(&coming.parts.pitcher) {
-            let left = 1.0 - FLUSH * tired;
-            pitcher.set_color(ColorTransform {
-                mult: [1.0, left, left, 1.0],
-                add: [0.0; 4],
-            });
+            pitcher.set_color(TiredArm::flush(tired));
         }
-        // From white, through yellow, to red.
-        let colour = [
-            0xff,
-            (0xff as f32 - 0x90 as f32 * tired) as u8,
-            (0xff as f32 - 0xc0 as f32 * tired.min(0.5) * 2.0) as u8,
-        ];
-        coming.notices.put(
-            Says::line("pitches", &format!("PITCHES {}", self.arm), colour)
-                .at(coming.corner.line()),
-            &coming.parts,
-            stage,
-            library,
-        );
+        coming.write(&arm.line(tired), stage, library);
     }
 
     /// With the hot bat mod on, every hit in a row has widened the window

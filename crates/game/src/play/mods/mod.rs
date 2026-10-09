@@ -13,6 +13,7 @@ mod heat_check;
 mod hot_bat;
 mod rally;
 mod sudden_death;
+mod tired_arm;
 
 use clutch::Clutch;
 pub(crate) use golden_ball::GoldenBall;
@@ -20,12 +21,14 @@ use heat_check::HeatCheck;
 use hot_bat::HotBat;
 use rally::Rally;
 use sudden_death::SuddenDeath;
+pub(crate) use tired_arm::TiredArm;
 
 use bb_engine::math::ColorTransform;
 
 use crate::look::Rgb;
 use crate::menu::Game;
 use crate::mods::Mod;
+use crate::play::snapshot::ArmSeen;
 use crate::rules::PitchRules;
 
 /// The colour of something this hot, from warm to as hot as it gets: a bat
@@ -52,6 +55,9 @@ pub(crate) struct ModsInPlay {
     hot_bat: Option<HotBat>,
     rally: Option<Rally>,
     sudden_death: Option<SuddenDeath>,
+    /// The pitcher's arm, which the game gets ready before each pitch in
+    /// several steps of its own.
+    pub(in crate::play) tired_arm: Option<TiredArm>,
 }
 
 impl ModsInPlay {
@@ -69,6 +75,7 @@ impl ModsInPlay {
             hot_bat: on(Mod::HotBat).then(|| HotBat::new(&rules.hot_bat)),
             rally: (on(Mod::Rally) && !arcade).then(|| Rally::new(&rules.rally)),
             sudden_death: on(Mod::SuddenDeath).then(|| SuddenDeath::new(&rules.sudden_death)),
+            tired_arm: (on(Mod::TiredArm) && !arcade).then(|| TiredArm::new(&rules.tired_arm)),
         }
     }
 
@@ -156,6 +163,18 @@ impl ModsInPlay {
     /// How many swings in a row have met the ball.
     pub fn hits_in_a_row(&self) -> u32 {
         self.hot_bat.as_ref().map_or(0, HotBat::streak)
+    }
+
+    /// The ball has left the pitcher's hand.
+    pub fn the_ball_was_thrown(&mut self) {
+        if let Some(arm) = &mut self.tired_arm {
+            arm.threw();
+        }
+    }
+
+    /// How the pitcher's arm is holding up.
+    pub fn arm(&self) -> Option<ArmSeen> {
+        self.tired_arm.as_ref().and_then(TiredArm::seen)
     }
 
     /// The bat has met the ball.

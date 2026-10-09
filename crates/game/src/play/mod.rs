@@ -46,7 +46,7 @@ use mode::Mode;
 use mods::ModsInPlay;
 use overlay::{Notices, Says};
 use pitch::{Kind, Mound, Pitch, Point, Quality};
-use snapshot::{ArmSeen, ModsSeen, PitchSeen, Score, Snapshot, Standing};
+use snapshot::{ModsSeen, PitchSeen, Score, Snapshot, Standing};
 use zinger::Zinger;
 
 /// How a match ended.
@@ -352,14 +352,6 @@ pub struct Match {
     pub(crate) caught: u32,
     pub(crate) steal_play: bool,
     steal_news: Option<(&'static str, Rgb)>,
-    /// How many pitches the pitcher on the mound has thrown, and how many
-    /// pitchers have come in for the one before, which the tired arm mod
-    /// goes by.
-    pub(crate) arm: u32,
-    pub(crate) relieved: u32,
-    /// How tired he is for the pitch in hand, from 0 to 1, with that mod
-    /// on.
-    pub(crate) tired: Option<f32>,
     /// How far across the field each fair ball of this game came down, from
     /// 0 on the left foul line to 1 on the right, the latest last. The shift
     /// mod has the fielders stand by it, and this is how far it has moved
@@ -386,9 +378,6 @@ const CORNER_ROW: f32 = 16.0;
 /// which is between the scoreboard and the pitcher. The tired arm mod says
 /// there that a new pitcher has come in.
 const MYSTERY_TOP: f32 = 141.0;
-/// How much of the green and the blue of a pitcher goes when he is spent,
-/// with the tired arm mod on: he is flushed.
-const FLUSH: f32 = 0.22;
 /// What makes the choice of the lit sign, with the hit the sign mod on,
 /// come out differently from the pitches, which are drawn from the seed
 /// itself: the same pitches come whether the mod is on or not.
@@ -499,9 +488,6 @@ impl Match {
             caught: 0,
             steal_play: false,
             steal_news: None,
-            arm: 0,
-            relieved: 0,
-            tired: None,
             spray: Vec::new(),
             shift: 0.0,
             longest_zinger: 0,
@@ -1073,7 +1059,7 @@ impl Match {
                     show(stage, &at_bat.parts.ball, true);
                     show(stage, &at_bat.parts.shadow, true);
                     self.pitched += 1;
-                    self.arm += 1;
+                    self.mods.the_ball_was_thrown();
                     self.stop_asking_for_steals(&mut at_bat, stage);
                     self.book_thrown();
                     if let Some(arcade) = self.mode.arcade_mut() {
@@ -1539,11 +1525,7 @@ impl Match {
             stealing,
             stolen: self.stolen,
             caught: self.caught,
-            arm: self.tired.map(|tired| ArmSeen {
-                thrown: self.arm,
-                tired,
-                relieved: self.relieved,
-            }),
+            arm: self.mods.arm(),
             shifted: self.shift,
         };
         let in_a_match = |score: Score, innings: Option<String>| Standing::Match {
