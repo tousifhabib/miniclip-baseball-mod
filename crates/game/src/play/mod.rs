@@ -309,14 +309,6 @@ pub struct Match {
     /// How many a run counts for on the pitch being played: one, unless a
     /// mod says more.
     pub(crate) run_worth: u32,
-    /// With the stolen bases mod on: how many bases have been stolen in
-    /// this game and how many runners caught at it, whether the play in the
-    /// field is one on which a base can be stolen, and how the last try
-    /// came out, until that has been told.
-    pub(crate) stolen: u32,
-    pub(crate) caught: u32,
-    pub(crate) steal_play: bool,
-    steal_news: Option<(&'static str, Rgb)>,
     runner_symbol: Option<SymbolId>,
 }
 
@@ -423,10 +415,6 @@ impl Match {
             outs_before: 0,
             thrown_at: (0, 0),
             run_worth: 1,
-            stolen: 0,
-            caught: 0,
-            steal_play: false,
-            steal_news: None,
             runner_symbol: library.manifest.exports.get("runner").copied(),
         }
     }
@@ -948,8 +936,8 @@ impl Match {
             sign_lit: self.mods.sign_lit(),
             sign_struck: self.mods.sign_struck(),
             stealing,
-            stolen: self.stolen,
-            caught: self.caught,
+            stolen: self.mods.steals().0,
+            caught: self.mods.steals().1,
             arm: self.mods.arm(),
             shifted: self.mods.shifted(),
         };

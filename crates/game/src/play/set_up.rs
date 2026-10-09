@@ -359,7 +359,7 @@ impl Match {
 
     /// Every runner still in the game stands where the last pitch left him.
     fn stand_the_runners(&mut self, coming: &Coming, stage: &mut Stage, library: &Library) {
-        self.steal_play = false;
+        self.mods.a_steal_is_in_play(false);
         for index in 0..self.runners.len() {
             self.runners[index].path = None;
             self.runners[index].running_to = None;

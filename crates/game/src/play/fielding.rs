@@ -204,7 +204,9 @@ impl Match {
         match (stealing, making_for) {
             // A runner caught stealing is out, and the batter's count is
             // as it was.
-            (Some(_), Some(base)) if self.steal_play => self.stole(runner, base, false),
+            (Some(_), Some(base)) if self.mods.is_a_steal_in_play() => {
+                self.stole(runner, base, false);
+            }
             _ => self.clear_count(),
         }
         self.announce = true;
@@ -238,7 +240,7 @@ impl Match {
         let was_batting = self.runners[runner].place == Place::AtBat;
         let path = self.runners[runner].path.clone();
         self.runners[runner].sliding = false;
-        if self.runners[runner].stole_from.take().is_some() && self.steal_play {
+        if self.runners[runner].stole_from.take().is_some() && self.mods.is_a_steal_in_play() {
             self.stole(runner, base, true);
         }
         if base == 4 {
@@ -407,7 +409,7 @@ impl Match {
         show(stage, &parts.field_ball, false);
         let pop = &rules.steal.pop;
         let wait = pop.low + self.rng.below(pop.high.saturating_sub(pop.low) + 1);
-        self.steal_play = true;
+        self.mods.a_steal_is_in_play(true);
         self.phase = Phase::Fielding;
         at_bat.fielding = Some(Fielding {
             walk: false,

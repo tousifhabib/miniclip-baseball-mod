@@ -22,9 +22,21 @@ use crate::play::overlay::{DARK, Says};
 use crate::play::pitch::Point;
 use crate::play::{AtBat, Match, Parts, Place, Runner, frame_of};
 
-/// The mod, in play. What the match keeps for it is with the match still:
-/// the bases stolen, the runners caught, and the news of the last try.
-pub(crate) struct StolenBases;
+/// The mod, in play: the bases stolen, the runners caught, and how the last
+/// try came out.
+#[derive(Default)]
+pub(crate) struct StolenBases {
+    /// How many bases have been stolen in this game, and how many runners
+    /// caught at it.
+    pub stolen: u32,
+    pub caught: u32,
+    /// Whether the play in the field is one on which a base can be stolen:
+    /// the pitch was not hit, and a runner had gone.
+    pub in_play: bool,
+    /// How the last try came out, and in what colour to say so, until that
+    /// has been told.
+    pub to_tell: Option<(&'static str, Rgb)>,
+}
 
 /// The sizes of a runner's mark on the little field and of the dark edge
 /// under it, the art's dot being 1, and how many times its size a mark
@@ -324,19 +336,22 @@ impl Match {
                 runner.stole_from = None;
             }
         }
-        self.steal_play = self.anyone_stealing();
+        let stealing = self.anyone_stealing();
+        self.mods.a_steal_is_in_play(stealing);
     }
 
     /// A runner who was stealing has got to `base`, or has been put out on
     /// his way there: it is counted, written in a full match's book, and
     /// told.
     pub(crate) fn stole(&mut self, runner: usize, base: u8, safe: bool) {
-        if safe {
-            self.stolen += 1;
-        } else {
-            self.caught += 1;
+        if let Some(steals) = &mut self.mods.stolen_bases {
+            if safe {
+                steals.stolen += 1;
+            } else {
+                steals.caught += 1;
+            }
+            steals.to_tell = Some(if safe { STOLEN } else { CAUGHT });
         }
-        self.steal_news = Some(if safe { STOLEN } else { CAUGHT });
         let order = self.runners[runner].order % ORDER;
         if let Some(full) = self.mode.full_mut() {
             let innings = full.innings();
@@ -352,7 +367,12 @@ impl Match {
         stage: &mut Stage,
         library: &Library,
     ) {
-        let Some((says, colour)) = self.steal_news.take() else {
+        let news = self
+            .mods
+            .stolen_bases
+            .as_mut()
+            .and_then(|steals| steals.to_tell.take());
+        let Some((says, colour)) = news else {
             return;
         };
         at_bat.notices.take_down("steal", stage);

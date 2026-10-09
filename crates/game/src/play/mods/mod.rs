@@ -104,7 +104,9 @@ pub(crate) struct ModsInPlay {
     /// The left-handed batter, whom the game stands at the plate and
     /// pitches to in steps of its own.
     pub(in crate::play) southpaw: Option<Southpaw>,
-    stolen_bases: Option<StolenBases>,
+    /// Stolen bases, which the fielding counts and tells of as a steal
+    /// comes off or fails.
+    pub(in crate::play) stolen_bases: Option<StolenBases>,
     sudden_death: Option<SuddenDeath>,
     /// The shift, which the game has move the fielders as the view is got
     /// ready.
@@ -135,7 +137,7 @@ impl ModsInPlay {
             // Nor any for a sign to be worth.
             hit_the_sign: (on(Mod::HitTheSign) && !arcade).then(|| HitTheSign::new(seed)),
             pinball_park: on(Mod::PinballPark).then_some(PinballPark),
-            stolen_bases: on(Mod::StolenBases).then_some(StolenBases),
+            stolen_bases: on(Mod::StolenBases).then(StolenBases::default),
             timing_indicator: on(Mod::TimingIndicator).then_some(TimingIndicator),
             zinger_hit: on(Mod::ZingerHit).then(ZingerHit::default),
             butterfingers: on(Mod::Butterfingers)
@@ -374,6 +376,29 @@ impl ModsInPlay {
     /// Whether runners may be sent to steal a base.
     pub fn runners_steal(&self) -> bool {
         self.stolen_bases.is_some()
+    }
+
+    /// Says whether the play in the field is one on which a base can be
+    /// stolen.
+    pub fn a_steal_is_in_play(&mut self, is: bool) {
+        if let Some(steals) = &mut self.stolen_bases {
+            steals.in_play = is;
+        }
+    }
+
+    /// Whether the play in the field is one on which a base can be stolen.
+    pub fn is_a_steal_in_play(&self) -> bool {
+        self.stolen_bases
+            .as_ref()
+            .is_some_and(|steals| steals.in_play)
+    }
+
+    /// How many bases have been stolen in this game, and how many runners
+    /// caught at it.
+    pub fn steals(&self) -> (u32, u32) {
+        self.stolen_bases
+            .as_ref()
+            .map_or((0, 0), |steals| (steals.stolen, steals.caught))
     }
 
     /// Whether the bar that shows when to swing is put up.
