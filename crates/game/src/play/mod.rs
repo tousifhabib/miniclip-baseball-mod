@@ -14,7 +14,6 @@ mod fielding;
 pub mod full;
 mod mode;
 mod mods;
-pub mod night;
 pub(crate) mod overlay;
 pub mod paper;
 mod pinball;
@@ -42,7 +41,7 @@ use crate::rules::{FieldRules, HitRules, PitchRules};
 use book::{End, ORDER, Thrown};
 use field::{Ball, Contact, Ground, Happened, reach};
 use mode::Mode;
-use mods::{ModsInPlay, southpaw};
+use mods::{ModsInPlay, night_game, southpaw};
 use overlay::Notices;
 use pitch::{Kind, Mound, Pitch, Point, Quality};
 use snapshot::{ModsSeen, PitchSeen, Score, Snapshot, Standing};
@@ -315,10 +314,6 @@ pub struct Match {
     /// How many a run counts for on the pitch being played: one, unless a
     /// mod says more.
     pub(crate) run_worth: u32,
-    /// A home run has just been hit, which the night game mod has yet to
-    /// flash the lights for, and the frames of a flash still to come.
-    pub(crate) lights: bool,
-    flash: u32,
     /// With the bullet time mod on: how many frames of holding the ball
     /// back are left in the meter, how many frames it has been held back
     /// for, whether it is being held back now, and a click made on a frame
@@ -462,8 +457,6 @@ impl Match {
             outs_before: 0,
             thrown_at: (0, 0),
             run_worth: 1,
-            lights: false,
-            flash: 0,
             bullet: None,
             slow_beat: 0,
             slowed: false,
@@ -549,7 +542,7 @@ impl Match {
     ) {
         let record = self.count_zinger(show.zinger.feet);
         show.landed(record, stage);
-        self.lights = true;
+        self.mods.a_home_run_was_hit();
         let mut sounds = show.place.cheers().to_vec();
         if record && !sounds.contains(&"baseball_organ_FX") {
             sounds.push("baseball_organ_FX");
@@ -935,23 +928,9 @@ impl Match {
         // The stadium is lit as by day, unless it is night, and is cooler
         // while bullet time holds the ball back.
         let slowed = std::mem::take(&mut self.slowed);
-        let night = game.mods.is_on(Mod::NightGame);
-        if night || game.mods.is_on(Mod::BulletTime) {
-            if std::mem::take(&mut self.lights) && night {
-                self.flash = game.rules.night.flash_time;
-            }
-            let lighting = if night {
-                night::lighting(self.flash, &game.rules.night)
-            } else {
-                night::DAY
-            };
-            let lighting = if slowed {
-                bullet::cool(lighting)
-            } else {
-                lighting
-            };
-            night::light(lighting, stage);
-            self.flash = self.flash.saturating_sub(1);
+        let cooled = game.mods.is_on(Mod::BulletTime).then_some(slowed);
+        if let Some(lighting) = self.mods.lighting(cooled) {
+            night_game::light(lighting, stage);
         }
 
         if self.phase == Phase::Arriving {

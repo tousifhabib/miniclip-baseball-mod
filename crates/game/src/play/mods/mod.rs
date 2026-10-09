@@ -15,6 +15,7 @@ mod hot_bat;
 mod knuckleball;
 mod lone_pitcher;
 mod mystery_pitch;
+pub(crate) mod night_game;
 mod rally;
 pub(crate) mod southpaw;
 mod sudden_death;
@@ -29,6 +30,7 @@ use hot_bat::HotBat;
 use knuckleball::Knuckleball;
 use lone_pitcher::LonePitcher;
 use mystery_pitch::MysteryPitch;
+use night_game::NightGame;
 use rally::Rally;
 use southpaw::Southpaw;
 use sudden_death::SuddenDeath;
@@ -40,6 +42,7 @@ use bb_engine::math::ColorTransform;
 use crate::look::Rgb;
 use crate::menu::Game;
 use crate::mods::Mod;
+use crate::play::bullet;
 use crate::play::snapshot::ArmSeen;
 use crate::rng::Rng;
 use crate::rules::PitchRules;
@@ -72,6 +75,7 @@ pub(crate) struct ModsInPlay {
     pub(in crate::play) knuckleball: Option<Knuckleball>,
     lone_pitcher: Option<LonePitcher>,
     pub(in crate::play) mystery_pitch: Option<MysteryPitch>,
+    night_game: Option<NightGame>,
     rally: Option<Rally>,
     /// The left-handed batter, whom the game stands at the plate and
     /// pitches to in steps of its own.
@@ -102,6 +106,7 @@ impl ModsInPlay {
             knuckleball: on(Mod::Knuckleball).then(|| Knuckleball::new(&rules.knuckleball)),
             lone_pitcher: on(Mod::LonePitcher).then_some(LonePitcher),
             mystery_pitch: on(Mod::MysteryPitch).then(|| MysteryPitch::new(&rules.mystery)),
+            night_game: on(Mod::NightGame).then(|| NightGame::new(&rules.night)),
             rally: (on(Mod::Rally) && !arcade).then(|| Rally::new(&rules.rally)),
             southpaw: on(Mod::Southpaw).then(Southpaw::default),
             sudden_death: on(Mod::SuddenDeath).then(|| SuddenDeath::new(&rules.sudden_death)),
@@ -226,6 +231,32 @@ impl ModsInPlay {
     /// this frame.
     pub fn hurry_the_runners(&mut self) -> u16 {
         self.turbo_runners.as_mut().map_or(0, TurboRunners::hurry)
+    }
+
+    /// A home run has been hit, or a zinger has come down.
+    pub fn a_home_run_was_hit(&mut self) {
+        if let Some(night) = &mut self.night_game {
+            night.a_home_run_was_hit();
+        }
+    }
+
+    /// How the stadium is to be lit this frame, if any mod has a say in
+    /// it: dark by night, flashing for a home run, and cooler while the
+    /// ball is being held back. `cooled` is whether it is, and whether the
+    /// mod that holds it back is in play.
+    pub fn lighting(&mut self, cooled: Option<bool>) -> Option<ColorTransform> {
+        if self.night_game.is_none() && cooled.is_none() {
+            return None;
+        }
+        let lighting = match &mut self.night_game {
+            Some(night) => night.lighting(),
+            None => night_game::DAY,
+        };
+        Some(if cooled == Some(true) {
+            bullet::cool(lighting)
+        } else {
+            lighting
+        })
     }
 
     /// Whether the batter is batting left-handed, once he has taken his

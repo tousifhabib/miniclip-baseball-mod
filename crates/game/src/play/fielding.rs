@@ -1022,7 +1022,7 @@ impl Match {
         state.home_run = true;
         state.live = false;
         state.job = Job::Rest;
-        self.lights = true;
+        self.mods.a_home_run_was_hit();
         let worth = self.run_worth;
         // The batter has reached every base there is.
         if self.batter().is_some() {
