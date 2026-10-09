@@ -462,12 +462,39 @@ impl Match {
         stage: &mut Stage,
         library: &Library,
     ) {
-        let rules = &game.rules.field;
         let parts = at_bat.parts.clone();
         let Some(mut state) = at_bat.fielding.take() else {
             return;
         };
         state.frames += 1;
+        self.move_the_loose_ball(at_bat, &mut state, &parts, game, stage, library);
+        Match::watch_zinger(&mut state, &parts, game, stage, library);
+        self.do_the_fielders_job(at_bat, &mut state, &parts, game, stage, library);
+
+        let down = at_bat.ball.is_some_and(|ball| ball.bounced);
+        self.move_runners(&state, down, &parts, stage, library);
+        self.tell_steal(at_bat, game.rules.steal.told_time, stage, library);
+        self.tell_sign(at_bat, game.rules.sign.told_time, stage, library);
+
+        if self.the_play_is_over(&mut state, &parts, game, stage, library) {
+            self.end_the_play(at_bat, &state, &parts, game, stage, library);
+        }
+        at_bat.fielding = Some(state);
+    }
+
+    /// Moves the ball on by a frame, for as long as nobody has hold of it:
+    /// through the air, off the ground, off the wall or over it, with
+    /// whatever comes of each.
+    fn move_the_loose_ball(
+        &mut self,
+        at_bat: &mut AtBat,
+        state: &mut Fielding,
+        parts: &Parts,
+        game: &Game,
+        stage: &mut Stage,
+        library: &Library,
+    ) {
+        let rules = &game.rules.field;
         let miss = at_bat.contact.map_or(0.0, |contact| contact.miss());
 
         // The ball, for as long as nobody has hold of it.
@@ -493,7 +520,7 @@ impl Match {
             if pinball && !state.home_run && !state.gone {
                 // In a pinball park the wall and the foul lines send it
                 // back, and whoever is nearest takes up the chase.
-                let park = pinball::Park::of(&parts);
+                let park = pinball::Park::of(parts);
                 happened = pinball::rebound(ball, before, happened, &park, rules);
                 if happened == Happened::HitWall {
                     at_bat.rebounds += 1;
@@ -529,7 +556,7 @@ impl Match {
                 inner.move_to(inner.matrix.tx, -ball.height);
             }
             if let (Some(shown), false) = (&mut at_bat.zinger_show, ball.bounced) {
-                shown.follow(ball, &parts, stage);
+                shown.follow(ball, parts, stage);
             }
             // The first time it comes down, a shot that was called for
             // there comes off.
@@ -551,7 +578,7 @@ impl Match {
                             )
                             .at((parts.centre_x, CALLED_TOP))
                             .sized(1.2),
-                            &parts,
+                            parts,
                             stage,
                             library,
                         );
@@ -570,13 +597,13 @@ impl Match {
                 Happened::Cleared if state.live => {
                     // Where it would come down, beyond the wall.
                     state.land = ball.landing(parts.home, miss, rules);
-                    self.home_run(&mut state, &parts, stage, library);
+                    self.home_run(state, parts, stage, library);
                 }
                 // Back off the wall: somebody has to go and get it.
                 Happened::HitWall if state.live => state.job = Job::Chase,
                 Happened::Landed if state.gone && !state.home_run => {
                     state.land = ball.at;
-                    self.home_run(&mut state, &parts, stage, library);
+                    self.home_run(state, parts, stage, library);
                     if let Some(shown) = &mut at_bat.zinger_show {
                         self.zinger_down(shown, stage, library);
                     }
@@ -587,8 +614,21 @@ impl Match {
         if let Some((across, height)) = at_wall {
             self.strike_sign(at_bat, across, height, &game.rules.sign);
         }
-        Match::watch_zinger(&mut state, &parts, game, stage, library);
+    }
 
+    /// Has the fielder whose ball it is do what he is doing for a frame:
+    /// run for it, wait under it, pick it up, draw back, throw it, or go
+    /// after it again when he has let it go.
+    fn do_the_fielders_job(
+        &mut self,
+        at_bat: &mut AtBat,
+        state: &mut Fielding,
+        parts: &Parts,
+        game: &Game,
+        stage: &mut Stage,
+        library: &Library,
+    ) {
+        let rules = &game.rules.field;
         let fielder = parts.fielders[state.fielder].clone();
         let here = at(stage, &fielder);
         match state.job {
@@ -622,10 +662,10 @@ impl Match {
                         // It squirts out of his hands as he bends for it.
                         state.fumbled = true;
                         stage.goto_label(&fielder, state.facing.pick_label(), false, library);
-                        self.let_go(&mut at_bat.ball, &parts, game);
+                        self.let_go(&mut at_bat.ball, parts, game);
                         Match::sound(stage, library, "crowd_smallCheer");
                         let told = &mut at_bat.notices;
-                        Match::tell(told, "FUMBLED!", next, &parts, game, stage, library);
+                        Match::tell(told, "FUMBLED!", next, parts, game, stage, library);
                         state.job = Job::Fumbling {
                             left: game.rules.butterfingers.fumble_time,
                         };
@@ -633,7 +673,7 @@ impl Match {
                         state.fumbled = false;
                         show(stage, &parts.field_ball, false);
                         stage.goto_label(&fielder, state.facing.pick_label(), false, library);
-                        state.throw_to = self.pick_base(next, &parts);
+                        state.throw_to = self.pick_base(next, parts);
                         state.job = Job::PickUp {
                             left: rules.pick_time,
                         };
@@ -656,11 +696,11 @@ impl Match {
                         // It is in his glove and out again: nobody is out,
                         // and the ball is on the ground.
                         state.dropped = true;
-                        self.let_go(&mut at_bat.ball, &parts, game);
+                        self.let_go(&mut at_bat.ball, parts, game);
                         Match::sound(stage, library, "ballCatch_3");
                         Match::sound(stage, library, "crowd_smallCheer");
                         let told = &mut at_bat.notices;
-                        Match::tell(told, "DROPPED!", here, &parts, game, stage, library);
+                        Match::tell(told, "DROPPED!", here, parts, game, stage, library);
                         state.job = Job::Fumbling {
                             left: game.rules.butterfingers.fumble_time,
                         };
@@ -687,15 +727,15 @@ impl Match {
                             }
                             self.put_out(batter, stage, library);
                         }
-                        state.throw_to = self.pick_base(here, &parts);
+                        state.throw_to = self.pick_base(here, parts);
                         state.job =
-                            self.wind_up(&state, here, &fielder, &parts, game, stage, library);
+                            self.wind_up(state, here, &fielder, parts, game, stage, library);
                     }
                 }
             }
             Job::PickUp { left } => {
                 state.job = if left == 0 {
-                    self.wind_up(&state, here, &fielder, &parts, game, stage, library)
+                    self.wind_up(state, here, &fielder, parts, game, stage, library)
                 } else {
                     Job::PickUp { left: left - 1 }
                 };
@@ -733,7 +773,7 @@ impl Match {
                     }
                     if distance(ball.at, to) < rules.throw_near {
                         let told = &mut at_bat.notices;
-                        self.ball_at_base(&mut state, told, &parts, game, stage, library);
+                        self.ball_at_base(state, told, parts, game, stage, library);
                     }
                 }
             }
@@ -748,21 +788,28 @@ impl Match {
                 if left == 0 {
                     show(stage, &parts.field_ball, false);
                     stage.goto_label(&fielder, "baseWaiting", false, library);
-                    self.hold_or_throw_on(&mut state, &parts, game, stage, library);
+                    self.hold_or_throw_on(state, parts, game, stage, library);
                 } else {
                     state.job = Job::Gather { left: left - 1 };
                 }
             }
             Job::Rest => {}
         }
+    }
 
-        let down = at_bat.ball.is_some_and(|ball| ball.bounced);
-        self.move_runners(&state, down, &parts, stage, library);
-        self.tell_steal(at_bat, game.rules.steal.told_time, stage, library);
-        self.tell_sign(at_bat, game.rules.sign.told_time, stage, library);
-
-        // How the play ends.
-        let over = if state.foul || state.home_run {
+    /// Whether the play has come to its end: a foul or a home run once its
+    /// picture has played out, a walk once everyone has walked, and any
+    /// other once the ball is dead or has been in play too long.
+    fn the_play_is_over(
+        &self,
+        state: &mut Fielding,
+        parts: &Parts,
+        game: &Game,
+        stage: &mut Stage,
+        library: &Library,
+    ) -> bool {
+        let rules = &game.rules.field;
+        if state.foul || state.home_run {
             state.since_settled += 1;
             // The foul and home-run pictures play themselves out first.
             if state.home_run
@@ -776,35 +823,47 @@ impl Match {
             !self.anyone_running()
         } else {
             !state.live || state.frames > rules.longest
-        };
-        if over {
-            // Anyone still between bases when a play is called dead is given
-            // the base he was making for.
-            for runner in 0..self.runners.len() {
-                if self.runners[runner].running_to.is_some() {
-                    self.arrive(runner, &parts, stage, library);
-                }
-            }
-            if !state.walk && !state.foul && !state.steal {
-                // Where it went is remembered, for the shift to go by.
-                let ground = parts.ground(rules);
-                self.mods.a_fair_ball_came_down(ground.across(state.land));
-            }
-            // A hit puts some of bullet time's meter back, and a home run
-            // all of it.
-            let batter = state.batter.and_then(|batter| self.runners.get(batter));
-            let hit = !state.walk && !state.foul && !state.steal;
-            match batter.map(|batter| batter.place) {
-                Some(Place::Home) if hit => self.refill_bullet_time(1.0, &game.rules.bullet_time),
-                Some(Place::Base(_)) if hit => {
-                    self.refill_bullet_time(game.rules.bullet_time.hit, &game.rules.bullet_time);
-                }
-                _ => {}
-            }
-            self.book_play(at_bat, &state);
-            self.ready(&parts, stage, library);
         }
-        at_bat.fielding = Some(state);
+    }
+
+    /// Calls the play dead: runners between bases are given the base they
+    /// were making for, the mods are told how it went, it goes in the book,
+    /// and the next pitch is put on offer.
+    fn end_the_play(
+        &mut self,
+        at_bat: &mut AtBat,
+        state: &Fielding,
+        parts: &Parts,
+        game: &Game,
+        stage: &mut Stage,
+        library: &Library,
+    ) {
+        let rules = &game.rules.field;
+        // Anyone still between bases when a play is called dead is given
+        // the base he was making for.
+        for runner in 0..self.runners.len() {
+            if self.runners[runner].running_to.is_some() {
+                self.arrive(runner, parts, stage, library);
+            }
+        }
+        if !state.walk && !state.foul && !state.steal {
+            // Where it went is remembered, for the shift to go by.
+            let ground = parts.ground(rules);
+            self.mods.a_fair_ball_came_down(ground.across(state.land));
+        }
+        // A hit puts some of bullet time's meter back, and a home run
+        // all of it.
+        let batter = state.batter.and_then(|batter| self.runners.get(batter));
+        let hit = !state.walk && !state.foul && !state.steal;
+        match batter.map(|batter| batter.place) {
+            Some(Place::Home) if hit => self.refill_bullet_time(1.0, &game.rules.bullet_time),
+            Some(Place::Base(_)) if hit => {
+                self.refill_bullet_time(game.rules.bullet_time.hit, &game.rules.bullet_time);
+            }
+            _ => {}
+        }
+        self.book_play(at_bat, state);
+        self.ready(parts, stage, library);
     }
 
     /// In a full match, writes a play that is over into the book: a foul,

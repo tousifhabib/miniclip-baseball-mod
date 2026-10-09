@@ -1,12 +1,14 @@
 # The limits clippy holds the code to, beyond its own.
 #
-# The first three are only as loose as the worst function needs today: the
-# longest is `field` at 306 lines, which is also the most tangled at 58, and
-# nothing is nested more than eight deep. They come down as those are broken
-# up, and are never to go up.
-too-many-lines-threshold = 310
+# The first three are only as loose as the worst function needs today. The
+# longest is the renderer's `new` at 209 lines, and in the game a fielder's
+# job at 154. The most tangled is a test that reads a whole match's pages,
+# at 42, and in the game an innings played on paper, at 40. Nothing is
+# nested more than eight deep. They come down as those are broken up, and
+# are never to go up.
+too-many-lines-threshold = 210
 excessive-nesting-threshold = 8
-cognitive-complexity-threshold = 60
+cognitive-complexity-threshold = 45
 
 # A test may say what it expects and fall over if it is wrong.
 allow-unwrap-in-tests = true
