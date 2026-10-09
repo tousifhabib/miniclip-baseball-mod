@@ -252,8 +252,19 @@ impl Mods {
             .unwrap_or_else(|| which.usual_level())
     }
 
+    /// Puts a mod's setting at a level, counted from 1. Nothing here knows
+    /// how many levels the rules give it: see [`Mods::keep_within`].
     pub fn set_level(&mut self, which: Mod, level: u8) {
         self.levels.insert(which, level.max(1));
+    }
+
+    /// Brings every setting back within the levels these rules give it. A
+    /// level asked for on the command line, or kept in a file written by
+    /// hand or for other rules, may be more than there are.
+    pub fn keep_within(&mut self, rules: &Rules) {
+        for (which, level) in &mut self.levels {
+            *level = (*level).clamp(1, which.levels(rules).max(1));
+        }
     }
 
     /// Where the choice is kept: beside the scores, in the game's folder
@@ -716,6 +727,24 @@ mod tests {
         // A mod with no setting has no levels.
         assert_eq!(Mod::LonePitcher.setting(), None);
         assert_eq!(Mod::LonePitcher.levels(&rules), 0);
+    }
+
+    #[test]
+    fn a_setting_put_higher_than_it_goes_is_brought_back_to_the_most_there_is() {
+        let rules = Rules::default();
+        let mut mods = Mods::default();
+        mods.set_level(Mod::Butterfingers, 9);
+        mods.set_level(Mod::MoonBall, 2);
+        mods.keep_within(&rules);
+        let most = Mod::Butterfingers.levels(&rules);
+        assert_eq!(most, 5);
+        assert_eq!(mods.level(Mod::Butterfingers), most);
+        // One that was within what there is stays where it was put.
+        assert_eq!(mods.level(Mod::MoonBall), 2);
+        // Rules with fewer levels bring it down further.
+        let fewer = Rules::layered(&[("fewer", "[butterfingers]\nchance = [10, 50]\n")]).unwrap();
+        mods.keep_within(&fewer);
+        assert_eq!(mods.level(Mod::Butterfingers), 2);
     }
 
     #[test]

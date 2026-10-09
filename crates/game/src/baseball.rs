@@ -198,6 +198,7 @@ impl Baseball {
     /// Keeps the choice of mods in this file, starting from what it holds.
     pub fn keep_mods_in(&mut self, file: std::path::PathBuf) {
         self.game.mods = Mods::load(&file);
+        self.game.mods.keep_within(&self.game.rules);
         self.mods_file = Some(file);
     }
 
@@ -210,6 +211,7 @@ impl Baseball {
     /// down.
     pub fn set_mod_level(&mut self, which: Mod, level: u8) {
         self.game.mods.set_level(which, level);
+        self.game.mods.keep_within(&self.game.rules);
     }
 
     /// Acts on a click on one of the boxes on the mods' page.
@@ -221,6 +223,7 @@ impl Baseball {
             Some(Asked::Level(which, level)) => self.game.mods.set_level(which, level),
             None => return,
         }
+        self.game.mods.keep_within(&self.game.rules);
         if let Some(file) = &self.mods_file
             && let Err(error) = self.game.mods.save(file)
         {
@@ -373,6 +376,8 @@ impl Baseball {
     /// Plays by `rules` instead of the ones built in.
     pub fn play_by(&mut self, rules: Rules) {
         self.game.rules = rules;
+        // These rules may give a mod's setting fewer levels than it is at.
+        self.game.mods.keep_within(&self.game.rules);
     }
 
     /// Opens on `screen` instead of the intro.
