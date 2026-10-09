@@ -35,7 +35,7 @@ use bb_engine::stage::Stage;
 use bb_format::SymbolId;
 
 use crate::art;
-use crate::look::{self, Look, Rgb};
+use crate::look::{Look, Rgb};
 use crate::menu::Game;
 use crate::mods::Mod;
 use crate::rng::Rng;
@@ -316,9 +316,6 @@ pub struct Match {
     /// How many times a fielder has let the ball go in this game, with the
     /// butterfingers mod on.
     pub(crate) slips: u32,
-    /// With the hot bat mod on: how many swings in a row have met the
-    /// ball.
-    pub(crate) streak: u32,
     /// How many a run counts for on the pitch being played: one, unless a
     /// mod says more.
     pub(crate) run_worth: u32,
@@ -439,12 +436,6 @@ impl Corner {
     }
 }
 
-/// The colour of a bat this hot, from warm to as hot as it gets.
-fn hot_colour(hot: u32, most: u32) -> Rgb {
-    let share = hot as f32 / most.max(1) as f32;
-    [0xff, (0xc8 as f32 - 0x98 as f32 * share) as u8, 0x20]
-}
-
 /// Where across the batting view the art's pointer shows a hit going, for a
 /// ball that crosses at `crosses` with the ring held at `aim`. Aiming to
 /// one side sends the ball the other way, and a ball that comes in
@@ -491,7 +482,6 @@ impl Match {
             outs_before: 0,
             thrown_at: (0, 0),
             slips: 0,
-            streak: 0,
             run_worth: 1,
             lights: false,
             flash: 0,
@@ -1012,10 +1002,8 @@ impl Match {
                     (left..=right).contains(&x) && (top..=bottom).contains(&y)
                 });
         Match::still_batter(stage, &at_bat.parts.hitter, library);
-        if game.mods.is_on(Mod::HotBat) && self.streak > 0 {
+        if let Some(glow) = self.mods.glow_of_the_bat() {
             // The mark on the bat glows, hotter the longer the run of hits.
-            let most = rules.hot_bat.most;
-            let glow = look::tint(hot_colour(self.streak.min(most), most));
             for mark in art::all_named(stage, &at_bat.parts.hitter, "batLogo") {
                 if let Some(mark) = stage.child_mut(&mark) {
                     mark.set_color(glow);
@@ -1240,9 +1228,7 @@ impl Match {
         });
         if let (true, Some((frames, quality, power))) = (in_band, met) {
             at_bat.met = Some(quality);
-            if game.mods.is_on(Mod::HotBat) {
-                self.streak += 1;
-            }
+            self.mods.the_bat_met_the_ball();
             // With the zinger mod on, whatever the bat meets is on its way
             // out of the ground.
             let zinger = game
@@ -1376,7 +1362,6 @@ impl Match {
             // A strike on a golden ball is all the strikes there are.
             self.strikes = self.strikes.max(self.strikes_allowed(game));
         }
-        self.streak = 0;
         self.mods.a_strike_was_called();
         if let Some(anim) = &parts.strike_anim {
             let label = format!("strike{}", self.strikes.min(3));
@@ -1544,7 +1529,7 @@ impl Match {
         let mods = ModsSeen {
             let_go: self.slips,
             heat: self.mods.heat(),
-            hits_in_a_row: self.streak,
+            hits_in_a_row: self.mods.hits_in_a_row(),
             rally: self.mods.in_a_row(),
             clutch: self.mods.clutch_this_pitch(),
             southpaw: self.southpaw,

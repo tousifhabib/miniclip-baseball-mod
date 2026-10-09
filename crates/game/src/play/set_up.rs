@@ -14,11 +14,11 @@ use bb_engine::stage::Stage;
 use super::book::ORDER;
 use super::mods::{GoldenBall, Line};
 use super::overlay::{Notices, Says};
-use super::pitch::{self, Choice, Kind, Mound, Pitch, Point};
+use super::pitch::{Choice, Kind, Mound, Pitch, Point};
 use super::zinger::Zinger;
 use super::{
     AtBat, Corner, FLUSH, MYSTERY_TOP, Match, Outcome, Parts, Phase, Place, Runner, at, bullet,
-    full, hot_colour, shift, show, sign, southpaw, steal, timing,
+    full, shift, show, sign, southpaw, steal, timing,
 };
 use crate::look;
 use crate::menu::Game;
@@ -94,7 +94,7 @@ impl Match {
         self.gild_the_ball(&mut coming, stage);
         self.heat_the_pitch(&mut coming, stage, library);
         self.tire_the_arm(&mut coming, game, stage, library);
-        self.widen_for_a_hot_bat(&mut coming, game, stage, library);
+        self.widen_for_a_hot_bat(&mut coming, stage, library);
         Match::say_the_ball_is_golden(&mut coming, stage, library);
         self.say_it_is_the_clutch(&mut coming, stage, library);
         self.say_what_a_rally_is_worth(&mut coming, stage, library);
@@ -313,27 +313,10 @@ impl Match {
 
     /// With the hot bat mod on, every hit in a row has widened the window
     /// by a frame at each end.
-    fn widen_for_a_hot_bat(
-        &self,
-        coming: &mut Coming,
-        game: &Game,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
-        if !game.mods.is_on(Mod::HotBat) || self.streak == 0 {
-            return;
+    fn widen_for_a_hot_bat(&self, coming: &mut Coming, stage: &mut Stage, library: &Library) {
+        if let Some(line) = self.mods.widen_for_a_hot_bat(&mut coming.table) {
+            coming.write(&line, stage, library);
         }
-        let most = game.rules.hot_bat.most;
-        let more = self.streak.min(most);
-        coming.table.window = pitch::widened(&coming.table.window, more);
-        let says = format!("HOT BAT {more}");
-        let colour = hot_colour(more, most);
-        coming.notices.put(
-            Says::line("hotBat", &says, colour).at(coming.corner.line()),
-            &coming.parts,
-            stage,
-            library,
-        );
     }
 
     fn say_the_ball_is_golden(coming: &mut Coming, stage: &mut Stage, library: &Library) {

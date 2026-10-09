@@ -10,19 +10,30 @@
 mod clutch;
 mod golden_ball;
 mod heat_check;
+mod hot_bat;
 mod rally;
 mod sudden_death;
 
 use clutch::Clutch;
 pub(crate) use golden_ball::GoldenBall;
 use heat_check::HeatCheck;
+use hot_bat::HotBat;
 use rally::Rally;
 use sudden_death::SuddenDeath;
+
+use bb_engine::math::ColorTransform;
 
 use crate::look::Rgb;
 use crate::menu::Game;
 use crate::mods::Mod;
 use crate::rules::PitchRules;
+
+/// The colour of something this hot, from warm to as hot as it gets: a bat
+/// that keeps meeting the ball, or a rally that keeps going.
+pub(crate) fn hot_colour(hot: u32, most: u32) -> Rgb {
+    let share = hot as f32 / most.max(1) as f32;
+    [0xff, (0xc8 as f32 - 0x98 as f32 * share) as u8, 0x20]
+}
 
 /// A line a mod writes in the corner of the batting view: what it is
 /// called on the stage, what it says, and in what colour.
@@ -38,6 +49,7 @@ pub(crate) struct ModsInPlay {
     clutch: Option<Clutch>,
     golden_ball: Option<GoldenBall>,
     heat_check: Option<HeatCheck>,
+    hot_bat: Option<HotBat>,
     rally: Option<Rally>,
     sudden_death: Option<SuddenDeath>,
 }
@@ -54,6 +66,7 @@ impl ModsInPlay {
             clutch: (on(Mod::Clutch) && !arcade).then(|| Clutch::new(&rules.clutch)),
             golden_ball: (on(Mod::GoldenBall) && !arcade).then(|| GoldenBall::new(&rules.golden)),
             heat_check: on(Mod::HeatCheck).then(|| HeatCheck::new(&rules.heat)),
+            hot_bat: on(Mod::HotBat).then(|| HotBat::new(&rules.hot_bat)),
             rally: (on(Mod::Rally) && !arcade).then(|| Rally::new(&rules.rally)),
             sudden_death: on(Mod::SuddenDeath).then(|| SuddenDeath::new(&rules.sudden_death)),
         }
@@ -127,8 +140,36 @@ impl ModsInPlay {
         self.heat_check.as_ref().map_or(0, HeatCheck::heat)
     }
 
+    /// Widens the window the coming pitch can be met in, for a bat that is
+    /// hot. Returns what the corner of the view says of it.
+    pub fn widen_for_a_hot_bat(&self, table: &mut PitchRules) -> Option<Line> {
+        let bat = self.hot_bat.as_ref()?;
+        bat.widen(table);
+        bat.line()
+    }
+
+    /// What the mark on the bat is tinted, while the bat is hot.
+    pub fn glow_of_the_bat(&self) -> Option<ColorTransform> {
+        self.hot_bat.as_ref().and_then(HotBat::glow)
+    }
+
+    /// How many swings in a row have met the ball.
+    pub fn hits_in_a_row(&self) -> u32 {
+        self.hot_bat.as_ref().map_or(0, HotBat::streak)
+    }
+
+    /// The bat has met the ball.
+    pub fn the_bat_met_the_ball(&mut self) {
+        if let Some(bat) = &mut self.hot_bat {
+            bat.met();
+        }
+    }
+
     /// A strike has been called on the batter, swung at or not.
     pub fn a_strike_was_called(&mut self) {
+        if let Some(bat) = &mut self.hot_bat {
+            bat.missed();
+        }
         self.cool();
     }
 

@@ -7,8 +7,7 @@
 //! the worth of his own hit. The arcade game has no runs, so the mod has no
 //! place there.
 
-use super::Line;
-use crate::play::hot_colour;
+use super::{Line, hot_colour};
 use crate::rules::RallyRules;
 
 pub(crate) struct Rally {
