@@ -200,12 +200,12 @@ impl Turn {
         if self.outs_made > own {
             what += ", RUNNER OUT";
         }
-        match self.runs_in {
-            0 => {}
-            1 => what += ", 1 RUN",
-            runs => what += &format!(", {runs} RUNS"),
-        }
-        format!("{} {what} ({})", self.order + 1, self.pitches.len())
+        let runs = match self.runs_in {
+            0 => String::new(),
+            1 => ", 1 RUN".to_owned(),
+            runs => format!(", {runs} RUNS"),
+        };
+        format!("{} {what}{runs} ({})", self.order + 1, self.pitches.len())
     }
 }
 

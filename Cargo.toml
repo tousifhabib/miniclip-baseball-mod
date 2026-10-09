@@ -76,7 +76,6 @@ missing_errors_doc = "allow"
 missing_panics_doc = "allow"
 
 # Off for now, each until the code it points at has been reshaped.
-format_push_string = "allow"
 maybe_infinite_iter = "allow"
 unused_self = "allow"
 

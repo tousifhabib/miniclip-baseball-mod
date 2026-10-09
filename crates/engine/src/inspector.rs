@@ -317,10 +317,11 @@ fn title(depth: u16, child: &Child, library: &Library) -> String {
         Some(SymbolInfo::EditText) => "text field",
         _ => "object",
     };
-    let mut title = format!("{depth}: {kind} {}", child.symbol);
-    if let Some(name) = &child.name {
-        title.push_str(&format!(" \"{name}\""));
-    }
+    let name = child
+        .name
+        .as_ref()
+        .map_or(String::new(), |name| format!(" \"{name}\""));
+    let mut title = format!("{depth}: {kind} {}{name}", child.symbol);
     if child.clip_depth.is_some() {
         title.push_str(" (mask)");
     }
