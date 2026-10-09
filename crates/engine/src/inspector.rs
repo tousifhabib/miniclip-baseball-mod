@@ -123,7 +123,13 @@ impl Inspector {
                             .default_open(true)
                             .show(ui, |ui| {
                                 let root = &info.stage.root;
-                                self.clip_controls(ui, root, &Path::new(), info, &mut actions);
+                                Inspector::clip_controls(
+                                    ui,
+                                    root,
+                                    &Path::new(),
+                                    info,
+                                    &mut actions,
+                                );
                                 let mut path = Path::new();
                                 self.children(
                                     ui,
@@ -149,7 +155,6 @@ impl Inspector {
 
     /// The play switch and frame slider of one clip.
     fn clip_controls(
-        &self,
         ui: &mut egui::Ui,
         clip: &ClipState,
         path: &Path,
@@ -200,7 +205,7 @@ impl Inspector {
                                 self.row(ui, "this clip", child, path, reachable, actions);
                             });
                             if reachable {
-                                self.clip_controls(ui, clip, path, info, actions);
+                                Inspector::clip_controls(ui, clip, path, info, actions);
                             }
                             self.children(ui, &clip.children, path, reachable, info, actions);
                         });

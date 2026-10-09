@@ -78,9 +78,6 @@ return_self_not_must_use = "allow"
 missing_errors_doc = "allow"
 missing_panics_doc = "allow"
 
-# Off for now, each until the code it points at has been reshaped.
-unused_self = "allow"
-
 [profile.dev.package."*"]
 opt-level = 2
 
