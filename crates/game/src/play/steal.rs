@@ -16,7 +16,7 @@ use bb_engine::stage::Stage;
 
 use super::book::ORDER;
 use super::fielding::ARRIVES;
-use super::overlay::{DARK, Notice};
+use super::overlay::{DARK, Says};
 use super::pitch::Point;
 use super::{AtBat, Match, Parts, Place, Runner, frame_of};
 use crate::art;
@@ -203,15 +203,9 @@ impl Match {
             .any(|lead| self.may_steal(lead.runner).is_some());
         if anyone {
             let (notices, parts, top) = (&mut at_bat.notices, &at_bat.parts, leads.hint_at);
-            Notice::put(
-                notices,
+            notices.put(
+                Says::line("steal", ASK, HINT_COLOUR).at(top),
                 parts,
-                "steal",
-                ASK,
-                top,
-                0.8,
-                HINT_COLOUR,
-                None,
                 stage,
                 library,
             );
@@ -221,7 +215,7 @@ impl Match {
     /// The ball has left the pitcher's hand: nobody can be sent now.
     pub(crate) fn stop_asking_for_steals(&self, at_bat: &mut AtBat, stage: &mut Stage) {
         if !self.anyone_stealing() {
-            Notice::take_down(&mut at_bat.notices, "steal", stage);
+            at_bat.notices.take_down("steal", stage);
         }
     }
 
@@ -258,8 +252,11 @@ impl Match {
         self.runners[runner].stole_from = Some(from);
         self.send(runner, to, stage, library);
         let (notices, parts, top) = (&mut at_bat.notices, &at_bat.parts, leads.hint_at);
-        Notice::put(
-            notices, parts, "steal", SENT, top, 0.8, GOING, None, stage, library,
+        notices.put(
+            Says::line("steal", SENT, GOING).at(top),
+            parts,
+            stage,
+            library,
         );
     }
 
@@ -354,17 +351,13 @@ impl Match {
         let Some((says, colour)) = self.steal_news.take() else {
             return;
         };
-        Notice::take_down(&mut at_bat.notices, "steal", stage);
+        at_bat.notices.take_down("steal", stage);
         let top = (at_bat.parts.centre_x, NEWS_TOP);
-        Notice::put(
-            &mut at_bat.notices,
+        at_bat.notices.put(
+            Says::news("stealNews", says, colour, frames)
+                .at(top)
+                .sized(1.2),
             &at_bat.parts,
-            "stealNews",
-            says,
-            top,
-            1.2,
-            colour,
-            Some(frames),
             stage,
             library,
         );

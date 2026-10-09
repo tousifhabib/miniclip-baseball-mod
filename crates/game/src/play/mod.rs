@@ -39,7 +39,7 @@ use crate::rng::Rng;
 use crate::rules::{FieldRules, HitRules, PitchRules};
 use book::{End, ORDER, Thrown};
 use field::{Ball, Contact, Ground, Happened, reach};
-use overlay::Notice;
+use overlay::{Notices, Says};
 use pitch::{Choice, Kind, Mound, Pitch, Point, Quality};
 use snapshot::{ArmSeen, ModsSeen, PitchSeen, Score, Snapshot, Standing};
 use zinger::Zinger;
@@ -220,7 +220,7 @@ pub(crate) struct AtBat {
     /// the bat, which the view of the field has yet to be told.
     pub over_wall: bool,
     /// What the mods have written up in the view.
-    pub notices: Vec<Notice>,
+    pub notices: Notices,
     /// Where the hit first came down, if it has and the called shot mod
     /// wants to know.
     pub came_down: Option<Point>,
@@ -956,20 +956,14 @@ impl Match {
 
         let rules = &game.rules;
         let mut table = rules.pitch.at(game.settings.difficulty).clone();
-        let mut notices = Vec::new();
+        let mut notices = Notices::default();
         // A full match says which half of which innings this is, and what
         // the mods say goes under that.
         let mut corner = Corner::default();
         if let Some(full) = &self.full {
-            Notice::put(
-                &mut notices,
+            notices.put(
+                Says::line("innings", &full.half_words(), [0xfd, 0xf6, 0xc0]).at(corner.line()),
                 &parts,
-                "innings",
-                &full.half_words(),
-                corner.line(),
-                0.8,
-                [0xfd, 0xf6, 0xc0],
-                None,
                 stage,
                 library,
             );
@@ -998,15 +992,9 @@ impl Match {
                 let colour = [0xff, (0xe0 as f32 - 0xa0 as f32 * hot) as u8, 0x30];
                 let says = format!("HEAT {}", self.heat);
                 let top = corner.line();
-                Notice::put(
-                    &mut notices,
+                notices.put(
+                    Says::line("heat", &says, colour).at(top),
                     &parts,
-                    "heat",
-                    &says,
-                    top,
-                    0.8,
-                    colour,
-                    None,
                     stage,
                     library,
                 );
@@ -1021,15 +1009,15 @@ impl Match {
                 self.arm = 0;
                 self.relieved += 1;
                 Match::sound(stage, library, "baseball_organ_FX");
-                Notice::put(
-                    &mut notices,
+                notices.put(
+                    Says::news(
+                        "newPitcher",
+                        "NEW PITCHER",
+                        [0xc8, 0xf0, 0xff],
+                        arm.told_time,
+                    )
+                    .at((parts.centre_x, MYSTERY_TOP)),
                     &parts,
-                    "newPitcher",
-                    "NEW PITCHER",
-                    (parts.centre_x, MYSTERY_TOP),
-                    1.0,
-                    [0xc8, 0xf0, 0xff],
-                    Some(arm.told_time),
                     stage,
                     library,
                 );
@@ -1050,15 +1038,9 @@ impl Match {
                 (0xff as f32 - 0x90 as f32 * tired) as u8,
                 (0xff as f32 - 0xc0 as f32 * tired.min(0.5) * 2.0) as u8,
             ];
-            Notice::put(
-                &mut notices,
+            notices.put(
+                Says::line("pitches", &format!("PITCHES {}", self.arm), colour).at(corner.line()),
                 &parts,
-                "pitches",
-                &format!("PITCHES {}", self.arm),
-                corner.line(),
-                0.8,
-                colour,
-                None,
                 stage,
                 library,
             );
@@ -1070,29 +1052,17 @@ impl Match {
             table.window = pitch::widened(&table.window, more);
             let says = format!("HOT BAT {more}");
             let colour = hot_colour(more, rules.hot_bat.most);
-            Notice::put(
-                &mut notices,
+            notices.put(
+                Says::line("hotBat", &says, colour).at(corner.line()),
                 &parts,
-                "hotBat",
-                &says,
-                corner.line(),
-                0.8,
-                colour,
-                None,
                 stage,
                 library,
             );
         }
         if golden {
-            Notice::put(
-                &mut notices,
+            notices.put(
+                Says::line("goldenBall", "GOLDEN BALL", [0xff, 0xd2, 0x40]).at(corner.line()),
                 &parts,
-                "goldenBall",
-                "GOLDEN BALL",
-                corner.line(),
-                0.8,
-                [0xff, 0xd2, 0x40],
-                None,
                 stage,
                 library,
             );
@@ -1104,15 +1074,14 @@ impl Match {
             if self.strikes + self.balls == 0 {
                 Match::sound(stage, library, "baseball_organ_tense_FX");
             }
-            Notice::put(
-                &mut notices,
+            notices.put(
+                Says::line(
+                    "clutch",
+                    &format!("CLUTCH: RUNS X{}", rules.clutch.runs),
+                    [0xff, 0x8a, 0x6a],
+                )
+                .at(corner.line()),
                 &parts,
-                "clutch",
-                &format!("CLUTCH: RUNS X{}", rules.clutch.runs),
-                corner.line(),
-                0.8,
-                [0xff, 0x8a, 0x6a],
-                None,
                 stage,
                 library,
             );
@@ -1120,15 +1089,14 @@ impl Match {
         self.rallying = game.mods.is_on(Mod::Rally) && self.arcade.is_none();
         if self.rallying && self.rally > 0 {
             let worth = rules.rally.worth(self.rally);
-            Notice::put(
-                &mut notices,
+            notices.put(
+                Says::line(
+                    "rally",
+                    &format!("RALLY: RUNS X{worth}"),
+                    hot_colour(self.rally.min(rules.rally.most), rules.rally.most),
+                )
+                .at(corner.line()),
                 &parts,
-                "rally",
-                &format!("RALLY: RUNS X{worth}"),
-                corner.line(),
-                0.8,
-                hot_colour(self.rally.min(rules.rally.most), rules.rally.most),
-                None,
                 stage,
                 library,
             );
@@ -1154,15 +1122,9 @@ impl Match {
             self.shift = shift.by();
             shift.place(&parts, &rules.field, stage, library);
             if let Some(says) = shift.words(&rules.shift) {
-                Notice::put(
-                    &mut notices,
+                notices.put(
+                    Says::line("shift", says, [0xc8, 0xf0, 0xff]).at(corner.line()),
                     &parts,
-                    "shift",
-                    says,
-                    corner.line(),
-                    0.8,
-                    [0xc8, 0xf0, 0xff],
-                    None,
                     stage,
                     library,
                 );
@@ -1506,7 +1468,7 @@ impl Match {
         for them in &at_bat.them {
             them.keep(stage);
         }
-        Notice::fade(&mut at_bat.notices, stage);
+        at_bat.notices.fade(stage);
         if let Some(leads) = &mut at_bat.leads {
             leads.keep(self, self.phase == Phase::WindUp, stage);
             self.hold_stealers(stage);
@@ -1575,16 +1537,11 @@ impl Match {
                     if let Some(kind) = at_bat.kind {
                         // Now it can be told what he threw.
                         let top = (at_bat.parts.centre_x, MYSTERY_TOP);
-                        let frames = Some(rules.mystery.told_time);
-                        Notice::put(
-                            &mut at_bat.notices,
+                        let frames = rules.mystery.told_time;
+                        at_bat.notices.put(
+                            Says::news("mysteryPitch", kind.words(), [0xff, 0xf2, 0x8a], frames)
+                                .at(top),
                             &at_bat.parts,
-                            "mysteryPitch",
-                            kind.words(),
-                            top,
-                            1.0,
-                            [0xff, 0xf2, 0x8a],
-                            frames,
                             stage,
                             library,
                         );

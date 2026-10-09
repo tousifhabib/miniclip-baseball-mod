@@ -8,7 +8,7 @@ use bb_format::SymbolId;
 
 use super::book::{End, Hit, Thrown};
 use super::field::{Ball, Facing, Happened, distance, reach, seen_size};
-use super::overlay::Notice;
+use super::overlay::{Notices, Says};
 use super::pinball;
 use super::pitch::Point;
 use super::zinger;
@@ -545,15 +545,16 @@ impl Match {
                         self.show_numbers(stage);
                         Match::sound(stage, library, "crowd_bigClap");
                         Match::sound(stage, library, "baseball_organ_FX");
-                        Notice::put(
-                            &mut at_bat.notices,
+                        at_bat.notices.put(
+                            Says::news(
+                                "calledIt",
+                                &format!("CALLED IT! +{runs}"),
+                                CALLED_COLOUR,
+                                game.rules.called_shot.told_time,
+                            )
+                            .at((parts.centre_x, CALLED_TOP))
+                            .sized(1.2),
                             &parts,
-                            "calledIt",
-                            &format!("CALLED IT! +{runs}"),
-                            (parts.centre_x, CALLED_TOP),
-                            1.2,
-                            CALLED_COLOUR,
-                            Some(game.rules.called_shot.told_time),
                             stage,
                             library,
                         );
@@ -888,7 +889,7 @@ impl Match {
     fn ball_at_base(
         &mut self,
         state: &mut Fielding,
-        told: &mut Vec<Notice>,
+        told: &mut Notices,
         parts: &Parts,
         game: &Game,
         stage: &mut Stage,
@@ -996,7 +997,7 @@ impl Match {
     /// Puts a word up over a fielder who has let the ball go, for a
     /// moment. `over` is where he is on the field.
     fn tell(
-        told: &mut Vec<Notice>,
+        told: &mut Notices,
         word: &str,
         over: Point,
         parts: &Parts,
@@ -1011,16 +1012,12 @@ impl Match {
         let middle =
             (field.tx + field.a * over.0).clamp(TOLD_MARGIN, parts.centre_x * 2.0 - TOLD_MARGIN);
         let top = field.ty + field.d * over.1 - TOLD_ABOVE;
-        let frames = Some(game.rules.butterfingers.told_time);
-        Notice::put(
-            told,
+        let frames = game.rules.butterfingers.told_time;
+        told.put(
+            Says::news("butterWord", word, TOLD_COLOUR, frames)
+                .at((middle, top))
+                .sized(TOLD_SIZE),
             parts,
-            "butterWord",
-            word,
-            (middle, top),
-            TOLD_SIZE,
-            TOLD_COLOUR,
-            frames,
             stage,
             library,
         );

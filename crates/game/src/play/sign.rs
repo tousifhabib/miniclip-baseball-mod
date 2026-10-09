@@ -14,7 +14,7 @@ use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
 
 use super::field::Ground;
-use super::overlay::{DARK, Notice, Words};
+use super::overlay::{DARK, Says, Words};
 use super::{AtBat, Match, Parts};
 use crate::art;
 use crate::look::{self, Rgb};
@@ -324,15 +324,16 @@ impl Match {
         self.show_numbers(stage);
         Match::sound(stage, library, "crowd_bigClap");
         Match::sound(stage, library, "baseball_organ_FX");
-        Notice::put(
-            &mut at_bat.notices,
+        at_bat.notices.put(
+            Says::news(
+                "signNews",
+                &format!("OFF THE SIGN! +{runs}"),
+                NEWS_COLOUR,
+                frames,
+            )
+            .at((at_bat.parts.centre_x, NEWS_TOP))
+            .sized(1.2),
             &at_bat.parts,
-            "signNews",
-            &format!("OFF THE SIGN! +{runs}"),
-            (at_bat.parts.centre_x, NEWS_TOP),
-            1.2,
-            NEWS_COLOUR,
-            Some(frames),
             stage,
             library,
         );

@@ -140,11 +140,66 @@ impl Words {
     }
 }
 
-/// A line of words put up in the view for a while, such as what a fielder
-/// has just done, or for as long as the view lasts.
-pub(crate) struct Notice {
+/// What a notice is to say, and how it is to look.
+#[derive(Clone, Copy)]
+pub(crate) struct Says<'a> {
     /// What the words are called on the stage, by which a notice is told
     /// from the others.
+    name: &'a str,
+    words: &'a str,
+    /// Where the middle of the words' top edge goes.
+    top: Point,
+    /// The size of the lettering, its own being 1.
+    size: f32,
+    colour: Rgb,
+    /// Frames it stays up. `None` stays until the view is built again.
+    frames: Option<u32>,
+}
+
+/// The size of the lettering a line that stays up is written in, the
+/// lettering's own being 1.
+const LINE_SIZE: f32 = 0.8;
+
+impl<'a> Says<'a> {
+    /// A line that stays up for as long as the view lasts, in the small
+    /// lettering the corner of the batting view is written in.
+    pub fn line(name: &'a str, words: &'a str, colour: Rgb) -> Says<'a> {
+        Says {
+            name,
+            words,
+            top: (0.0, 0.0),
+            size: LINE_SIZE,
+            colour,
+            frames: None,
+        }
+    }
+
+    /// News that is put up for `frames` frames and then taken down.
+    pub fn news(name: &'a str, words: &'a str, colour: Rgb, frames: u32) -> Says<'a> {
+        Says {
+            name,
+            words,
+            top: (0.0, 0.0),
+            size: 1.0,
+            colour,
+            frames: Some(frames),
+        }
+    }
+
+    /// With the middle of the words' top edge at `top`.
+    pub fn at(self, top: Point) -> Says<'a> {
+        Says { top, ..self }
+    }
+
+    /// In lettering of this size, its own being 1.
+    pub fn sized(self, size: f32) -> Says<'a> {
+        Says { size, ..self }
+    }
+}
+
+/// A line of words put up in the view for a while, such as what a fielder
+/// has just done, or for as long as the view lasts.
+struct Notice {
     name: String,
     /// The clip the words are in.
     holder: Path,
@@ -152,43 +207,31 @@ pub(crate) struct Notice {
     left: Option<u32>,
 }
 
-impl Notice {
-    /// Puts `text` up with the middle of its top edge at `top`, taking the
-    /// place of any notice of the same name. `size` is the size of the
-    /// lettering, its own being 1.
-    #[allow(
-        clippy::too_many_arguments,
-        reason = "it takes each thing it needs on its own, until they are gathered up"
-    )]
-    pub fn put(
-        notices: &mut Vec<Notice>,
-        parts: &Parts,
-        name: &str,
-        text: &str,
-        top: Point,
-        size: f32,
-        colour: Rgb,
-        frames: Option<u32>,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
-        Notice::take_down(notices, name, stage);
+/// The notices that are up in the view.
+#[derive(Default)]
+pub(crate) struct Notices(Vec<Notice>);
+
+impl Notices {
+    /// Puts a notice up, taking the place of any of the same name.
+    pub fn put(&mut self, says: Says<'_>, parts: &Parts, stage: &mut Stage, library: &Library) {
+        self.take_down(says.name, stage);
         let Some(holder) = holder(parts, "notice", stage, library) else {
             return;
         };
+        let (name, top, size) = (says.name, says.top, says.size);
         if let Some(words) = Words::new(&holder, 1, name, top, size, stage, library) {
-            words.say(text, colour, stage);
+            words.say(says.words, says.colour, stage);
         }
-        notices.push(Notice {
+        self.0.push(Notice {
             name: name.to_owned(),
             holder,
-            left: frames,
+            left: says.frames,
         });
     }
 
     /// Takes the notice of this name down, if it is up.
-    pub fn take_down(notices: &mut Vec<Notice>, name: &str, stage: &mut Stage) {
-        notices.retain(|notice| {
+    pub fn take_down(&mut self, name: &str, stage: &mut Stage) {
+        self.0.retain(|notice| {
             if notice.name == name {
                 stage.remove(&notice.holder);
             }
@@ -198,8 +241,8 @@ impl Notice {
 
     /// Counts a frame off the time of every notice that has one, and takes
     /// down those that have had theirs.
-    pub fn fade(notices: &mut Vec<Notice>, stage: &mut Stage) {
-        notices.retain_mut(|notice| match &mut notice.left {
+    pub fn fade(&mut self, stage: &mut Stage) {
+        self.0.retain_mut(|notice| match &mut notice.left {
             Some(0) => {
                 stage.remove(&notice.holder);
                 false
