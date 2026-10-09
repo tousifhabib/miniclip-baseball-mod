@@ -477,13 +477,12 @@ impl Match {
         // for a pitch of the usual pace, and the marker is not shown until
         // the ball has left his hand.
         let usual_pace = table.speed.high as f32;
-        let mut kind = None;
-        if game.mods.is_on(Mod::MysteryPitch) {
-            let which = Kind::ALL[self.rng.below(Kind::ALL.len() as u32) as usize];
-            which.shape(table, &rules.mystery, self.rng.below(2) == 0);
-            table.marker_frame = rules.throw.release_frame;
-            kind = Some(which);
-        }
+        let release = rules.throw.release_frame;
+        let kind = self
+            .mods
+            .mystery_pitch
+            .as_ref()
+            .map(|mystery| mystery.pick(table, release, &mut self.rng));
         let mut choice = Choice::pick(table, &rules.throw, &mut self.rng);
         if self.southpaw {
             // A left-hander is pitched to as a right-hander was.
@@ -503,10 +502,9 @@ impl Match {
         // The marker shows where the pitch was going before a knuckleball
         // began to sway.
         let marker_at = pitch.crosses;
-        if game.mods.is_on(Mod::Knuckleball) {
-            let knuckle = &rules.knuckleball;
+        if let Some(knuckleball) = &self.mods.knuckleball {
             let start = self.rng.unit();
-            pitch.knuckle(knuckle.sway, knuckle.turns, start, mound);
+            knuckleball.sway(&mut pitch, start, mound);
         }
         Decided {
             kind,

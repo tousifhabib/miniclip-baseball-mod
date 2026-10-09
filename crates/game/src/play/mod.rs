@@ -44,7 +44,7 @@ use book::{End, ORDER, Thrown};
 use field::{Ball, Contact, Ground, Happened, reach};
 use mode::Mode;
 use mods::ModsInPlay;
-use overlay::{Notices, Says};
+use overlay::Notices;
 use pitch::{Kind, Mound, Pitch, Point, Quality};
 use snapshot::{ModsSeen, PitchSeen, Score, Snapshot, Standing};
 use zinger::Zinger;
@@ -1066,13 +1066,11 @@ impl Match {
                         arcade.left = arcade.left.saturating_sub(1);
                     }
                     self.show_numbers(stage);
-                    if let Some(kind) = at_bat.kind {
+                    if let (Some(kind), Some(mystery)) = (at_bat.kind, &self.mods.mystery_pitch) {
                         // Now it can be told what he threw.
                         let top = (at_bat.parts.centre_x, MYSTERY_TOP);
-                        let frames = rules.mystery.told_time;
                         at_bat.notices.put(
-                            Says::news("mysteryPitch", kind.words(), [0xff, 0xf2, 0x8a], frames)
-                                .at(top),
+                            mystery.news(kind).at(top),
                             &at_bat.parts,
                             stage,
                             library,

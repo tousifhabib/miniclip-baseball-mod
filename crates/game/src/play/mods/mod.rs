@@ -11,6 +11,8 @@ mod clutch;
 mod golden_ball;
 mod heat_check;
 mod hot_bat;
+mod knuckleball;
+mod mystery_pitch;
 mod rally;
 mod sudden_death;
 mod tired_arm;
@@ -19,6 +21,8 @@ use clutch::Clutch;
 pub(crate) use golden_ball::GoldenBall;
 use heat_check::HeatCheck;
 use hot_bat::HotBat;
+use knuckleball::Knuckleball;
+use mystery_pitch::MysteryPitch;
 use rally::Rally;
 use sudden_death::SuddenDeath;
 pub(crate) use tired_arm::TiredArm;
@@ -53,6 +57,10 @@ pub(crate) struct ModsInPlay {
     golden_ball: Option<GoldenBall>,
     heat_check: Option<HeatCheck>,
     hot_bat: Option<HotBat>,
+    /// The two mods with a hand in deciding the pitch, which the game asks
+    /// one by one as it does so.
+    pub(in crate::play) knuckleball: Option<Knuckleball>,
+    pub(in crate::play) mystery_pitch: Option<MysteryPitch>,
     rally: Option<Rally>,
     sudden_death: Option<SuddenDeath>,
     /// The pitcher's arm, which the game gets ready before each pitch in
@@ -73,6 +81,8 @@ impl ModsInPlay {
             golden_ball: (on(Mod::GoldenBall) && !arcade).then(|| GoldenBall::new(&rules.golden)),
             heat_check: on(Mod::HeatCheck).then(|| HeatCheck::new(&rules.heat)),
             hot_bat: on(Mod::HotBat).then(|| HotBat::new(&rules.hot_bat)),
+            knuckleball: on(Mod::Knuckleball).then(|| Knuckleball::new(&rules.knuckleball)),
+            mystery_pitch: on(Mod::MysteryPitch).then(|| MysteryPitch::new(&rules.mystery)),
             rally: (on(Mod::Rally) && !arcade).then(|| Rally::new(&rules.rally)),
             sudden_death: on(Mod::SuddenDeath).then(|| SuddenDeath::new(&rules.sudden_death)),
             tired_arm: (on(Mod::TiredArm) && !arcade).then(|| TiredArm::new(&rules.tired_arm)),
