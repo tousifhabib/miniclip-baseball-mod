@@ -9,17 +9,20 @@
 
 mod clutch;
 mod golden_ball;
+mod heat_check;
 mod rally;
 mod sudden_death;
 
 use clutch::Clutch;
 pub(crate) use golden_ball::GoldenBall;
+use heat_check::HeatCheck;
 use rally::Rally;
 use sudden_death::SuddenDeath;
 
 use crate::look::Rgb;
 use crate::menu::Game;
 use crate::mods::Mod;
+use crate::rules::PitchRules;
 
 /// A line a mod writes in the corner of the batting view: what it is
 /// called on the stage, what it says, and in what colour.
@@ -34,6 +37,7 @@ pub(crate) struct Line {
 pub(crate) struct ModsInPlay {
     clutch: Option<Clutch>,
     golden_ball: Option<GoldenBall>,
+    heat_check: Option<HeatCheck>,
     rally: Option<Rally>,
     sudden_death: Option<SuddenDeath>,
 }
@@ -49,6 +53,7 @@ impl ModsInPlay {
         ModsInPlay {
             clutch: (on(Mod::Clutch) && !arcade).then(|| Clutch::new(&rules.clutch)),
             golden_ball: (on(Mod::GoldenBall) && !arcade).then(|| GoldenBall::new(&rules.golden)),
+            heat_check: on(Mod::HeatCheck).then(|| HeatCheck::new(&rules.heat)),
             rally: (on(Mod::Rally) && !arcade).then(|| Rally::new(&rules.rally)),
             sudden_death: on(Mod::SuddenDeath).then(|| SuddenDeath::new(&rules.sudden_death)),
         }
@@ -106,6 +111,36 @@ impl ModsInPlay {
             * self.sudden_death.as_ref().map_or(1, SuddenDeath::runs)
             * self.rally.as_ref().map_or(1, Rally::worth)
             * for_the_clutch
+    }
+
+    /// Takes in the runs scored since the last pitch and makes the coming
+    /// one faster by the heat that is on. Returns what the corner of the
+    /// view says of it.
+    pub fn heat_the_pitch(&mut self, score: u32, table: &mut PitchRules) -> Option<Line> {
+        let heat = self.heat_check.as_mut()?;
+        heat.warm(score, table);
+        heat.line()
+    }
+
+    /// How much heat is on.
+    pub fn heat(&self) -> u32 {
+        self.heat_check.as_ref().map_or(0, HeatCheck::heat)
+    }
+
+    /// A strike has been called on the batter, swung at or not.
+    pub fn a_strike_was_called(&mut self) {
+        self.cool();
+    }
+
+    /// A foul has counted as a strike against the batter.
+    pub fn a_foul_took_a_strike(&mut self) {
+        self.cool();
+    }
+
+    fn cool(&mut self) {
+        if let Some(heat) = &mut self.heat_check {
+            heat.cool();
+        }
     }
 
     /// Somebody has been put out: at the plate, or on the bases.

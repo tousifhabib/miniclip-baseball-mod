@@ -321,7 +321,7 @@ impl Match {
                 self.steals_go_back(stage, library);
                 if self.strikes + 1 < self.strikes_allowed(game) {
                     self.strikes += 1;
-                    self.cool(game);
+                    self.mods.a_foul_took_a_strike();
                 }
                 stage.goto_label(&parts.transitions, "foulHit", true, library);
             } else {

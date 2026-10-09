@@ -92,7 +92,7 @@ impl Match {
         };
         self.say_the_innings(&mut coming, stage, library);
         self.gild_the_ball(&mut coming, stage);
-        self.heat_the_pitch(&mut coming, game, stage, library);
+        self.heat_the_pitch(&mut coming, stage, library);
         self.tire_the_arm(&mut coming, game, stage, library);
         self.widen_for_a_hot_bat(&mut coming, game, stage, library);
         Match::say_the_ball_is_golden(&mut coming, stage, library);
@@ -249,32 +249,9 @@ impl Match {
 
     /// With the heat check mod on, every run since the last pitch makes
     /// this one faster.
-    fn heat_the_pitch(
-        &mut self,
-        coming: &mut Coming,
-        game: &Game,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
-        if !game.mods.is_on(Mod::HeatCheck) {
-            return;
-        }
-        let rules = &game.rules;
-        let runs = self.score.saturating_sub(self.heat_score);
-        self.heat = (self.heat + runs).min(rules.heat.most);
-        self.heat_score = self.score;
-        coming.table.speed = coming.table.speed.times(rules.heat.time(self.heat));
-        if self.heat > 0 {
-            let hot = self.heat as f32 / rules.heat.most.max(1) as f32;
-            let colour = [0xff, (0xe0 as f32 - 0xa0 as f32 * hot) as u8, 0x30];
-            let says = format!("HEAT {}", self.heat);
-            let top = coming.corner.line();
-            coming.notices.put(
-                Says::line("heat", &says, colour).at(top),
-                &coming.parts,
-                stage,
-                library,
-            );
+    fn heat_the_pitch(&mut self, coming: &mut Coming, stage: &mut Stage, library: &Library) {
+        if let Some(line) = self.mods.heat_the_pitch(self.score, &mut coming.table) {
+            coming.write(&line, stage, library);
         }
     }
 

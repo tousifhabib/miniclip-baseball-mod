@@ -329,10 +329,6 @@ pub struct Match {
     /// With the turbo runners mod on: the part of a frame that runners are
     /// owed, on top of the whole frames they have been hurried on by.
     pub(crate) hurry: f32,
-    /// With the heat check mod on: how many runs' worth faster the pitches
-    /// are coming, and the score when that was last worked out.
-    pub(crate) heat: u32,
-    heat_score: u32,
     /// With the bullet time mod on: how many frames of holding the ball
     /// back are left in the meter, how many frames it has been held back
     /// for, whether it is being held back now, and a click made on a frame
@@ -500,8 +496,6 @@ impl Match {
             lights: false,
             flash: 0,
             hurry: 0.0,
-            heat: 0,
-            heat_score: 0,
             bullet: None,
             slow_beat: 0,
             slowed: false,
@@ -554,14 +548,6 @@ impl Match {
         let runner_in_reach_of_home = self.on_base(2).is_some() || self.on_base(3).is_some();
         self.mods
             .in_the_clutch(one_out_left, runner_in_reach_of_home)
-    }
-
-    /// A strike has been called: with the heat check mod on, the pitches
-    /// slow down by a run's worth.
-    pub(crate) fn cool(&mut self, game: &Game) {
-        if game.mods.is_on(Mod::HeatCheck) {
-            self.heat = self.heat.saturating_sub(1);
-        }
     }
 
     /// The longest zinger of this game, in feet. Nought if there was none.
@@ -1391,7 +1377,7 @@ impl Match {
             self.strikes = self.strikes.max(self.strikes_allowed(game));
         }
         self.streak = 0;
-        self.cool(game);
+        self.mods.a_strike_was_called();
         if let Some(anim) = &parts.strike_anim {
             let label = format!("strike{}", self.strikes.min(3));
             stage.goto_label(anim, &label, false, library);
@@ -1557,7 +1543,7 @@ impl Match {
             .collect();
         let mods = ModsSeen {
             let_go: self.slips,
-            heat: self.heat,
+            heat: self.mods.heat(),
             hits_in_a_row: self.streak,
             rally: self.mods.in_a_row(),
             clutch: self.mods.clutch_this_pitch(),
