@@ -465,7 +465,7 @@ impl Tessellator {
         // A field that holds markup is drawn as its plain words, in the
         // field's own font, size and colour.
         let plain;
-        let content = if text.flags.iter().any(|flag| flag == "html") {
+        let content = if text.flags.contains(&f::FieldFlag::Html) {
             plain = plain_text(content);
             plain.as_str()
         } else {
@@ -484,9 +484,9 @@ impl Tessellator {
                 layout.right_margin as f32,
                 layout.indent as f32,
                 layout.leading as f32,
-                layout.align.as_str(),
+                &layout.align,
             ),
-            None => (0.0, 0.0, 0.0, 0.0, "left"),
+            None => (0.0, 0.0, 0.0, 0.0, &f::Align::Left),
         };
         // Flash keeps a two pixel gutter inside a field's edges.
         const GUTTER: f32 = 2.0;
@@ -509,9 +509,9 @@ impl Tessellator {
                 .map(|glyph| glyph.advance as f32 * scale)
                 .sum();
             let mut pen = match align {
-                "right" => inner_right - width,
-                "center" => (inner_left + inner_right - width) / 2.0,
-                _ => inner_left + indent,
+                f::Align::Right => inner_right - width,
+                f::Align::Center => (inner_left + inner_right - width) / 2.0,
+                f::Align::Left | f::Align::Other(_) => inner_left + indent,
             };
             for c in line.chars() {
                 if c == CARET {

@@ -7,8 +7,8 @@ use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result, ensure};
 use bb_format::{
-    Button, Clip, EditText, FORMAT_VERSION, Font, Manifest, MorphShape, Op, PlaceAction,
-    SoundStart, SymbolId, SymbolInfo, Text,
+    Align, Button, Clip, EditText, FORMAT_VERSION, FieldFlag, Font, Look, Manifest, MorphShape, Op,
+    PlaceAction, SoundStart, SymbolId, SymbolInfo, Text,
 };
 use clap::Parser;
 use serde::de::DeserializeOwned;
@@ -110,6 +110,13 @@ impl Checker {
                     let button: Button = self.read(&symbol.file)?;
                     for record in &button.records {
                         self.check_drawable(&format!("button {id}"), record.symbol);
+                        for look in &record.states {
+                            if let Look::Other(word) = look {
+                                self.problem(format!(
+                                    "button {id}: `{word}` is not a look a button has"
+                                ));
+                            }
+                        }
                     }
                     if let Some(sounds) = &button.sounds {
                         let starts = [
@@ -146,6 +153,20 @@ impl Checker {
                         if !self.glyph_counts.contains_key(&font) {
                             self.problem(format!("text field {id}: font {font} is not a font"));
                         }
+                    }
+                    for flag in &text.flags {
+                        if let FieldFlag::Other(word) = flag {
+                            self.problem(format!(
+                                "text field {id}: `{word}` is not something a text field can be"
+                            ));
+                        }
+                    }
+                    if let Some(Align::Other(word)) =
+                        text.layout.as_ref().map(|layout| &layout.align)
+                    {
+                        self.problem(format!(
+                            "text field {id}: `{word}` is not a side to set lines against"
+                        ));
                     }
                 }
             }

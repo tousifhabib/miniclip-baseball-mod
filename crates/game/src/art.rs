@@ -8,7 +8,7 @@ use std::collections::HashMap;
 use bb_engine::display::{Content, Path};
 use bb_engine::library::Library;
 use bb_engine::stage::Stage;
-use bb_format::{Op, PlaceAction, SymbolId, SymbolInfo};
+use bb_format::{Look, Op, PlaceAction, SymbolId, SymbolInfo};
 
 use crate::play::field::{Ground, reach};
 use crate::rules::Rules;
@@ -232,7 +232,7 @@ impl ButtonLabels {
             .map(|(&id, button)| {
                 let mut words = Vec::new();
                 for record in &button.records {
-                    if record.states.iter().any(|state| state == "up") {
+                    if record.states.contains(&Look::Up) {
                         collect_words(record.symbol, library, 0, &mut words);
                     }
                 }

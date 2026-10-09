@@ -17,6 +17,58 @@ pub const FORMAT_VERSION: u32 = 2;
 pub type SymbolId = u16;
 
 /// `[a, b, c, d, tx, ty]`, the same order as SVG's `matrix()`.
+/// Makes a type for a field of the art's files that holds one of a few
+/// words. The files go on holding the words: a word is read into the name
+/// it has here and written back as it was. A word this version does not
+/// know is kept as written, so that a file made by a later extractor still
+/// reads, and writes back unchanged.
+macro_rules! words {
+    (
+        $(#[$about:meta])*
+        $name:ident { $($(#[$each:meta])* $known:ident = $word:literal,)+ }
+    ) => {
+        $(#[$about])*
+        #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+        #[serde(from = "String", into = "String")]
+        pub enum $name {
+            $($(#[$each])* $known,)+
+            /// A word this version does not know, as it was written.
+            Other(String),
+        }
+
+        impl $name {
+            /// The word, as the files have it.
+            pub fn word(&self) -> &str {
+                match self {
+                    $($name::$known => $word,)+
+                    $name::Other(word) => word,
+                }
+            }
+        }
+
+        impl From<&str> for $name {
+            fn from(word: &str) -> $name {
+                match word {
+                    $($word => $name::$known,)+
+                    other => $name::Other(other.to_owned()),
+                }
+            }
+        }
+
+        impl From<String> for $name {
+            fn from(word: String) -> $name {
+                $name::from(word.as_str())
+            }
+        }
+
+        impl From<$name> for String {
+            fn from(word: $name) -> String {
+                word.word().to_owned()
+            }
+        }
+    };
+}
+
 pub type Matrix = [f64; 6];
 
 pub const IDENTITY: Matrix = [1.0, 0.0, 0.0, 1.0, 0.0, 0.0];
@@ -284,10 +336,23 @@ pub struct Button {
     pub sounds: Option<ButtonSounds>,
 }
 
+words! {
+    /// One of the ways a button looks, or the area of it that reacts to the
+    /// pointer.
+    Look {
+        Up = "up",
+        Over = "over",
+        Down = "down",
+        /// Never drawn: where the pointer counts as being on the button.
+        Hit = "hit",
+    }
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ButtonRecord {
-    /// Any of `up`, `over`, `down`, `hit`.
-    pub states: Vec<String>,
+    /// Which of the button's looks this object is part of, in the order the
+    /// file gives them.
+    pub states: Vec<Look>,
     pub symbol: SymbolId,
     pub depth: u16,
     pub matrix: Matrix,
@@ -369,14 +434,39 @@ pub struct EditText {
     pub variable: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub initial_text: Option<String>,
-    /// Any of `word_wrap`, `multiline`, `password`, `read_only`, `auto_size`,
-    /// `selectable`, `border`, `html`, `use_outlines`.
-    pub flags: Vec<String>,
+    pub flags: Vec<FieldFlag>,
+}
+
+words! {
+    /// Something that is so of a text field.
+    FieldFlag {
+        WordWrap = "word_wrap",
+        Multiline = "multiline",
+        Password = "password",
+        /// The player cannot type in it.
+        ReadOnly = "read_only",
+        AutoSize = "auto_size",
+        Selectable = "selectable",
+        Border = "border",
+        /// What it starts by saying is marked up, and is shown without the
+        /// marks.
+        Html = "html",
+        UseOutlines = "use_outlines",
+    }
+}
+
+words! {
+    /// Which side of a text field its lines are set against.
+    Align {
+        Left = "left",
+        Right = "right",
+        Center = "center",
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TextLayout {
-    pub align: String,
+    pub align: Align,
     pub left_margin: f64,
     pub right_margin: f64,
     pub indent: f64,

@@ -1,6 +1,6 @@
 //! The pointer, and the buttons it rolls over and presses.
 
-use bb_format::SymbolId;
+use bb_format::{FieldFlag, SymbolId};
 
 use crate::display::{ButtonEvent, ButtonMode, Children, ClipState, Content, Event, Path};
 use crate::library::Library;
@@ -270,7 +270,7 @@ pub fn field_at(
                 .get(&child.symbol)
                 .filter(|field| {
                     let bounds = &field.bounds;
-                    !field.flags.iter().any(|flag| flag == "read_only")
+                    !field.flags.contains(&FieldFlag::ReadOnly)
                         && (bounds.x_min as f32..=bounds.x_max as f32).contains(&x)
                         && (bounds.y_min as f32..=bounds.y_max as f32).contains(&y)
                 })
@@ -348,7 +348,7 @@ mod tests {
         };
         let mut library = library_with(vec![frame(vec![Op::Place(Box::new(at))])], vec![]);
         let record = |states: &[&str], symbol| ButtonRecord {
-            states: states.iter().map(|s| (*s).to_owned()).collect(),
+            states: states.iter().map(|s| (*s).into()).collect(),
             symbol,
             depth: 1,
             matrix: bb_format::IDENTITY,

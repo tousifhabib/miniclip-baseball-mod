@@ -8,7 +8,7 @@
 
 use std::collections::BTreeMap;
 
-use bb_format::{Filter, Op, Place, PlaceAction, SoundStart, SymbolId, SymbolInfo};
+use bb_format::{Filter, Look, Op, Place, PlaceAction, SoundStart, SymbolId, SymbolInfo};
 
 use crate::library::Library;
 use crate::math::{ColorTransform, Matrix};
@@ -533,12 +533,12 @@ fn new_child(
             };
             for record in &button.records {
                 for name in &record.states {
-                    let children = match name.as_str() {
-                        "up" => &mut state.up,
-                        "over" => &mut state.over,
-                        "down" => &mut state.down,
-                        "hit" => &mut state.hit,
-                        _ => continue,
+                    let children = match name {
+                        Look::Up => &mut state.up,
+                        Look::Over => &mut state.over,
+                        Look::Down => &mut state.down,
+                        Look::Hit => &mut state.hit,
+                        Look::Other(_) => continue,
                     };
                     path.push(record.depth);
                     let made = new_child(record.symbol, 0, library, events, path);
@@ -1287,7 +1287,7 @@ pub(crate) mod tests {
                 layout: None,
                 variable: variable.to_owned(),
                 initial_text: Some("0".to_owned()),
-                flags: flags.iter().map(|flag| (*flag).to_owned()).collect(),
+                flags: flags.iter().map(|flag| (*flag).into()).collect(),
             },
         );
     }

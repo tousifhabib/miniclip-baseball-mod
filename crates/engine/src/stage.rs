@@ -412,7 +412,7 @@ impl Stage {
 
 #[cfg(test)]
 mod tests {
-    use bb_format::{Op, Place, PlaceAction};
+    use bb_format::{FieldFlag, Op, Place, PlaceAction};
 
     use super::*;
     use crate::display::tests::{FIELD, INNER, SHAPE, add_field, frame, library_with, place, put};
@@ -473,7 +473,7 @@ mod tests {
     #[test]
     fn a_field_that_only_shows_text_cannot_be_typed_in() {
         let mut library = with_field();
-        library.edit_texts.get_mut(&FIELD).unwrap().flags = vec!["read_only".to_owned()];
+        library.edit_texts.get_mut(&FIELD).unwrap().flags = vec![FieldFlag::ReadOnly];
         let mut stage = Stage::new(None, &library);
         click(&mut stage, &library, 110.0, 110.0);
         assert_eq!(stage.focus, None);
