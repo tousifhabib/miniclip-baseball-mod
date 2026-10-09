@@ -1393,4 +1393,111 @@ mod tests {
             None
         );
     }
+
+    /// Where something is drawn, how it is tinted and where its paint sits
+    /// in it, with every number different so that none can be taken for
+    /// another.
+    const WORLD: Matrix = Matrix {
+        a: 1.0,
+        b: 2.0,
+        c: 3.0,
+        d: 4.0,
+        tx: 5.0,
+        ty: 6.0,
+    };
+    const TINT: ColorTransform = ColorTransform {
+        mult: [0.1, 0.2, 0.3, 0.4],
+        add: [0.5, 0.6, 0.7, 0.8],
+    };
+    const PLACED: Matrix = Matrix {
+        a: 7.0,
+        b: 8.0,
+        c: 9.0,
+        d: 10.0,
+        tx: 11.0,
+        ty: 12.0,
+    };
+
+    #[test]
+    fn every_paint_is_told_where_it_is_drawn_and_how_it_is_tinted() {
+        let paints = [
+            Paint::Solid,
+            Paint::Linear {
+                ramp: 7,
+                matrix: PLACED,
+                spread: Spread::Pad,
+            },
+            Paint::Radial {
+                ramp: 3,
+                matrix: PLACED,
+                spread: Spread::Pad,
+            },
+            Paint::Image {
+                image: 5,
+                matrix: PLACED,
+                smooth: true,
+            },
+        ];
+        for paint in paints {
+            let (item, _) = item_for(&paint, WORLD, TINT);
+            assert_eq!(item.world_abcd, [1.0, 2.0, 3.0, 4.0]);
+            assert_eq!(item.world_t, [5.0, 6.0, 0.0, 0.0]);
+            assert_eq!(item.color_mult, TINT.mult);
+            assert_eq!(item.color_add, TINT.add);
+        }
+    }
+
+    #[test]
+    fn a_solid_paint_sits_nowhere_of_its_own_and_reads_no_row_of_the_ramps() {
+        let (item, texture) = item_for(&Paint::Solid, WORLD, TINT);
+        assert_eq!(item.paint_abcd, [1.0, 0.0, 0.0, 1.0]);
+        assert_eq!(item.paint_t, [0.0; 4]);
+        assert_eq!(item.kind, [0; 4]);
+        // The ramps are bound all the same: a draw must have some texture.
+        assert!(texture == Texture::Ramps);
+    }
+
+    #[test]
+    fn a_gradient_is_told_its_row_of_the_ramps_and_how_it_goes_on_past_its_ends() {
+        let ways = [(Spread::Pad, 0), (Spread::Reflect, 1), (Spread::Repeat, 2)];
+        for (spread, code) in ways {
+            let linear = Paint::Linear {
+                ramp: 7,
+                matrix: PLACED,
+                spread,
+            };
+            let (item, texture) = item_for(&linear, WORLD, TINT);
+            assert_eq!(item.paint_abcd, [7.0, 8.0, 9.0, 10.0]);
+            assert_eq!(item.paint_t, [11.0, 12.0, 7.0, 0.0]);
+            assert_eq!(item.kind, [1, code, 0, 0]);
+            assert!(texture == Texture::Ramps);
+
+            let radial = Paint::Radial {
+                ramp: 3,
+                matrix: PLACED,
+                spread,
+            };
+            let (item, texture) = item_for(&radial, WORLD, TINT);
+            assert_eq!(item.paint_abcd, [7.0, 8.0, 9.0, 10.0]);
+            assert_eq!(item.paint_t, [11.0, 12.0, 3.0, 0.0]);
+            assert_eq!(item.kind, [2, code, 0, 0]);
+            assert!(texture == Texture::Ramps);
+        }
+    }
+
+    #[test]
+    fn an_image_is_read_from_a_texture_of_its_own_smoothed_or_not() {
+        for smooth in [false, true] {
+            let image = Paint::Image {
+                image: 5,
+                matrix: PLACED,
+                smooth,
+            };
+            let (item, texture) = item_for(&image, WORLD, TINT);
+            assert_eq!(item.paint_abcd, [7.0, 8.0, 9.0, 10.0]);
+            assert_eq!(item.paint_t, [11.0, 12.0, 0.0, 0.0]);
+            assert_eq!(item.kind, [3, 0, 0, 0]);
+            assert!(texture == Texture::Image { slot: 5, smooth });
+        }
+    }
 }

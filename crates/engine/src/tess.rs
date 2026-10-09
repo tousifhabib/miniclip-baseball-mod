@@ -1022,6 +1022,38 @@ mod tests {
     }
 
     #[test]
+    fn a_line_ends_at_a_break_however_it_is_written_and_at_the_end_of_a_paragraph() {
+        assert_eq!(
+            plain_text("one<br>two<BR/>three<br />four"),
+            "one\ntwo\nthree\nfour"
+        );
+        assert_eq!(plain_text("<P>one</P><p>two</p>"), "one\ntwo");
+        // Empty lines are kept at the start and in the middle, and dropped
+        // from the end.
+        assert_eq!(plain_text("<br>one<br><br>two<br><br>"), "\none\n\ntwo");
+        // Any other tag is dropped and leaves the line as it was.
+        assert_eq!(plain_text("<b>one</b> <i>line</i>"), "one line");
+    }
+
+    #[test]
+    fn what_stands_for_a_character_becomes_it_once_the_tags_are_gone() {
+        assert_eq!(
+            plain_text("&lt;b&gt; &quot;hi&quot; &apos;there&apos;&nbsp;you"),
+            "<b> \"hi\" 'there' you"
+        );
+        // An ampersand that was written out is turned back once and no more.
+        assert_eq!(plain_text("&amp;lt;"), "&lt;");
+        assert_eq!(plain_text("this &amp; that"), "this & that");
+    }
+
+    #[test]
+    fn a_tag_that_is_never_closed_is_kept_as_it_was_written() {
+        assert_eq!(plain_text("<b>bold</b> and <i"), "bold and <i");
+        assert_eq!(plain_text("<"), "<");
+        assert_eq!(plain_text(""), "");
+    }
+
+    #[test]
     fn a_morph_segment_blends_part_way() {
         let a = Segment::Quad(0.0, 0.0, 10.0, 0.0);
         let b = Segment::Quad(0.0, 10.0, 10.0, 20.0);

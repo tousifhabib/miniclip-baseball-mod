@@ -404,6 +404,32 @@ mod tests {
     }
 
     #[test]
+    fn a_key_is_known_by_the_name_a_script_gives_it() {
+        let names = [
+            ("backspace", Key::Backspace),
+            ("enter", Key::Enter),
+            ("tab", Key::Tab),
+            ("escape", Key::Escape),
+            ("left", Key::Left),
+            ("right", Key::Right),
+            ("up", Key::Up),
+            ("down", Key::Down),
+            ("space", Key::Char(' ')),
+            // A letter or a figure is its own name.
+            ("a", Key::Char('a')),
+            ("Q", Key::Char('Q')),
+            ("7", Key::Char('7')),
+        ];
+        for (name, key) in names {
+            assert_eq!(Key::named(name), Some(key), "{name}");
+        }
+        // Neither a name nor a single letter.
+        assert_eq!(Key::named("shift"), None);
+        assert_eq!(Key::named("Enter"), None);
+        assert_eq!(Key::named(""), None);
+    }
+
+    #[test]
     fn a_pointer_nobody_has_moved_hovers_over_nothing() {
         // The button below is moved to the corner of the stage, where a
         // pointer resting at (0, 0) would be on top of it.

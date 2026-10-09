@@ -337,6 +337,75 @@ mod tests {
         assert_eq!(*seen.borrow(), told);
     }
 
+    /// The sound the art exports as "crowd".
+    const CROWD: SymbolId = 40;
+
+    fn with_a_sound() -> Library {
+        let mut library = library_with(vec![frame(vec![])], vec![frame(vec![])]);
+        library.manifest.exports.insert("crowd".to_owned(), CROWD);
+        library
+    }
+
+    /// What asking for the crowd puts in the stage's events.
+    fn asked(event: SoundEvent, loops: u16, envelope: Vec<EnvelopePoint>) -> Event {
+        Event::Sound(SoundStart {
+            sound: CROWD,
+            event,
+            loops,
+            in_sample: None,
+            out_sample: None,
+            envelope,
+        })
+    }
+
+    #[test]
+    fn the_rules_ask_for_a_sound_and_stop_it_by_the_name_it_is_exported_under() {
+        let library = with_a_sound();
+        let mut stage = Stage::new(None, &library);
+        assert!(stage.play_sound("crowd", 3, &library));
+        assert!(stage.stop_sound("crowd", &library));
+        let events = [
+            asked(SoundEvent::Event, 3, Vec::new()),
+            asked(SoundEvent::Stop, 0, Vec::new()),
+        ];
+        assert_eq!(stage.take_events(), events);
+
+        // There is no sound of this name, so nothing is asked for.
+        assert!(!stage.play_sound("organ", 1, &library));
+        assert!(!stage.stop_sound("organ", &library));
+        assert!(!stage.set_sound_level("organ", 0.5, &library));
+        assert!(stage.take_events().is_empty());
+    }
+
+    #[test]
+    fn a_sound_the_rules_have_turned_down_starts_at_that_level() {
+        let library = with_a_sound();
+        let mut stage = Stage::new(None, &library);
+        let at = |level: f32| {
+            vec![EnvelopePoint {
+                sample: 0,
+                left: level,
+                right: level,
+            }]
+        };
+        assert!(stage.set_sound_level("crowd", 0.25, &library));
+        // Setting the level asks for nothing by itself.
+        assert!(stage.take_events().is_empty());
+        stage.play_sound("crowd", 1, &library);
+        assert_eq!(stage.take_events(), [asked(SoundEvent::Event, 1, at(0.25))]);
+
+        // A level is kept between nothing and full.
+        stage.set_sound_level("crowd", 7.0, &library);
+        stage.play_sound("crowd", 1, &library);
+        stage.set_sound_level("crowd", -1.0, &library);
+        stage.play_sound("crowd", 1, &library);
+        let events = [
+            asked(SoundEvent::Event, 1, at(1.0)),
+            asked(SoundEvent::Event, 1, at(0.0)),
+        ];
+        assert_eq!(stage.take_events(), events);
+    }
+
     #[test]
     fn a_note_prints_as_the_line_it_always_was() {
         // Scripts and tests read these lines, so they are kept to the letter.
