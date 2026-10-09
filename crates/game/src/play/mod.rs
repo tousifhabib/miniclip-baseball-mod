@@ -309,14 +309,6 @@ pub struct Match {
     /// How many a run counts for on the pitch being played: one, unless a
     /// mod says more.
     pub(crate) run_worth: u32,
-    /// With the bullet time mod on: how many frames of holding the ball
-    /// back are left in the meter, how many frames it has been held back
-    /// for, whether it is being held back now, and a click made on a frame
-    /// it was held back on, which the next frame that moves it takes.
-    pub(crate) bullet: Option<u32>,
-    slow_beat: u32,
-    pub(crate) slowed: bool,
-    late_press: Option<Point>,
     /// With the hit the sign mod on: the innings a sign was last lit for
     /// and which it was, what the next is drawn by, the sign a ball has
     /// just struck and the runs that was worth, until that has been told,
@@ -447,10 +439,6 @@ impl Match {
             outs_before: 0,
             thrown_at: (0, 0),
             run_worth: 1,
-            bullet: None,
-            slow_beat: 0,
-            slowed: false,
-            late_press: None,
             sign: None,
             sign_rng: Rng::new(seed ^ SIGN_SEED),
             sign_news: None,
@@ -852,7 +840,7 @@ impl Match {
         self.run_cues(stage, library);
         // The stadium is lit as by day, unless it is night, and is cooler
         // while bullet time holds the ball back.
-        let slowed = std::mem::take(&mut self.slowed);
+        let slowed = self.mods.the_ball_was_held_back();
         if let Some(lighting) = self.mods.lighting(slowed) {
             night_game::light(lighting, stage);
         }
@@ -876,11 +864,11 @@ impl Match {
             }
             Phase::WindUp => self.wind_up_and_throw(&mut at_bat, pressed, game, stage, library),
             Phase::Flight { step } => {
-                let pressed = self.late_press.take().or(pressed);
-                if self.held_back(&at_bat, step, game, stage) {
+                let pressed = self.mods.late_press().or(pressed);
+                if self.held_back(&at_bat, step, stage) {
                     // The ball stays where it is for this frame. A click
                     // made on it is for the step the ball is on.
-                    self.late_press = pressed;
+                    self.mods.keep_press(pressed);
                 } else {
                     self.flight(&mut at_bat, step, pressed, game, stage, library);
                 }
@@ -988,7 +976,7 @@ impl Match {
             rally: self.mods.in_a_row(),
             clutch: self.mods.clutch_this_pitch(),
             southpaw: self.mods.batting_left_handed(),
-            bullet_time: self.bullet.map(|left| (left, self.slowed)),
+            bullet_time: self.mods.bullet_time(),
             sign_lit: self.sign.map(|(_, lit)| lit),
             sign_struck: self.sign_struck.or(self.sign_news),
             stealing,

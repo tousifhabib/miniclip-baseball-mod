@@ -15,15 +15,108 @@ use bb_engine::stage::Stage;
 
 use crate::art;
 use crate::look::{self, Rgb};
-use crate::menu::Game;
 use crate::play::overlay::{self, DARK, Words};
 use crate::play::pitch::Point;
 use crate::play::{AtBat, Match, Parts};
 use crate::rules::BulletTimeRules;
 
-/// The mod, in play. What the match keeps for it is with the match still:
-/// what is left in the meter, and whether the ball is being held back.
-pub(crate) struct BulletTime;
+/// The mod, in play: the meter, and how the ball is being held back.
+pub(crate) struct BulletTime {
+    rules: BulletTimeRules,
+    /// How many frames of holding the ball back are left in the meter.
+    /// `None` until the first view is got ready, when it is filled.
+    meter: Option<u32>,
+    /// How many frames the ball has been held back for, in all. It moves
+    /// on one of them in every so many.
+    beat: u32,
+    /// Whether it was held back on the frame just played.
+    slowed: bool,
+    /// A click made on a frame the ball was held back on, which the next
+    /// frame that moves it takes.
+    late_press: Option<Point>,
+}
+
+impl BulletTime {
+    pub fn new(rules: &BulletTimeRules) -> BulletTime {
+        BulletTime {
+            rules: rules.clone(),
+            meter: None,
+            beat: 0,
+            slowed: false,
+            late_press: None,
+        }
+    }
+
+    /// Fills the meter, if this is the first view of the game.
+    pub fn fill_at_the_start(&mut self) {
+        self.meter.get_or_insert(self.rules.full);
+    }
+
+    /// What is left in the meter, once it has been filled.
+    pub fn left(&self) -> Option<u32> {
+        self.meter
+    }
+
+    /// The same as a share of all it holds, from 0 to 1.
+    pub fn share_left(&self) -> Option<f32> {
+        let full = self.rules.full.max(1) as f32;
+        self.meter.map(|left| left as f32 / full)
+    }
+
+    pub fn slowed(&self) -> bool {
+        self.slowed
+    }
+
+    /// Whether the ball was held back on the frame just played. It is asked
+    /// once a frame, and forgotten.
+    pub fn was_slowed(&mut self) -> bool {
+        std::mem::take(&mut self.slowed)
+    }
+
+    /// The click that was kept from a frame the ball was held back on, if
+    /// there was one.
+    pub fn late_press(&mut self) -> Option<Point> {
+        self.late_press.take()
+    }
+
+    /// Keeps a click made while the ball is held back for the frame that
+    /// moves it.
+    pub fn keep_press(&mut self, pressed: Option<Point>) {
+        self.late_press = pressed;
+    }
+
+    /// Whether a pitch that has come to this step of its flight, of so
+    /// many, is near enough the plate to be slowed.
+    pub fn is_near(&self, step: usize, steps: usize) -> bool {
+        step + self.rules.near as usize >= steps
+    }
+
+    /// Whether the frame in hand is one the ball is held back for. Each
+    /// frame the key is used on takes one off the meter, held back or not:
+    /// the ball still moves on one frame in every so many.
+    pub fn holds_back(&mut self, near: bool, swung: bool, key_down: bool) -> bool {
+        let Some(left) = &mut self.meter else {
+            return false;
+        };
+        if !key_down || !near || swung || *left == 0 {
+            return false;
+        }
+        *left -= 1;
+        self.slowed = true;
+        self.beat += 1;
+        !self.beat.is_multiple_of(self.rules.slow.max(1))
+    }
+
+    /// A hit puts some of the meter back: all of it if the batter got home
+    /// on it, and otherwise the share a hit is worth.
+    pub fn refill(&mut self, got_home: bool) {
+        let share = if got_home { 1.0 } else { self.rules.hit };
+        if let Some(left) = &mut self.meter {
+            let more = (self.rules.full as f32 * share).round() as u32;
+            *left = (*left + more).min(self.rules.full);
+        }
+    }
+}
 
 /// The key that is held.
 pub const KEY: Key = Key::Char(' ');
@@ -116,35 +209,12 @@ pub fn cool(lighting: ColorTransform) -> ColorTransform {
 impl Match {
     /// Whether the frame in hand is one that bullet time holds the ball
     /// back for, `step` being the step of its flight the pitch has come
-    /// to. Each frame the key is used on takes one off the meter, held
-    /// back or not.
-    pub(crate) fn held_back(
-        &mut self,
-        at_bat: &AtBat,
-        step: usize,
-        game: &Game,
-        stage: &Stage,
-    ) -> bool {
-        let rules = &game.rules.bullet_time;
-        let Some(left) = &mut self.bullet else {
+    /// to.
+    pub(crate) fn held_back(&mut self, at_bat: &AtBat, step: usize, stage: &Stage) -> bool {
+        let Some(bullet) = &mut self.mods.bullet_time else {
             return false;
         };
-        let near = step + rules.near as usize >= at_bat.pitch.samples.len();
-        let wanted = self.mods.the_pitch_can_be_slowed() && stage.key_down(KEY);
-        if !wanted || !near || at_bat.swing.is_some() || *left == 0 {
-            return false;
-        }
-        *left -= 1;
-        self.slowed = true;
-        self.slow_beat += 1;
-        !self.slow_beat.is_multiple_of(rules.slow.max(1))
-    }
-
-    /// A hit puts some of the meter back: this share of all it holds.
-    pub(crate) fn refill_bullet_time(&mut self, share: f32, rules: &BulletTimeRules) {
-        if let Some(left) = &mut self.bullet {
-            let more = (rules.full as f32 * share).round() as u32;
-            *left = (*left + more).min(rules.full);
-        }
+        let near = bullet.is_near(step, at_bat.pitch.samples.len());
+        bullet.holds_back(near, at_bat.swing.is_some(), stage.key_down(KEY))
     }
 }

@@ -58,6 +58,7 @@ use bb_engine::math::ColorTransform;
 use crate::look::Rgb;
 use crate::menu::Game;
 use crate::mods::Mod;
+use crate::play::pitch::Point;
 use crate::play::snapshot::ArmSeen;
 use crate::rng::Rng;
 use crate::rules::PitchRules;
@@ -80,7 +81,9 @@ pub(crate) struct Line {
 /// What each mod in play keeps. `None` is a mod that is off.
 #[derive(Default)]
 pub(crate) struct ModsInPlay {
-    bullet_time: Option<BulletTime>,
+    /// Bullet time, whose meter the game puts up and whose key it reads in
+    /// steps of its own.
+    pub(in crate::play) bullet_time: Option<BulletTime>,
     butterfingers: Option<Butterfingers>,
     called_shot: Option<CalledShot>,
     clutch: Option<Clutch>,
@@ -122,7 +125,7 @@ impl ModsInPlay {
         let level = |which: Mod| game.mods.level(which);
         let rules = &game.rules;
         ModsInPlay {
-            bullet_time: on(Mod::BulletTime).then_some(BulletTime),
+            bullet_time: on(Mod::BulletTime).then(|| BulletTime::new(&rules.bullet_time)),
             // The arcade game has a target of its own, and no runs for a
             // called shot to be worth.
             called_shot: (on(Mod::CalledShot) && !arcade).then_some(CalledShot),
@@ -294,9 +297,45 @@ impl ModsInPlay {
         })
     }
 
-    /// Whether the pitch can be slowed as it comes to the plate.
-    pub fn the_pitch_can_be_slowed(&self) -> bool {
-        self.bullet_time.is_some()
+    /// Whether the ball was held back on the frame just played. It is asked
+    /// once a frame.
+    pub fn the_ball_was_held_back(&mut self) -> bool {
+        self.bullet_time
+            .as_mut()
+            .is_some_and(BulletTime::was_slowed)
+    }
+
+    /// A click that was kept from a frame the ball was held back on.
+    pub fn late_press(&mut self) -> Option<Point> {
+        self.bullet_time.as_mut().and_then(BulletTime::late_press)
+    }
+
+    /// Keeps a click made while the ball is held back.
+    pub fn keep_press(&mut self, pressed: Option<Point>) {
+        if let Some(bullet) = &mut self.bullet_time {
+            bullet.keep_press(pressed);
+        }
+    }
+
+    /// How much of bullet time's meter is left, from 0 to 1, once it has
+    /// been filled.
+    pub fn meter_left(&self) -> Option<f32> {
+        self.bullet_time.as_ref().and_then(BulletTime::share_left)
+    }
+
+    /// What is left in bullet time's meter, and whether the ball is being
+    /// held back.
+    pub fn bullet_time(&self) -> Option<(u32, bool)> {
+        let bullet = self.bullet_time.as_ref()?;
+        Some((bullet.left()?, bullet.slowed()))
+    }
+
+    /// A ball that was hit has put the batter on base, or all the way
+    /// home, or in the arcade game has scored.
+    pub fn a_hit_came_off(&mut self, got_home: bool) {
+        if let Some(bullet) = &mut self.bullet_time {
+            bullet.refill(got_home);
+        }
     }
 
     /// Whether the batter may call where his hit will come down.

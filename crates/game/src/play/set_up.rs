@@ -96,7 +96,7 @@ impl Match {
         Match::say_the_ball_is_golden(&mut coming, stage, library);
         self.say_it_is_the_clutch(&mut coming, stage, library);
         self.say_what_a_rally_is_worth(&mut coming, stage, library);
-        let meter = self.put_up_the_meter(&mut coming, game, stage, library);
+        let meter = self.put_up_the_meter(&mut coming, stage, library);
         self.shift_the_fielders(&mut coming, game, stage, library);
         Match::clear_the_plate(&coming, stage);
         self.stand_the_runners(&coming, stage, library);
@@ -314,22 +314,16 @@ impl Match {
     fn put_up_the_meter(
         &mut self,
         coming: &mut Coming,
-        game: &Game,
         stage: &mut Stage,
         library: &Library,
     ) -> Option<bullet::Meter> {
-        if !self.mods.the_pitch_can_be_slowed() {
-            self.bullet = None;
-            return None;
-        }
-        let rules = &game.rules.bullet_time;
-        self.bullet.get_or_insert(rules.full);
+        let bullet = self.mods.bullet_time.as_mut()?;
+        bullet.fill_at_the_start();
         let (top, under) = (coming.corner.line(), coming.corner.line());
         let under = (under.0, under.1 + 2.0);
         let meter = bullet::Meter::put(&coming.parts, top, under, stage, library);
-        if let (Some(meter), Some(left)) = (&meter, self.bullet) {
-            let full = rules.full.max(1) as f32;
-            meter.keep(left as f32 / full, false, stage);
+        if let (Some(meter), Some(left)) = (&meter, bullet.share_left()) {
+            meter.keep(left, false, stage);
         }
         meter
     }

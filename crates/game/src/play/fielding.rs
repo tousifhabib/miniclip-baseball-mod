@@ -856,10 +856,8 @@ impl Match {
         let batter = state.batter.and_then(|batter| self.runners.get(batter));
         let hit = !state.walk && !state.foul && !state.steal;
         match batter.map(|batter| batter.place) {
-            Some(Place::Home) if hit => self.refill_bullet_time(1.0, &game.rules.bullet_time),
-            Some(Place::Base(_)) if hit => {
-                self.refill_bullet_time(game.rules.bullet_time.hit, &game.rules.bullet_time);
-            }
+            Some(Place::Home) if hit => self.mods.a_hit_came_off(true),
+            Some(Place::Base(_)) if hit => self.mods.a_hit_came_off(false),
             _ => {}
         }
         self.book_play(at_bat, state);

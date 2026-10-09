@@ -68,9 +68,8 @@ impl Match {
         if let Some(signs) = &mut at_bat.signs {
             signs.keep(stage);
         }
-        if let (Some(meter), Some(left)) = (&at_bat.meter, self.bullet) {
-            let full = rules.bullet_time.full.max(1) as f32;
-            meter.keep(left as f32 / full, slowed, stage);
+        if let (Some(meter), Some(left)) = (&at_bat.meter, self.mods.meter_left()) {
+            meter.keep(left, slowed, stage);
         }
         if at_bat.contact.is_none() {
             Match::aim(at_bat, stage);

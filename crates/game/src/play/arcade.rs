@@ -241,7 +241,7 @@ impl Match {
 
         if let Some((ring, points)) = scored {
             // A ball that scores puts some of bullet time's meter back.
-            self.refill_bullet_time(rules.bullet_time.hit, &rules.bullet_time);
+            self.mods.a_hit_came_off(false);
             if let Some(ring) = ring {
                 // The art numbers its rings from the outside in.
                 let name = format!("ring{}", rules.arcade.rings.len() - ring);
