@@ -89,6 +89,10 @@ ball's flight, to the fielding and the next pitch being asked for.
 - `set_up.rs`: getting the view ready for a pitch is a list of steps, each
   a function with a name. The order is the order things have always been
   done in, and it matters (see below).
+- `batting.rs`: the frames of a pitch at the plate, a function for each
+  part of it: the wait, the wind-up, the flight, the call.
+- `fielding.rs`: the ball in the field, the fielders, the throws and the
+  runners.
 - `pitch.rs`, `field.rs`, `book.rs`, `paper.rs`, and the innings of a full
   match in `full.rs`, touch nothing on the stage. They are sums, and are
   tested as sums.
@@ -172,11 +176,9 @@ are meant only to come down.
 
 ## What is not finished
 
-The match is still large. The fielding (`fielding.rs`) is one long function
-and a few shorter ones, and its state is a handful of flags that would read
-better as one thing that says how the play began and how it ended. What
-happens each frame of a pitch is one function with an arm for each phase.
-Four mods, bullet time, hit the sign, stolen bases and the zinger hit, have
+The fielding (`fielding.rs`) is still one long function and a few shorter
+ones, and its state is a handful of flags that would read better as one
+thing that says how the play began and how it ended. Four mods, bullet time, hit the sign, stolen bases and the zinger hit, have
 their files and are asked like the rest, but still keep some of what they
 need with the match. Each of these is a change of the same kind as the ones
 already made, with the same nets under it.

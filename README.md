@@ -481,6 +481,7 @@ Inside `play/`:
 |---|---|
 | `mod.rs` | The match: what lasts from pitch to pitch, and what happens each frame |
 | `set_up.rs` | Getting the batting view ready for a pitch, a step at a time |
+| `batting.rs` | The frames of a pitch: the wait, the wind-up, the ball's flight, the call |
 | `fielding.rs` | The ball in the field: the fielders, the throws and the runners |
 | `pitch.rs`, `field.rs` | How a pitch flies and what a swing does to it; how a hit ball flies and bounces |
 | `mode.rs` | Which of the three games it is: the last innings, the arcade game or a full match |
