@@ -127,7 +127,7 @@ fn main() -> Result<()> {
         renderer.stats.draws,
         renderer.stats.layers,
     );
-    for problem in &renderer.problems {
+    for problem in renderer.problems() {
         println!("  problem: {problem}");
     }
     Ok(())

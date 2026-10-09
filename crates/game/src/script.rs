@@ -5,22 +5,67 @@ use anyhow::{Context, Result, bail};
 use bb_engine::app::Runner;
 use bb_engine::display::describe_tree;
 use bb_engine::gpu::Renderer;
-use bb_engine::input::Key;
+use bb_engine::input::{Geometry, Key};
 use bb_engine::math::Matrix;
+use bb_engine::meshes::Meshes;
 
 /// A game being played by a script.
 pub struct Script {
     pub runner: Runner,
-    renderer: Renderer,
+    eyes: Eyes,
     /// Picture pixels per stage pixel, for `shot`.
     pub scale: f32,
+}
+
+/// What the script looks at the stage with: its triangles alone, which is
+/// all a pointer needs, until a picture is asked for. Only then is a
+/// graphics device opened, so a game that is played and never drawn needs
+/// none.
+#[expect(
+    clippy::large_enum_variant,
+    reason = "a game has one of these, so its size is of no account"
+)]
+enum Eyes {
+    Triangles(Meshes),
+    Renderer(Box<Renderer>),
+}
+
+impl Eyes {
+    /// What tells whether the pointer is on a thing.
+    fn geometry(&mut self) -> &mut dyn Geometry {
+        match self {
+            Eyes::Triangles(meshes) => meshes,
+            Eyes::Renderer(renderer) => renderer.as_mut(),
+        }
+    }
+
+    /// What draws a picture, opened now if it has not been.
+    fn renderer(&mut self) -> Result<&mut Renderer> {
+        if let Eyes::Triangles(meshes) = self {
+            let renderer = Renderer::headless()?;
+            // The triangles made so far go with it.
+            let renderer = renderer.with_meshes(std::mem::take(meshes));
+            *self = Eyes::Renderer(Box::new(renderer));
+        }
+        match self {
+            Eyes::Renderer(renderer) => Ok(renderer),
+            Eyes::Triangles(_) => bail!("the graphics device did not open"),
+        }
+    }
+
+    fn problems(&self) -> &[String] {
+        match self {
+            Eyes::Triangles(meshes) => meshes.problems(),
+            Eyes::Renderer(renderer) => renderer.problems(),
+        }
+    }
 }
 
 impl Script {
     pub fn new(runner: Runner) -> Result<Script> {
         Ok(Script {
             runner,
-            renderer: Renderer::headless()?,
+            eyes: Eyes::Triangles(Meshes::default()),
             scale: 1.0,
         })
     }
@@ -56,11 +101,11 @@ impl Script {
 
     /// What could not be drawn, if anything.
     pub fn problems(&self) -> &[String] {
-        &self.renderer.problems
+        self.eyes.problems()
     }
 
     fn step(&mut self, step: &str, lines: &mut Vec<String>) -> Result<()> {
-        let (runner, renderer) = (&mut self.runner, &mut self.renderer);
+        let (runner, renderer) = (&mut self.runner, self.eyes.geometry());
         let words: Vec<&str> = step.split_whitespace().collect();
         let number = |index: usize| -> Result<f32> {
             let word = words
@@ -155,6 +200,7 @@ impl Script {
                 let commands = runner
                     .stage
                     .commands(Matrix::scale(scale, scale), &runner.library);
+                let renderer = self.eyes.renderer()?;
                 renderer.min_stroke = scale.max(1.0);
                 renderer
                     .capture(&runner.library, &commands, size, background)?

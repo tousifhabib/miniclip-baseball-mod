@@ -224,7 +224,7 @@ fn main() -> Result<()> {
         area[2],
         area[3],
     );
-    for problem in &renderer.problems {
+    for problem in renderer.problems() {
         println!("  problem: {problem}");
     }
     Ok(())

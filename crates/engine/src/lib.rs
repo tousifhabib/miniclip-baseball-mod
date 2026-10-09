@@ -13,6 +13,7 @@ pub mod input;
 pub mod inspector;
 pub mod library;
 pub mod math;
+pub mod meshes;
 pub mod pace;
 pub mod stage;
 pub mod tess;

@@ -11,7 +11,7 @@
 use std::collections::HashMap;
 
 use anyhow::{Context, Result};
-use bb_format::{SymbolId, SymbolInfo};
+use bb_format::SymbolId;
 use bytemuck::{Pod, Zeroable};
 use wgpu::util::DeviceExt;
 
@@ -19,7 +19,8 @@ use crate::display::{Bounds, Command};
 use crate::input::Geometry;
 use crate::library::Library;
 use crate::math::{ColorTransform, Matrix};
-use crate::tess::{Draw, Mesh, Paint, Spread, Tessellator, Vertex};
+use crate::meshes::{MeshKey, Meshes};
+use crate::tess::{Mesh, Paint, Spread, Vertex};
 
 const SAMPLES: u32 = 4;
 const STENCIL_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Depth24PlusStencil8;
@@ -199,22 +200,11 @@ struct Item {
     kind: [u32; 4],
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
-enum MeshKey {
-    Shape(SymbolId),
-    Morph(SymbolId, u16),
-    Text(SymbolId),
-    /// A text field saying something the game has set. The number stands
-    /// for what it says.
-    Field(SymbolId, u64),
-    /// The square from (0, 0) to (1, 1), for drawing a layer.
-    Quad,
-}
-
-struct GpuMesh {
+/// A mesh's corners and the order they are joined in, as the graphics card
+/// holds them.
+struct Buffers {
     vertices: wgpu::Buffer,
     indices: wgpu::Buffer,
-    mesh: Mesh,
 }
 
 /// How a draw treats the stencil buffer.
@@ -323,8 +313,10 @@ pub struct Renderer {
     ramp_sampler: wgpu::Sampler,
     smooth_sampler: wgpu::Sampler,
     crisp_sampler: wgpu::Sampler,
-    tessellator: Tessellator,
-    meshes: HashMap<MeshKey, Option<GpuMesh>>,
+    /// The triangles of everything drawn or pointed at so far.
+    meshes: Meshes,
+    /// What the graphics card holds of each mesh that has been drawn.
+    buffers: HashMap<MeshKey, Buffers>,
     ramps_bind: wgpu::BindGroup,
     ramps_texture: wgpu::Texture,
     ramps_capacity: usize,
@@ -337,8 +329,6 @@ pub struct Renderer {
     /// The least width a stroke is drawn at, in pixels of the target.
     pub min_stroke: f32,
     pub stats: Stats,
-    /// Symbols that could not be drawn, each reported once.
-    pub problems: Vec<String>,
 }
 
 impl Renderer {
@@ -562,8 +552,8 @@ impl Renderer {
             ramp_sampler,
             smooth_sampler,
             crisp_sampler,
-            tessellator: Tessellator::default(),
-            meshes: HashMap::new(),
+            meshes: Meshes::default(),
+            buffers: HashMap::new(),
             ramps_bind,
             ramps_texture,
             ramps_capacity,
@@ -575,8 +565,20 @@ impl Renderer {
             frame: 0,
             min_stroke: 1.0,
             stats: Stats::default(),
-            problems: Vec::new(),
         }
+    }
+
+    /// Takes up meshes that were built before there was a renderer, by a
+    /// game that had only needed to know what was under its pointer. They
+    /// go to the graphics card as each is first drawn.
+    pub fn with_meshes(mut self, meshes: Meshes) -> Renderer {
+        self.meshes = meshes;
+        self
+    }
+
+    /// Symbols that could not be drawn, each reported once.
+    pub fn problems(&self) -> &[String] {
+        self.meshes.problems()
     }
 
     /// Draws `commands` into `target`, a texture of `size` pixels in the
@@ -595,13 +597,8 @@ impl Renderer {
         // Text that changes often, such as a score, leaves a mesh behind for
         // every value it has shown. Clear them out now and then; the ones
         // still wanted are rebuilt as they are drawn.
-        let fields = self
-            .meshes
-            .keys()
-            .filter(|key| matches!(key, MeshKey::Field(..)))
-            .count();
-        if fields > MAX_FIELD_MESHES {
-            self.meshes
+        if self.meshes.forget_fields_over(MAX_FIELD_MESHES) {
+            self.buffers
                 .retain(|key, _| !matches!(key, MeshKey::Field(..)));
         }
         let (mut layers, items) = self.prepare(library, commands, size);
@@ -710,7 +707,9 @@ impl Renderer {
         let mut key = None;
         let mut texture = None;
         for step in steps {
-            let Some(Some(mesh)) = self.meshes.get(&step.key) else {
+            let (Some(mesh), Some(buffers)) =
+                (self.meshes.get(step.key), self.buffers.get(&step.key))
+            else {
                 continue;
             };
             let bind = match step.texture {
@@ -734,8 +733,8 @@ impl Renderer {
                 mode = Some(step.mode);
             }
             if key != Some(step.key) {
-                pass.set_vertex_buffer(0, mesh.vertices.slice(..));
-                pass.set_index_buffer(mesh.indices.slice(..), wgpu::IndexFormat::Uint32);
+                pass.set_vertex_buffer(0, buffers.vertices.slice(..));
+                pass.set_index_buffer(buffers.indices.slice(..), wgpu::IndexFormat::Uint32);
                 key = Some(step.key);
             }
             if texture != Some(step.texture) {
@@ -744,7 +743,7 @@ impl Renderer {
             }
             pass.set_stencil_reference(step.stencil);
             pass.set_bind_group(1, &self.items_bind, &[(step.item * SLOT) as u32]);
-            pass.draw_indexed(mesh.mesh.draws[step.draw].indices.clone(), 0, 0..1);
+            pass.draw_indexed(mesh.draws[step.draw].indices.clone(), 0, 0..1);
         }
     }
 
@@ -941,14 +940,13 @@ impl Renderer {
                     if layers[current].size == (0, 0) {
                         continue;
                     }
-                    let Some(key) = mesh_key(library, *symbol, *ratio, text.as_deref()) else {
+                    let Some(key) = MeshKey::of(library, *symbol, *ratio, text.as_deref()) else {
                         continue;
                     };
-                    self.ensure_mesh(library, key, text.as_deref());
-                    let Some(Some(mesh)) = self.meshes.get(&key) else {
+                    let Some(mesh) = self.ensure_mesh(library, key, text.as_deref()) else {
                         continue;
                     };
-                    for (index, draw) in mesh.mesh.draws.iter().enumerate() {
+                    for (index, draw) in mesh.draws.iter().enumerate() {
                         let (data, texture) = item_for(&draw.paint, *matrix, *color);
                         let item = push_item(data);
                         layers[current].steps.push(Step {
@@ -966,79 +964,36 @@ impl Renderer {
         (layers, items)
     }
 
-    /// Builds the mesh for `key` if it is not there yet. `text` is what a
-    /// [`MeshKey::Field`] says.
-    fn ensure_mesh(&mut self, library: &Library, key: MeshKey, text: Option<&str>) {
-        if self.meshes.contains_key(&key) {
-            return;
-        }
-        let built = match key {
-            MeshKey::Shape(id) => {
-                let symbol = &library.manifest.symbols[&id];
-                let origin = match symbol.info {
-                    SymbolInfo::Shape { bounds } => (bounds.x_min as f32, bounds.y_min as f32),
-                    _ => (0.0, 0.0),
-                };
-                self.tessellator
-                    .svg(&library.dir.join(&symbol.file), origin)
-            }
-            MeshKey::Morph(id, ratio) => self.tessellator.morph(&library.morphs[&id], ratio),
-            MeshKey::Text(id) => match (library.texts.get(&id), library.edit_texts.get(&id)) {
-                (Some(text), _) => self.tessellator.text(text, library),
-                (None, Some(field)) => self.tessellator.edit_text(field, None, library),
-                (None, None) => Ok(Mesh::default()),
-            },
-            MeshKey::Field(id, _) => match library.edit_texts.get(&id) {
-                Some(field) => self.tessellator.edit_text(field, text, library),
-                None => Ok(Mesh::default()),
-            },
-            MeshKey::Quad => {
-                let corner = |x: f32, y: f32| Vertex {
-                    position: [x, y],
-                    normal: [0.0, 0.0],
-                    half_width: 0.0,
-                    color: [255; 4],
-                };
-                Ok(Mesh {
-                    vertices: vec![
-                        corner(0.0, 0.0),
-                        corner(1.0, 0.0),
-                        corner(1.0, 1.0),
-                        corner(0.0, 1.0),
-                    ],
-                    indices: vec![0, 1, 2, 0, 2, 3],
-                    draws: vec![Draw {
-                        indices: 0..6,
-                        paint: Paint::Solid,
-                    }],
-                })
-            }
-        };
-        let mesh = match built {
-            Ok(mesh) if !mesh.indices.is_empty() => Some(GpuMesh {
-                vertices: self
-                    .device
-                    .create_buffer_init(&wgpu::util::BufferInitDescriptor {
-                        label: Some("vertices"),
-                        contents: bytemuck::cast_slice(&mesh.vertices),
-                        usage: wgpu::BufferUsages::VERTEX,
-                    }),
-                indices: self
-                    .device
-                    .create_buffer_init(&wgpu::util::BufferInitDescriptor {
-                        label: Some("indices"),
-                        contents: bytemuck::cast_slice(&mesh.indices),
-                        usage: wgpu::BufferUsages::INDEX,
-                    }),
-                mesh,
-            }),
-            Ok(_) => None,
-            Err(error) => {
-                self.problems.push(format!("{error:#}"));
-                None
-            }
-        };
-        self.meshes.insert(key, mesh);
+    /// Builds the mesh for `key` if it is not there yet, hands it to the
+    /// graphics card if that has not been done, and returns it if it came
+    /// to anything. `text` is what a [`MeshKey::Field`] says.
+    ///
+    /// A mesh may have been built already without having gone to the card:
+    /// the pointer asks about shapes that have yet to be drawn.
+    fn ensure_mesh(
+        &mut self,
+        library: &Library,
+        key: MeshKey,
+        text: Option<&str>,
+    ) -> Option<&Mesh> {
+        let mesh = self.meshes.ensure(library, key, text)?;
+        self.buffers.entry(key).or_insert_with(|| Buffers {
+            vertices: self
+                .device
+                .create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                    label: Some("vertices"),
+                    contents: bytemuck::cast_slice(&mesh.vertices),
+                    usage: wgpu::BufferUsages::VERTEX,
+                }),
+            indices: self
+                .device
+                .create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                    label: Some("indices"),
+                    contents: bytemuck::cast_slice(&mesh.indices),
+                    usage: wgpu::BufferUsages::INDEX,
+                }),
+        });
+        Some(mesh)
     }
 
     /// Sends this frame's uniforms, and any new ramps and images, to the GPU,
@@ -1077,7 +1032,7 @@ impl Renderer {
             self.queue.write_buffer(&self.items, 0, items);
         }
 
-        let ramps = &self.tessellator.ramps;
+        let ramps = self.meshes.ramps();
         if ramps.len() > self.ramps_capacity {
             self.ramps_capacity = ramps.len().next_power_of_two();
             (self.ramps_texture, self.ramps_bind) = ramp_texture(
@@ -1116,7 +1071,7 @@ impl Renderer {
             self.ramps_uploaded = ramps.len();
         }
 
-        for image in &self.tessellator.images[self.image_views.len()..] {
+        for image in &self.meshes.images()[self.image_views.len()..] {
             let mut pixels = image.rgba.clone();
             for pixel in pixels.as_chunks_mut::<4>().0 {
                 let alpha = u32::from(pixel[3]);
@@ -1241,34 +1196,7 @@ impl Geometry for Renderer {
         x: f32,
         y: f32,
     ) -> bool {
-        let Some(key) = mesh_key(library, symbol, ratio, None) else {
-            return false;
-        };
-        self.ensure_mesh(library, key, None);
-        match self.meshes.get(&key) {
-            Some(Some(mesh)) => mesh.mesh.contains(x, y),
-            _ => false,
-        }
-    }
-}
-
-/// Which mesh draws `symbol`, if it is something with a mesh.
-fn mesh_key(
-    library: &Library,
-    symbol: SymbolId,
-    ratio: u16,
-    text: Option<&str>,
-) -> Option<MeshKey> {
-    match (&library.manifest.symbols.get(&symbol)?.info, text) {
-        (SymbolInfo::Shape { .. }, _) => Some(MeshKey::Shape(symbol)),
-        (SymbolInfo::MorphShape, _) => Some(MeshKey::Morph(symbol, ratio)),
-        (SymbolInfo::EditText, Some(text)) => {
-            let mut hasher = std::hash::DefaultHasher::new();
-            std::hash::Hash::hash(text, &mut hasher);
-            Some(MeshKey::Field(symbol, std::hash::Hasher::finish(&hasher)))
-        }
-        (SymbolInfo::Text | SymbolInfo::EditText, None) => Some(MeshKey::Text(symbol)),
-        _ => None,
+        self.meshes.contains(library, symbol, ratio, x, y)
     }
 }
 

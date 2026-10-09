@@ -69,7 +69,7 @@ pub fn run(runner: Runner, options: Options) -> Result<Summary> {
     }
 
     let audio_problems = app.runner.audio.iter().flat_map(|audio| &audio.problems);
-    let draw_problems = app.view.iter().flat_map(|view| &view.renderer.problems);
+    let draw_problems = app.view.iter().flat_map(|view| view.renderer.problems());
     Ok(Summary {
         frames_drawn: app.drawn,
         sounds_asked: app.runner.sounds_asked,
