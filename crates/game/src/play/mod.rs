@@ -19,6 +19,7 @@ mod pinball;
 pub mod pitch;
 pub mod shift;
 pub mod sign;
+mod snapshot;
 pub mod southpaw;
 mod steal;
 pub mod timing;
@@ -40,6 +41,7 @@ use book::{End, ORDER, Thrown};
 use field::{Ball, Contact, Ground, Happened, reach};
 use overlay::Notice;
 use pitch::{Choice, Kind, Mound, Pitch, Point, Quality};
+use snapshot::{ArmSeen, ModsSeen, PitchSeen, Score, Snapshot, Standing};
 use zinger::Zinger;
 
 /// How a match ended.
@@ -2000,7 +2002,98 @@ impl Match {
         }
     }
 
+    /// How the game stands, as plain facts.
+    pub(crate) fn snapshot(&self) -> Snapshot {
+        // Where this pitch crosses and how many frames it takes, which a
+        // script needs to know to time a swing. With the timing bar up, the
+        // steps it shows as the best to swing on are given too, and how far
+        // the ball went if it was hit for a zinger.
+        let pitch = self.at.as_ref().map(|at_bat| PitchSeen {
+            crosses: at_bat.pitch.crosses,
+            frames: at_bat.pitch.samples.len(),
+            in_zone: at_bat.pitch.in_zone,
+            best: at_bat.timing.as_ref().and_then(|bar| bar.timing.best()),
+            zinger_feet: at_bat.zinger.map(|zinger| zinger.feet),
+            mystery: at_bat.kind,
+            golden: at_bat.golden,
+            rebounds: at_bat.rebounds,
+            called: at_bat.called.as_ref().map(|called| called.at),
+            came_down: at_bat.came_down,
+        });
+        let stealing = self
+            .runners
+            .iter()
+            .filter(|runner| runner.stole_from.is_some())
+            .filter_map(|runner| runner.running_to)
+            .collect();
+        let mods = ModsSeen {
+            let_go: self.slips,
+            heat: self.heat,
+            hits_in_a_row: self.streak,
+            rally: if self.rallying { self.rally } else { 0 },
+            clutch: self.clutch,
+            southpaw: self.southpaw,
+            bullet_time: self.bullet.map(|left| (left, self.slowed)),
+            sign_lit: self.sign.map(|(_, lit)| lit),
+            sign_struck: self.sign_struck.or(self.sign_news),
+            stealing,
+            stolen: self.stolen,
+            caught: self.caught,
+            arm: self.tired.map(|tired| ArmSeen {
+                thrown: self.arm,
+                tired,
+                relieved: self.relieved,
+            }),
+            shifted: self.shift,
+        };
+        let standing = match &self.arcade {
+            Some(arcade) => Standing::Arcade {
+                points: arcade.points,
+                pitches_left: arcade.left,
+            },
+            None => Standing::Match {
+                // A full match has no score to reach: it says which
+                // innings it is, and what both sides have made.
+                score: match &self.full {
+                    Some(full) => Score::Against {
+                        batting_in: full.batting_in(),
+                        score: self.score,
+                        theirs: full.theirs(),
+                    },
+                    None => Score::Of {
+                        score: self.score,
+                        target: self.target,
+                    },
+                },
+                outs: self.outs,
+                balls: self.balls,
+                strikes: self.strikes,
+                bases: [1, 2, 3].map(|base| self.on_base(base).is_some()),
+                pitched: self.pitched,
+                // And, at the end, what each side made in every innings
+                // so far.
+                innings: self.full.as_ref().map(|full| full.describe()),
+            },
+        };
+        Snapshot {
+            phase: self.phase,
+            standing,
+            pitch,
+            mods,
+        }
+    }
+
     pub fn describe(&self) -> String {
+        let said = self.snapshot().to_string();
+        #[cfg(debug_assertions)]
+        assert_eq!(said, self.describe_as_it_was());
+        said
+    }
+
+    /// The same, put together the way it used to be, to check the new way
+    /// against for as long as both are here.
+    #[cfg(debug_assertions)]
+    fn describe_as_it_was(&self) -> String {
         let bases: String = (1..=3)
             .map(|base| {
                 if self.on_base(base).is_some() {
