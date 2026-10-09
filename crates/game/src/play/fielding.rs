@@ -462,16 +462,13 @@ impl Match {
                 };
                 // Whoever of the five in the field is nearest goes for it,
                 // unless the pitcher has been left to do it all.
+                let land = fielding.land;
+                let far = |index: usize| distance(at(stage, &parts.fielders[index]), land);
                 fielding.fielder = if self.mods.the_pitcher_fields_alone() {
                     PITCHER
                 } else {
                     (0..5)
-                        .min_by(|&a, &b| {
-                            let far = |index: usize| {
-                                distance(at(stage, &parts.fielders[index]), fielding.land)
-                            };
-                            far(a).total_cmp(&far(b))
-                        })
+                        .min_by(|&a, &b| far(a).total_cmp(&far(b)))
                         .unwrap_or(0)
                 };
                 fielding.job = Job::Chase;

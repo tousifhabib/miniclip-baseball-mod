@@ -573,6 +573,38 @@ impl ModsPage {
         self.heading.is_some()
     }
 
+    /// Puts a mod's setting under its line: what it is called, a small box
+    /// for each level with what fills it, and room after them for the
+    /// level in words. `from` is where the name of the setting begins.
+    fn lay_out_setting(
+        line: &mut Line,
+        setting: &str,
+        levels: u8,
+        from: (f32, f32),
+        panel: &mut Sheet<'_>,
+        stage: &mut Stage,
+    ) {
+        let (words, row) = from;
+        let size = ModsPage::ABOUT_SIZE;
+        panel.label(stage, WORDS, setting, (words, row), size, SOFT);
+        let along = |pip: u8| words + ModsPage::PIPS_ALONG + f32::from(pip) * ModsPage::PIP_PITCH;
+        for pip in 0..levels {
+            let at = (along(pip), row + 1.0);
+            let inside = (at.0 + ModsPage::FILL_IN, at.1 + ModsPage::FILL_IN);
+            let small = panel.add(stage, art::MOD_PIP, "modPip", at, (1.0, 1.0));
+            let fill = (ModsPage::FILL_SIZE, ModsPage::FILL_SIZE);
+            let fill = panel.add(stage, art::BLOCK, "modPipFill", inside, fill);
+            if let (Some(small), Some(fill)) = (small, fill) {
+                if let Some(fill) = stage.child_mut(&fill) {
+                    fill.set_color(look::tint(DARK));
+                }
+                line.pips.push((small, fill));
+            }
+        }
+        let after = (along(levels) + 4.0, row);
+        line.level_words = panel.label(stage, WORDS, "", after, size, DARK);
+    }
+
     /// Puts the mods of the page that is up on the panel.
     fn lay_out(&mut self, panel: &Path, rules: &Rules, stage: &mut Stage, library: &Library) {
         let listed = ModsPage::pages(rules)
@@ -612,25 +644,8 @@ impl ModsPage {
             // click on a level sets the level and does nothing else.
             let levels = which.levels(rules);
             if let (Some(setting), true) = (which.setting(), levels > 0) {
-                let row = down + ModsPage::SETTING_DOWN;
-                panel.label(stage, WORDS, setting, (words, row), size, SOFT);
-                let along =
-                    |pip: u8| words + ModsPage::PIPS_ALONG + f32::from(pip) * ModsPage::PIP_PITCH;
-                for pip in 0..levels {
-                    let at = (along(pip), row + 1.0);
-                    let inside = (at.0 + ModsPage::FILL_IN, at.1 + ModsPage::FILL_IN);
-                    let small = panel.add(stage, art::MOD_PIP, "modPip", at, (1.0, 1.0));
-                    let fill = (ModsPage::FILL_SIZE, ModsPage::FILL_SIZE);
-                    let fill = panel.add(stage, art::BLOCK, "modPipFill", inside, fill);
-                    if let (Some(small), Some(fill)) = (small, fill) {
-                        if let Some(fill) = stage.child_mut(&fill) {
-                            fill.set_color(look::tint(DARK));
-                        }
-                        line.pips.push((small, fill));
-                    }
-                }
-                let after = (along(levels) + 4.0, row);
-                line.level_words = panel.label(stage, WORDS, "", after, size, DARK);
+                let from = (words, down + ModsPage::SETTING_DOWN);
+                ModsPage::lay_out_setting(&mut line, setting, levels, from, &mut panel, stage);
             }
             down += ModsPage::room_for(which, rules);
             self.lines.push(line);
