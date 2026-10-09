@@ -260,16 +260,9 @@ impl Tessellator {
         origin: (f32, f32),
         builder: &mut Builder,
     ) -> Result<()> {
-        let t = path.abs_transform();
         // From the path's own coordinates to the shape's.
-        let to_shape = Matrix::translate(origin.0, origin.1).then_inner(Matrix {
-            a: t.sx,
-            b: t.ky,
-            c: t.kx,
-            d: t.sy,
-            tx: t.tx,
-            ty: t.ty,
-        });
+        let to_shape =
+            Matrix::translate(origin.0, origin.1).then_inner(matrix_of(path.abs_transform()));
         let Some(from_shape) = to_shape.inverse() else {
             return Ok(());
         };
@@ -342,16 +335,9 @@ impl Tessellator {
         };
         // From the shape's coordinates into a gradient's or pattern's own.
         let into = |transform: usvg::Transform| {
-            Matrix {
-                a: transform.sx,
-                b: transform.ky,
-                c: transform.kx,
-                d: transform.sy,
-                tx: transform.tx,
-                ty: transform.ty,
-            }
-            .inverse()
-            .map(|inverse| inverse.then_inner(from_shape))
+            matrix_of(transform)
+                .inverse()
+                .map(|inverse| inverse.then_inner(from_shape))
         };
 
         Ok(match paint {
@@ -767,6 +753,18 @@ fn plain_text(markup: &str) -> String {
         text.replace(entity, character)
     });
     out.trim_end_matches('\n').to_owned()
+}
+
+/// One of the SVG reader's transforms as one of the engine's.
+fn matrix_of(transform: usvg::Transform) -> Matrix {
+    Matrix {
+        a: transform.sx,
+        b: transform.ky,
+        c: transform.kx,
+        d: transform.sy,
+        tx: transform.tx,
+        ty: transform.ty,
+    }
 }
 
 fn first_image(group: &usvg::Group) -> Option<&usvg::Image> {
