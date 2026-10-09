@@ -19,7 +19,6 @@ pub mod paper;
 mod pinball;
 pub mod pitch;
 mod set_up;
-pub mod shift;
 pub mod sign;
 mod snapshot;
 mod steal;
@@ -338,12 +337,6 @@ pub struct Match {
     pub(crate) caught: u32,
     pub(crate) steal_play: bool,
     steal_news: Option<(&'static str, Rgb)>,
-    /// How far across the field each fair ball of this game came down, from
-    /// 0 on the left foul line to 1 on the right, the latest last. The shift
-    /// mod has the fielders stand by it, and this is how far it has moved
-    /// their middle for the pitch in hand: to the left if less than nought.
-    pub(crate) spray: Vec<f32>,
-    pub(crate) shift: f32,
     /// The longest zinger of this game, in feet, and the longest there has
     /// ever been.
     pub(crate) longest_zinger: u32,
@@ -469,8 +462,6 @@ impl Match {
             caught: 0,
             steal_play: false,
             steal_news: None,
-            spray: Vec::new(),
-            shift: 0.0,
             longest_zinger: 0,
             zinger_record: 0,
             runner_symbol: library.manifest.exports.get("runner").copied(),
@@ -1491,7 +1482,7 @@ impl Match {
             stolen: self.stolen,
             caught: self.caught,
             arm: self.mods.arm(),
-            shifted: self.shift,
+            shifted: self.mods.shifted(),
         };
         let in_a_match = |score: Score, innings: Option<String>| Standing::Match {
             score,

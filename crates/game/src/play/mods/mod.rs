@@ -19,6 +19,7 @@ pub(crate) mod night_game;
 mod rally;
 pub(crate) mod southpaw;
 mod sudden_death;
+pub(crate) mod the_shift;
 mod tired_arm;
 mod turbo_runners;
 
@@ -34,6 +35,7 @@ use night_game::NightGame;
 use rally::Rally;
 use southpaw::Southpaw;
 use sudden_death::SuddenDeath;
+use the_shift::TheShift;
 pub(crate) use tired_arm::TiredArm;
 use turbo_runners::TurboRunners;
 
@@ -81,6 +83,9 @@ pub(crate) struct ModsInPlay {
     /// pitches to in steps of its own.
     pub(in crate::play) southpaw: Option<Southpaw>,
     sudden_death: Option<SuddenDeath>,
+    /// The shift, which the game has move the fielders as the view is got
+    /// ready.
+    pub(in crate::play) the_shift: Option<TheShift>,
     /// The pitcher's arm, which the game gets ready before each pitch in
     /// several steps of its own.
     pub(in crate::play) tired_arm: Option<TiredArm>,
@@ -110,6 +115,7 @@ impl ModsInPlay {
             rally: (on(Mod::Rally) && !arcade).then(|| Rally::new(&rules.rally)),
             southpaw: on(Mod::Southpaw).then(Southpaw::default),
             sudden_death: on(Mod::SuddenDeath).then(|| SuddenDeath::new(&rules.sudden_death)),
+            the_shift: (on(Mod::TheShift) && !arcade).then(|| TheShift::new(&rules.shift)),
             tired_arm: (on(Mod::TiredArm) && !arcade).then(|| TiredArm::new(&rules.tired_arm)),
             turbo_runners: on(Mod::TurboRunners)
                 .then(|| TurboRunners::new(&rules.turbo, level(Mod::TurboRunners))),
@@ -257,6 +263,19 @@ impl ModsInPlay {
         } else {
             lighting
         })
+    }
+
+    /// A ball that was hit fair has come down this far across the field,
+    /// from 0 at one foul line to 1 at the other.
+    pub fn a_fair_ball_came_down(&mut self, across: f32) {
+        if let Some(shift) = &mut self.the_shift {
+            shift.remember(across);
+        }
+    }
+
+    /// How far the fielders have shifted for the pitch in hand.
+    pub fn shifted(&self) -> f32 {
+        self.the_shift.as_ref().map_or(0.0, TheShift::by)
     }
 
     /// Whether the batter is batting left-handed, once he has taken his

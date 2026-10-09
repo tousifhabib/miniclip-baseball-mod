@@ -17,7 +17,7 @@ use super::pitch::{Choice, Kind, Mound, Pitch, Point};
 use super::zinger::Zinger;
 use super::{
     AtBat, Corner, MYSTERY_TOP, Match, Outcome, Parts, Phase, Place, Runner, at, bullet, full,
-    shift, show, sign, steal, timing,
+    show, sign, steal, timing,
 };
 use crate::look;
 use crate::menu::Game;
@@ -336,7 +336,6 @@ impl Match {
     }
 
     /// With the shift on, the fielders stand where the last few balls went.
-    /// The arcade game has no fielders to move.
     fn shift_the_fielders(
         &mut self,
         coming: &mut Coming,
@@ -344,20 +343,13 @@ impl Match {
         stage: &mut Stage,
         library: &Library,
     ) {
-        if !game.mods.is_on(Mod::TheShift) || self.mode.is_arcade() {
+        let Some(the_shift) = &mut self.mods.the_shift else {
             return;
-        }
-        let rules = &game.rules;
-        let shift = shift::Shift::of(&self.spray, &rules.shift);
-        self.shift = shift.by();
-        shift.place(&coming.parts, &rules.field, stage, library);
-        if let Some(says) = shift.words(&rules.shift) {
-            coming.notices.put(
-                Says::line("shift", says, [0xc8, 0xf0, 0xff]).at(coming.corner.line()),
-                &coming.parts,
-                stage,
-                library,
-            );
+        };
+        let shift = the_shift.stand();
+        shift.place(&coming.parts, &game.rules.field, stage, library);
+        if let Some(line) = the_shift.line(shift) {
+            coming.write(&line, stage, library);
         }
     }
 

@@ -789,7 +789,7 @@ impl Match {
             if !state.walk && !state.foul && !state.steal {
                 // Where it went is remembered, for the shift to go by.
                 let ground = parts.ground(rules);
-                self.spray.push(ground.across(state.land));
+                self.mods.a_fair_ball_came_down(ground.across(state.land));
             }
             // A hit puts some of bullet time's meter back, and a home run
             // all of it.

@@ -13,11 +13,63 @@ use bb_engine::library::Library;
 use bb_engine::math::{ColorTransform, Matrix};
 use bb_engine::stage::Stage;
 
-use super::field::reach;
-use super::pitch::Point;
-use super::{Parts, at};
+use super::Line;
 use crate::art;
+use crate::play::field::reach;
+use crate::play::pitch::Point;
+use crate::play::{Parts, at};
 use crate::rules::{FieldRules, ShiftRules};
+
+/// The mod, in play: where the balls have been going, and where that has
+/// the fielders standing.
+pub(crate) struct TheShift {
+    rules: ShiftRules,
+    /// How far across the field each fair ball of this game came down,
+    /// from 0 at one foul line to 1 at the other, in the order they were
+    /// hit.
+    spray: Vec<f32>,
+    /// How far the middle has moved for the pitch in hand: to the left
+    /// below nought, to the right above it.
+    by: f32,
+}
+
+impl TheShift {
+    pub fn new(rules: &ShiftRules) -> TheShift {
+        TheShift {
+            rules: rules.clone(),
+            spray: Vec::new(),
+            by: 0.0,
+        }
+    }
+
+    /// A fair ball has come down this far across the field. It is
+    /// remembered, caught or not.
+    pub fn remember(&mut self, across: f32) {
+        self.spray.push(across);
+    }
+
+    pub fn by(&self) -> f32 {
+        self.by
+    }
+
+    /// Works out where the fielders stand for the coming pitch, by where
+    /// the last few balls went.
+    pub fn stand(&mut self) -> Shift {
+        let shift = Shift::of(&self.spray, &self.rules);
+        self.by = shift.by();
+        shift
+    }
+
+    /// What the corner of the batting view says of where they stand, when
+    /// they have moved.
+    pub fn line(&self, shift: Shift) -> Option<Line> {
+        shift.words(&self.rules).map(|words| Line {
+            name: "shift",
+            words: words.to_owned(),
+            colour: [0xc8, 0xf0, 0xff],
+        })
+    }
+}
 
 /// The fielders who move: the three in the outfield and the shortstop,
 /// counting from 0. The pitcher stays on his mound.
@@ -65,7 +117,7 @@ impl Shift {
     }
 
     /// How far the middle has moved: to the left if less than nought.
-    pub fn by(&self) -> f32 {
+    pub fn by(self) -> f32 {
         self.middle - 0.5
     }
 
@@ -73,7 +125,7 @@ impl Shift {
     /// The foul lines stay where they are, and the field between them is
     /// squeezed on the side the middle has moved to and stretched on the
     /// other.
-    pub fn across(&self, across: f32) -> f32 {
+    pub fn across(self, across: f32) -> f32 {
         let middle = self.middle.clamp(MARGIN, 1.0 - MARGIN);
         let moved = if across <= 0.5 {
             across * middle / 0.5
@@ -84,7 +136,7 @@ impl Shift {
     }
 
     /// What the player is told of it, if it is enough to tell.
-    pub fn words(&self, rules: &ShiftRules) -> Option<&'static str> {
+    pub fn words(self, rules: &ShiftRules) -> Option<&'static str> {
         match self.by() {
             by if by <= -rules.told => Some("SHIFT LEFT"),
             by if by >= rules.told => Some("SHIFT RIGHT"),
