@@ -5,6 +5,7 @@
 //! click, is the job of a [`Logic`]. A [`Runner`] plays the stage frame by
 //! frame and hands the logic everything that happens.
 
+use std::collections::VecDeque;
 use std::sync::Arc;
 
 use bb_format::SymbolId;
@@ -106,9 +107,23 @@ pub struct Runner {
     /// How many sounds have been asked for, heard or not.
     pub sounds_asked: u32,
     /// A line for each event since the last call to [`Runner::take_notes`],
-    /// for an inspector to show.
-    notes: Vec<Note>,
+    /// for an inspector to show. No more than [`MOST_NOTES`] are kept.
+    notes: VecDeque<Note>,
     started: bool,
+}
+
+/// The most notes a runner keeps for whoever takes them. A window takes
+/// them every time it draws and a script when it is asked what happened, so
+/// neither comes near it. A runner that nobody asks keeps the latest, and
+/// does not grow for as long as it runs.
+pub const MOST_NOTES: usize = 65_536;
+
+/// Keeps a note, letting the oldest go if there are as many as may be kept.
+fn keep(notes: &mut VecDeque<Note>, note: Note) {
+    if notes.len() == MOST_NOTES {
+        notes.pop_front();
+    }
+    notes.push_back(note);
 }
 
 impl Runner {
@@ -124,7 +139,7 @@ impl Runner {
             logic,
             audio,
             sounds_asked: 0,
-            notes: Vec::new(),
+            notes: VecDeque::new(),
             started: false,
         }
     }
@@ -156,7 +171,7 @@ impl Runner {
         self.ensure_started();
         let used = self.stage.key(&key, &self.library)
             || self.logic.key(&key, &mut self.stage, &self.library);
-        self.notes.push(Note::Key(key));
+        keep(&mut self.notes, Note::Key(key));
         self.react();
         used
     }
@@ -181,8 +196,9 @@ impl Runner {
     }
 
     /// What has happened since this was last asked, in the order it did.
+    /// If nobody has asked for a very long while, only the latest of it.
     pub fn take_notes(&mut self) -> Vec<Note> {
-        std::mem::take(&mut self.notes)
+        std::mem::take(&mut self.notes).into()
     }
 
     fn ensure_started(&mut self) {
@@ -208,26 +224,32 @@ impl Runner {
                         if let Some(audio) = &mut self.audio {
                             audio.play(&self.library, start);
                         }
-                        self.notes.push(Note::Sound(start.sound));
+                        keep(&mut self.notes, Note::Sound(start.sound));
                     }
                     Event::Button {
                         symbol,
                         path,
                         event,
-                    } => self.notes.push(Note::Button {
-                        symbol: *symbol,
-                        path: path.clone(),
-                        event: *event,
-                    }),
+                    } => {
+                        let button = Note::Button {
+                            symbol: *symbol,
+                            path: path.clone(),
+                            event: *event,
+                        };
+                        keep(&mut self.notes, button);
+                    }
                     Event::Frame {
                         symbol,
                         path,
                         frame,
-                    } => self.notes.push(Note::Frame {
-                        symbol: *symbol,
-                        path: path.clone(),
-                        frame: *frame,
-                    }),
+                    } => {
+                        let reached = Note::Frame {
+                            symbol: *symbol,
+                            path: path.clone(),
+                            frame: *frame,
+                        };
+                        keep(&mut self.notes, reached);
+                    }
                 }
                 self.logic.event(event, &mut self.stage, &self.library);
             }
@@ -253,6 +275,31 @@ mod tests {
         fn tick(&mut self, stage: &mut Stage, _: &Library) {
             self.0.borrow_mut().push(stage.pointer.went_down);
         }
+    }
+
+    /// Rules that do nothing.
+    struct Idle;
+
+    impl Logic for Idle {}
+
+    #[test]
+    fn a_runner_nobody_asks_keeps_the_latest_of_what_happened_and_no_more() {
+        let library = library_with(vec![frame(vec![])], vec![frame(vec![])]);
+        let stage = Stage::new(None, &library);
+        let mut runner = Runner::new(library, stage, Box::new(Idle), None);
+        for _ in 0..10 {
+            runner.key(Key::Char('a'));
+        }
+        for _ in 0..MOST_NOTES {
+            runner.key(Key::Char('b'));
+        }
+        let notes = runner.take_notes();
+        assert_eq!(notes.len(), MOST_NOTES);
+        // The ten oldest have gone, and what is left is in order.
+        assert!(notes.iter().all(|note| *note == Note::Key(Key::Char('b'))));
+        // Taken, they are gone, and a few more are kept as they come.
+        runner.key(Key::Enter);
+        assert_eq!(runner.take_notes(), [Note::Key(Key::Enter)]);
     }
 
     #[test]
