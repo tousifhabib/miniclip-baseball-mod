@@ -447,12 +447,24 @@ impl<'a> Play<'a> {
         rng: &mut Rng,
     ) -> (End, Hit) {
         let ground = self.ground;
-        let [first, second, third] = self.bases;
-        let two_out = self.outs == 2;
-        // How far across the field it went and how far from home, and
-        // whether in the air.
+        let (across, far, fly) = Play::where_it_went(struck, ground, rng);
+        let hit = Hit::at(ground, ground.point(across, far), fly, None);
+        let end = match struck {
+            Struck::HomeRun => self.on_a_home_run(order, home),
+            Struck::Triple => self.on_a_triple(order, home),
+            Struck::Double => self.on_a_double(order, home, rng),
+            Struck::Single => self.on_a_single(order, home, rng),
+            Struck::GroundOut => self.on_a_ground_out(home, outs_made, rng),
+            Struck::FlyOut => self.on_a_fly_out(hit.deep, home, outs_made, rng),
+        };
+        (end, hit)
+    }
+
+    /// Where a ball that was struck this way went: how far across the
+    /// field and how far from home, and whether in the air.
+    fn where_it_went(struck: Struck, ground: &Ground, rng: &mut Rng) -> (f32, f32, bool) {
         let anywhere = |rng: &mut Rng| rng.between(0.03, 0.97);
-        let (across, far, fly) = match struck {
+        match struck {
             Struck::GroundOut => (
                 anywhere(rng),
                 rng.between(150.0, ground.infield - 15.0),
@@ -498,96 +510,129 @@ impl<'a> Play<'a> {
                 rng.between(ground.wall + 12.0, ground.wall + 190.0),
                 true,
             ),
-        };
-        let hit = Hit::at(ground, ground.point(across, far), fly, None);
-        let end = match struck {
-            Struck::HomeRun => {
-                home.extend([third, second, first].into_iter().flatten());
-                home.push(order);
-                self.bases = [None; 3];
-                End::HomeRun
+        }
+    }
+
+    /// Everybody comes home, the batter with them.
+    fn on_a_home_run(&mut self, order: usize, home: &mut Vec<usize>) -> End {
+        let [first, second, third] = self.bases;
+        home.extend([third, second, first].into_iter().flatten());
+        home.push(order);
+        self.bases = [None; 3];
+        End::HomeRun
+    }
+
+    /// Everybody on base comes home, and the batter is on third.
+    fn on_a_triple(&mut self, order: usize, home: &mut Vec<usize>) -> End {
+        let [first, second, third] = self.bases;
+        home.extend([third, second, first].into_iter().flatten());
+        self.bases = [None, None, Some(order)];
+        End::Triple
+    }
+
+    /// The runners on second and third come home. The one on first may,
+    /// or is held at third.
+    fn on_a_double(&mut self, order: usize, home: &mut Vec<usize>, rng: &mut Rng) -> End {
+        let [first, second, third] = self.bases;
+        home.extend([third, second].into_iter().flatten());
+        let mut held = None;
+        if let Some(runner) = first {
+            if rng.chance(DOUBLE_HOME_FROM_FIRST) {
+                home.push(runner);
+            } else {
+                held = Some(runner);
             }
-            Struck::Triple => {
-                home.extend([third, second, first].into_iter().flatten());
-                self.bases = [None, None, Some(order)];
-                End::Triple
+        }
+        self.bases = [None, Some(order), held];
+        End::Double
+    }
+
+    /// The runner on third comes home. The one on second may, or stops at
+    /// third, and the one on first takes third if it is free and he
+    /// chances it.
+    fn on_a_single(&mut self, order: usize, home: &mut Vec<usize>, rng: &mut Rng) -> End {
+        let [first, second, third] = self.bases;
+        home.extend(third);
+        let mut on_third = None;
+        if let Some(runner) = second {
+            if rng.chance(SINGLE_HOME_FROM_SECOND) {
+                home.push(runner);
+            } else {
+                on_third = Some(runner);
             }
-            Struck::Double => {
-                home.extend([third, second].into_iter().flatten());
-                let mut held = None;
-                if let Some(runner) = first {
-                    if rng.chance(DOUBLE_HOME_FROM_FIRST) {
-                        home.push(runner);
-                    } else {
-                        held = Some(runner);
-                    }
-                }
-                self.bases = [None, Some(order), held];
-                End::Double
+        }
+        let mut on_second = None;
+        if let Some(runner) = first {
+            if on_third.is_none() && rng.chance(SINGLE_THIRD_FROM_FIRST) {
+                on_third = Some(runner);
+            } else {
+                on_second = Some(runner);
             }
-            Struck::Single => {
-                home.extend(third);
-                let mut on_third = None;
-                if let Some(runner) = second {
-                    if rng.chance(SINGLE_HOME_FROM_SECOND) {
-                        home.push(runner);
-                    } else {
-                        on_third = Some(runner);
-                    }
-                }
-                let mut on_second = None;
-                if let Some(runner) = first {
-                    if on_third.is_none() && rng.chance(SINGLE_THIRD_FROM_FIRST) {
-                        on_third = Some(runner);
-                    } else {
-                        on_second = Some(runner);
-                    }
-                }
-                self.bases = [Some(order), on_second, on_third];
-                End::Single
+        }
+        self.bases = [Some(order), on_second, on_third];
+        End::Single
+    }
+
+    /// The batter is out at first, or he and the runner from first both
+    /// are. Short of the last out, the others may move up.
+    fn on_a_ground_out(
+        &mut self,
+        home: &mut Vec<usize>,
+        outs_made: &mut u32,
+        rng: &mut Rng,
+    ) -> End {
+        let [first, second, third] = self.bases;
+        let two_out = self.outs == 2;
+        if !two_out && first.is_some() && rng.chance(DOUBLE_PLAY) {
+            // The runner from first and the batter are both out,
+            // and the others stay where they are.
+            *outs_made = 2;
+            self.bases = [None, second, third];
+            return End::DoublePlay;
+        }
+        *outs_made = 1;
+        if !two_out {
+            let mut bases = [first, second, third];
+            if bases[2].is_some() && rng.chance(GROUNDER_HOME) {
+                home.extend(bases[2].take());
             }
-            Struck::GroundOut => {
-                if !two_out && first.is_some() && rng.chance(DOUBLE_PLAY) {
-                    // The runner from first and the batter are both out,
-                    // and the others stay where they are.
-                    *outs_made = 2;
-                    self.bases = [None, second, third];
-                    return (End::DoublePlay, hit);
-                }
-                *outs_made = 1;
-                if !two_out {
-                    let mut bases = [first, second, third];
-                    if bases[2].is_some() && rng.chance(GROUNDER_HOME) {
-                        home.extend(bases[2].take());
-                    }
-                    if bases[2].is_none() && bases[1].is_some() && rng.chance(GROUNDER_THIRD) {
-                        bases[2] = bases[1].take();
-                    }
-                    if bases[1].is_none() && bases[0].is_some() && rng.chance(GROUNDER_SECOND) {
-                        bases[1] = bases[0].take();
-                    }
-                    self.bases = bases;
-                }
-                End::GroundOut
+            if bases[2].is_none() && bases[1].is_some() && rng.chance(GROUNDER_THIRD) {
+                bases[2] = bases[1].take();
             }
-            Struck::FlyOut => {
-                *outs_made = 1;
-                let mut end = End::FlyOut;
-                if !two_out && hit.deep {
-                    let mut bases = [first, second, third];
-                    if bases[2].is_some() && rng.chance(FLY_HOME) {
-                        home.extend(bases[2].take());
-                        end = End::SacrificeFly;
-                    }
-                    if bases[2].is_none() && bases[1].is_some() && rng.chance(FLY_THIRD) {
-                        bases[2] = bases[1].take();
-                    }
-                    self.bases = bases;
-                }
-                end
+            if bases[1].is_none() && bases[0].is_some() && rng.chance(GROUNDER_SECOND) {
+                bases[1] = bases[0].take();
             }
-        };
-        (end, hit)
+            self.bases = bases;
+        }
+        End::GroundOut
+    }
+
+    /// The batter is caught out. On a fly to the outfield that is not the
+    /// last out, a runner on third may tag up and come home, and one on
+    /// second go to third.
+    fn on_a_fly_out(
+        &mut self,
+        deep: bool,
+        home: &mut Vec<usize>,
+        outs_made: &mut u32,
+        rng: &mut Rng,
+    ) -> End {
+        let [first, second, third] = self.bases;
+        let two_out = self.outs == 2;
+        *outs_made = 1;
+        let mut end = End::FlyOut;
+        if !two_out && deep {
+            let mut bases = [first, second, third];
+            if bases[2].is_some() && rng.chance(FLY_HOME) {
+                home.extend(bases[2].take());
+                end = End::SacrificeFly;
+            }
+            if bases[2].is_none() && bases[1].is_some() && rng.chance(FLY_THIRD) {
+                bases[2] = bases[1].take();
+            }
+            self.bases = bases;
+        }
+        end
     }
 }
 
