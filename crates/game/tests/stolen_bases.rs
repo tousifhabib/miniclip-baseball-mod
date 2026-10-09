@@ -60,6 +60,12 @@ fn runner_on_first(script: &mut Script) -> String {
 /// `late` steps after the best step for it. Returns how things stand when
 /// the play is over.
 fn play(script: &mut Script, send: Option<u32>, late: i32) -> String {
+    play_sending(script, send.as_slice(), late)
+}
+
+/// The same, with the little field clicked on each of these frames of the
+/// wind-up, which sends a runner each time one may go.
+fn play_sending(script: &mut Script, sends: &[u32], late: i32) -> String {
     let mut wound = 0;
     for _ in 0..20_000 {
         let now = state(script);
@@ -72,7 +78,7 @@ fn play(script: &mut Script, send: Option<u32>, late: i32) -> String {
         let best = number(&now, "best swung on steps ").map(|best| best as i32);
         wound += u32::from(now.contains("WindUp"));
         let steps = match (ring, step, best) {
-            (Some((x, y)), _, _) if now.contains("WindUp") && send == Some(wound) => {
+            (Some((x, y)), _, _) if now.contains("WindUp") && sends.contains(&wound) => {
                 // And back to the ball.
                 format!("{LITTLE_FIELD}; move {x} {y}")
             }
@@ -139,6 +145,61 @@ fn a_runner_sent_late_is_thrown_out_and_the_batter_bats_on() {
         "{after}"
     );
     assert_eq!(said(&script, "stealNews"), ["CAUGHT STEALING!"]);
+}
+
+#[test]
+fn a_steal_that_is_settled_as_the_play_ends_is_told_then_and_not_on_the_play_after() {
+    // With the pitcher fielding alone nobody throws the ball on: the play
+    // ends where the catcher's throw does, and a runner still on his way
+    // is given his base.
+    let mods = [Mod::TimingIndicator, Mod::StolenBases, Mod::LonePitcher];
+    let Some(mut script) = long_match_ruled(1, &mods, QUICK) else {
+        return;
+    };
+    // Pitches are let go by until two batters have walked, and there are
+    // runners on first and second.
+    let mut before = runner_on_first(&mut script);
+    for _ in 0..60 {
+        if before.contains("bases xx-") {
+            break;
+        }
+        pitch(&mut script, LEAVE, (0.0, 0.0));
+        next(&mut script);
+        before = ready(&mut script);
+    }
+    assert!(before.contains("bases xx-"), "{before}");
+    // The one on second goes early and is there before the throw. The one
+    // on first goes late, and is still running when the play ends.
+    let after = play_sending(&mut script, &[5, 60], MISS);
+    assert!(after.contains("bases -xx"), "{after}");
+    assert!(after.contains(", stolen 2, caught 0"), "{after}");
+    // Both have been told by now, and when the telling has gone there is
+    // nothing left to tell.
+    assert_eq!(said(&script, "stealNews"), ["STOLEN BASE!"]);
+    script.run("wait 200").unwrap();
+    assert!(said(&script, "stealNews").is_empty());
+    // So the next ball put in play says nothing of a steal.
+    next(&mut script);
+    ready(&mut script);
+    let mut told = Vec::new();
+    for _ in 0..2000 {
+        let now = state(&mut script);
+        told.extend(said(&script, "stealNews"));
+        if now.contains(": Ready") {
+            break;
+        }
+        let ring =
+            number(&now, "crossing ").zip(number(now.split("crossing ").nth(1).unwrap_or(""), ","));
+        let step = number(&now, "Flight { step: ").map(|step| step as i32);
+        let best = number(&now, "best swung on steps ").map(|best| best as i32);
+        let steps = match (ring, step, best) {
+            (Some((x, y)), Some(step), Some(best)) if step == best => format!("click {x} {y}"),
+            (Some((x, y)), None, _) if now.contains("Settling") => format!("move {x} {y}; wait 1"),
+            _ => "wait 1".to_owned(),
+        };
+        script.run(&steps).unwrap();
+    }
+    assert!(told.is_empty(), "{told:?}");
 }
 
 #[test]

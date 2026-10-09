@@ -583,6 +583,10 @@ impl Match {
 
         if self.the_play_is_over(&mut state, &parts, game, stage, library) {
             self.end_the_play(at_bat, &state, &parts, game, stage, library);
+            // A runner still between bases was given his base as the play
+            // was called dead. If he was stealing it, that is told now,
+            // and not left to be told on the play after.
+            self.tell_steal(at_bat, game.rules.steal.told_time, stage, library);
         }
         at_bat.fielding = Some(state);
     }
