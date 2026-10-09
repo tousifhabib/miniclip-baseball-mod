@@ -10,6 +10,7 @@ use bb_format::{
     SymbolInfo,
 };
 
+use crate::display::{ClipState, Event, Path};
 use crate::input::Geometry;
 use crate::library::Library;
 
@@ -110,6 +111,23 @@ pub(crate) fn library_with(root: Vec<Frame>, inner: Vec<Frame>) -> Library {
         fonts: HashMap::new(),
         morphs: HashMap::new(),
     }
+}
+
+/// The same, with an inner clip of so many frames that do nothing.
+pub(crate) fn library(root: Vec<Frame>, inner_frames: usize) -> Library {
+    library_with(root, vec![Frame::default(); inner_frames])
+}
+
+/// The main timeline of `library`, on its first frame.
+pub(crate) fn start(library: &Library) -> ClipState {
+    ClipState::new(None, library, &mut Vec::new(), &mut Path::new())
+}
+
+/// Plays one frame of `clip`, and returns what it reported.
+pub(crate) fn tick(clip: &mut ClipState, library: &Library) -> Vec<Event> {
+    let mut events = Vec::new();
+    clip.advance(library, &mut events, &mut Path::new());
+    events
 }
 
 /// Adds a text field 50 wide and 20 high, showing `variable`, as symbol
