@@ -7,12 +7,17 @@
 //! gradients and images the paints use. This is the net under changes to the
 //! code that does the cutting.
 
+use std::collections::BTreeMap;
+use std::fmt::Write as _;
+
 use bb_engine::library::Library;
 use bb_engine::math::Matrix;
 use bb_engine::tess::{Mesh, Paint, Spread, Tessellator};
 use bb_format::SymbolInfo;
 
+use crate::record::record;
 use crate::sums::{Sink, Sum};
+use crate::{asked, extracted};
 
 /// How far through its change a morph shape is cut up: at each end, and at
 /// three places between.
@@ -170,4 +175,67 @@ pub fn sums(library: &Library) -> Vec<(String, String)> {
             .flat_map(|share| share.join().expect("the cutting"))
             .collect()
     })
+}
+
+#[test]
+fn the_art_is_cut_into_the_triangles_it_was() {
+    let Some(dir) = extracted() else {
+        assert!(asked("CI").is_none(), "there is no extracted art to cut up");
+        eprintln!("skipped: there is no extracted art to cut up");
+        return;
+    };
+    let library = Library::load(&dir).expect("loading the extracted art");
+    let cut = sums(&library);
+    let file = record("triangles");
+    if asked("BB_WRITE_DOWN").is_some() {
+        let mut text = String::from(
+            "# What each shape, text, text field and morph shape of the art was cut into when\n\
+             # this was last written down: a sum of its triangles and their paints.\n",
+        );
+        for (what, sum) in &cut {
+            writeln!(text, "{what}\t{sum}").expect("writing to a string");
+        }
+        std::fs::create_dir_all(file.parent().expect("a folder")).expect("making the folder");
+        std::fs::write(&file, text).expect("writing down the sums");
+        eprintln!("as it was: wrote {}", file.display());
+        return;
+    }
+    let Ok(text) = std::fs::read_to_string(&file) else {
+        assert!(
+            asked("CI").is_none(),
+            "nothing is written down for this kind of machine: {}",
+            file.display()
+        );
+        eprintln!(
+            "as it was: nothing is written down at {}, so the art is cut up twice",
+            file.display()
+        );
+        assert!(cut == sums(&library), "cut up twice, it came out two ways");
+        return;
+    };
+    let written: Vec<(&str, &str)> = text
+        .lines()
+        .filter(|line| !line.starts_with('#'))
+        .filter_map(|line| line.split_once('\t'))
+        .collect();
+    let now: Vec<(&str, &str)> = cut
+        .iter()
+        .map(|(what, sum)| (what.as_str(), sum.as_str()))
+        .collect();
+    let then: BTreeMap<&str, &str> = written.iter().copied().collect();
+    let changed: Vec<&str> = now
+        .iter()
+        .filter(|(what, sum)| then.get(what) != Some(sum))
+        .map(|(what, _)| *what)
+        .collect();
+    assert!(
+        changed.is_empty() && now.len() == written.len(),
+        "{} of {} things are no longer cut into the triangles written down in {} \
+         (which has {}): {:?}",
+        changed.len(),
+        now.len(),
+        file.display(),
+        written.len(),
+        &changed[..changed.len().min(20)],
+    );
 }
