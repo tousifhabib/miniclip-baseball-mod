@@ -158,6 +158,16 @@ impl Fielding {
     }
 }
 
+/// What a fielder does his job on: the parts of the view, the numbers the
+/// game is played by, the stage and the art. They are handed on together
+/// to whichever job is his this frame.
+struct Scene<'a> {
+    parts: &'a Parts,
+    game: &'a Game,
+    stage: &'a mut Stage,
+    library: &'a Library,
+}
+
 /// The runner clip's frame labels for running and sliding to each base.
 const RUN: [&str; 4] = ["runToFirst", "runToSecond", "runToThird", "runToFourth"];
 const SLIDE: [&str; 4] = [
@@ -685,173 +695,241 @@ impl Match {
         stage: &mut Stage,
         library: &Library,
     ) {
-        let rules = &game.rules.field;
         let fielder = parts.fielders[state.fielder].clone();
         let here = at(stage, &fielder);
+        let scene = Scene {
+            parts,
+            game,
+            stage,
+            library,
+        };
         match state.job {
-            Job::Chase => {
-                let ball = at_bat.ball.unwrap_or_else(|| unreachable_ball(state.land));
-                let target = if ball.bounced { ball.at } else { state.land };
-                let gap = distance(here, target);
-                let speed = rules.fielder_speed.at(game.settings.difficulty);
-                let next = if gap <= speed {
-                    target
-                } else {
-                    (
-                        here.0 + (target.0 - here.0) / gap * speed,
-                        here.1 + (target.1 - here.1) / gap * speed,
-                    )
-                };
-                if gap > 0.01 {
-                    state.facing = Facing::towards(here, target);
-                }
-                stage.goto_label(&fielder, state.facing.run_label(), false, library);
-                // He is drawn smaller the further up the field he is.
-                let out = reach(parts.home, next);
-                put(stage, &fielder, next, (0.6 - out / 5000.0).max(0.2));
-                // In a pinball park a ball that is hopping goes by over his
-                // head.
-                let too_high = ball.bounced
-                    && self.mods.the_park_is_a_pinball_table()
-                    && ball.height > game.rules.pinball.low;
-                if distance(next, target) <= 2.0 && !too_high {
-                    if ball.bounced && !state.fumbled && self.lets_go() {
-                        // It squirts out of his hands as he bends for it.
-                        state.fumbled = true;
-                        stage.goto_label(&fielder, state.facing.pick_label(), false, library);
-                        self.let_go(&mut at_bat.ball, parts, game);
-                        Match::sound(stage, library, "crowd_smallCheer");
-                        let told = &mut at_bat.notices;
-                        Match::tell(told, "FUMBLED!", next, parts, game, stage, library);
-                        state.job = Job::Fumbling {
-                            left: game.rules.butterfingers.fumble_time,
-                        };
-                    } else if ball.bounced {
-                        state.fumbled = false;
-                        show(stage, &parts.field_ball, false);
-                        stage.goto_label(&fielder, state.facing.pick_label(), false, library);
-                        state.throw_to = self.pick_base(next, parts);
-                        state.job = Job::PickUp {
-                            left: rules.pick_time,
-                        };
-                    } else {
-                        stage.goto_label(&fielder, "waitingToCatch", false, library);
-                        state.job = Job::WaitCatch;
-                    }
-                } else if out >= rules.fielder_reach {
-                    stage.goto_label(&fielder, "waiting", false, library);
-                    state.job = Job::Rest;
-                }
+            Job::Chase => self.go_after_the_ball(at_bat, state, &fielder, here, scene),
+            Job::WaitCatch => self.wait_under_the_ball(at_bat, state, &fielder, here, scene),
+            // He has it up off the ground, and draws back to throw.
+            Job::PickUp { left: 0 } => {
+                state.job = Match::wind_up(state, here, &fielder, parts, game, stage, library);
             }
-            Job::WaitCatch => {
-                if let Some(ball) = at_bat.ball {
-                    if ball.bounced {
-                        // It got down before he could take it.
-                        state.job = Job::Chase;
-                    } else if ball.lift < 0.0 && ball.height <= rules.catch_height && self.lets_go()
-                    {
-                        // It is in his glove and out again: nobody is out,
-                        // and the ball is on the ground.
-                        state.catch = Some(Catch::Dropped);
-                        self.let_go(&mut at_bat.ball, parts, game);
-                        Match::sound(stage, library, "ballCatch_3");
-                        Match::sound(stage, library, "crowd_smallCheer");
-                        let told = &mut at_bat.notices;
-                        Match::tell(told, "DROPPED!", here, parts, game, stage, library);
-                        state.job = Job::Fumbling {
-                            left: game.rules.butterfingers.fumble_time,
-                        };
-                    } else if ball.lift < 0.0 && ball.height <= rules.catch_height {
-                        state.catch = Some(Catch::Made);
-                        show(stage, &parts.field_ball, false);
-                        Match::sound(stage, library, "ballCatch_3");
-                        Match::sound(stage, library, "umpire_out_1");
-                        Match::sound(stage, library, "crowd_unhappy");
-                        // Caught: the batter is out wherever he has got to,
-                        // which on a ball that hung a long time may be a
-                        // base, or all the way round. A run he scored on it
-                        // is no run.
-                        let batter = state.batter.filter(|&batter| {
-                            self.runners
-                                .get(batter)
-                                .is_some_and(|runner| runner.place != Place::Out)
-                        });
-                        if let Some(batter) = batter {
-                            if self.runners[batter].place == Place::Home {
-                                let worth = self.run_worth.min(self.runners[batter].runs);
-                                self.runners[batter].runs -= worth;
-                                self.score = self.score.saturating_sub(worth);
-                            }
-                            self.put_out(batter, stage, library);
-                        }
-                        state.throw_to = self.pick_base(here, parts);
-                        state.job =
-                            Match::wind_up(state, here, &fielder, parts, game, stage, library);
-                    }
-                }
+            Job::PickUp { left } => state.job = Job::PickUp { left: left - 1 },
+            Job::WindUp { left: 0 } => {
+                state.job = Match::let_the_throw_go(&mut at_bat.ball, state, here, parts, game);
+                show(stage, &parts.field_ball, true);
             }
-            Job::PickUp { left } => {
-                state.job = if left == 0 {
-                    Match::wind_up(state, here, &fielder, parts, game, stage, library)
-                } else {
-                    Job::PickUp { left: left - 1 }
-                };
+            Job::WindUp { left } => state.job = Job::WindUp { left: left - 1 },
+            Job::Throwing { step } => self.carry_the_throw(at_bat, state, step, scene),
+            // He has his wits back, and goes after it.
+            Job::Fumbling { left: 0 } => state.job = Job::Chase,
+            Job::Fumbling { left } => state.job = Job::Fumbling { left: left - 1 },
+            Job::Gather { left: 0 } => {
+                show(stage, &parts.field_ball, false);
+                stage.goto_label(&fielder, "baseWaiting", false, library);
+                self.hold_or_throw_on(state, parts, game, stage, library);
             }
-            Job::WindUp { left } => {
-                if left == 0 {
-                    let to = parts.bases[usize::from(state.throw_to) - 1];
-                    let gap = distance(here, to).max(0.001);
-                    // A catcher's throw to a base being stolen has a speed
-                    // of its own.
-                    let stealing = matches!(state.play, Play::Steal { .. });
-                    let speed = if stealing && state.fielder == CATCHER {
-                        game.rules.steal.throw_speed
-                    } else {
-                        rules.throw_speed
-                    };
-                    let step = ((to.0 - here.0) / gap * speed, (to.1 - here.1) / gap * speed);
-                    if let Some(ball) = &mut at_bat.ball {
-                        ball.at = here;
-                        ball.height = rules.catch_height;
-                    }
-                    show(stage, &parts.field_ball, true);
-                    state.job = Job::Throwing { step };
-                } else {
-                    state.job = Job::WindUp { left: left - 1 };
-                }
-            }
-            Job::Throwing { step } => {
-                let to = parts.bases[usize::from(state.throw_to) - 1];
-                if let Some(ball) = &mut at_bat.ball {
-                    ball.at = (ball.at.0 + step.0, ball.at.1 + step.1);
-                    let size = (0.6 + (ball.at.1 - parts.home.1) / 1000.0).max(0.1);
-                    put(stage, &parts.field_ball, ball.at, size);
-                    if let Some(inner) = stage.child_mut(&parts.field_ball_inner) {
-                        inner.move_to(inner.matrix.tx, -ball.height);
-                    }
-                    if distance(ball.at, to) < rules.throw_near {
-                        let told = &mut at_bat.notices;
-                        self.ball_at_base(state, told, parts, game, stage, library);
-                    }
-                }
-            }
-            Job::Fumbling { left } => {
-                state.job = if left == 0 {
-                    Job::Chase
-                } else {
-                    Job::Fumbling { left: left - 1 }
-                };
-            }
-            Job::Gather { left } => {
-                if left == 0 {
-                    show(stage, &parts.field_ball, false);
-                    stage.goto_label(&fielder, "baseWaiting", false, library);
-                    self.hold_or_throw_on(state, parts, game, stage, library);
-                } else {
-                    state.job = Job::Gather { left: left - 1 };
-                }
-            }
+            Job::Gather { left } => state.job = Job::Gather { left: left - 1 },
             Job::Rest => {}
+        }
+    }
+
+    /// Runs the fielder a step towards where the ball will come down, or
+    /// towards the ball itself once it has. When he gets there he waits
+    /// under it, picks it up, or lets it squirt away. A ball too far out
+    /// for him he gives up on.
+    fn go_after_the_ball(
+        &mut self,
+        at_bat: &mut AtBat,
+        state: &mut Fielding,
+        fielder: &Path,
+        here: Point,
+        scene: Scene<'_>,
+    ) {
+        let Scene {
+            parts,
+            game,
+            stage,
+            library,
+        } = scene;
+        let rules = &game.rules.field;
+        let ball = at_bat.ball.unwrap_or_else(|| unreachable_ball(state.land));
+        let target = if ball.bounced { ball.at } else { state.land };
+        let gap = distance(here, target);
+        let speed = rules.fielder_speed.at(game.settings.difficulty);
+        let next = if gap <= speed {
+            target
+        } else {
+            (
+                here.0 + (target.0 - here.0) / gap * speed,
+                here.1 + (target.1 - here.1) / gap * speed,
+            )
+        };
+        if gap > 0.01 {
+            state.facing = Facing::towards(here, target);
+        }
+        stage.goto_label(fielder, state.facing.run_label(), false, library);
+        // He is drawn smaller the further up the field he is.
+        let out = reach(parts.home, next);
+        put(stage, fielder, next, (0.6 - out / 5000.0).max(0.2));
+        // In a pinball park a ball that is hopping goes by over his
+        // head.
+        let too_high = ball.bounced
+            && self.mods.the_park_is_a_pinball_table()
+            && ball.height > game.rules.pinball.low;
+        if distance(next, target) <= 2.0 && !too_high {
+            if ball.bounced && !state.fumbled && self.lets_go() {
+                // It squirts out of his hands as he bends for it.
+                state.fumbled = true;
+                stage.goto_label(fielder, state.facing.pick_label(), false, library);
+                self.let_go(&mut at_bat.ball, parts, game);
+                Match::sound(stage, library, "crowd_smallCheer");
+                let told = &mut at_bat.notices;
+                Match::tell(told, "FUMBLED!", next, parts, game, stage, library);
+                state.job = Job::Fumbling {
+                    left: game.rules.butterfingers.fumble_time,
+                };
+            } else if ball.bounced {
+                state.fumbled = false;
+                show(stage, &parts.field_ball, false);
+                stage.goto_label(fielder, state.facing.pick_label(), false, library);
+                state.throw_to = self.pick_base(next, parts);
+                state.job = Job::PickUp {
+                    left: rules.pick_time,
+                };
+            } else {
+                stage.goto_label(fielder, "waitingToCatch", false, library);
+                state.job = Job::WaitCatch;
+            }
+        } else if out >= rules.fielder_reach {
+            stage.goto_label(fielder, "waiting", false, library);
+            state.job = Job::Rest;
+        }
+    }
+
+    /// The fielder stands under a ball in the air. He catches it when it
+    /// comes down to him, or has it in his glove and lets it go, or goes
+    /// after it if it gets down first.
+    fn wait_under_the_ball(
+        &mut self,
+        at_bat: &mut AtBat,
+        state: &mut Fielding,
+        fielder: &Path,
+        here: Point,
+        scene: Scene<'_>,
+    ) {
+        let Scene {
+            parts,
+            game,
+            stage,
+            library,
+        } = scene;
+        let rules = &game.rules.field;
+        let Some(ball) = at_bat.ball else {
+            return;
+        };
+        if ball.bounced {
+            // It got down before he could take it.
+            state.job = Job::Chase;
+        } else if ball.lift < 0.0 && ball.height <= rules.catch_height && self.lets_go() {
+            // It is in his glove and out again: nobody is out,
+            // and the ball is on the ground.
+            state.catch = Some(Catch::Dropped);
+            self.let_go(&mut at_bat.ball, parts, game);
+            Match::sound(stage, library, "ballCatch_3");
+            Match::sound(stage, library, "crowd_smallCheer");
+            let told = &mut at_bat.notices;
+            Match::tell(told, "DROPPED!", here, parts, game, stage, library);
+            state.job = Job::Fumbling {
+                left: game.rules.butterfingers.fumble_time,
+            };
+        } else if ball.lift < 0.0 && ball.height <= rules.catch_height {
+            state.catch = Some(Catch::Made);
+            show(stage, &parts.field_ball, false);
+            Match::sound(stage, library, "ballCatch_3");
+            Match::sound(stage, library, "umpire_out_1");
+            Match::sound(stage, library, "crowd_unhappy");
+            self.the_batter_is_caught_out(state.batter, stage, library);
+            state.throw_to = self.pick_base(here, parts);
+            state.job = Match::wind_up(state, here, fielder, parts, game, stage, library);
+        }
+    }
+
+    /// Caught: the batter is out wherever he has got to, which on a ball
+    /// that hung a long time may be a base, or all the way round. A run he
+    /// scored on it is no run.
+    fn the_batter_is_caught_out(
+        &mut self,
+        batter: Option<usize>,
+        stage: &mut Stage,
+        library: &Library,
+    ) {
+        let batter = batter.filter(|&batter| {
+            self.runners
+                .get(batter)
+                .is_some_and(|runner| runner.place != Place::Out)
+        });
+        if let Some(batter) = batter {
+            if self.runners[batter].place == Place::Home {
+                let worth = self.run_worth.min(self.runners[batter].runs);
+                self.runners[batter].runs -= worth;
+                self.score = self.score.saturating_sub(worth);
+            }
+            self.put_out(batter, stage, library);
+        }
+    }
+
+    /// The fielder's arm is back: the ball leaves his hand for the base he
+    /// is throwing to, and is given how far it goes each frame.
+    fn let_the_throw_go(
+        ball: &mut Option<Ball>,
+        state: &Fielding,
+        here: Point,
+        parts: &Parts,
+        game: &Game,
+    ) -> Job {
+        let rules = &game.rules;
+        let to = parts.bases[usize::from(state.throw_to) - 1];
+        let gap = distance(here, to).max(0.001);
+        // A catcher's throw to a base being stolen has a speed of its own.
+        let stealing = matches!(state.play, Play::Steal { .. });
+        let speed = if stealing && state.fielder == CATCHER {
+            rules.steal.throw_speed
+        } else {
+            rules.field.throw_speed
+        };
+        let step = ((to.0 - here.0) / gap * speed, (to.1 - here.1) / gap * speed);
+        if let Some(ball) = ball {
+            ball.at = here;
+            ball.height = rules.field.catch_height;
+        }
+        Job::Throwing { step }
+    }
+
+    /// Moves a thrown ball on a frame towards its base, and has the fielder
+    /// there take it when it is near enough.
+    fn carry_the_throw(
+        &mut self,
+        at_bat: &mut AtBat,
+        state: &mut Fielding,
+        step: Point,
+        scene: Scene<'_>,
+    ) {
+        let Scene {
+            parts,
+            game,
+            stage,
+            library,
+        } = scene;
+        let to = parts.bases[usize::from(state.throw_to) - 1];
+        let Some(ball) = &mut at_bat.ball else {
+            return;
+        };
+        ball.at = (ball.at.0 + step.0, ball.at.1 + step.1);
+        let size = (0.6 + (ball.at.1 - parts.home.1) / 1000.0).max(0.1);
+        put(stage, &parts.field_ball, ball.at, size);
+        if let Some(inner) = stage.child_mut(&parts.field_ball_inner) {
+            inner.move_to(inner.matrix.tx, -ball.height);
+        }
+        if distance(ball.at, to) < game.rules.field.throw_near {
+            let told = &mut at_bat.notices;
+            self.ball_at_base(state, told, parts, game, stage, library);
         }
     }
 
