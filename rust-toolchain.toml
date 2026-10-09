@@ -1,0 +1,8 @@
+# The version of Rust the code is written for, and the two tools the checks
+# need with it. Clippy grows new complaints with every version, and the
+# checks count any complaint as a failure, so the version is held still
+# here and moved on purpose. The workflow in .github installs the same one.
+[toolchain]
+channel = "1.99"
+components = ["rustfmt", "clippy"]
+profile = "minimal"
