@@ -17,7 +17,7 @@ use super::paper;
 use crate::rng::{Rng, mixed_with};
 use crate::rules::{FullMatchRules, StealRules};
 use crate::settings::Difficulty;
-pub use line_score::{Cell, Line, hits_words, ordinal, runs_words};
+pub use line_score::{COLUMNS, Cell, Line, Report, hits_words, ordinal, runs_words};
 pub(crate) use them::Them;
 
 /// How things stand when the player's side is out.

@@ -11,7 +11,7 @@ use std::path::{Path, PathBuf};
 /// `src`. A folder is named for every file in it.
 const SUMS: [&str; 25] = [
     "rng.rs",
-    "rules.rs",
+    "rules",
     "settings.rs",
     "scores.rs",
     "kept.rs",
