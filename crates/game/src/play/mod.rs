@@ -2133,19 +2133,3 @@ impl Match {
         )
     }
 }
-
-/// The screen a finished match leads to.
-pub fn result_screen(outcome: Outcome) -> &'static str {
-    match outcome {
-        Outcome::Won => "matchWon",
-        Outcome::Lost => "matchLost",
-        Outcome::Tied | Outcome::Interval => "inningsTied",
-        Outcome::ArcadeOver => "arcadeFinish",
-    }
-}
-
-/// Used by the match screen's own art to find the shell, kept here so that
-/// the wiring is in one place.
-pub fn shell(stage: &Stage) -> Option<Path> {
-    art::shell(stage)
-}
