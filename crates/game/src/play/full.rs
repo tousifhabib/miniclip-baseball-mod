@@ -18,7 +18,7 @@ use super::{AtBat, Match, Mode, Outcome, Parts, Phase};
 use crate::art;
 use crate::game::Game;
 use crate::look::Rgb;
-use crate::rng::Rng;
+use crate::rng::{Rng, mixed_with};
 use crate::rules::{FullMatchRules, StealRules};
 use crate::settings::Difficulty;
 
@@ -93,9 +93,6 @@ pub struct FullMatch {
 
 /// The most innings the board has room for. A longer match shows its last.
 pub const COLUMNS: u32 = 9;
-/// What makes the playing out of each of their innings on paper come out
-/// differently from the last.
-const PAPER_SEED: u64 = 0x3c6e_f372_fe94_f82b;
 
 /// A number as the place it has in an order, in capitals: 1ST, 2ND, 11TH.
 pub fn ordinal(number: u32) -> String {
@@ -170,7 +167,8 @@ impl FullMatch {
     /// is played out on paper and goes in the book.
     fn their_half(&mut self, made: u32, winning: bool) {
         let innings = self.theirs.len() as u32 + 1;
-        let mut rng = Rng::new(self.seed ^ PAPER_SEED.wrapping_mul(u64::from(innings)));
+        let each = mixed_with::THEIR_INNINGS_ON_PAPER.wrapping_mul(u64::from(innings));
+        let mut rng = Rng::new(self.seed ^ each);
         let rules = &self.rules.their_batting;
         let wanted = paper::Wanted {
             made,
@@ -529,11 +527,6 @@ impl Them {
     }
 }
 
-/// What makes the other side's innings come out differently from the
-/// pitches, which are drawn from the seed itself: the same pitches come
-/// whichever side bats first.
-const THEIR_SEED: u64 = 0x6a09_e667_f3bc_c908;
-
 impl Match {
     /// A full match, with the player's side at home or away, in place of
     /// the last innings of one.
@@ -549,7 +542,7 @@ impl Match {
                 .runners_steal()
                 .then(|| game.rules.steal.clone()),
             art::ground(library, &game.rules),
-            seed ^ THEIR_SEED,
+            seed ^ mixed_with::THEIR_INNINGS,
         );
         played.target = full.theirs() + 1;
         played.mode = Mode::Full(Box::new(full));

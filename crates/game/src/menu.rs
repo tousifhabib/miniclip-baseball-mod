@@ -8,7 +8,7 @@ use crate::art;
 use crate::look::{self, Rgb};
 // The game was this file's once, and is still found here.
 pub use crate::game::Game;
-use crate::rng::Rng;
+use crate::rng::{Rng, mixed_with};
 use crate::settings::{Difficulty, Ground, Settings};
 use crate::sheet::Sheet;
 
@@ -107,9 +107,6 @@ impl Default for Menu {
     }
 }
 
-/// What makes the toss come out differently from everything else that is
-/// worked out from the same seed.
-const COIN_SEED: u64 = 0xbb67_ae85_84ca_a73b;
 /// The lettering the full match's pages are written in is drawn 18 high.
 /// These are the sizes of its lines, that being 1.
 const HEADING_SIZE: f32 = 17.0 / 18.0;
@@ -143,7 +140,7 @@ impl Menu {
 
     /// Makes the toss for a full match come out the same way every time.
     pub fn seed(&mut self, seed: u64) {
-        self.coin = Some(Rng::new(seed ^ COIN_SEED));
+        self.coin = Some(Rng::new(seed ^ mixed_with::THE_COIN));
     }
 
     /// Whether the side is at home in the full match about to begin: as
@@ -159,7 +156,7 @@ impl Menu {
             Ground::Toss => {
                 let coin = self
                     .coin
-                    .get_or_insert_with(|| Rng::new(Rng::seed_from_clock() ^ COIN_SEED));
+                    .get_or_insert_with(|| Rng::new(Rng::seed_from_clock() ^ mixed_with::THE_COIN));
                 coin.below(2) == 0
             }
         };

@@ -19,7 +19,7 @@ use crate::mods::About;
 use crate::play::Parts;
 use crate::play::overlay::{self, DARK, Says, Words};
 use crate::play::pitch::Point;
-use crate::rng::Rng;
+use crate::rng::{Rng, mixed_with};
 use crate::rules::{Rules, SignRules};
 
 /// What the menu and the files know this mod by.
@@ -29,11 +29,6 @@ pub(crate) const ABOUT: About = About {
     does: "SIGNS ON THE WALL PAY RUNS, THE LIT ONE MOST OF ALL",
     setting: None,
 };
-
-/// What makes the choice of the lit sign come out differently from the
-/// pitches, which are drawn from the seed itself: the same pitches come
-/// whether the mod is on or not.
-const SIGN_SEED: u64 = 0xbb67_ae85_84ca_a73b;
 
 /// The mod, in play: which sign is lit, and what a ball that struck one
 /// was worth.
@@ -55,7 +50,7 @@ impl HitTheSign {
     pub fn new(seed: u64) -> HitTheSign {
         HitTheSign {
             lit: None,
-            rng: Rng::new(seed ^ SIGN_SEED),
+            rng: Rng::new(seed ^ mixed_with::THE_SIGNS),
             news: None,
             struck: None,
         }

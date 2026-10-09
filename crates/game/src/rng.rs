@@ -7,6 +7,26 @@
 
 use std::time::{SystemTime, UNIX_EPOCH};
 
+/// What a game's seed is mixed with by each thing that draws numbers of
+/// its own, so that none of them draws the numbers another does. The
+/// pitches are drawn from the seed itself, and so come the same whichever
+/// of these are in play. They are kept in one place so that it can be
+/// seen, and is checked, that no two are the same.
+pub(crate) mod mixed_with {
+    /// The other side's innings in a full match: the same pitches come
+    /// whichever side bats first.
+    pub const THEIR_INNINGS: u64 = 0x6a09_e667_f3bc_c908;
+    /// Which sign on the wall is lit: the same pitches come whether the
+    /// hit the sign mod is on or not.
+    pub const THE_SIGNS: u64 = 0xa54f_f53a_5f1d_36f1;
+    /// The playing out of each of their innings on paper, many times over
+    /// by the number of the innings, so that each comes out differently
+    /// from the last.
+    pub const THEIR_INNINGS_ON_PAPER: u64 = 0x3c6e_f372_fe94_f82b;
+    /// The toss of the coin for where a full match is played.
+    pub const THE_COIN: u64 = 0xbb67_ae85_84ca_a73b;
+}
+
 #[derive(Clone, Debug)]
 pub struct Rng {
     state: [u64; 4],
@@ -164,6 +184,27 @@ mod tests {
                 prop_assert!(!rng.chance(0.0));
                 prop_assert!(rng.chance(1.0));
             }
+        }
+    }
+
+    #[test]
+    fn no_two_things_that_draw_numbers_of_their_own_mix_the_seed_with_the_same() {
+        let all = [
+            mixed_with::THEIR_INNINGS,
+            mixed_with::THE_SIGNS,
+            mixed_with::THEIR_INNINGS_ON_PAPER,
+            mixed_with::THE_COIN,
+        ];
+        for (index, one) in all.iter().enumerate() {
+            assert!(!all[index + 1..].contains(one), "{one:#x} is there twice");
+        }
+        // And so the first number each draws for a game is its own.
+        let firsts: Vec<u32> = all
+            .iter()
+            .map(|with| Rng::new(7 ^ with).below(1_000_000))
+            .collect();
+        for (index, first) in firsts.iter().enumerate() {
+            assert!(!firsts[index + 1..].contains(first), "{firsts:?}");
         }
     }
 
