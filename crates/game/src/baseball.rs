@@ -863,7 +863,7 @@ impl Logic for Baseball {
         *key == bullet::KEY
             && self.play.is_some()
             && self.screen.is_game()
-            && self.game.mods.is_on(Mod::BulletTime)
+            && self.playing.mods.is_on(Mod::BulletTime)
     }
 
     fn describe(&self) -> String {
