@@ -13,6 +13,9 @@ anyhow = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
+# For the tests only: tries a statement against cases made up by the
+# hundred, and cuts one that fails down to the least that still does.
+proptest = { version = "1", default-features = false, features = ["std"] }
 
 # What the compiler and clippy are asked to hold the code to, in every crate.
 # `cargo clippy --all-targets -- -D warnings` must come back clean.
