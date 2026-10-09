@@ -536,7 +536,9 @@ impl Match {
             Phase::WindUp => self.wind_up_and_throw(&mut at_bat, pressed, game, stage, library),
             Phase::Flight { step } => {
                 let pressed = self.mods.late_press().or(pressed);
-                if self.held_back(&at_bat, step, stage) {
+                let (steps, swung) = (at_bat.pitch.samples.len(), at_bat.swing.is_some());
+                let key_down = stage.key_down(bullet::KEY);
+                if self.mods.holds_the_ball_back(step, steps, swung, key_down) {
                     // The ball stays where it is for this frame. A click
                     // made on it is for the step the ball is on.
                     self.mods.keep_press(pressed);

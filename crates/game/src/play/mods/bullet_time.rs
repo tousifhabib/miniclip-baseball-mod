@@ -16,9 +16,9 @@ use bb_engine::stage::Stage;
 use crate::art;
 use crate::look::{self, Rgb};
 use crate::mods::About;
+use crate::play::Parts;
 use crate::play::overlay::{self, DARK, Words};
 use crate::play::pitch::Point;
-use crate::play::{AtBat, Match, Parts};
 use crate::rules::BulletTimeRules;
 
 /// What the menu and the files know this mod by.
@@ -213,17 +213,4 @@ pub fn cool(lighting: ColorTransform) -> ColorTransform {
         *channel *= share;
     }
     cooled
-}
-
-impl Match {
-    /// Whether the frame in hand is one that bullet time holds the ball
-    /// back for, `step` being the step of its flight the pitch has come
-    /// to.
-    pub(crate) fn held_back(&mut self, at_bat: &AtBat, step: usize, stage: &Stage) -> bool {
-        let Some(bullet) = &mut self.mods.bullet_time else {
-            return false;
-        };
-        let near = bullet.is_near(step, at_bat.pitch.samples.len());
-        bullet.holds_back(near, at_bat.swing.is_some(), stage.key_down(KEY))
-    }
 }

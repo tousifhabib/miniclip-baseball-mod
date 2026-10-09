@@ -96,3 +96,23 @@ fn the_files_that_are_sums_never_name_the_stage() {
         "these are meant to be sums and nothing else: {reaching:#?}"
     );
 }
+
+#[test]
+fn no_mod_does_its_work_as_a_function_of_the_match() {
+    // A mod answers what it is asked and says what to write. It is the
+    // play that acts on the answer, where it does everything else.
+    let mods = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/play/mods");
+    let mut read = 0;
+    for entry in std::fs::read_dir(&mods).unwrap() {
+        let file = entry.unwrap().path();
+        let text = std::fs::read_to_string(&file).unwrap();
+        assert!(
+            !text.contains("impl Match"),
+            "{} reaches into the match",
+            file.display()
+        );
+        read += 1;
+    }
+    // Every mod's file, and the one that lists them.
+    assert_eq!(read, 24, "in {}", mods.display());
+}

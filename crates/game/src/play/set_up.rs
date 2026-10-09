@@ -317,12 +317,13 @@ impl Match {
         stage: &mut Stage,
         library: &Library,
     ) -> Option<bullet::Meter> {
-        let bullet = self.mods.bullet_time.as_mut()?;
-        bullet.fill_at_the_start();
+        if !self.mods.fill_the_meter_at_the_start() {
+            return None;
+        }
         let (top, under) = (coming.corner.line(), coming.corner.line());
         let under = (under.0, under.1 + 2.0);
         let meter = bullet::Meter::put(&coming.parts, top, under, stage, library);
-        if let (Some(meter), Some(left)) = (&meter, bullet.share_left()) {
+        if let (Some(meter), Some(left)) = (&meter, self.mods.meter_left()) {
             meter.keep(left, false, stage);
         }
         meter
@@ -413,7 +414,8 @@ impl Match {
         let rules = &game.rules;
         let parts = &coming.parts;
         let signs = sign::Signs::of(&rules.sign);
-        let lit = self.lit_sign(&signs)?;
+        let innings = self.mode.full().map_or(1, |full| full.innings());
+        let lit = self.mods.light_a_sign(innings, &signs)?;
         sign::Board::put(&signs, lit, rules, parts, stage, library)
     }
 

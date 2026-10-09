@@ -16,9 +16,9 @@ use bb_engine::stage::Stage;
 use crate::art;
 use crate::look::{self, Rgb};
 use crate::mods::About;
+use crate::play::Parts;
 use crate::play::overlay::{self, DARK, Says, Words};
 use crate::play::pitch::Point;
-use crate::play::{AtBat, Match, Parts};
 use crate::rng::Rng;
 use crate::rules::{Rules, SignRules};
 
@@ -357,83 +357,37 @@ impl Board {
     }
 }
 
-impl Match {
-    /// The sign that is lit for the innings in hand, counting from 0.
-    /// `None` when the wall has no signs.
-    pub(crate) fn lit_sign(&mut self, signs: &Signs) -> Option<usize> {
-        let innings = self.mode.full().map_or(1, |full| full.innings());
-        let sign = self.mods.hit_the_sign.as_mut()?;
-        Some(sign.light(innings, signs))
-    }
-
-    /// The ball is at the wall, `across` the field and this high: if a
-    /// sign is there and stands that tall, the ball has struck it, and the
-    /// runs that is worth are the batter's. Only the first sign a hit
-    /// strikes counts.
-    pub(crate) fn strike_sign(
-        &mut self,
-        at_bat: &mut AtBat,
-        across: f32,
-        height: f32,
-        rules: &SignRules,
-    ) {
-        let Some(board) = &mut at_bat.signs else {
-            return;
-        };
-        if board.struck.is_some() || height > rules.high {
-            return;
+impl Board {
+    /// The ball is at the wall, `across` the field and this high: the sign
+    /// it has struck and the runs that is worth, if a sign is there and
+    /// stands that tall. Only the first sign a hit strikes counts.
+    pub fn strike(&mut self, across: f32, height: f32, rules: &SignRules) -> Option<(usize, u32)> {
+        if self.struck.is_some() || height > rules.high {
+            return None;
         }
-        let Some(sign) = Signs::of(rules).at(across) else {
-            return;
-        };
-        board.struck = Some(sign);
-        let runs = if sign == board.lit {
+        let sign = Signs::of(rules).at(across)?;
+        self.struck = Some(sign);
+        let runs = if sign == self.lit {
             rules.lit
         } else {
             rules.unlit
         };
-        self.score += runs;
-        // The batter is the last to have come up.
-        if let Some(batter) = self.runners.last_mut() {
-            batter.runs += runs;
-        }
-        if let Some(signs) = &mut self.mods.hit_the_sign {
-            signs.news = Some((sign, runs));
-        }
+        Some((sign, runs))
     }
+}
 
-    /// Says over the field that a sign was struck, once one has been.
-    pub(crate) fn tell_sign(
-        &mut self,
-        at_bat: &mut AtBat,
-        frames: u32,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
-        let Some(signs) = &mut self.mods.hit_the_sign else {
-            return;
-        };
-        let Some((sign, runs)) = signs.news.take() else {
-            return;
-        };
-        signs.struck = Some((sign, runs));
-        self.show_numbers(stage);
-        Match::sound(stage, library, "crowd_bigClap");
-        Match::sound(stage, library, "baseball_organ_FX");
-        at_bat.notices.put(
-            Says::news(
-                "signNews",
-                &format!("OFF THE SIGN! +{runs}"),
-                NEWS_COLOUR,
-                frames,
-            )
-            .at((at_bat.parts.centre_x, NEWS_TOP))
-            .sized(1.2),
-            &at_bat.parts,
-            stage,
-            library,
-        );
-    }
+/// What the view of the field says when a sign has been struck for this
+/// many runs.
+pub(crate) fn news_words(runs: u32) -> String {
+    format!("OFF THE SIGN! +{runs}")
+}
+
+/// How it says them, for this many frames. `centre_x` is the middle of
+/// that view.
+pub(crate) fn news(words: &str, frames: u32, centre_x: f32) -> Says<'_> {
+    Says::news("signNews", words, NEWS_COLOUR, frames)
+        .at((centre_x, NEWS_TOP))
+        .sized(1.2)
 }
 
 #[cfg(test)]

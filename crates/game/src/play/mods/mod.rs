@@ -131,7 +131,7 @@ pub(crate) struct Line {
 pub(crate) struct ModsInPlay {
     /// Bullet time, whose meter the game puts up and whose key it reads in
     /// steps of its own.
-    pub(in crate::play) bullet_time: Option<BulletTime>,
+    bullet_time: Option<BulletTime>,
     butterfingers: Option<Butterfingers>,
     called_shot: Option<CalledShot>,
     clutch: Option<Clutch>,
@@ -139,7 +139,7 @@ pub(crate) struct ModsInPlay {
     heat_check: Option<HeatCheck>,
     /// The signs on the wall, which the game lights and reads as the ball
     /// comes to them.
-    pub(in crate::play) hit_the_sign: Option<HitTheSign>,
+    hit_the_sign: Option<HitTheSign>,
     hot_bat: Option<HotBat>,
     /// The two mods with a hand in deciding the pitch, which the game asks
     /// one by one as it does so.
@@ -394,6 +394,58 @@ impl ModsInPlay {
     /// Whether the batter may call where his hit will come down.
     pub fn shots_are_called(&self) -> bool {
         self.called_shot.is_some()
+    }
+
+    /// With bullet time on, its meter is full when the game starts. Says
+    /// whether the mod is on.
+    pub fn fill_the_meter_at_the_start(&mut self) -> bool {
+        let Some(bullet) = &mut self.bullet_time else {
+            return false;
+        };
+        bullet.fill_at_the_start();
+        true
+    }
+
+    /// Whether the frame in hand is one that bullet time holds the ball
+    /// back for. `step` is the step of its flight the pitch has come to,
+    /// of `steps`, `swung` whether the batter has swung at it, and
+    /// `key_down` whether bullet time's key is held.
+    pub fn holds_the_ball_back(
+        &mut self,
+        step: usize,
+        steps: usize,
+        swung: bool,
+        key_down: bool,
+    ) -> bool {
+        let Some(bullet) = &mut self.bullet_time else {
+            return false;
+        };
+        let near = bullet.is_near(step, steps);
+        bullet.holds_back(near, swung, key_down)
+    }
+
+    /// The sign that is lit for this innings, counting from 0. `None` when
+    /// the mod is off.
+    pub fn light_a_sign(&mut self, innings: u32, signs: &hit_the_sign::Signs) -> Option<usize> {
+        let sign = self.hit_the_sign.as_mut()?;
+        Some(sign.light(innings, signs))
+    }
+
+    /// A ball has struck this sign, counting from 0, for this many runs.
+    /// It is kept to be told.
+    pub fn a_sign_was_struck(&mut self, sign: usize, runs: u32) {
+        if let Some(signs) = &mut self.hit_the_sign {
+            signs.news = Some((sign, runs));
+        }
+    }
+
+    /// The runs a sign that was struck paid, the first time it is asked
+    /// for.
+    pub fn news_of_a_sign(&mut self) -> Option<u32> {
+        let signs = self.hit_the_sign.as_mut()?;
+        let (sign, runs) = signs.news.take()?;
+        signs.struck = Some((sign, runs));
+        Some(runs)
     }
 
     /// Which sign on the wall is lit, counting from 0, once one has been.
