@@ -149,7 +149,7 @@ pub struct Baseball {
 const ZINGER_LINE_AFTER: u32 = 260;
 const ZINGER_LINE_TOP: (f32, f32) = (262.0, 325.0);
 const ZINGER_LINE_SIZE: f32 = 0.8;
-const ZINGER_LINE_COLOUR: Rgb = [0xfd, 0xf6, 0xc0];
+const ZINGER_LINE_COLOUR: Rgb = look::CREAM;
 
 impl Baseball {
     pub fn new(library: &Library) -> Baseball {
@@ -278,8 +278,8 @@ impl Baseball {
         // on the panel's white, and white for the heading on its bar. The
         // heading was drawn in one piece with the notice, so it is written
         // back in.
-        const DARK: [u8; 3] = [0x0b, 0x3a, 0x5e];
-        const WHITE: [u8; 3] = [0xff, 0xff, 0xff];
+        const DARK: Rgb = look::NAVY;
+        const WHITE: Rgb = look::WHITE;
         let mut lines = vec![("HIGHSCORES".to_owned(), -104.0, -123.0, WHITE)];
         if self.scores.entries.is_empty() {
             lines.push(("NO SCORES YET".to_owned(), 0.0, -10.0, DARK));

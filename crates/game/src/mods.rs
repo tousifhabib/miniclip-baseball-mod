@@ -489,9 +489,9 @@ pub struct ModsPage {
     depth: u16,
 }
 
-const DARK: Rgb = [0x0b, 0x3a, 0x5e];
+const DARK: Rgb = look::NAVY;
 const SOFT: Rgb = [0x4a, 0x6f, 0x8c];
-const WHITE: Rgb = [0xff, 0xff, 0xff];
+const WHITE: Rgb = look::WHITE;
 
 impl ModsPage {
     /// Where the first line's box goes on the panel, and how far down each

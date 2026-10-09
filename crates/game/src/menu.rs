@@ -148,7 +148,7 @@ const COIN_SEED: u64 = 0xbb67_ae85_84ca_a73b;
 const HEADING_SIZE: f32 = 17.0 / 18.0;
 const WORDS_SIZE: f32 = 14.0 / 18.0;
 const CHOICE_SIZE: f32 = 12.5 / 18.0;
-const WHITE: Rgb = [0xff, 0xff, 0xff];
+const WHITE: Rgb = look::WHITE;
 /// On the setup page, where the choice of ground is: the middle of the top
 /// of its heading, the corner of the first of its boxes, how far apart the
 /// boxes are, and where each one's word is from its box.
@@ -160,7 +160,7 @@ const GROUND_WORD: (f32, f32) = (37.0, -5.0);
 /// its size, the art's block being 1, and its colour.
 const FILL_IN: f32 = 2.0;
 const FILL_SIZE: f32 = 0.58;
-const FILL_COLOUR: Rgb = [0x0b, 0x3a, 0x5e];
+const FILL_COLOUR: Rgb = look::NAVY;
 /// On the summary page: where the badge at the start of the heading is, the
 /// middle of the top of the heading's words, the middle of the lines under
 /// it, and how far down each of those is.

@@ -16,6 +16,13 @@ use resvg::{tiny_skia, usvg};
 /// A colour: red, green and blue.
 pub type Rgb = [u8; 3];
 
+/// The colours the menu's pages and the boards are written in, which are
+/// the art's own: white, the cream of the boards' lettering, and the dark
+/// blue of the panels' words.
+pub const WHITE: Rgb = [0xff, 0xff, 0xff];
+pub const CREAM: Rgb = [0xfd, 0xf6, 0xc0];
+pub const NAVY: Rgb = [0x0b, 0x3a, 0x5e];
+
 /// Reads a colour written as `#rrggbb`.
 pub fn rgb(text: &str) -> Option<Rgb> {
     let hex = text.strip_prefix('#')?;

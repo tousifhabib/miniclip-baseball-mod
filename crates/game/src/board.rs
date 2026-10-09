@@ -17,10 +17,10 @@ use crate::play::pitch::Quality;
 
 /// The colours of the board's lettering: as the art has it, for the side
 /// that is the player's, and for headings. The rest are for what is drawn.
-const CREAM: Rgb = [0xfd, 0xf6, 0xc0];
+const CREAM: Rgb = look::CREAM;
 const GOLD: Rgb = [0xff, 0xd2, 0x4a];
 const PALE: Rgb = [0xa9, 0xdc, 0xf0];
-const WHITE: Rgb = [0xff, 0xff, 0xff];
+const WHITE: Rgb = look::WHITE;
 const RED: Rgb = [0xff, 0x6e, 0x5c];
 const GREEN: Rgb = [0x86, 0xf0, 0x8c];
 const GREY: Rgb = [0xb4, 0xc2, 0xcc];
