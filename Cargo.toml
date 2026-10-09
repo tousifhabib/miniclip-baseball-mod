@@ -95,3 +95,14 @@ strip = true
 # and assertions stay on.
 [profile.test]
 opt-level = 1
+
+# The tool the tests make numbers up with has a check of its own that is
+# wrong. Asked for a number between two, it now and then lands a hair under
+# the lower one and brings it back up, which is as it means to do, but first
+# it checks how far under by a sum whose sign it has the wrong way round for
+# a span that reaches further above nought than below. About once in fifty
+# million numbers that stops a test that had nothing wrong with it. The
+# check is only made when a program is built to check itself, so this one
+# tool is built not to. Its numbers are the same either way.
+[profile.test.package.proptest]
+debug-assertions = false
