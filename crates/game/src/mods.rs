@@ -850,6 +850,8 @@ impl Panel<'_> {
 
 #[cfg(test)]
 mod tests {
+    use proptest::prelude::*;
+
     use super::*;
 
     #[test]
@@ -928,5 +930,35 @@ mod tests {
         assert_eq!(Mods::load(&file), Mods::default());
         std::fs::remove_file(&file).unwrap();
         assert_eq!(Mods::load(&file), Mods::default());
+    }
+
+    proptest! {
+        // Each case writes a file and reads it back.
+        #![proptest_config(ProptestConfig::with_cases(64))]
+
+        #[test]
+        fn any_choice_of_mods_and_levels_comes_back_as_it_was_saved(
+            // For each mod, whether it is on, and the level its setting has
+            // been put to if it has been put to one. A mod with no setting
+            // keeps a level all the same.
+            chosen in prop::collection::vec(
+                (any::<bool>(), prop::option::of(any::<u8>())),
+                Mod::ALL.len(),
+            ),
+        ) {
+            let mut mods = Mods::default();
+            for (which, (on, level)) in Mod::ALL.into_iter().zip(chosen) {
+                mods.set(which, on);
+                if let Some(level) = level {
+                    mods.set_level(which, level);
+                }
+            }
+            let name = format!("bb-mods-any-{}.toml", std::process::id());
+            let file = std::env::temp_dir().join(name);
+            mods.save(&file).unwrap();
+            let loaded = Mods::load(&file);
+            std::fs::remove_file(&file).unwrap();
+            prop_assert_eq!(loaded, mods);
+        }
     }
 }

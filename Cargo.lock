@@ -288,6 +288,7 @@ dependencies = [
  "bb-engine",
  "bb-format",
  "clap",
+ "proptest",
  "resvg",
  "serde",
  "thiserror 2.0.21",

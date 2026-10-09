@@ -75,6 +75,10 @@ impl Rng {
 
 #[cfg(test)]
 mod tests {
+    // By name, because all of what proptest offers includes a generator of
+    // its own called `Rng`.
+    use proptest::prelude::{prop_assert, prop_assert_eq, proptest};
+
     use super::*;
 
     #[test]
@@ -136,5 +140,45 @@ mod tests {
         assert!((0..1000).all(|_| rng.chance(1.0)));
         let hits = (0..20_000).filter(|_| rng.chance(0.25)).count();
         assert!((4_700..5_300).contains(&hits), "{hits}");
+    }
+
+    proptest! {
+        #[test]
+        fn whatever_the_seed_the_numbers_stay_inside_what_was_asked_for(
+            seed: u64,
+            count in 1u32..,
+            low in -1.0e6f32..1.0e6,
+            more in 0.0f32..1.0e6,
+        ) {
+            let high = low + more;
+            let mut rng = Rng::new(seed);
+            for _ in 0..32 {
+                let unit = rng.unit();
+                prop_assert!((0.0..1.0).contains(&unit), "{}", unit);
+                prop_assert!(rng.below(count) < count);
+                prop_assert_eq!(rng.below(0), 0);
+                // No lower than the one and no higher than the other. The
+                // higher itself is not ruled out: see the next test.
+                let between = rng.between(low, high);
+                prop_assert!((low..=high).contains(&between), "{}", between);
+                prop_assert!(!rng.chance(0.0));
+                prop_assert!(rng.chance(1.0));
+            }
+        }
+    }
+
+    #[test]
+    fn a_number_between_two_far_from_nought_can_be_the_higher_of_them_as_things_stand() {
+        // An oddity, written down so that a change to it is noticed.
+        // `between` says it never reaches `high`, and with numbers of the
+        // size the game asks for it all but never does. But what it works
+        // out is rounded to the nearest number a float can hold, and this
+        // far from nought those are two apart: anything over half way from
+        // `low` is rounded up to `high` itself.
+        let (low, high) = (16_777_216.0, 16_777_218.0);
+        let mut rng = Rng::new(1);
+        let drawn: Vec<f32> = (0..100).map(|_| rng.between(low, high)).collect();
+        assert!(drawn.contains(&high), "{drawn:?}");
+        assert!(drawn.iter().all(|&number| number == low || number == high));
     }
 }

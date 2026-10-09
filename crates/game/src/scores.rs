@@ -87,6 +87,8 @@ impl Scores {
 
 #[cfg(test)]
 mod tests {
+    use proptest::prelude::*;
+
     use super::*;
 
     #[test]
@@ -129,5 +131,68 @@ mod tests {
         std::fs::write(&file, "not a table at all [").unwrap();
         assert_eq!(Scores::load(&file), Scores::default());
         std::fs::remove_file(&file).unwrap();
+    }
+
+    proptest! {
+        #[test]
+        fn the_table_is_the_ten_best_of_all_that_were_added_the_earlier_first_among_equals(
+            // Few enough names and points that many scores are level, and
+            // some are the same score by the same name.
+            added in prop::collection::vec(("[A-D]{1,2}", 0u32..12), 0..40),
+        ) {
+            let mut scores = Scores::default();
+            for (number, (name, points)) in added.iter().enumerate() {
+                // A score makes the table unless ten before it were as good
+                // or better, and goes in behind the ones that were.
+                let ahead = added[..number]
+                    .iter()
+                    .filter(|(_, earlier)| earlier >= points)
+                    .count();
+                let made_it = scores.add(name, *points);
+                prop_assert_eq!(made_it, ahead < Scores::KEPT);
+                if made_it {
+                    let entry = &scores.entries[ahead];
+                    prop_assert_eq!((&entry.name, entry.points), (name, *points));
+                }
+            }
+            // Sorting leaves level scores in the order they came in.
+            let mut best = added.clone();
+            best.sort_by_key(|&(_, points)| std::cmp::Reverse(points));
+            best.truncate(Scores::KEPT);
+            let table: Vec<(String, u32)> = scores
+                .entries
+                .iter()
+                .map(|entry| (entry.name.clone(), entry.points))
+                .collect();
+            prop_assert_eq!(table, best);
+        }
+
+        #[test]
+        fn any_table_written_out_reads_back_as_it_was(
+            longest_zinger: u32,
+            // Names of any letters and marks at all, the kinds that have to
+            // be written specially among them.
+            entries in prop::collection::vec(
+                (prop::collection::vec(any::<char>(), 0..12), any::<u32>()),
+                0..12,
+            ),
+        ) {
+            let entries = entries
+                .into_iter()
+                .map(|(name, points)| Entry {
+                    name: name.into_iter().collect(),
+                    points,
+                })
+                .collect();
+            let scores = Scores {
+                longest_zinger,
+                entries,
+            };
+            // What `save` puts in the file, and what `load` makes of it,
+            // with no file between them.
+            let written = toml::to_string(&scores).unwrap();
+            let read: Scores = toml::from_str(&written).unwrap();
+            prop_assert_eq!(read, scores, "written as {:?}", written);
+        }
     }
 }

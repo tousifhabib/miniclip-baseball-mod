@@ -24,5 +24,8 @@ resvg = "0.48"
 thiserror.workspace = true
 toml = "1"
 
+[dev-dependencies]
+proptest.workspace = true
+
 [lints]
 workspace = true
