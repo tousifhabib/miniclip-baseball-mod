@@ -4,7 +4,7 @@ mod common;
 
 use bb_game::mods::Mod;
 use bb_game::script::Script;
-use common::{game_modded, number};
+use common::{frame_of_a_pitch, game_modded, next, state};
 
 /// The pitcher's place among the fielders, counting from 0: the art's
 /// `fielder3`, who stands on the mound.
@@ -43,7 +43,7 @@ impl Batting {
     }
 
     fn state(&mut self) -> String {
-        self.script.run("state").unwrap().pop().unwrap_or_default()
+        state(&mut self.script)
     }
 
     /// Where each of the nine fielders is on the field, and the frame of
@@ -92,35 +92,14 @@ impl Batting {
                     }
                 }
             }
-            let ring = number(&now, "crossing ")
-                .zip(number(now.split("crossing ").nth(1).unwrap_or(""), ","))
-                .map(|(x, y)| (x + off.0, y + off.1));
-            let step = number(&now, "Flight { step: ").map(|step| step as i32);
-            let best = number(&now, "best swung on steps ").map(|best| best as i32);
-            let steps = match (ring, step, best) {
-                (Some((x, y)), Some(step), Some(best)) if step == best + late => {
-                    format!("click {x} {y}")
-                }
-                (Some((x, y)), None, _) if now.contains("Settling") => {
-                    format!("move {x} {y}; wait 1")
-                }
-                _ => "wait 1".to_owned(),
-            };
-            self.script.run(&steps).unwrap();
+            self.script.run(&frame_of_a_pitch(&now, late, off)).unwrap();
         }
         panic!("the pitch never ended: {}", self.state());
     }
 
     /// Asks for the next pitch.
     fn next(&mut self) {
-        // The button takes a moment to come up.
-        for _ in 0..200 {
-            self.script.run("click 545 355; wait 2").unwrap();
-            if !self.state().contains(": Ready") {
-                return;
-            }
-        }
-        panic!("the next pitch never came: {}", self.state());
+        next(&mut self.script);
     }
 
     /// Plays the match to its end, swinging at every pitch on a step the

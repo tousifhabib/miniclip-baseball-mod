@@ -41,6 +41,30 @@ pub fn playing(state: &str) -> bool {
         .any(|screen| state.starts_with(screen))
 }
 
+/// Where the ball of the pitch in hand will cross, as the state says it.
+pub fn crossing(now: &str) -> Option<(f32, f32)> {
+    number(now, "crossing ").zip(number(now.split("crossing ").nth(1).unwrap_or(""), ","))
+}
+
+/// The steps that play one frame of a pitch as a batter who reads the
+/// timing bar would. While the pitcher settles the ring is put `off` from
+/// where the ball will cross. The click comes `late` steps after the first
+/// step the bar calls best. Any other frame is waited out.
+pub fn frame_of_a_pitch(now: &str, late: i32, off: (f32, f32)) -> String {
+    let ring = crossing(now).map(|(x, y)| (x + off.0, y + off.1));
+    let step = number(now, "Flight { step: ").map(|step| step as i32);
+    let best = number(now, "best swung on steps ").map(|best| best as i32);
+    match (ring, step, best) {
+        (Some((x, y)), Some(step), Some(best)) if step == best + late => {
+            format!("click {x} {y}")
+        }
+        (Some((x, y)), None, _) if now.contains("Settling") => {
+            format!("move {x} {y}; wait 1")
+        }
+        _ => "wait 1".to_owned(),
+    }
+}
+
 /// Plays one pitch. The swing begins `late` steps after the first step the
 /// bar calls best, with the ring held `off` away from where the ball will
 /// cross. `seen` is given the game after every frame. Returns the state
@@ -60,21 +84,7 @@ pub fn pitch_seen(
         if !playing(&now) || now.contains(": Ready") {
             return now;
         }
-        let ring = number(&now, "crossing ")
-            .zip(number(now.split("crossing ").nth(1).unwrap_or(""), ","))
-            .map(|(x, y)| (x + off.0, y + off.1));
-        let step = number(&now, "Flight { step: ").map(|step| step as i32);
-        let best = number(&now, "best swung on steps ").map(|best| best as i32);
-        let steps = match (ring, step, best) {
-            (Some((x, y)), Some(step), Some(best)) if step == best + late => {
-                format!("click {x} {y}")
-            }
-            (Some((x, y)), None, _) if now.contains("Settling") => {
-                format!("move {x} {y}; wait 1")
-            }
-            _ => "wait 1".to_owned(),
-        };
-        script.run(&steps).unwrap();
+        script.run(&frame_of_a_pitch(&now, late, off)).unwrap();
     }
     panic!("the pitch never ended: {}", state(script));
 }

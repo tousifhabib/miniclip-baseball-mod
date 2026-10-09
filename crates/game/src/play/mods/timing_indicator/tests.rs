@@ -2,21 +2,10 @@ use proptest::prelude::*;
 
 use super::*;
 use crate::play::pitch::properties::{any_choice, any_window};
-use crate::play::pitch::{Choice, Mound, meets};
+use crate::play::pitch::tests::mound;
+use crate::play::pitch::{Choice, meets};
 use crate::rules::Rules;
 use crate::settings::Difficulty;
-
-/// The fixed points as they are in the game's art.
-fn mound() -> Mound {
-    Mound {
-        ball: (286.1, 137.85),
-        shadow: (286.1, 233.35),
-        ball_from: (285.85, 137.8),
-        shadow_from: (285.85, 230.35),
-        plate: 351.0,
-        zone: [246.2, 190.6, 341.1, 305.7],
-    }
-}
 
 /// A pitch down the middle at this skill level's slowest.
 fn pitch(rules: &Rules, difficulty: Difficulty) -> Pitch {

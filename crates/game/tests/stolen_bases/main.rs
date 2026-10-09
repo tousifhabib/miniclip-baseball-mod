@@ -10,7 +10,8 @@ use bb_game::art::all_named;
 use bb_game::mods::Mod;
 use bb_game::script::Script;
 use common::{
-    LEAVE, MISS, long_match_ruled, next, number, pitch, ready, said, state, timing_bar_and,
+    LEAVE, MISS, ON, crossing, frame_of_a_pitch, long_match_ruled, next, number, pitch, ready,
+    said, state, timing_bar_and,
 };
 
 /// A click on the little field in the corner of the batting view.
@@ -54,23 +55,13 @@ fn play_sending(script: &mut Script, sends: &[u32], late: i32) -> String {
         if !now.starts_with("Match,") && !now.starts_with("FullMatch,") || now.contains(": Ready") {
             return now;
         }
-        let ring =
-            number(&now, "crossing ").zip(number(now.split("crossing ").nth(1).unwrap_or(""), ","));
-        let step = number(&now, "Flight { step: ").map(|step| step as i32);
-        let best = number(&now, "best swung on steps ").map(|best| best as i32);
         wound += u32::from(now.contains("WindUp"));
-        let steps = match (ring, step, best) {
-            (Some((x, y)), _, _) if now.contains("WindUp") && sends.contains(&wound) => {
+        let steps = match crossing(&now) {
+            Some((x, y)) if now.contains("WindUp") && sends.contains(&wound) => {
                 // And back to the ball.
                 format!("{LITTLE_FIELD}; move {x} {y}")
             }
-            (Some((x, y)), Some(step), Some(best)) if step == best + late => {
-                format!("click {x} {y}")
-            }
-            (Some((x, y)), None, _) if now.contains("Settling") => {
-                format!("move {x} {y}; wait 1")
-            }
-            _ => "wait 1".to_owned(),
+            _ => frame_of_a_pitch(&now, late, ON),
         };
         script.run(&steps).unwrap();
     }
