@@ -2,7 +2,7 @@
 //! repeated.
 
 /// The ways a texture is read.
-pub(crate) struct Samplers {
+pub(in crate::gpu) struct Samplers {
     /// For the gradients' ramps and for finished layers: smoothed, and the
     /// edge colour carried on past the edge.
     pub ramp: wgpu::Sampler,
@@ -13,7 +13,7 @@ pub(crate) struct Samplers {
 }
 
 impl Samplers {
-    pub(crate) fn new(device: &wgpu::Device) -> Samplers {
+    pub(in crate::gpu) fn new(device: &wgpu::Device) -> Samplers {
         let sampler = |filter: wgpu::FilterMode, address: wgpu::AddressMode| {
             device.create_sampler(&wgpu::SamplerDescriptor {
                 address_mode_u: address,

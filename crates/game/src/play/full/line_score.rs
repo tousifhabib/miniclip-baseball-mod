@@ -66,6 +66,7 @@ pub fn hits_words(hits: u32) -> String {
         hits => format!("{hits} HITS"),
     }
 }
+
 impl FullMatch {
     /// The innings the board shows: the first of them, and how many.
     pub fn shown(&self) -> (u32, u32) {

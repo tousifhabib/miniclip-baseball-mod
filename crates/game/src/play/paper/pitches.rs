@@ -32,6 +32,7 @@ pub(super) enum Miss {
     TooFew,
     TooMany,
 }
+
 impl Play<'_> {
     /// The pitches of a turn, and what the last was struck for if it was
     /// put in play.

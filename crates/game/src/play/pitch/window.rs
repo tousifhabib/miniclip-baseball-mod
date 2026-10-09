@@ -15,6 +15,7 @@ pub enum Quality {
     Medium,
     Good,
 }
+
 impl Pitch {
     /// What a swing begun on `step` of this pitch comes to: the step on
     /// which the bat meets the ball, how well, and with what power. `None`

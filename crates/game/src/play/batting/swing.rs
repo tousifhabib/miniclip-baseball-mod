@@ -20,9 +20,10 @@ struct Met {
     quality: Quality,
     power: f32,
 }
+
 impl Match {
     /// One frame of the ball on its way to the batter.
-    pub(crate) fn flight(
+    pub(in crate::play) fn flight(
         &mut self,
         at_bat: &mut AtBat,
         step: usize,

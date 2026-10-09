@@ -6,7 +6,7 @@ use bytemuck::{Pod, Zeroable};
 /// What the shader is told once for each layer.
 #[repr(C)]
 #[derive(Clone, Copy, Pod, Zeroable)]
-pub(crate) struct Globals {
+pub(in crate::gpu) struct Globals {
     pub view: [f32; 4],
     pub limits: [f32; 4],
 }
@@ -14,7 +14,7 @@ pub(crate) struct Globals {
 /// What the shader is told for each draw, and for each blur.
 #[repr(C)]
 #[derive(Clone, Copy, Pod, Zeroable)]
-pub(crate) struct Item {
+pub(in crate::gpu) struct Item {
     pub world_abcd: [f32; 4],
     pub world_t: [f32; 4],
     pub color_mult: [f32; 4],
@@ -26,7 +26,7 @@ pub(crate) struct Item {
 
 /// How a draw treats the stencil buffer.
 #[derive(Clone, Copy, PartialEq, Eq)]
-pub(crate) enum Mode {
+pub(in crate::gpu) enum Mode {
     /// Draws colour where the stencil matches.
     Content = 0,
     /// Raises the stencil where it matches, drawing no colour.

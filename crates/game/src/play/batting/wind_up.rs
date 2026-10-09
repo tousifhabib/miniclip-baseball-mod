@@ -14,7 +14,7 @@ const PITCH: &str = "pitch";
 impl Match {
     /// The pitcher stands and waits, with `left` frames to go before he
     /// winds up. While he does, a click on the outfield calls the shot.
-    pub(crate) fn wait_for_the_wind_up(
+    pub(in crate::play) fn wait_for_the_wind_up(
         &mut self,
         at_bat: &mut AtBat,
         left: u32,
@@ -72,7 +72,7 @@ impl Match {
     /// The pitcher winds up, shows where the pitch is going, and lets the
     /// ball go. While he winds up, a click on the little field sends a
     /// runner.
-    pub(crate) fn wind_up_and_throw(
+    pub(in crate::play) fn wind_up_and_throw(
         &mut self,
         at_bat: &mut AtBat,
         pressed: Option<Point>,

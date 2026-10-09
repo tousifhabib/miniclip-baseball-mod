@@ -24,7 +24,7 @@ impl Match {
     /// The ball is at the wall, `across` the field and this high. With the
     /// hit the sign mod on, if it has struck a sign the runs that is worth
     /// are the batter's.
-    pub(crate) fn strike_sign(
+    pub(in crate::play) fn strike_sign(
         &mut self,
         at_bat: &mut AtBat,
         across: f32,

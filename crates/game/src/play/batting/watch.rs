@@ -10,7 +10,7 @@ use crate::play::{AtBat, Cue, Match, at, put, southpaw};
 
 impl Match {
     /// One frame of the ball leaving the bat, seen from behind the batter.
-    pub(crate) fn watch(
+    pub(in crate::play) fn watch(
         &mut self,
         at_bat: &mut AtBat,
         game: &Game,

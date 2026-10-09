@@ -10,7 +10,12 @@ use crate::rules::HitRules;
 
 impl Match {
     /// Moves the timing bar's marker on, where the bar is up.
-    pub(crate) fn point_the_timing_bar(&self, at_bat: &mut AtBat, game: &Game, stage: &mut Stage) {
+    pub(in crate::play) fn point_the_timing_bar(
+        &self,
+        at_bat: &mut AtBat,
+        game: &Game,
+        stage: &mut Stage,
+    ) {
         let Some(bar) = &mut at_bat.timing else {
             return;
         };

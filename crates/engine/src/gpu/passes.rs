@@ -18,6 +18,7 @@ struct Onto<'a> {
     stencil: &'a wgpu::TextureView,
     clear: wgpu::Color,
 }
+
 impl Renderer {
     /// Draws `commands` into `target`, a texture of `size` pixels in the
     /// format this renderer was made for. With `scissor`, only the pixels

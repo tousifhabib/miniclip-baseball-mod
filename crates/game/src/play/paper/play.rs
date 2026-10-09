@@ -30,6 +30,7 @@ pub(super) struct Play<'a> {
     /// never got there.
     stranded: u32,
 }
+
 impl<'a> Play<'a> {
     pub(super) fn new(
         wanted: Wanted,

@@ -18,7 +18,7 @@ const FIRST_SLIDE_FRAME: u16 = 850;
 
 /// The frame on which a runner gets to each base, the frame his slide ends
 /// on, and the frame a slide rejoins the run at.
-pub(crate) const ARRIVES: [u16; 4] = [211, 421, 630, 840];
+pub(in crate::play) const ARRIVES: [u16; 4] = [211, 421, 630, 840];
 const SLIDE_ENDS: [u16; 4] = [873, 890, 906, 922];
 const SLIDE_JOINS: [u16; 4] = [210, 420, 629, 839];
 
@@ -33,7 +33,13 @@ const SLIDE: [&str; 4] = [
 
 impl Match {
     /// Sets a runner off for a base.
-    pub(crate) fn send(&mut self, runner: usize, to: u8, stage: &mut Stage, library: &Library) {
+    pub(in crate::play) fn send(
+        &mut self,
+        runner: usize,
+        to: u8,
+        stage: &mut Stage,
+        library: &Library,
+    ) {
         self.runners[runner].running_to = Some(to);
         self.runners[runner].sliding = false;
         if let Some(path) = &self.runners[runner].path {

@@ -50,6 +50,7 @@ struct GroundBox {
     button: Path,
     fill: Path,
 }
+
 impl Menu {
     /// Whether the side is at home in the full match about to begin: as
     /// chosen, or as a coin comes down. Once asked, the answer stands until
