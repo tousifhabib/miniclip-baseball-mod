@@ -5,15 +5,11 @@ mod common;
 
 use bb_game::mods::Mod;
 use bb_game::script::Script;
-use common::{game_modded, long_match, next, number, pitch_seen, said, state};
+use common::{game_modded, long_match, next, number, pitch_seen, said, state, timing_bar_and};
 
 /// A match long enough for any run of hits, with the timing bar up.
 fn game(hot_bat: bool) -> Option<Script> {
-    let mut mods = vec![Mod::TimingIndicator];
-    if hot_bat {
-        mods.push(Mod::HotBat);
-    }
-    long_match(1, &mods)
+    long_match(1, &timing_bar_and(Mod::HotBat, hot_bat))
 }
 
 /// Swings at a pitch `late` steps after the first the bar calls best, and

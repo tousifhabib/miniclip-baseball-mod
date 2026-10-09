@@ -6,14 +6,10 @@ mod common;
 use bb_game::art::BACKDROPS;
 use bb_game::mods::Mod;
 use bb_game::script::Script;
-use common::{game_modded, pitch_seen};
+use common::{game_modded, pitch_seen, timing_bar_and};
 
 fn game(screen: &str, night: bool) -> Option<Script> {
-    let mut mods = vec![Mod::TimingIndicator];
-    if night {
-        mods.push(Mod::NightGame);
-    }
-    game_modded(screen, 1, &mods)
+    game_modded(screen, 1, &timing_bar_and(Mod::NightGame, night))
 }
 
 /// How bright each picture of the stadium on the stage is, by its red: 1

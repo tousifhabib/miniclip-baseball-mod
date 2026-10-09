@@ -6,7 +6,7 @@ mod common;
 use bb_game::art::all_named;
 use bb_game::mods::Mod;
 use bb_game::script::Script;
-use common::{game_modded, number, pitch, said, state};
+use common::{game_modded, number, pitch, said, state, timing_bar_and};
 
 /// How to swing at the first pitch of the first game for a hit that comes
 /// down in the outfield and gets the batter to first: how late, and where
@@ -14,11 +14,7 @@ use common::{game_modded, number, pitch, said, state};
 const HIT: (i32, (f32, f32)) = (2, (0.0, 8.0));
 
 fn game(screen: &str, called_shot: bool) -> Option<Script> {
-    let mut mods = vec![Mod::TimingIndicator];
-    if called_shot {
-        mods.push(Mod::CalledShot);
-    }
-    game_modded(screen, 1, &mods)
+    game_modded(screen, 1, &timing_bar_and(Mod::CalledShot, called_shot))
 }
 
 /// The two numbers that follow `before` in a state line, as a place.

@@ -4,23 +4,13 @@ mod common;
 
 use bb_game::mods::Mod;
 use bb_game::script::Script;
-use common::game_modded;
+use common::{game_modded, number};
 
 /// The pitcher's place among the fielders, counting from 0: the art's
 /// `fielder3`, who stands on the mound.
 const PITCHER: usize = 2;
 /// The fielder who minds second base: the art's `fielder7`.
 const AT_SECOND: usize = 6;
-
-/// The number that follows `before` in a state line.
-fn number(state: &str, before: &str) -> Option<f32> {
-    let rest = state.split(before).nth(1)?;
-    let digits: String = rest
-        .chars()
-        .take_while(|c| c.is_ascii_digit() || *c == '.')
-        .collect();
-    digits.parse().ok()
-}
 
 /// Whether the match is still going, or has not yet begun.
 fn in_match(state: &str) -> bool {

@@ -5,7 +5,7 @@ mod common;
 
 use bb_game::mods::Mod;
 use bb_game::script::Script;
-use common::{game_modded, next, pitch};
+use common::{MISS, ON, game_modded, next, pitch};
 
 /// A match with the timing bar up, sudden death or not, and whatever other
 /// mods are asked for.
@@ -18,12 +18,9 @@ fn game(seed: u64, sudden_death: bool, with: &[Mod]) -> Option<Script> {
     game_modded("match", seed, &mods)
 }
 
-/// The ring on the ball, and held so far to one side that the first pitch
-/// of the first game is hit foul.
-const ON: (f32, f32) = (0.0, 0.0);
+/// The ring held so far to one side that the first pitch of the first game
+/// is hit foul.
 const FOUL: (f32, f32) = (-140.0, 0.0);
-/// A swing this many steps before the best misses the ball.
-const MISS: i32 = -6;
 
 #[test]
 fn one_strike_is_out() {

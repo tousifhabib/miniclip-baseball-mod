@@ -4,10 +4,9 @@ mod common;
 
 use bb_game::art;
 use bb_game::mods::Mod;
-use bb_game::rules::Rules;
 use bb_game::script::Script;
 use bb_game::settings::Ground;
-use common::{full_match, game, next, pitch, said, state, state_after};
+use common::{full_match, game, match_to_order, next, pitch, said, state, state_after, text};
 
 /// The row of the menu's first page that leads to the full match, and the
 /// buttons on the pages after it.
@@ -18,17 +17,6 @@ const BACK: &str = "click 290 362";
 const PLAY_BALL: &str = "click 480 362";
 /// The button on the board between innings.
 const NEXT_INNINGS: &str = "click 542 357";
-
-/// A match of this many innings in which the other side makes `their` runs
-/// every time it bats.
-fn rules(innings: u32, their: usize) -> Rules {
-    let chances = format!("[{}1]", "0, ".repeat(their));
-    let text = format!(
-        "[full_match]\ninnings = {innings}\n[full_match.runs]\n\
-         easy = {chances}\nmedium = {chances}\nhard = {chances}\n"
-    );
-    Rules::layered(&[("a full match to order", &text)]).expect("rules that read")
-}
 
 /// Lets every pitch go by until the side is out or the match is over, and
 /// returns how things stand then.
@@ -49,19 +37,9 @@ fn sit_out(script: &mut Script) -> String {
     panic!("the side was never out: {}", state(script));
 }
 
-/// What one of the art's own text fields says.
-fn text(script: &Script, name: &str) -> String {
-    script
-        .runner
-        .stage
-        .text(name)
-        .unwrap_or_default()
-        .to_owned()
-}
-
 #[test]
 fn away_the_side_bats_first_and_the_board_follows_its_innings() {
-    let Some(mut script) = full_match(1, Ground::Away, &[], Some(rules(9, 2))) else {
+    let Some(mut script) = full_match(1, Ground::Away, &[], Some(match_to_order(9, 2))) else {
         return;
     };
     let begun = state_after(&mut script, "wait 60; state");
@@ -118,7 +96,7 @@ fn away_the_side_bats_first_and_the_board_follows_its_innings() {
 
 #[test]
 fn at_home_the_board_comes_before_the_first_ball() {
-    let Some(mut script) = full_match(1, Ground::Home, &[], Some(rules(9, 1))) else {
+    let Some(mut script) = full_match(1, Ground::Home, &[], Some(match_to_order(9, 1))) else {
         return;
     };
     let begun = state_after(&mut script, "wait 90; state");
@@ -140,7 +118,7 @@ fn at_home_the_board_comes_before_the_first_ball() {
 
 #[test]
 fn a_match_lost_says_what_each_side_made() {
-    let Some(mut script) = full_match(1, Ground::Away, &[], Some(rules(2, 1))) else {
+    let Some(mut script) = full_match(1, Ground::Away, &[], Some(match_to_order(2, 1))) else {
         return;
     };
     assert!(sit_out(&mut script).starts_with("Interval,"));
@@ -176,7 +154,7 @@ fn at_home_going_ahead_in_the_last_innings_wins_there_and_then() {
     // With every hit a home run, the other side's one run an innings is
     // worth three.
     let mods = [Mod::TimingIndicator, Mod::ZingerHit];
-    let Some(mut script) = full_match(1, Ground::Home, &mods, Some(rules(1, 1))) else {
+    let Some(mut script) = full_match(1, Ground::Home, &mods, Some(match_to_order(1, 1))) else {
         return;
     };
     script.run("wait 90").unwrap();
@@ -203,7 +181,7 @@ fn at_home_going_ahead_in_the_last_innings_wins_there_and_then() {
 
 #[test]
 fn the_batting_order_comes_round_again() {
-    let Some(mut script) = full_match(1, Ground::Away, &[], Some(rules(9, 0))) else {
+    let Some(mut script) = full_match(1, Ground::Away, &[], Some(match_to_order(9, 0))) else {
         return;
     };
     // Nobody swings and nobody walks: three up and three down, three

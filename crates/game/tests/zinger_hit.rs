@@ -8,7 +8,7 @@ use bb_game::mods::Mod;
 use bb_game::scores::Scores;
 use bb_game::script::Script;
 use common::{
-    game_keeping, game_modded, next, number, pitch, pitch_seen, playing, said, sounds, state,
+    ON, game_keeping, game_modded, next, number, pitch, pitch_seen, playing, said, sounds, state,
 };
 
 /// The mods a game is played with here: the timing bar always, which says
@@ -61,8 +61,6 @@ const SPOILT: [(u64, (f32, f32)); 4] = [
     (1, (-140.0, 0.0)),
     (4, (170.0, 0.0)),
 ];
-/// The ring on the ball.
-const ON: (f32, f32) = (0.0, 0.0);
 /// The furthest a zinger goes at the skill level these games are played
 /// at, and the least any goes.
 const MOST: u32 = 850;

@@ -8,12 +8,11 @@ use bb_game::mods::Mod;
 use bb_game::rules::Rules;
 use bb_game::script::Script;
 use bb_game::settings::Ground;
-use common::{full_match, long_match_ruled, next, number, pitch, said, state, written};
+use common::{
+    LEAVE, MISS, full_match, long_match_ruled, next, number, pitch, ready, said, state,
+    timing_bar_and, written,
+};
 
-/// A swing this many steps before the best misses the ball, and one this
-/// many after never comes: the pitch is let go by.
-const MISS: i32 = -6;
-const LEAVE: i32 = 1000;
 /// A click on the little field in the corner of the batting view.
 const LITTLE_FIELD: &str = "click 60 45";
 /// One ball walks the batter, so that there is soon a runner on first, and
@@ -21,24 +20,7 @@ const LITTLE_FIELD: &str = "click 60 45";
 const QUICK: &str = "[count]\nballs = 1\n[steal]\npop = { low = 30, high = 30 }\n";
 
 fn game(steals: bool) -> Option<Script> {
-    let mut mods = vec![Mod::TimingIndicator];
-    if steals {
-        mods.push(Mod::StolenBases);
-    }
-    long_match_ruled(1, &mods, QUICK)
-}
-
-/// Waits for the pitcher to stand ready for the next pitch, and returns how
-/// things stand then.
-fn ready(script: &mut Script) -> String {
-    for _ in 0..600 {
-        let now = state(script);
-        if now.contains("Settling") {
-            return now;
-        }
-        script.run("wait 1").unwrap();
-    }
-    panic!("the next pitch never came: {}", state(script));
+    long_match_ruled(1, &timing_bar_and(Mod::StolenBases, steals), QUICK)
 }
 
 /// Lets pitches go by until a batter has walked to first with nobody else

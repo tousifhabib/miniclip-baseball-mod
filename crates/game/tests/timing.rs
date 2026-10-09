@@ -6,11 +6,7 @@ mod common;
 use bb_game::art::all_named;
 use bb_game::mods::Mod;
 use bb_game::script::Script;
-use common::{game_modded, game_with};
-
-fn state(script: &mut Script) -> String {
-    script.run("state").unwrap().pop().unwrap_or_default()
-}
+use common::{game_modded, game_with, state};
 
 /// The number that follows `before` in a state line.
 fn number(state: &str, before: &str) -> Option<usize> {

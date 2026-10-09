@@ -5,14 +5,7 @@ mod common;
 
 use bb_game::mods::Mod;
 use bb_game::script::Script;
-use common::{game_modded, long_match, next, number, pitch, said, state};
-
-/// The ring on the ball.
-const ON: (f32, f32) = (0.0, 0.0);
-/// A swing this many steps before the best misses the ball, and one this
-/// many after never comes: the pitch is let go by.
-const MISS: i32 = -6;
-const LEAVE: i32 = 1000;
+use common::{LEAVE, MISS, ON, game_modded, long_match, next, number, pitch, said, state};
 
 /// Lets pitches go by until the next to be thrown is the fifth.
 fn to_the_fifth(script: &mut Script) {
