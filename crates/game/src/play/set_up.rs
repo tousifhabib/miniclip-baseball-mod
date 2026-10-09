@@ -415,9 +415,7 @@ impl Match {
         let parts = &coming.parts;
         let signs = sign::Signs::of(&rules.sign);
         let lit = self.lit_sign(&signs)?;
-        let ground = parts.ground(&rules.field);
-        let (sign, field) = (&rules.sign, &rules.field);
-        sign::Board::put(&signs, lit, sign, field, parts, &ground, stage, library)
+        sign::Board::put(&signs, lit, rules, parts, stage, library)
     }
 
     /// The marks the art keeps on the field: whether a runner is on second,
