@@ -21,6 +21,7 @@ bb-format = { path = "../format" }
 clap = { version = "4", features = ["derive"] }
 serde = { workspace = true, features = ["derive"] }
 resvg = "0.48"
+thiserror.workspace = true
 toml = "1"
 
 [lints]

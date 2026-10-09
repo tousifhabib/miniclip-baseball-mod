@@ -71,22 +71,9 @@ impl Script {
     }
 
     /// Does each step in turn, and returns the lines that `state`, `events`
-    /// and `tree` gave. Steps are separated by semicolons:
-    ///
-    /// - `wait N` plays N frames
-    /// - `click X Y` clicks at a stage position
-    /// - `move X Y` moves the pointer
-    /// - `press` and `release` work the pointer's button where it is
-    /// - `type TEXT` types the rest of the step
-    /// - `key NAME` presses `backspace`, `enter`, `tab`, `escape`, `left`,
-    ///   `right`, `up`, `down`, `space`, or a letter or figure
-    /// - `hold NAME` puts such a key down and keeps it there, and
-    ///   `lift NAME` lets it up
-    /// - `state` gives where the game is
-    /// - `events` gives the buttons touched and sounds asked for since it
-    ///   was last used
-    /// - `tree` gives every object on the stage
-    /// - `shot FILE` saves a picture
+    /// and `tree` gave. Steps are separated by semicolons, and [`Step`] says
+    /// what each may be. A step that cannot be read stops the script there,
+    /// with the steps before it done.
     pub fn run(&mut self, steps: &str) -> Result<Vec<String>> {
         let mut lines = Vec::new();
         for step in steps
@@ -94,7 +81,7 @@ impl Script {
             .map(str::trim)
             .filter(|step| !step.is_empty())
         {
-            self.step(step, &mut lines)?;
+            self.take(Step::read(step)?, &mut lines)?;
         }
         Ok(lines)
     }
@@ -104,71 +91,46 @@ impl Script {
         self.eyes.problems()
     }
 
-    fn step(&mut self, step: &str, lines: &mut Vec<String>) -> Result<()> {
+    /// Does one step, adding whatever it gives to `lines`.
+    fn take(&mut self, step: Step, lines: &mut Vec<String>) -> Result<()> {
         let (runner, renderer) = (&mut self.runner, self.eyes.geometry());
-        let words: Vec<&str> = step.split_whitespace().collect();
-        let number = |index: usize| -> Result<f32> {
-            let word = words
-                .get(index)
-                .with_context(|| format!("`{step}` needs more after it"))?;
-            word.parse()
-                .with_context(|| format!("`{word}` in `{step}` is not a number"))
-        };
-        match words[0] {
-            "wait" => {
-                for _ in 0..number(1)? as u32 {
+        match step {
+            Step::Wait(frames) => {
+                for _ in 0..frames {
                     runner.tick(renderer);
                 }
             }
-            "move" => {
-                let (x, y) = (number(1)?, number(2)?);
+            Step::Move(x, y) => {
                 let down = runner.stage.pointer.down;
                 runner.pointer(x, y, down, renderer);
             }
-            "click" => {
-                let (x, y) = (number(1)?, number(2)?);
+            Step::Click(x, y) => {
                 // Arrive, press, let a frame pass, let go: what a hand does.
                 runner.pointer(x, y, false, renderer);
                 runner.pointer(x, y, true, renderer);
                 runner.tick(renderer);
                 runner.pointer(x, y, false, renderer);
             }
-            "press" | "release" => {
+            Step::Press | Step::Release => {
                 let (x, y) = (runner.stage.pointer.x, runner.stage.pointer.y);
-                runner.pointer(x, y, words[0] == "press", renderer);
+                runner.pointer(x, y, step == Step::Press, renderer);
             }
-            "type" => {
-                // Everything after the word, spaces and all.
-                let text = step["type".len()..].trim_start();
+            Step::Type(text) => {
                 for c in text.chars() {
                     runner.key(Key::Char(c));
                 }
             }
-            "key" => {
-                let name = words
-                    .get(1)
-                    .with_context(|| format!("`{step}` needs the name of a key"))?;
-                let Some(key) = Key::named(name) else {
-                    bail!("there is no key called `{name}`");
-                };
+            Step::Key(key) => {
                 runner.key(key);
             }
-            "hold" | "lift" => {
-                let name = words
-                    .get(1)
-                    .with_context(|| format!("`{step}` needs the name of a key"))?;
-                let Some(key) = Key::named(name) else {
-                    bail!("there is no key called `{name}`");
-                };
-                let down = words[0] == "hold";
-                runner.hold(key, down);
+            Step::Hold(key) => {
+                runner.hold(key, true);
                 // A key that goes down is a key pressed, too.
-                if down {
-                    runner.key(key);
-                }
+                runner.key(key);
             }
-            "state" => lines.push(runner.describe()),
-            "events" => {
+            Step::Lift(key) => runner.hold(key, false),
+            Step::State => lines.push(runner.describe()),
+            Step::Events => {
                 // Frames are reported in their hundreds; buttons, keys and
                 // sounds are what a script wants to see.
                 lines.extend(
@@ -179,15 +141,12 @@ impl Script {
                         .map(|note| format!("  {note}")),
                 );
             }
-            "tree" => lines.extend(
+            Step::Tree => lines.extend(
                 describe_tree(&runner.stage.root.children, &runner.library)
                     .lines()
                     .map(str::to_owned),
             ),
-            "shot" => {
-                let file = words
-                    .get(1)
-                    .with_context(|| format!("`{step}` needs a file name"))?;
+            Step::Shot(file) => {
                 let scale = self.scale;
                 let size = runner.library.picture_size(scale);
                 let background = runner.library.background();
@@ -198,11 +157,173 @@ impl Script {
                 renderer.min_stroke = scale.max(1.0);
                 renderer
                     .capture(&runner.library, &commands, size, background)?
-                    .save(file)
+                    .save(&file)
                     .with_context(|| format!("writing {file}"))?;
             }
-            other => bail!("unknown step `{other}`"),
         }
         Ok(())
+    }
+}
+
+/// One step of a script: something done to the game, or asked of it.
+#[derive(Clone, Debug, PartialEq)]
+pub enum Step {
+    /// `wait N` plays N frames.
+    Wait(u32),
+    /// `move X Y` moves the pointer to a stage position.
+    Move(f32, f32),
+    /// `click X Y` clicks at a stage position, which plays one frame.
+    Click(f32, f32),
+    /// `press` puts the pointer's button down where it is.
+    Press,
+    /// `release` lets it up again.
+    Release,
+    /// `type TEXT` types the rest of the step, spaces and all.
+    Type(String),
+    /// `key NAME` presses `backspace`, `enter`, `tab`, `escape`, `left`,
+    /// `right`, `up`, `down`, `space`, or a letter or figure.
+    Key(Key),
+    /// `hold NAME` puts such a key down and keeps it there.
+    Hold(Key),
+    /// `lift NAME` lets it up.
+    Lift(Key),
+    /// `state` gives where the game is.
+    State,
+    /// `events` gives the buttons touched and sounds asked for since it was
+    /// last used.
+    Events,
+    /// `tree` gives every object on the stage.
+    Tree,
+    /// `shot FILE` saves a picture.
+    Shot(String),
+}
+
+/// What is wrong with a step as it was written.
+#[derive(Debug, thiserror::Error)]
+pub enum StepFault {
+    #[error("`{step}` needs more after it")]
+    NeedsMore { step: String },
+    #[error("`{word}` in `{step}` is not a number")]
+    NotANumber {
+        word: String,
+        step: String,
+        source: std::num::ParseFloatError,
+    },
+    #[error("`{step}` needs the name of a key")]
+    NeedsAKey { step: String },
+    #[error("there is no key called `{name}`")]
+    NoSuchKey { name: String },
+    #[error("`{step}` needs a file name")]
+    NeedsAFile { step: String },
+    #[error("unknown step `{word}`")]
+    Unknown { word: String },
+}
+
+impl Step {
+    /// Reads one step as it is written, with no semicolon and nothing
+    /// round it.
+    pub fn read(step: &str) -> Result<Step, StepFault> {
+        let words: Vec<&str> = step.split_whitespace().collect();
+        let number = |index: usize| -> Result<f32, StepFault> {
+            let word = words.get(index).ok_or_else(|| StepFault::NeedsMore {
+                step: step.to_owned(),
+            })?;
+            word.parse().map_err(|source| StepFault::NotANumber {
+                word: (*word).to_owned(),
+                step: step.to_owned(),
+                source,
+            })
+        };
+        let key = || -> Result<Key, StepFault> {
+            let name = words.get(1).ok_or_else(|| StepFault::NeedsAKey {
+                step: step.to_owned(),
+            })?;
+            Key::named(name).ok_or_else(|| StepFault::NoSuchKey {
+                name: (*name).to_owned(),
+            })
+        };
+        Ok(match words.first().copied().unwrap_or_default() {
+            // A number of frames may be written with a point in it, and
+            // only the whole frames are played.
+            "wait" => Step::Wait(number(1)? as u32),
+            "move" => Step::Move(number(1)?, number(2)?),
+            "click" => Step::Click(number(1)?, number(2)?),
+            "press" => Step::Press,
+            "release" => Step::Release,
+            // Everything after the word, spaces and all.
+            "type" => Step::Type(step["type".len()..].trim_start().to_owned()),
+            "key" => Step::Key(key()?),
+            "hold" => Step::Hold(key()?),
+            "lift" => Step::Lift(key()?),
+            "state" => Step::State,
+            "events" => Step::Events,
+            "tree" => Step::Tree,
+            "shot" => {
+                let file = words.get(1).ok_or_else(|| StepFault::NeedsAFile {
+                    step: step.to_owned(),
+                })?;
+                Step::Shot((*file).to_owned())
+            }
+            other => {
+                return Err(StepFault::Unknown {
+                    word: other.to_owned(),
+                });
+            }
+        })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn each_step_is_read_as_what_it_says() {
+        let read = |step| Step::read(step).expect("a step that reads");
+        assert_eq!(read("wait 60"), Step::Wait(60));
+        assert_eq!(read("wait 2.9"), Step::Wait(2));
+        assert_eq!(read("move 10 20.5"), Step::Move(10.0, 20.5));
+        assert_eq!(read("click 545 355"), Step::Click(545.0, 355.0));
+        assert_eq!(read("press"), Step::Press);
+        assert_eq!(read("release"), Step::Release);
+        assert_eq!(read("key enter"), Step::Key(Key::Enter));
+        assert_eq!(read("key a"), Step::Key(Key::Char('a')));
+        assert_eq!(read("hold space"), Step::Hold(Key::Char(' ')));
+        assert_eq!(read("lift space"), Step::Lift(Key::Char(' ')));
+        assert_eq!(read("state"), Step::State);
+        assert_eq!(read("events"), Step::Events);
+        assert_eq!(read("tree"), Step::Tree);
+        assert_eq!(read("shot out.png"), Step::Shot("out.png".to_owned()));
+    }
+
+    #[test]
+    fn what_is_typed_keeps_the_spaces_inside_it() {
+        assert_eq!(
+            Step::read("type Red Sox 9").expect("a step that reads"),
+            Step::Type("Red Sox 9".to_owned())
+        );
+        assert_eq!(
+            Step::read("type").expect("a step that reads"),
+            Step::Type(String::new())
+        );
+    }
+
+    #[test]
+    fn a_step_that_cannot_be_read_says_what_is_wrong_with_it() {
+        let wrong = |step| {
+            let fault = Step::read(step).expect_err("a step that does not read");
+            // As it is shown to whoever ran the script, causes and all.
+            format!("{:#}", anyhow::Error::from(fault))
+        };
+        assert_eq!(wrong("wait"), "`wait` needs more after it");
+        assert_eq!(wrong("move 1"), "`move 1` needs more after it");
+        assert_eq!(
+            wrong("click x 2"),
+            "`x` in `click x 2` is not a number: invalid float literal"
+        );
+        assert_eq!(wrong("key"), "`key` needs the name of a key");
+        assert_eq!(wrong("hold shift"), "there is no key called `shift`");
+        assert_eq!(wrong("shot"), "`shot` needs a file name");
+        assert_eq!(wrong("dance"), "unknown step `dance`");
     }
 }
