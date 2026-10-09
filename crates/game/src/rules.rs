@@ -759,8 +759,115 @@ impl Rules {
     }
 
     fn from_table(table: Table) -> Result<Rules> {
-        Ok(table.try_into()?)
+        all_are_numbers(&table, "")?;
+        let rules: Rules = table.try_into()?;
+        rules.can_be_played_by()?;
+        Ok(rules)
     }
+
+    /// Checks the numbers that the game's sums take for granted: a file
+    /// may set any of them, and one set wrongly would stop the game in the
+    /// middle of a pitch, far from the file that did it.
+    fn can_be_played_by(&self) -> Result<(), RulesFault> {
+        let check = |holds: bool, which: &str, why: &'static str| {
+            if holds {
+                Ok(())
+            } else {
+                Err(RulesFault {
+                    which: which.to_owned(),
+                    why,
+                })
+            }
+        };
+        let levels = [
+            ("pitch.easy.speed", &self.pitch.easy),
+            ("pitch.medium.speed", &self.pitch.medium),
+            ("pitch.hard.speed", &self.pitch.hard),
+        ];
+        for (which, pitch) in levels {
+            check(pitch.speed.low >= 1, which, "has to be at least 1")?;
+            check(
+                pitch.speed.low <= pitch.speed.high,
+                which,
+                "has its low above its high",
+            )?;
+        }
+        let pop = &self.steal.pop;
+        check(
+            pop.low <= pop.high,
+            "steal.pop",
+            "has its low above its high",
+        )?;
+        check(
+            self.throw.approach > 0.0,
+            "throw.approach",
+            "has to be more than nought",
+        )?;
+        check(
+            self.throw.fade > 0.0,
+            "throw.fade",
+            "has to be more than nought",
+        )?;
+        check(
+            self.field.pace > 0.0,
+            "field.pace",
+            "has to be more than nought",
+        )?;
+        check(
+            self.field.wall > 0.0,
+            "field.wall",
+            "has to be more than nought",
+        )?;
+        check(
+            self.shift.most >= 0.0,
+            "shift.most",
+            "cannot be less than nought",
+        )?;
+        check(
+            self.zinger.shape_reach >= 0.0,
+            "zinger.shape_reach",
+            "cannot be less than nought",
+        )
+    }
+}
+
+/// A number of the rules that the game cannot be played by: which it is,
+/// and what is wrong with it.
+#[derive(Debug, thiserror::Error)]
+#[error("`{which}` {why}")]
+pub struct RulesFault {
+    which: String,
+    why: &'static str,
+}
+
+/// Checks that every number in the table is a number: a file can say `nan`
+/// or `inf`, and the game can do no sums with either.
+fn all_are_numbers(table: &Table, inside: &str) -> Result<(), RulesFault> {
+    for (key, value) in table {
+        let which = if inside.is_empty() {
+            key.clone()
+        } else {
+            format!("{inside}.{key}")
+        };
+        let numbers = |value: &Value| match value {
+            Value::Float(number) => number.is_finite(),
+            Value::Array(all) => all
+                .iter()
+                .all(|each| each.as_float().is_none_or(f64::is_finite)),
+            _ => true,
+        };
+        match value {
+            Value::Table(under) => all_are_numbers(under, &which)?,
+            value if !numbers(value) => {
+                return Err(RulesFault {
+                    which,
+                    why: "is not a number the game can do sums with",
+                });
+            }
+            _ => {}
+        }
+    }
+    Ok(())
 }
 
 /// Puts everything in `layer` into `base`. A table is merged with the table
@@ -982,6 +1089,8 @@ mod tests {
 
     /// Some of each, from all over the file: in tables of their own, in
     /// tables within tables, and in the tables that are written on one line.
+    /// None is a number the game holds within bounds, since a layer here
+    /// may give it any value at all.
     const WHOLES: [Whole; 10] = [
         ("match.outs", |rules| &mut rules.game.outs),
         ("match.runs_down.hard", |rules| {
@@ -989,9 +1098,7 @@ mod tests {
         }),
         ("count.strikes", |rules| &mut rules.count.strikes),
         ("full_match.innings", |rules| &mut rules.full_match.innings),
-        ("pitch.hard.speed.low", |rules| {
-            &mut rules.pitch.hard.speed.low
-        }),
+        ("throw.settle", |rules| &mut rules.throw.settle),
         ("hit.watch", |rules| &mut rules.hit.watch),
         ("zinger.runs_down.medium", |rules| {
             &mut rules.zinger.runs_down.medium
@@ -1006,15 +1113,15 @@ mod tests {
         ("pitch.medium.band.top", |rules| {
             &mut rules.pitch.medium.band.top
         }),
-        ("throw.fade", |rules| &mut rules.throw.fade),
+        ("throw.growth", |rules| &mut rules.throw.growth),
         ("hit.pull", |rules| &mut rules.hit.pull),
-        ("field.wall", |rules| &mut rules.field.wall),
+        ("field.catch_height", |rules| &mut rules.field.catch_height),
         ("field.fielder_speed.easy", |rules| {
             &mut rules.field.fielder_speed.easy
         }),
         ("zinger.hang.best", |rules| &mut rules.zinger.hang.best),
         ("zinger.sky.peak", |rules| &mut rules.zinger.sky.peak),
-        ("shift.most", |rules| &mut rules.shift.most),
+        ("shift.follow", |rules| &mut rules.shift.follow),
         ("steal.their_safe", |rules| &mut rules.steal.their_safe),
     ];
 
@@ -1111,5 +1218,37 @@ mod tests {
                 prop_assert_eq!(span.times(1.0), span);
             }
         }
+    }
+
+    #[test]
+    fn a_number_the_game_cannot_be_played_by_is_refused_and_named() {
+        let wrong = |layer: &str| {
+            let error = Rules::layered(&[("a mod", layer)]).expect_err("rules to be refused");
+            format!("{error:#}")
+        };
+        assert_eq!(
+            wrong("[pitch.hard.speed]\nlow = 80\nhigh = 40\n"),
+            "in a mod: `pitch.hard.speed` has its low above its high"
+        );
+        assert_eq!(
+            wrong("[pitch.easy.speed]\nlow = 0\n"),
+            "in a mod: `pitch.easy.speed` has to be at least 1"
+        );
+        assert_eq!(
+            wrong("[field]\nwall = 0.0\n"),
+            "in a mod: `field.wall` has to be more than nought"
+        );
+        assert_eq!(
+            wrong("[shift]\nmost = -0.1\n"),
+            "in a mod: `shift.most` cannot be less than nought"
+        );
+        assert_eq!(
+            wrong("[field]\ngravity = nan\n"),
+            "in a mod: `field.gravity` is not a number the game can do sums with"
+        );
+        assert_eq!(
+            wrong("[moon]\nslow = [1.5, inf]\n"),
+            "in a mod: `moon.slow` is not a number the game can do sums with"
+        );
     }
 }
