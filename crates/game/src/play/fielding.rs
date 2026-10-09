@@ -731,13 +731,13 @@ impl Match {
                         }
                         state.throw_to = self.pick_base(here, parts);
                         state.job =
-                            self.wind_up(state, here, &fielder, parts, game, stage, library);
+                            Match::wind_up(state, here, &fielder, parts, game, stage, library);
                     }
                 }
             }
             Job::PickUp { left } => {
                 state.job = if left == 0 {
-                    self.wind_up(state, here, &fielder, parts, game, stage, library)
+                    Match::wind_up(state, here, &fielder, parts, game, stage, library)
                 } else {
                     Job::PickUp { left: left - 1 }
                 };
@@ -917,12 +917,7 @@ impl Match {
     }
 
     /// Turns the fielder to face the base and starts his throw.
-    #[allow(
-        clippy::too_many_arguments,
-        reason = "it takes each thing it needs on its own, until they are gathered up"
-    )]
     fn wind_up(
-        &self,
         state: &Fielding,
         here: Point,
         fielder: &Path,
@@ -1002,7 +997,7 @@ impl Match {
             let fielder = parts.fielders[state.fielder].clone();
             let here = at(stage, &fielder);
             state.throw_to = self.pick_base(here, parts);
-            state.job = self.wind_up(state, here, &fielder, parts, game, stage, library);
+            state.job = Match::wind_up(state, here, &fielder, parts, game, stage, library);
         } else {
             state.live = false;
             state.job = Job::Rest;
