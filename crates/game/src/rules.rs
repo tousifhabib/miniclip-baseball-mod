@@ -5,6 +5,8 @@
 //! supplies a file of the same shape holding only what it changes, and the
 //! files are laid over one another in order: the last to name a number wins.
 
+use std::sync::LazyLock;
+
 use anyhow::{Context, Result};
 use serde::Deserialize;
 use toml::{Table, Value};
@@ -14,6 +16,12 @@ use crate::settings::Difficulty;
 
 /// The file that holds every number, as built into the program.
 const BUILT_IN: &str = include_str!("../../../data/rules.toml");
+
+/// The built-in rules, read the first time they are wanted and kept. They
+/// are asked for whenever a game or a test is set up, and the file does not
+/// change while the program runs.
+static AS_BUILT_IN: LazyLock<Rules> =
+    LazyLock::new(|| Rules::layered(&[]).expect("the built-in rules are tested to be sound"));
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -730,7 +738,7 @@ impl<T: Copy> BySkill<T> {
 impl Default for Rules {
     /// The rules as built in, with nothing laid over them.
     fn default() -> Rules {
-        Rules::layered(&[]).expect("the built-in rules are tested to be sound")
+        AS_BUILT_IN.clone()
     }
 }
 
