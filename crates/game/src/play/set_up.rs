@@ -97,7 +97,7 @@ impl Match {
         self.widen_for_a_hot_bat(&mut coming, game, stage, library);
         Match::say_the_ball_is_golden(&mut coming, stage, library);
         self.say_it_is_the_clutch(&mut coming, game, stage, library);
-        self.say_what_a_rally_is_worth(&mut coming, game, stage, library);
+        self.say_what_a_rally_is_worth(&mut coming, stage, library);
         let meter = self.put_up_the_meter(&mut coming, game, stage, library);
         self.shift_the_fielders(&mut coming, game, stage, library);
         Match::clear_the_plate(&coming, stage);
@@ -395,32 +395,11 @@ impl Match {
         );
     }
 
-    /// Settles whether a rally counts in this game, and says what runs are
-    /// worth while one is on.
-    fn say_what_a_rally_is_worth(
-        &mut self,
-        coming: &mut Coming,
-        game: &Game,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
-        self.rallying = game.mods.is_on(Mod::Rally) && !self.mode.is_arcade();
-        if !self.rallying || self.rally == 0 {
-            return;
+    /// Says what runs are worth while a rally is on.
+    fn say_what_a_rally_is_worth(&self, coming: &mut Coming, stage: &mut Stage, library: &Library) {
+        if let Some(line) = self.mods.rally_line() {
+            coming.write(&line, stage, library);
         }
-        let rules = &game.rules.rally;
-        let worth = rules.worth(self.rally);
-        coming.notices.put(
-            Says::line(
-                "rally",
-                &format!("RALLY: RUNS X{worth}"),
-                hot_colour(self.rally.min(rules.most), rules.most),
-            )
-            .at(coming.corner.line()),
-            &coming.parts,
-            stage,
-            library,
-        );
     }
 
     /// With bullet time on there is a meter, full when the game starts.

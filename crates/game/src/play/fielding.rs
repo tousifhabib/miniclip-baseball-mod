@@ -201,8 +201,7 @@ impl Match {
         let making_for = self.runners[runner].running_to.take();
         self.runners[runner].place = Place::Out;
         self.outs += 1;
-        // An out ends a rally, whoever it is that is out.
-        self.rally = 0;
+        self.mods.somebody_is_out();
         match (stealing, making_for) {
             // A runner caught stealing is out, and the batter's count is
             // as it was.
@@ -265,8 +264,7 @@ impl Match {
             self.play_section(&umpire, "safe", 49, stage, library);
         }
         if was_batting {
-            // He has reached base, which keeps a rally going.
-            self.rally += 1;
+            self.mods.the_batter_reached_base();
             self.clear_count();
         }
         self.show_numbers(stage);
@@ -1038,7 +1036,7 @@ impl Match {
         let worth = self.run_worth;
         // The batter has reached every base there is.
         if self.batter().is_some() {
-            self.rally += 1;
+            self.mods.the_batter_reached_base();
         }
         for runner in &mut self.runners {
             if matches!(runner.place, Place::AtBat | Place::Base(_)) {

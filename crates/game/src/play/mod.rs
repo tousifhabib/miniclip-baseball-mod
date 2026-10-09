@@ -341,10 +341,6 @@ pub struct Match {
     slow_beat: u32,
     pub(crate) slowed: bool,
     late_press: Option<Point>,
-    /// How many batters in a row have reached base, with nobody put out
-    /// since, and whether the rally mod is on to go by it.
-    pub(crate) rally: u32,
-    rallying: bool,
     /// The pitch in hand is one the clutch mod makes runs count for more
     /// on.
     clutch: bool,
@@ -513,8 +509,6 @@ impl Match {
             slow_beat: 0,
             slowed: false,
             late_press: None,
-            rally: 0,
-            rallying: false,
             clutch: false,
             southpaw: false,
             sign: None,
@@ -554,11 +548,6 @@ impl Match {
     /// a golden ball or is not.
     fn worth_of_a_run(&self, golden: bool, game: &Game) -> u32 {
         let mut worth = self.mods.worth_of_a_run(golden);
-        // A rally makes a run worth one more for each batter in it, and
-        // whatever else multiplies runs multiplies that.
-        if game.mods.is_on(Mod::Rally) {
-            worth *= game.rules.rally.worth(self.rally);
-        }
         if self.in_the_clutch(game) {
             worth *= game.rules.clutch.runs;
         }
@@ -1429,7 +1418,7 @@ impl Match {
                 self.runners[batter].place = Place::Out;
             }
             self.outs += 1;
-            self.rally = 0;
+            self.mods.somebody_is_out();
             self.clear_count();
             self.announce = true;
             self.book_end(End::Strikeout, None);
@@ -1578,7 +1567,7 @@ impl Match {
             let_go: self.slips,
             heat: self.heat,
             hits_in_a_row: self.streak,
-            rally: if self.rallying { self.rally } else { 0 },
+            rally: self.mods.in_a_row(),
             clutch: self.clutch,
             southpaw: self.southpaw,
             bullet_time: self.bullet.map(|left| (left, self.slowed)),

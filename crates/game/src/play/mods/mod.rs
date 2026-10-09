@@ -8,9 +8,11 @@
 //! A mod that is off is not here at all, and so has nothing to say.
 
 mod golden_ball;
+mod rally;
 mod sudden_death;
 
 pub(crate) use golden_ball::GoldenBall;
+use rally::Rally;
 use sudden_death::SuddenDeath;
 
 use crate::look::Rgb;
@@ -29,6 +31,7 @@ pub(crate) struct Line {
 #[derive(Default)]
 pub(crate) struct ModsInPlay {
     golden_ball: Option<GoldenBall>,
+    rally: Option<Rally>,
     sudden_death: Option<SuddenDeath>,
 }
 
@@ -42,6 +45,7 @@ impl ModsInPlay {
         let rules = &game.rules;
         ModsInPlay {
             golden_ball: (on(Mod::GoldenBall) && !arcade).then(|| GoldenBall::new(&rules.golden)),
+            rally: (on(Mod::Rally) && !arcade).then(|| Rally::new(&rules.rally)),
             sudden_death: on(Mod::SuddenDeath).then(|| SuddenDeath::new(&rules.sudden_death)),
         }
     }
@@ -70,6 +74,32 @@ impl ModsInPlay {
             Some(ball) if golden => ball.runs(),
             _ => 1,
         };
-        for_gold * self.sudden_death.as_ref().map_or(1, SuddenDeath::runs)
+        for_gold
+            * self.sudden_death.as_ref().map_or(1, SuddenDeath::runs)
+            * self.rally.as_ref().map_or(1, Rally::worth)
+    }
+
+    /// Somebody has been put out: at the plate, or on the bases.
+    pub fn somebody_is_out(&mut self) {
+        if let Some(rally) = &mut self.rally {
+            rally.broken();
+        }
+    }
+
+    /// The batter has got to a base, or all the way round.
+    pub fn the_batter_reached_base(&mut self) {
+        if let Some(rally) = &mut self.rally {
+            rally.kept_up();
+        }
+    }
+
+    /// What the corner of the view says of a rally, while one is on.
+    pub fn rally_line(&self) -> Option<Line> {
+        self.rally.as_ref().and_then(Rally::line)
+    }
+
+    /// How many batters in a row have reached base, as far as it counts.
+    pub fn in_a_row(&self) -> u32 {
+        self.rally.as_ref().map_or(0, Rally::in_a_row)
     }
 }
