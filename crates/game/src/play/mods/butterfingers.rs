@@ -21,7 +21,7 @@ impl Butterfingers {
     /// `level` is the setting the mod is at, the first being 1.
     pub fn new(rules: &ButterfingersRules, level: u8) -> Butterfingers {
         Butterfingers {
-            chance: rules.chance_at(level),
+            chance: rules.chance.at(level).unwrap_or(0),
             slips: 0,
         }
     }
@@ -49,7 +49,7 @@ mod tests {
     #[test]
     fn at_the_top_setting_every_go_is_let_go_and_each_is_counted() {
         let rules = Rules::default().butterfingers;
-        let mut butter = Butterfingers::new(&rules, rules.levels());
+        let mut butter = Butterfingers::new(&rules, rules.chance.count());
         let mut rng = Rng::new(1);
         assert!((0..50).all(|_| butter.lets_go(&mut rng)));
         assert_eq!(butter.slips(), 50);

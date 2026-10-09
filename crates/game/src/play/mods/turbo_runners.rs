@@ -6,7 +6,7 @@
 //! be sent on at any time the ball is in play, where as the game was he had
 //! to wait for it to come down or be caught.
 
-use crate::rules::{TurboRules, level_of};
+use crate::rules::TurboRules;
 
 pub(crate) struct TurboRunners {
     /// How many times as fast as usual the runners go.
@@ -20,7 +20,7 @@ impl TurboRunners {
     /// `level` is the setting the mod is at, the first being 1.
     pub fn new(rules: &TurboRules, level: u8) -> TurboRunners {
         TurboRunners {
-            speed: level_of(&rules.speed, level).unwrap_or(1.0),
+            speed: rules.speed.at(level).unwrap_or(1.0),
             owed: 0.0,
         }
     }

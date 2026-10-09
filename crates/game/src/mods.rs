@@ -313,10 +313,10 @@ impl Mod {
     /// setting.
     pub fn levels(self, rules: &Rules) -> u8 {
         match self {
-            Mod::Butterfingers => rules.butterfingers.levels(),
-            Mod::PinballPark => rules.pinball.keeps.len() as u8,
-            Mod::MoonBall => rules.moon.slow.len() as u8,
-            Mod::TurboRunners => rules.turbo.speed.len() as u8,
+            Mod::Butterfingers => rules.butterfingers.chance.count(),
+            Mod::PinballPark => rules.pinball.keeps.count(),
+            Mod::MoonBall => rules.moon.slow.count(),
+            Mod::TurboRunners => rules.turbo.speed.count(),
             _ => 0,
         }
     }
@@ -324,19 +324,15 @@ impl Mod {
     /// What the menu says a level of the mod's setting comes to.
     pub fn level_words(self, level: u8, rules: &Rules) -> String {
         match self {
-            Mod::Butterfingers => format!("{}%", rules.butterfingers.chance_at(level)),
+            Mod::Butterfingers => {
+                format!("{}%", rules.butterfingers.chance.at(level).unwrap_or(0))
+            }
             Mod::PinballPark => {
-                let keeps = crate::rules::level_of(&rules.pinball.keeps, level).unwrap_or(0.0);
+                let keeps = rules.pinball.keeps.at(level).unwrap_or(0.0);
                 format!("{:.0}%", keeps * 100.0)
             }
-            Mod::MoonBall => {
-                let slow = crate::rules::level_of(&rules.moon.slow, level).unwrap_or(1.0);
-                format!("{slow}X")
-            }
-            Mod::TurboRunners => {
-                let speed = crate::rules::level_of(&rules.turbo.speed, level).unwrap_or(1.0);
-                format!("{speed}X")
-            }
+            Mod::MoonBall => format!("{}X", rules.moon.slow.at(level).unwrap_or(1.0)),
+            Mod::TurboRunners => format!("{}X", rules.turbo.speed.at(level).unwrap_or(1.0)),
             _ => String::new(),
         }
     }

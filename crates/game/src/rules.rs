@@ -242,7 +242,7 @@ pub struct NightRules {
 pub struct TurboRules {
     /// How many times as fast runners go, for each level the mod can be
     /// set to, the lowest first.
-    pub speed: Vec<f32>,
+    pub speed: Levels<f32>,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
@@ -250,7 +250,7 @@ pub struct TurboRules {
 pub struct MoonRules {
     /// How many times as long the ball takes over its flight, for each
     /// level the mod can be set to, the lowest first.
-    pub slow: Vec<f32>,
+    pub slow: Levels<f32>,
 }
 
 impl MoonRules {
@@ -258,7 +258,7 @@ impl MoonRules {
     /// from 1, given the ones it flies by as the game was: the same flight
     /// in every way but the time it takes.
     pub fn float(&self, level: u8, field: &FieldRules) -> FieldRules {
-        let slow = level_of(&self.slow, level).unwrap_or(1.0).max(0.01);
+        let slow = self.slow.at(level).unwrap_or(1.0).max(0.01);
         FieldRules {
             // It sets off this many times slower, along and up, and what
             // pulls it down and holds it back is as much weaker as keeps it
@@ -279,7 +279,7 @@ impl MoonRules {
 pub struct PinballRules {
     /// The share of its speed the ball keeps when it bounces, for each
     /// level the mod can be set to, the lowest first.
-    pub keeps: Vec<f32>,
+    pub keeps: Levels<f32>,
     /// The most a bounce can send the ball up by.
     pub hop: f32,
     /// How low a ball has to be for a fielder to get hold of it.
@@ -290,7 +290,7 @@ impl PinballRules {
     /// The numbers the ball flies by in a pinball park at this level,
     /// counting from 1, given the ones it flies by as the game was.
     pub fn park(&self, level: u8, field: &FieldRules) -> FieldRules {
-        let keeps = level_of(&self.keeps, level).unwrap_or(field.bounce_run);
+        let keeps = self.keeps.at(level).unwrap_or(field.bounce_run);
         FieldRules {
             bounce_run: keeps,
             bounce_lift: keeps,
@@ -301,12 +301,31 @@ impl PinballRules {
     }
 }
 
-/// What a list with a number for each level of a mod's setting has for
-/// this level, counting from 1. A level there is none of is taken as the
-/// nearest there is.
-pub fn level_of(levels: &[f32], level: u8) -> Option<f32> {
-    let last = levels.len().checked_sub(1)?;
-    levels.get(usize::from(level.max(1) - 1).min(last)).copied()
+/// A number for each level a mod's setting can be put at, the lowest
+/// first. Levels are counted from 1.
+#[derive(Clone, Debug, Default, PartialEq, Deserialize)]
+#[serde(transparent)]
+pub struct Levels<T>(Vec<T>);
+
+impl<T: Copy> Levels<T> {
+    /// How many levels there are.
+    pub fn count(&self) -> u8 {
+        self.0.len().min(usize::from(u8::MAX)) as u8
+    }
+
+    /// The number for this level. A level there is none of is taken as the
+    /// nearest there is, and there is no number only if there are no
+    /// levels at all.
+    pub fn at(&self, level: u8) -> Option<T> {
+        let last = self.0.len().checked_sub(1)?;
+        self.0.get(usize::from(level.max(1) - 1).min(last)).copied()
+    }
+}
+
+impl<T> From<Vec<T>> for Levels<T> {
+    fn from(lowest_first: Vec<T>) -> Levels<T> {
+        Levels(lowest_first)
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
@@ -398,27 +417,12 @@ pub struct KnuckleballRules {
 pub struct ButterfingersRules {
     /// How often a fielder lets the ball go, out of every hundred goes at
     /// it, for each level the mod can be set to, the lowest first.
-    pub chance: Vec<u32>,
+    pub chance: Levels<u32>,
     pub roll: f32,
     pub pop: f32,
     pub fumble_time: u32,
     pub gather_time: u32,
     pub told_time: u32,
-}
-
-impl ButterfingersRules {
-    /// How many levels the mod can be set to.
-    pub fn levels(&self) -> u8 {
-        self.chance.len().min(usize::from(u8::MAX)) as u8
-    }
-
-    /// How often a fielder lets the ball go at this level, counting from
-    /// 1. A level there is none of is taken as the nearest there is.
-    pub fn chance_at(&self, level: u8) -> u32 {
-        let last = self.chance.len().saturating_sub(1);
-        let index = usize::from(level.max(1) - 1).min(last);
-        self.chance.get(index).copied().unwrap_or(0)
-    }
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
@@ -901,18 +905,15 @@ mod tests {
 
     #[test]
     fn butterfingers_has_a_chance_for_each_of_its_levels() {
-        let rules = Rules::default().butterfingers;
-        assert_eq!(rules.levels(), 5);
-        assert_eq!(rules.chance_at(1), 20);
-        assert_eq!(rules.chance_at(5), 100);
+        let chance = Rules::default().butterfingers.chance;
+        assert_eq!(chance.count(), 5);
+        assert_eq!(chance.at(1), Some(20));
+        assert_eq!(chance.at(5), Some(100));
         // A level there is none of is the nearest there is.
-        assert_eq!(rules.chance_at(0), 20);
-        assert_eq!(rules.chance_at(9), 100);
-        let none = ButterfingersRules {
-            chance: Vec::new(),
-            ..rules
-        };
-        assert_eq!((none.levels(), none.chance_at(3)), (0, 0));
+        assert_eq!(chance.at(0), Some(20));
+        assert_eq!(chance.at(9), Some(100));
+        let none = Levels::<u32>::default();
+        assert_eq!((none.count(), none.at(3)), (0, None));
     }
 
     #[test]
@@ -990,8 +991,8 @@ mod tests {
             ..park
         };
         assert_eq!(back, rules.field);
-        assert_eq!(level_of(&[1.0, 2.0], 9), Some(2.0));
-        assert_eq!(level_of(&[], 1), None);
+        assert_eq!(Levels::from(vec![1.0, 2.0]).at(9), Some(2.0));
+        assert_eq!(Levels::<f32>::default().at(1), None);
     }
 
     #[test]
@@ -1196,6 +1197,22 @@ mod tests {
     }
 
     proptest! {
+        #[test]
+        fn a_level_there_is_none_of_is_taken_as_the_nearest_there_is(
+            numbers in proptest::collection::vec(0u32..1000, 0..12),
+            level in any::<u8>(),
+        ) {
+            let levels = Levels::from(numbers.clone());
+            prop_assert_eq!(usize::from(levels.count()), numbers.len());
+            let Some(last) = numbers.len().checked_sub(1) else {
+                prop_assert_eq!(levels.at(level), None);
+                return Ok(());
+            };
+            // Levels are counted from 1, so the first is at place 0.
+            let place = usize::from(level).saturating_sub(1).min(last);
+            prop_assert_eq!(levels.at(level), Some(numbers[place]));
+        }
+
         #[test]
         fn a_span_many_times_over_keeps_its_ends_in_order_and_neither_is_less_than_one(
             low in 0u32..=10_000,
