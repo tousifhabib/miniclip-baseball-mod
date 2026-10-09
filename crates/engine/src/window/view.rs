@@ -8,7 +8,6 @@ use winit::dpi::LogicalSize;
 use winit::event_loop::ActiveEventLoop;
 use winit::window::Window;
 
-use super::App;
 use crate::gpu::{Renderer, open_device};
 
 /// An open window, and everything that draws to it.
@@ -21,11 +20,16 @@ pub(super) struct View {
     pub egui_renderer: egui_wgpu::Renderer,
 }
 
-impl App {
-    pub(super) fn open(&self, event_loop: &ActiveEventLoop) -> Result<View> {
-        let stage = &self.runner.library.manifest.stage;
+impl View {
+    /// Opens a window the size of `stage` with this title, and makes ready
+    /// to draw in it.
+    pub(super) fn open(
+        event_loop: &ActiveEventLoop,
+        title: &str,
+        stage: &bb_format::Stage,
+    ) -> Result<View> {
         let attributes = Window::default_attributes()
-            .with_title(&self.options.title)
+            .with_title(title)
             .with_inner_size(LogicalSize::new(stage.width, stage.height));
         let window = Arc::new(
             event_loop
