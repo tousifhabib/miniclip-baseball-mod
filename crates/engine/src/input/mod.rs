@@ -57,6 +57,25 @@ impl Key {
             }
         })
     }
+
+    /// The name a script writes this key by, the other way about from
+    /// [`Key::named`].
+    pub fn name(self) -> String {
+        let name = match self {
+            Key::Backspace => "backspace",
+            Key::Enter => "enter",
+            Key::Tab => "tab",
+            Key::Escape => "escape",
+            Key::Left => "left",
+            Key::Right => "right",
+            Key::Up => "up",
+            Key::Down => "down",
+            Key::Char(' ') => "space",
+            // A letter or a figure is its own name.
+            Key::Char(letter) => return letter.to_string(),
+        };
+        name.to_owned()
+    }
 }
 
 #[cfg(test)]
@@ -82,6 +101,7 @@ mod tests {
         ];
         for (name, key) in names {
             assert_eq!(Key::named(name), Some(key), "{name}");
+            assert_eq!(key.name(), name);
         }
         // Neither a name nor a single letter.
         assert_eq!(Key::named("shift"), None);

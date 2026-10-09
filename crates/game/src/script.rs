@@ -219,6 +219,30 @@ pub enum StepFault {
     Unknown { word: String },
 }
 
+impl std::fmt::Display for Step {
+    /// Writes the step as a script has it. Read back, that is the same
+    /// step, so long as it is one that can be written: a `shot` has to
+    /// have a file with a name and no spaces in it, and what is typed
+    /// cannot start with one.
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Step::Wait(frames) => write!(f, "wait {frames}"),
+            Step::Move(x, y) => write!(f, "move {x} {y}"),
+            Step::Click(x, y) => write!(f, "click {x} {y}"),
+            Step::Press => write!(f, "press"),
+            Step::Release => write!(f, "release"),
+            Step::Type(text) => write!(f, "type {text}"),
+            Step::Key(key) => write!(f, "key {}", key.name()),
+            Step::Hold(key) => write!(f, "hold {}", key.name()),
+            Step::Lift(key) => write!(f, "lift {}", key.name()),
+            Step::State => write!(f, "state"),
+            Step::Events => write!(f, "events"),
+            Step::Tree => write!(f, "tree"),
+            Step::Shot(file) => write!(f, "shot {file}"),
+        }
+    }
+}
+
 impl Step {
     /// Reads one step as it is written, with no semicolon and nothing
     /// round it.
@@ -275,7 +299,57 @@ impl Step {
 
 #[cfg(test)]
 mod tests {
+    use proptest::prelude::*;
+
     use super::*;
+
+    /// Any key a script can name: one with a name of its own, or a letter,
+    /// a figure or a mark that is not a space.
+    fn any_key() -> impl Strategy<Value = Key> {
+        prop_oneof![
+            Just(Key::Backspace),
+            Just(Key::Enter),
+            Just(Key::Tab),
+            Just(Key::Escape),
+            Just(Key::Left),
+            Just(Key::Right),
+            Just(Key::Up),
+            Just(Key::Down),
+            Just(Key::Char(' ')),
+            "[!-~]".prop_map(|letter| Key::Char(letter.chars().next().unwrap_or('a'))),
+        ]
+    }
+
+    /// Any step a script can write.
+    fn any_step() -> impl Strategy<Value = Step> {
+        let place = || (-2000.0f32..2000.0, -2000.0f32..2000.0);
+        prop_oneof![
+            // Frames are read as a number with a point in it, which holds
+            // every whole number up to this exactly.
+            (0u32..=16_000_000).prop_map(Step::Wait),
+            place().prop_map(|(x, y)| Step::Move(x, y)),
+            place().prop_map(|(x, y)| Step::Click(x, y)),
+            Just(Step::Press),
+            Just(Step::Release),
+            "([!-~][ -~]{0,20})?".prop_map(Step::Type),
+            any_key().prop_map(Step::Key),
+            any_key().prop_map(Step::Hold),
+            any_key().prop_map(Step::Lift),
+            Just(Step::State),
+            Just(Step::Events),
+            Just(Step::Tree),
+            "[!-~]{1,20}".prop_map(Step::Shot),
+        ]
+    }
+
+    proptest! {
+        #[test]
+        fn a_step_written_out_reads_back_as_the_same_step(step in any_step()) {
+            let written = step.to_string();
+            let read = Step::read(&written);
+            prop_assert_eq!(read.ok(), Some(step), "from `{}`", written);
+        }
+    }
 
     #[test]
     fn each_step_is_read_as_what_it_says() {
