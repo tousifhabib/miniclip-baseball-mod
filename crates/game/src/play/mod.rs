@@ -13,6 +13,7 @@ pub mod field;
 mod fielding;
 pub mod full;
 mod mode;
+mod mods;
 pub mod night;
 pub(crate) mod overlay;
 pub mod paper;
@@ -42,6 +43,7 @@ use crate::rules::{FieldRules, HitRules, PitchRules};
 use book::{End, ORDER, Thrown};
 use field::{Ball, Contact, Ground, Happened, reach};
 use mode::Mode;
+use mods::ModsInPlay;
 use overlay::{Notices, Says};
 use pitch::{Kind, Mound, Pitch, Point, Quality};
 use snapshot::{ArmSeen, ModsSeen, PitchSeen, Score, Snapshot, Standing};
@@ -298,6 +300,8 @@ pub struct Match {
     put_away: Vec<(Path, u32)>,
     /// Which kind of game this is, with what only that kind keeps.
     pub(crate) mode: Mode,
+    /// The mods that are on for this game, and what each of them keeps.
+    pub(crate) mods: ModsInPlay,
     /// How many batters have come to the plate, and the skins of those in
     /// a full match's batting order, as far as they have been seen.
     came_up: usize,
@@ -496,6 +500,7 @@ impl Match {
             cues: Vec::new(),
             put_away: Vec::new(),
             mode: Mode::LastInnings,
+            mods: ModsInPlay::for_game(game),
             came_up: 0,
             line_up: Vec::new(),
             tally: Vec::new(),
@@ -546,20 +551,14 @@ impl Match {
     /// How many strikes put a batter out: three, unless a mod says
     /// otherwise.
     pub(crate) fn strikes_allowed(&self, game: &Game) -> u32 {
-        if game.mods.is_on(Mod::SuddenDeath) {
-            game.rules.sudden_death.strikes
-        } else {
-            game.rules.count.strikes
-        }
+        self.mods.strikes_allowed(game.rules.count.strikes)
     }
 
     /// How many a run counts for on the pitch about to be thrown, which is
     /// a golden ball or is not.
     fn worth_of_a_run(&self, golden: bool, game: &Game) -> u32 {
         let mut worth = if golden { game.rules.golden.runs } else { 1 };
-        if game.mods.is_on(Mod::SuddenDeath) {
-            worth *= game.rules.sudden_death.runs;
-        }
+        worth *= self.mods.worth_of_a_run();
         // A rally makes a run worth one more for each batter in it, and
         // whatever else multiplies runs multiplies that.
         if game.mods.is_on(Mod::Rally) {
