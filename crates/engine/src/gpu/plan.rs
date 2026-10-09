@@ -9,7 +9,7 @@ use crate::display::{Bounds, Command};
 use crate::library::Library;
 use crate::math::{ColorTransform, Matrix};
 use crate::meshes::MeshKey;
-use crate::tess::{Paint, Spread};
+use crate::tess::{Mesh, Paint, Spread};
 
 /// Layer sizes are rounded up to a multiple of this, so that an object which
 /// changes size a little from frame to frame can reuse its textures.
@@ -69,6 +69,175 @@ impl Masking {
         mode: Mode::Content,
         stencil: 0,
     };
+
+    /// The draws that follow are the outline of a new mask.
+    fn push(&mut self) {
+        self.mode = Mode::MaskWrite;
+        self.stencil = self.depth;
+        self.depth += 1;
+    }
+
+    /// The outline is done: from here on, only what is inside it is drawn.
+    fn activate(&mut self) {
+        self.mode = Mode::Content;
+        self.stencil = self.depth;
+    }
+
+    /// The draws that follow repeat the innermost mask's outline, to take
+    /// it away.
+    fn deactivate(&mut self) {
+        self.mode = Mode::MaskClear;
+        self.stencil = self.depth;
+    }
+
+    /// The innermost mask has gone.
+    fn pop(&mut self) {
+        self.depth = self.depth.saturating_sub(1);
+        self.mode = Mode::Content;
+        self.stencil = self.depth;
+    }
+}
+
+/// What a frame comes to once its commands are sorted out.
+pub(super) struct Plan {
+    /// The pictures to draw. The first is the frame itself, and each of the
+    /// others is drawn into one that comes before it.
+    pub layers: Vec<Layer>,
+    /// What each draw and each blur is told, a slot to each.
+    pub items: Vec<u8>,
+    /// The layers being drawn into, outermost first, each with the mask
+    /// state to go back to when it ends.
+    open: Vec<(usize, Masking)>,
+    /// The layer that draws go into now.
+    current: usize,
+    masking: Masking,
+}
+
+impl Plan {
+    /// A plan for a frame of `size` pixels with nothing drawn in it yet.
+    fn new(size: (u32, u32)) -> Plan {
+        Plan {
+            layers: vec![Layer {
+                steps: Vec::new(),
+                origin: (0, 0),
+                size,
+                blurs: Vec::new(),
+                target: None,
+            }],
+            items: Vec::new(),
+            open: Vec::new(),
+            current: 0,
+            masking: Masking::NONE,
+        }
+    }
+
+    /// Adds what one draw or blur is told, and returns its slot.
+    fn push_item(&mut self, item: Item) -> usize {
+        let slot = self.items.len() / SLOT;
+        self.items.extend_from_slice(bytemuck::bytes_of(&item));
+        self.items.resize((slot + 1) * SLOT, 0);
+        slot
+    }
+
+    /// Adds a draw to the layer being drawn into, under the masks in force.
+    fn push_step(&mut self, key: MeshKey, draw: usize, item: usize, texture: Texture) {
+        self.layers[self.current].steps.push(Step {
+            mode: self.masking.mode,
+            stencil: self.masking.stencil,
+            key,
+            draw,
+            item,
+            texture,
+        });
+    }
+
+    /// Whether the layer being drawn into is out of view altogether, so
+    /// that nothing drawn into it could be seen.
+    fn out_of_view(&self) -> bool {
+        self.layers[self.current].size == (0, 0)
+    }
+
+    /// Starts a layer for an object that covers `bounds` and is to be
+    /// blurred. Draws go into it until it ends.
+    fn begin_blur(&mut self, blur_x: f32, blur_y: f32, passes: u8, bounds: Bounds) {
+        let (blur_x, blur_y) = (blur_x.min(MAX_BLUR), blur_y.min(MAX_BLUR));
+        // Each pass spreads the picture by half the box's width.
+        let reach = (blur_x.max(blur_y) / 2.0 * f32::from(passes)).ceil() + 1.0;
+        let parent = &self.layers[self.current];
+        let area = layer_area(bounds, reach, parent.origin, parent.size);
+        let (origin, size) = area.unwrap_or(((0, 0), (0, 0)));
+        let blurs = match area {
+            Some(_) => self.push_blurs(blur_x, blur_y, passes, size),
+            None => Vec::new(),
+        };
+        self.open.push((self.current, self.masking));
+        self.current = self.layers.len();
+        self.masking = Masking::NONE;
+        self.layers.push(Layer {
+            steps: Vec::new(),
+            origin,
+            size,
+            blurs,
+            target: None,
+        });
+    }
+
+    /// Adds what each blur of a layer of `size` pixels is told: for every
+    /// pass one across and one down, leaving out a direction whose box is
+    /// too narrow to do anything. Returns their slots, in the order they
+    /// are to be run.
+    fn push_blurs(&mut self, blur_x: f32, blur_y: f32, passes: u8, size: (u32, u32)) -> Vec<usize> {
+        let mut blurs = Vec::new();
+        for _ in 0..passes {
+            for (width, step) in [
+                (blur_x, [1.0 / size.0 as f32, 0.0]),
+                (blur_y, [0.0, 1.0 / size.1 as f32]),
+            ] {
+                if width > 1.0 {
+                    blurs.push(self.push_item(Item {
+                        paint_abcd: [step[0], step[1], 0.0, 0.0],
+                        paint_t: [width, 0.0, 0.0, 0.0],
+                        ..Item::zeroed()
+                    }));
+                }
+            }
+        }
+        blurs
+    }
+
+    /// Ends the layer being drawn into and goes back to the one it belongs
+    /// to, under the masks that were in force there. Returns the layer that
+    /// has ended, if there is anything of it to draw.
+    fn end_blur(&mut self) -> Option<usize> {
+        let (parent, parent_masking) = self.open.pop()?;
+        let finished = self.current;
+        (self.current, self.masking) = (parent, parent_masking);
+        (self.layers[finished].size != (0, 0)).then_some(finished)
+    }
+
+    /// Draws a finished layer into the one it belongs to: the unit square,
+    /// stretched over the layer's place.
+    fn draw_layer(&mut self, finished: usize) {
+        let layer = &self.layers[finished];
+        let item = self.push_item(Item {
+            world_abcd: [layer.size.0 as f32, 0.0, 0.0, layer.size.1 as f32],
+            world_t: [layer.origin.0 as f32, layer.origin.1 as f32, 0.0, 0.0],
+            paint_abcd: [1.0, 0.0, 0.0, 1.0],
+            kind: [4, 0, 0, 0],
+            ..Item::zeroed()
+        });
+        self.push_step(MeshKey::Quad, 0, item, Texture::Layer(finished));
+    }
+
+    /// Draws a mesh at `matrix`, tinted by `color`: a step for each run of
+    /// its triangles.
+    fn draw_mesh(&mut self, key: MeshKey, mesh: &Mesh, matrix: Matrix, color: ColorTransform) {
+        for (index, draw) in mesh.draws.iter().enumerate() {
+            let (data, texture) = item_for(&draw.paint, matrix, color);
+            let item = self.push_item(data);
+            self.push_step(key, index, item, texture);
+        }
+    }
 }
 
 impl Renderer {
@@ -79,114 +248,25 @@ impl Renderer {
         library: &Library,
         commands: &[Command],
         size: (u32, u32),
-    ) -> (Vec<Layer>, Vec<u8>) {
-        let mut items: Vec<u8> = Vec::new();
-        let mut push_item = |item: Item| {
-            let slot = items.len() / SLOT;
-            items.extend_from_slice(bytemuck::bytes_of(&item));
-            items.resize((slot + 1) * SLOT, 0);
-            slot
-        };
-        let mut layers = vec![Layer {
-            steps: Vec::new(),
-            origin: (0, 0),
-            size,
-            blurs: Vec::new(),
-            target: None,
-        }];
-        // The layers being drawn into, outermost first, each with the mask
-        // state to go back to when it ends.
-        let mut open: Vec<(usize, Masking)> = Vec::new();
-        let mut current = 0;
-        let mut masking = Masking::NONE;
-
+    ) -> Plan {
+        let mut plan = Plan::new(size);
         for command in commands {
             match command {
-                Command::PushMask => {
-                    masking.mode = Mode::MaskWrite;
-                    masking.stencil = masking.depth;
-                    masking.depth += 1;
-                }
-                Command::ActivateMask => {
-                    masking.mode = Mode::Content;
-                    masking.stencil = masking.depth;
-                }
-                Command::DeactivateMask => {
-                    masking.mode = Mode::MaskClear;
-                    masking.stencil = masking.depth;
-                }
-                Command::PopMask => {
-                    masking.depth = masking.depth.saturating_sub(1);
-                    masking.mode = Mode::Content;
-                    masking.stencil = masking.depth;
-                }
+                Command::PushMask => plan.masking.push(),
+                Command::ActivateMask => plan.masking.activate(),
+                Command::DeactivateMask => plan.masking.deactivate(),
+                Command::PopMask => plan.masking.pop(),
                 Command::BeginBlur {
                     blur_x,
                     blur_y,
                     passes,
                     bounds,
-                } => {
-                    let (blur_x, blur_y) = (blur_x.min(MAX_BLUR), blur_y.min(MAX_BLUR));
-                    // Each pass spreads the picture by half the box's width.
-                    let reach = (blur_x.max(blur_y) / 2.0 * f32::from(*passes)).ceil() + 1.0;
-                    let parent = &layers[current];
-                    let area = layer_area(*bounds, reach, parent.origin, parent.size);
-                    let (origin, size) = area.unwrap_or(((0, 0), (0, 0)));
-                    let mut blurs = Vec::new();
-                    if area.is_some() {
-                        for _ in 0..*passes {
-                            for (width, step) in [
-                                (blur_x, [1.0 / size.0 as f32, 0.0]),
-                                (blur_y, [0.0, 1.0 / size.1 as f32]),
-                            ] {
-                                if width > 1.0 {
-                                    blurs.push(push_item(Item {
-                                        paint_abcd: [step[0], step[1], 0.0, 0.0],
-                                        paint_t: [width, 0.0, 0.0, 0.0],
-                                        ..Item::zeroed()
-                                    }));
-                                }
-                            }
-                        }
-                    }
-                    open.push((current, masking));
-                    current = layers.len();
-                    masking = Masking::NONE;
-                    layers.push(Layer {
-                        steps: Vec::new(),
-                        origin,
-                        size,
-                        blurs,
-                        target: None,
-                    });
-                }
+                } => plan.begin_blur(*blur_x, *blur_y, *passes, *bounds),
                 Command::EndBlur => {
-                    let Some((parent, parent_masking)) = open.pop() else {
-                        continue;
-                    };
-                    let finished = current;
-                    (current, masking) = (parent, parent_masking);
-                    let layer = &layers[finished];
-                    if layer.size == (0, 0) {
-                        continue;
+                    if let Some(finished) = plan.end_blur() {
+                        self.ensure_mesh(library, MeshKey::Quad, None);
+                        plan.draw_layer(finished);
                     }
-                    self.ensure_mesh(library, MeshKey::Quad, None);
-                    // The unit square, stretched over the layer's place.
-                    let item = push_item(Item {
-                        world_abcd: [layer.size.0 as f32, 0.0, 0.0, layer.size.1 as f32],
-                        world_t: [layer.origin.0 as f32, layer.origin.1 as f32, 0.0, 0.0],
-                        paint_abcd: [1.0, 0.0, 0.0, 1.0],
-                        kind: [4, 0, 0, 0],
-                        ..Item::zeroed()
-                    });
-                    layers[current].steps.push(Step {
-                        mode: masking.mode,
-                        stencil: masking.stencil,
-                        key: MeshKey::Quad,
-                        draw: 0,
-                        item,
-                        texture: Texture::Layer(finished),
-                    });
                 }
                 Command::Draw {
                     symbol,
@@ -195,31 +275,21 @@ impl Renderer {
                     color,
                     text,
                 } => {
-                    if layers[current].size == (0, 0) {
+                    if plan.out_of_view() {
                         continue;
                     }
-                    let Some(key) = MeshKey::of(library, *symbol, *ratio, text.as_deref()) else {
+                    let text = text.as_deref();
+                    let Some(key) = MeshKey::of(library, *symbol, *ratio, text) else {
                         continue;
                     };
-                    let Some(mesh) = self.ensure_mesh(library, key, text.as_deref()) else {
+                    let Some(mesh) = self.ensure_mesh(library, key, text) else {
                         continue;
                     };
-                    for (index, draw) in mesh.draws.iter().enumerate() {
-                        let (data, texture) = item_for(&draw.paint, *matrix, *color);
-                        let item = push_item(data);
-                        layers[current].steps.push(Step {
-                            mode: masking.mode,
-                            stencil: masking.stencil,
-                            key,
-                            draw: index,
-                            item,
-                            texture,
-                        });
-                    }
+                    plan.draw_mesh(key, mesh, *matrix, *color);
                 }
             }
         }
-        (layers, items)
+        plan
     }
 }
 
@@ -294,6 +364,87 @@ fn item_for(paint: &Paint, world: Matrix, color: ColorTransform) -> (Item, Textu
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// How draws treat the masks just now: the mode, by its number, and the
+    /// stencil value a draw is to match.
+    fn masks(plan: &Plan) -> (u32, u32) {
+        (plan.masking.mode as u32, plan.masking.stencil)
+    }
+
+    #[test]
+    fn masks_count_up_as_one_is_set_inside_another_and_down_as_each_ends() {
+        let (content, write, clear) = (0, 1, 2);
+        let mut plan = Plan::new((590, 400));
+        assert_eq!(masks(&plan), (content, 0));
+        // The outline is drawn where there is no mask yet, and what it
+        // covers is drawn where there is now one.
+        plan.masking.push();
+        assert_eq!(masks(&plan), (write, 0));
+        plan.masking.activate();
+        assert_eq!(masks(&plan), (content, 1));
+        // A second inside the first.
+        plan.masking.push();
+        assert_eq!(masks(&plan), (write, 1));
+        plan.masking.activate();
+        assert_eq!(masks(&plan), (content, 2));
+        // Each is taken away from where it was put, innermost first.
+        plan.masking.deactivate();
+        assert_eq!(masks(&plan), (clear, 2));
+        plan.masking.pop();
+        assert_eq!(masks(&plan), (content, 1));
+        plan.masking.deactivate();
+        assert_eq!(masks(&plan), (clear, 1));
+        plan.masking.pop();
+        assert_eq!(masks(&plan), (content, 0));
+        // One end too many changes nothing.
+        plan.masking.pop();
+        assert_eq!(masks(&plan), (content, 0));
+    }
+
+    #[test]
+    fn a_blurred_object_gets_a_layer_of_its_own_where_masks_start_afresh() {
+        let mut plan = Plan::new((590, 400));
+        plan.masking.push();
+        plan.masking.activate();
+        // Twice over, with a box 4 wide across and 1 down.
+        plan.begin_blur(4.0, 1.0, 2, [100.0, 100.0, 150.0, 140.0]);
+        assert_eq!((plan.layers.len(), plan.current), (2, 1));
+        // The picture spreads by 4 in all, and there is one more to spare.
+        let layer = &plan.layers[1];
+        assert_eq!((layer.origin, layer.size), ((95, 95), (64, 64)));
+        // A box one pixel wide does nothing, so each time over is a blur
+        // across and none down: a step of one pixel of the 64.
+        assert_eq!(layer.blurs, [0, 1]);
+        let told: Item = bytemuck::pod_read_unaligned(&plan.items[..size_of::<Item>()]);
+        assert_eq!(told.paint_abcd, [1.0 / 64.0, 0.0, 0.0, 0.0]);
+        assert_eq!(told.paint_t, [4.0, 0.0, 0.0, 0.0]);
+        assert_eq!(masks(&plan), (0, 0));
+
+        // When it ends, draws go where they went before, under the mask
+        // that was in force there.
+        assert_eq!(plan.end_blur(), Some(1));
+        assert_eq!(plan.current, 0);
+        assert_eq!(masks(&plan), (0, 1));
+        plan.draw_layer(1);
+        let step = &plan.layers[0].steps[0];
+        assert!(step.texture == Texture::Layer(1));
+        assert_eq!((step.item, step.stencil), (2, 1));
+        // An end with nothing begun is passed over.
+        assert_eq!(plan.end_blur(), None);
+    }
+
+    #[test]
+    fn nothing_is_drawn_of_a_blurred_object_that_is_out_of_view() {
+        let mut plan = Plan::new((590, 400));
+        assert!(!plan.out_of_view());
+        plan.begin_blur(4.0, 4.0, 1, [700.0, 10.0, 800.0, 40.0]);
+        assert!(plan.out_of_view());
+        assert!(plan.layers[1].blurs.is_empty());
+        assert!(plan.items.is_empty());
+        // There is nothing of it to draw into the frame, either.
+        assert_eq!(plan.end_blur(), None);
+        assert!(!plan.out_of_view());
+    }
 
     #[test]
     fn a_layer_covers_its_object_and_the_reach_of_the_blur() {

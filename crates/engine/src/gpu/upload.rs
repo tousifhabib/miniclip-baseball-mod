@@ -5,9 +5,9 @@
 use wgpu::util::DeviceExt;
 
 use super::pipelines::{Globals, Item};
-use super::plan::{Layer, Texture};
-use super::targets::{Targets, attachment, flat_texture};
-use super::{Renderer, SAMPLES, SLOT, STENCIL_FORMAT};
+use super::plan::{Layer, Plan, Texture};
+use super::targets::flat_texture;
+use super::{Renderer, SLOT};
 use crate::library::Library;
 use crate::meshes::MeshKey;
 use crate::tess::Mesh;
@@ -54,11 +54,23 @@ impl Renderer {
 
     /// Sends this frame's uniforms, and any new ramps and images, to the GPU,
     /// and gives every layer textures to draw to.
-    pub(super) fn upload(&mut self, layers: &mut [Layer], items: &[u8], size: (u32, u32)) {
+    pub(super) fn upload(&mut self, plan: &mut Plan, size: (u32, u32)) {
+        self.send_globals(&plan.layers);
+        self.send_items(&plan.items);
+        self.send_new_ramps();
+        self.send_new_images();
+        self.bind_new_images();
+        self.size_frame_targets(size);
+        self.give_layers_targets(&mut plan.layers);
+    }
+
+    /// Sends what each layer is told: how its pixels map onto the texture
+    /// it is drawn to, and the least width of a stroke.
+    fn send_globals(&mut self, layers: &[Layer]) {
         if layers.len() > self.globals_capacity {
             self.globals_capacity = layers.len().next_power_of_two();
             (self.globals, self.globals_bind) =
-                slot_buffer::<Globals>(&self.device, &self.globals_layout, self.globals_capacity);
+                slot_buffer::<Globals>(&self.device, &self.layouts.globals, self.globals_capacity);
         }
         let mut globals = vec![0u8; layers.len() * SLOT];
         for (index, layer) in layers.iter().enumerate() {
@@ -77,24 +89,31 @@ impl Renderer {
             globals[at..at + size_of::<Globals>()].copy_from_slice(bytemuck::bytes_of(&data));
         }
         self.queue.write_buffer(&self.globals, 0, &globals);
+    }
 
+    /// Sends what each draw and each blur is told.
+    fn send_items(&mut self, items: &[u8]) {
         let needed = items.len() / SLOT;
         if needed > self.items_capacity {
             self.items_capacity = needed.next_power_of_two();
             (self.items, self.items_bind) =
-                slot_buffer::<Item>(&self.device, &self.item_layout, self.items_capacity);
+                slot_buffer::<Item>(&self.device, &self.layouts.item, self.items_capacity);
         }
         if !items.is_empty() {
             self.queue.write_buffer(&self.items, 0, items);
         }
+    }
 
+    /// Sends the gradients' ramps that the card does not have yet, in a
+    /// bigger texture if they have outgrown the one there was.
+    fn send_new_ramps(&mut self) {
         let ramps = self.meshes.ramps();
         if ramps.len() > self.ramps_capacity {
             self.ramps_capacity = ramps.len().next_power_of_two();
             (self.ramps_texture, self.ramps_bind) = ramp_texture(
                 &self.device,
-                &self.texture_layout,
-                &self.ramp_sampler,
+                &self.layouts.texture,
+                &self.samplers.ramp,
                 self.ramps_capacity,
             );
             self.ramps_uploaded = 0;
@@ -126,7 +145,11 @@ impl Renderer {
             );
             self.ramps_uploaded = ramps.len();
         }
+    }
 
+    /// Sends the images that the card does not have yet, each with its
+    /// colours multiplied by how solid they are.
+    fn send_new_images(&mut self) {
         for image in &self.meshes.images()[self.image_views.len()..] {
             let mut pixels = image.rgba.clone();
             for pixel in pixels.as_chunks_mut::<4>().0 {
@@ -150,52 +173,24 @@ impl Renderer {
             self.image_views
                 .push(texture.create_view(&wgpu::TextureViewDescriptor::default()));
         }
+    }
+
+    /// Makes each image ready to be read both ways, with its pixels left
+    /// square and smoothed, where that has not been done.
+    fn bind_new_images(&mut self) {
         for (slot, view) in self.image_views.iter().enumerate() {
             for smooth in [false, true] {
                 let key = Texture::Image { slot, smooth };
                 if !self.image_binds.contains_key(&key) {
                     let sampler = if smooth {
-                        &self.smooth_sampler
+                        &self.samplers.smooth
                     } else {
-                        &self.crisp_sampler
+                        &self.samplers.crisp
                     };
-                    let bind = texture_bind(&self.device, &self.texture_layout, view, sampler);
+                    let bind = texture_bind(&self.device, &self.layouts.texture, view, sampler);
                     self.image_binds.insert(key, bind);
                 }
             }
-        }
-
-        if self
-            .targets
-            .as_ref()
-            .is_none_or(|targets| targets.size != size)
-        {
-            self.targets = Some(Targets {
-                size,
-                color: attachment(&self.device, size, self.format, SAMPLES),
-                stencil: attachment(&self.device, size, STENCIL_FORMAT, SAMPLES),
-            });
-        }
-
-        // Give each layer a set of textures of its size that no other layer
-        // has taken this frame.
-        for layer in layers.iter_mut().skip(1) {
-            if layer.size == (0, 0) {
-                continue;
-            }
-            let free = self
-                .layer_targets
-                .iter()
-                .position(|target| target.size == layer.size && target.last_used != self.frame);
-            let slot = match free {
-                Some(slot) => slot,
-                None => {
-                    self.layer_targets.push(self.new_layer_target(layer.size));
-                    self.layer_targets.len() - 1
-                }
-            };
-            self.layer_targets[slot].last_used = self.frame;
-            layer.target = Some(slot);
         }
     }
 }

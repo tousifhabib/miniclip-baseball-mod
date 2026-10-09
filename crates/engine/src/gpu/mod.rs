@@ -30,10 +30,9 @@ use crate::display::Command;
 use crate::input::Geometry;
 use crate::library::Library;
 use crate::meshes::{MeshKey, Meshes};
-use crate::tess::Vertex;
-use pipelines::{Globals, Item, Mode, SHADER};
+use pipelines::{Globals, Item, Layouts, Pipelines, Samplers};
 use plan::{Layer, Step, Texture};
-use targets::{LAYER_LIFETIME, LayerTarget, Targets};
+use targets::{LayerTarget, Targets};
 use upload::{Buffers, ramp_texture, slot_buffer};
 
 pub(crate) use device::open_device;
@@ -58,20 +57,17 @@ pub struct Renderer {
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     format: wgpu::TextureFormat,
-    pipelines: [wgpu::RenderPipeline; 3],
-    blur_pipeline: wgpu::RenderPipeline,
-    globals_layout: wgpu::BindGroupLayout,
+    pipelines: Pipelines,
+    layouts: Layouts,
+    samplers: Samplers,
+    /// What each layer is told, a slot to a layer.
     globals: wgpu::Buffer,
     globals_bind: wgpu::BindGroup,
     globals_capacity: usize,
-    item_layout: wgpu::BindGroupLayout,
+    /// What each draw is told, a slot to a draw.
     items: wgpu::Buffer,
     items_bind: wgpu::BindGroup,
     items_capacity: usize,
-    texture_layout: wgpu::BindGroupLayout,
-    ramp_sampler: wgpu::Sampler,
-    smooth_sampler: wgpu::Sampler,
-    crisp_sampler: wgpu::Sampler,
     /// The triangles of everything drawn or pointed at so far.
     meshes: Meshes,
     /// What the graphics card holds of each mesh that has been drawn.
@@ -90,211 +86,46 @@ pub struct Renderer {
     pub stats: Stats,
 }
 
+/// What a layer is drawn onto, and the colour it starts as.
+struct Onto<'a> {
+    /// Multisampled, and resolved into `resolve` when the layer is done.
+    color: &'a wgpu::TextureView,
+    resolve: &'a wgpu::TextureView,
+    stencil: &'a wgpu::TextureView,
+    clear: wgpu::Color,
+}
+
 impl Renderer {
     /// `format` is the format of the textures this will draw to. It should not
     /// be an sRGB format: Flash blends colours as stored, without converting.
     pub fn new(device: wgpu::Device, queue: wgpu::Queue, format: wgpu::TextureFormat) -> Renderer {
-        let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("shapes"),
-            source: wgpu::ShaderSource::Wgsl(SHADER.into()),
-        });
-
-        let uniform_entry = |size: usize| wgpu::BindGroupLayoutEntry {
-            binding: 0,
-            visibility: wgpu::ShaderStages::VERTEX_FRAGMENT,
-            ty: wgpu::BindingType::Buffer {
-                ty: wgpu::BufferBindingType::Uniform,
-                has_dynamic_offset: true,
-                min_binding_size: wgpu::BufferSize::new(size as u64),
-            },
-            count: None,
-        };
-        let globals_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            label: Some("globals"),
-            entries: &[uniform_entry(size_of::<Globals>())],
-        });
-        let item_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            label: Some("item"),
-            entries: &[uniform_entry(size_of::<Item>())],
-        });
-        let texture_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            label: Some("paint texture"),
-            entries: &[
-                wgpu::BindGroupLayoutEntry {
-                    binding: 0,
-                    visibility: wgpu::ShaderStages::FRAGMENT,
-                    ty: wgpu::BindingType::Texture {
-                        sample_type: wgpu::TextureSampleType::Float { filterable: true },
-                        view_dimension: wgpu::TextureViewDimension::D2,
-                        multisampled: false,
-                    },
-                    count: None,
-                },
-                wgpu::BindGroupLayoutEntry {
-                    binding: 1,
-                    visibility: wgpu::ShaderStages::FRAGMENT,
-                    ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
-                    count: None,
-                },
-            ],
-        });
-        let layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("shapes"),
-            bind_group_layouts: &[
-                Some(&globals_layout),
-                Some(&item_layout),
-                Some(&texture_layout),
-            ],
-            immediate_size: 0,
-        });
-
-        let pipeline = |mode: Mode| {
-            let (pass_op, write_mask) = match mode {
-                Mode::Content => (wgpu::StencilOperation::Keep, wgpu::ColorWrites::ALL),
-                Mode::MaskWrite => (
-                    wgpu::StencilOperation::IncrementClamp,
-                    wgpu::ColorWrites::empty(),
-                ),
-                Mode::MaskClear => (
-                    wgpu::StencilOperation::DecrementClamp,
-                    wgpu::ColorWrites::empty(),
-                ),
-            };
-            let face = wgpu::StencilFaceState {
-                compare: wgpu::CompareFunction::Equal,
-                fail_op: wgpu::StencilOperation::Keep,
-                depth_fail_op: wgpu::StencilOperation::Keep,
-                pass_op,
-            };
-            // Colours are multiplied by alpha before blending.
-            let blend = wgpu::BlendComponent {
-                src_factor: wgpu::BlendFactor::One,
-                dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
-                operation: wgpu::BlendOperation::Add,
-            };
-            device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-                label: Some("shapes"),
-                layout: Some(&layout),
-                vertex: wgpu::VertexState {
-                    module: &shader,
-                    entry_point: Some("vs"),
-                    compilation_options: wgpu::PipelineCompilationOptions::default(),
-                    buffers: &[Some(wgpu::VertexBufferLayout {
-                        array_stride: size_of::<Vertex>() as u64,
-                        step_mode: wgpu::VertexStepMode::Vertex,
-                        attributes: &wgpu::vertex_attr_array![
-                            0 => Float32x2,
-                            1 => Float32x2,
-                            2 => Float32,
-                            3 => Unorm8x4,
-                        ],
-                    })],
-                },
-                primitive: wgpu::PrimitiveState::default(),
-                depth_stencil: Some(wgpu::DepthStencilState {
-                    format: STENCIL_FORMAT,
-                    depth_write_enabled: Some(false),
-                    depth_compare: Some(wgpu::CompareFunction::Always),
-                    stencil: wgpu::StencilState {
-                        front: face,
-                        back: face,
-                        read_mask: 0xff,
-                        write_mask: 0xff,
-                    },
-                    bias: wgpu::DepthBiasState::default(),
-                }),
-                multisample: wgpu::MultisampleState {
-                    count: SAMPLES,
-                    ..wgpu::MultisampleState::default()
-                },
-                fragment: Some(wgpu::FragmentState {
-                    module: &shader,
-                    entry_point: Some("fs"),
-                    compilation_options: wgpu::PipelineCompilationOptions::default(),
-                    targets: &[Some(wgpu::ColorTargetState {
-                        format,
-                        blend: Some(wgpu::BlendState {
-                            color: blend,
-                            alpha: blend,
-                        }),
-                        write_mask,
-                    })],
-                }),
-                multiview_mask: None,
-                cache: None,
-            })
-        };
-        let pipelines = [
-            pipeline(Mode::Content),
-            pipeline(Mode::MaskWrite),
-            pipeline(Mode::MaskClear),
-        ];
-        let blur_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("blur"),
-            layout: Some(&layout),
-            vertex: wgpu::VertexState {
-                module: &shader,
-                entry_point: Some("vs_blur"),
-                compilation_options: wgpu::PipelineCompilationOptions::default(),
-                buffers: &[],
-            },
-            primitive: wgpu::PrimitiveState::default(),
-            depth_stencil: None,
-            multisample: wgpu::MultisampleState::default(),
-            fragment: Some(wgpu::FragmentState {
-                module: &shader,
-                entry_point: Some("fs_blur"),
-                compilation_options: wgpu::PipelineCompilationOptions::default(),
-                targets: &[Some(wgpu::ColorTargetState {
-                    format,
-                    blend: None,
-                    write_mask: wgpu::ColorWrites::ALL,
-                })],
-            }),
-            multiview_mask: None,
-            cache: None,
-        });
-
-        let sampler = |filter: wgpu::FilterMode, address: wgpu::AddressMode| {
-            device.create_sampler(&wgpu::SamplerDescriptor {
-                address_mode_u: address,
-                address_mode_v: address,
-                mag_filter: filter,
-                min_filter: filter,
-                ..wgpu::SamplerDescriptor::default()
-            })
-        };
-        let ramp_sampler = sampler(wgpu::FilterMode::Linear, wgpu::AddressMode::ClampToEdge);
-        let smooth_sampler = sampler(wgpu::FilterMode::Linear, wgpu::AddressMode::Repeat);
-        let crisp_sampler = sampler(wgpu::FilterMode::Nearest, wgpu::AddressMode::Repeat);
+        let shader = pipelines::shader(&device);
+        let layouts = Layouts::new(&device);
+        let pipelines = Pipelines::new(&device, &shader, &layouts, format);
+        let samplers = Samplers::new(&device);
 
         let globals_capacity = 16;
         let (globals, globals_bind) =
-            slot_buffer::<Globals>(&device, &globals_layout, globals_capacity);
+            slot_buffer::<Globals>(&device, &layouts.globals, globals_capacity);
         let items_capacity = 1024;
-        let (items, items_bind) = slot_buffer::<Item>(&device, &item_layout, items_capacity);
+        let (items, items_bind) = slot_buffer::<Item>(&device, &layouts.item, items_capacity);
         let ramps_capacity = 64;
         let (ramps_texture, ramps_bind) =
-            ramp_texture(&device, &texture_layout, &ramp_sampler, ramps_capacity);
+            ramp_texture(&device, &layouts.texture, &samplers.ramp, ramps_capacity);
 
         Renderer {
             device,
             queue,
             format,
             pipelines,
-            blur_pipeline,
-            globals_layout,
+            layouts,
+            samplers,
             globals,
             globals_bind,
             globals_capacity,
-            item_layout,
             items,
             items_bind,
             items_capacity,
-            texture_layout,
-            ramp_sampler,
-            smooth_sampler,
-            crisp_sampler,
             meshes: Meshes::default(),
             buffers: HashMap::new(),
             ramps_bind,
@@ -344,11 +175,11 @@ impl Renderer {
             self.buffers
                 .retain(|key, _| !matches!(key, MeshKey::Field(..)));
         }
-        let (mut layers, items) = self.prepare(library, commands, size);
-        self.upload(&mut layers, &items, size);
+        let mut plan = self.prepare(library, commands, size);
+        self.upload(&mut plan, size);
         self.stats = Stats {
-            draws: layers.iter().map(|layer| layer.steps.len()).sum(),
-            layers: layers.len() - 1,
+            draws: plan.layers.iter().map(|layer| layer.steps.len()).sum(),
+            layers: plan.layers.len() - 1,
             meshes: self.meshes.len(),
         };
 
@@ -357,92 +188,127 @@ impl Renderer {
             .create_command_encoder(&wgpu::CommandEncoderDescriptor::default());
         // A layer is made after the layer it belongs to, so going backwards
         // finishes every layer before the one that draws it.
-        for (index, layer) in layers.iter().enumerate().rev() {
-            let frame = self.targets.as_ref().expect("made by upload");
-            let (color, resolve, stencil, clear) = match (index, layer.target) {
-                (0, _) => {
-                    let [r, g, b, a] = background;
-                    let clear = wgpu::Color { r, g, b, a };
-                    (&frame.color, target, &frame.stencil, clear)
-                }
-                (_, Some(slot)) => {
-                    let layer = &self.layer_targets[slot];
-                    let clear = wgpu::Color::TRANSPARENT;
-                    (&layer.color, &layer.a, &layer.stencil, clear)
-                }
-                (_, None) => continue,
+        for (index, layer) in plan.layers.iter().enumerate().rev() {
+            let Some(onto) = self.onto(index, layer, target, background) else {
+                continue;
             };
-            {
-                let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                    label: Some("layer"),
-                    color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                        view: color,
-                        depth_slice: None,
-                        resolve_target: Some(resolve),
-                        ops: wgpu::Operations {
-                            load: wgpu::LoadOp::Clear(clear),
-                            store: wgpu::StoreOp::Discard,
-                        },
-                    })],
-                    depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
-                        view: stencil,
-                        depth_ops: None,
-                        stencil_ops: Some(wgpu::Operations {
-                            load: wgpu::LoadOp::Clear(0),
-                            store: wgpu::StoreOp::Discard,
-                        }),
-                    }),
-                    timestamp_writes: None,
-                    occlusion_query_set: None,
-                    multiview_mask: None,
-                });
-                pass.set_bind_group(0, &self.globals_bind, &[(index * SLOT) as u32]);
-                if index == 0
-                    && let Some([x, y, width, height]) = scissor
-                {
-                    pass.set_scissor_rect(x, y, width, height);
-                }
-                self.draw_steps(&mut pass, &layers, &layer.steps);
-            }
-
-            // Each blur reads one of the layer's two textures and writes the
-            // other.
-            let Some(slot) = layer.target else { continue };
-            let textures = &self.layer_targets[slot];
-            for (round, &item) in layer.blurs.iter().enumerate() {
-                let (source, destination) = if round.is_multiple_of(2) {
-                    (&textures.a_bind, &textures.b)
-                } else {
-                    (&textures.b_bind, &textures.a)
-                };
-                let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                    label: Some("blur"),
-                    color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                        view: destination,
-                        depth_slice: None,
-                        resolve_target: None,
-                        ops: wgpu::Operations {
-                            load: wgpu::LoadOp::Clear(wgpu::Color::TRANSPARENT),
-                            store: wgpu::StoreOp::Store,
-                        },
-                    })],
-                    depth_stencil_attachment: None,
-                    timestamp_writes: None,
-                    occlusion_query_set: None,
-                    multiview_mask: None,
-                });
-                pass.set_pipeline(&self.blur_pipeline);
-                pass.set_bind_group(0, &self.globals_bind, &[(index * SLOT) as u32]);
-                pass.set_bind_group(1, &self.items_bind, &[(item * SLOT) as u32]);
-                pass.set_bind_group(2, source, &[]);
-                pass.draw(0..3, 0..1);
-            }
+            self.draw_layer(&mut encoder, &plan.layers, index, &onto, scissor);
+            self.blur_layer(&mut encoder, index, layer);
         }
         self.queue.submit([encoder.finish()]);
+        self.forget_layer_targets_long_unused();
+    }
 
-        let frame = self.frame;
-        self.layer_targets
-            .retain(|target| frame - target.last_used < LAYER_LIFETIME);
+    /// What the layer at `index` is drawn onto. The first is the frame
+    /// itself, which goes to `target` and starts as `background`. Any other
+    /// goes to the textures it was given and starts as nothing at all, and
+    /// one that was given none, being out of view, is `None`.
+    fn onto<'a>(
+        &'a self,
+        index: usize,
+        layer: &Layer,
+        target: &'a wgpu::TextureView,
+        background: [f64; 4],
+    ) -> Option<Onto<'a>> {
+        let frame = self.targets.as_ref().expect("made by upload");
+        match (index, layer.target) {
+            (0, _) => {
+                let [r, g, b, a] = background;
+                Some(Onto {
+                    color: &frame.color,
+                    resolve: target,
+                    stencil: &frame.stencil,
+                    clear: wgpu::Color { r, g, b, a },
+                })
+            }
+            (_, Some(slot)) => {
+                let textures = &self.layer_targets[slot];
+                Some(Onto {
+                    color: &textures.color,
+                    resolve: &textures.a,
+                    stencil: &textures.stencil,
+                    clear: wgpu::Color::TRANSPARENT,
+                })
+            }
+            (_, None) => None,
+        }
+    }
+
+    /// Draws the steps of the layer at `index` onto its textures. Only the
+    /// frame itself is kept to `scissor`.
+    fn draw_layer(
+        &self,
+        encoder: &mut wgpu::CommandEncoder,
+        layers: &[Layer],
+        index: usize,
+        onto: &Onto<'_>,
+        scissor: Option<[u32; 4]>,
+    ) {
+        let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            label: Some("layer"),
+            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                view: onto.color,
+                depth_slice: None,
+                resolve_target: Some(onto.resolve),
+                ops: wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(onto.clear),
+                    store: wgpu::StoreOp::Discard,
+                },
+            })],
+            depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
+                view: onto.stencil,
+                depth_ops: None,
+                stencil_ops: Some(wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(0),
+                    store: wgpu::StoreOp::Discard,
+                }),
+            }),
+            timestamp_writes: None,
+            occlusion_query_set: None,
+            multiview_mask: None,
+        });
+        pass.set_bind_group(0, &self.globals_bind, &[(index * SLOT) as u32]);
+        if index == 0
+            && let Some([x, y, width, height]) = scissor
+        {
+            pass.set_scissor_rect(x, y, width, height);
+        }
+        self.draw_steps(&mut pass, layers, &layers[index].steps);
+    }
+
+    /// Runs the blurs of the layer at `index`, once it has been drawn. Each
+    /// reads one of the layer's two textures and writes the other.
+    fn blur_layer(&self, encoder: &mut wgpu::CommandEncoder, index: usize, layer: &Layer) {
+        let Some(slot) = layer.target else { return };
+        let textures = &self.layer_targets[slot];
+        for (round, &item) in layer.blurs.iter().enumerate() {
+            let (source, destination) = if round.is_multiple_of(2) {
+                (&textures.a_bind, &textures.b)
+            } else {
+                (&textures.b_bind, &textures.a)
+            };
+            let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                label: Some("blur"),
+                color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                    view: destination,
+                    depth_slice: None,
+                    resolve_target: None,
+                    ops: wgpu::Operations {
+                        load: wgpu::LoadOp::Clear(wgpu::Color::TRANSPARENT),
+                        store: wgpu::StoreOp::Store,
+                    },
+                })],
+                depth_stencil_attachment: None,
+                timestamp_writes: None,
+                occlusion_query_set: None,
+                multiview_mask: None,
+            });
+            pass.set_pipeline(&self.pipelines.blur);
+            pass.set_bind_group(0, &self.globals_bind, &[(index * SLOT) as u32]);
+            pass.set_bind_group(1, &self.items_bind, &[(item * SLOT) as u32]);
+            pass.set_bind_group(2, source, &[]);
+            pass.draw(0..3, 0..1);
+        }
     }
 
     fn draw_steps(&self, pass: &mut wgpu::RenderPass<'_>, layers: &[Layer], steps: &[Step]) {
@@ -455,24 +321,11 @@ impl Renderer {
             else {
                 continue;
             };
-            let bind = match step.texture {
-                Texture::Ramps => &self.ramps_bind,
-                Texture::Layer(index) => {
-                    let layer = &layers[index];
-                    let Some(slot) = layer.target else { continue };
-                    let textures = &self.layer_targets[slot];
-                    // An odd number of blurs leaves the picture in the
-                    // second texture.
-                    if layer.blurs.len().is_multiple_of(2) {
-                        &textures.a_bind
-                    } else {
-                        &textures.b_bind
-                    }
-                }
-                image @ Texture::Image { .. } => &self.image_binds[&image],
+            let Some(bind) = self.bind_of(step.texture, layers) else {
+                continue;
             };
             if mode != Some(step.mode) {
-                pass.set_pipeline(&self.pipelines[step.mode as usize]);
+                pass.set_pipeline(&self.pipelines.shapes[step.mode as usize]);
                 mode = Some(step.mode);
             }
             if key != Some(step.key) {
@@ -488,6 +341,27 @@ impl Renderer {
             pass.set_bind_group(1, &self.items_bind, &[(step.item * SLOT) as u32]);
             pass.draw_indexed(mesh.draws[step.draw].indices.clone(), 0, 0..1);
         }
+    }
+
+    /// The texture a draw reads its colours from, as the shader is handed
+    /// it. `None` for a layer that was given no textures, being out of
+    /// view: there is nothing of it to draw.
+    fn bind_of(&self, texture: Texture, layers: &[Layer]) -> Option<&wgpu::BindGroup> {
+        Some(match texture {
+            Texture::Ramps => &self.ramps_bind,
+            Texture::Layer(index) => {
+                let layer = &layers[index];
+                let textures = &self.layer_targets[layer.target?];
+                // An odd number of blurs leaves the picture in the
+                // second texture.
+                if layer.blurs.len().is_multiple_of(2) {
+                    &textures.a_bind
+                } else {
+                    &textures.b_bind
+                }
+            }
+            image @ Texture::Image { .. } => &self.image_binds[&image],
+        })
     }
 }
 

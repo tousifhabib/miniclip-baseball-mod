@@ -16,14 +16,19 @@ impl Renderer {
         size: (u32, u32),
         background: [f64; 4],
     ) -> Result<image::RgbaImage> {
-        let (width, height) = size;
         let usage = wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_SRC;
         let texture =
             self.device
                 .create_texture(&flat_texture("capture", size, 1, self.format, usage));
         let view = texture.create_view(&wgpu::TextureViewDescriptor::default());
         self.render(library, commands, &view, size, background, None);
+        self.read_back(&texture, size)
+    }
 
+    /// Fetches what has been drawn to a texture of `size` pixels back from
+    /// the graphics card, as an image.
+    fn read_back(&self, texture: &wgpu::Texture, size: (u32, u32)) -> Result<image::RgbaImage> {
+        let (width, height) = size;
         // Rows in a copy must be a multiple of 256 bytes long.
         let row = (width as usize * 4).next_multiple_of(256);
         let buffer = self.device.create_buffer(&wgpu::BufferDescriptor {
