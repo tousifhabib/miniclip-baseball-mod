@@ -4,14 +4,14 @@
 //! The sounds the rules ask for are in `sound`, and the keys and typing
 //! into a text field are in `typing`.
 
+mod find;
 mod sound;
+mod steer;
 mod typing;
 
 use bb_format::SymbolId;
 
-use crate::display::{
-    Child, ClipState, Command, Content, Event, Path, Texts, commands_upright, text_key,
-};
+use crate::display::{ClipState, Command, Event, Path, Texts, commands_upright, text_key};
 use crate::input::{Geometry, Key, Pointer};
 use crate::library::Library;
 use crate::math::Matrix;
@@ -72,189 +72,6 @@ impl Stage {
         // Things have moved, so what is under the pointer may have changed.
         let (x, y, down) = (self.pointer.x, self.pointer.y, self.pointer.down);
         self.pointer_changed(x, y, down, library, geometry);
-    }
-
-    /// Jumps the top timeline to `frame`.
-    pub fn goto(&mut self, frame: u16, library: &Library) {
-        self.goto_clip(&[], frame, library);
-    }
-
-    /// The object at `path`.
-    pub fn child(&self, path: &[u16]) -> Option<&Child> {
-        let (last, parents) = path.split_last()?;
-        let mut clip = &self.root;
-        for depth in parents {
-            match &clip.children.get(depth)?.content {
-                Content::Clip(inner) => clip = inner,
-                _ => return None,
-            }
-        }
-        clip.children.get(last)
-    }
-
-    /// The object at `path`, to move, tint, show or hide.
-    pub fn child_mut(&mut self, path: &[u16]) -> Option<&mut Child> {
-        self.root.child_mut(path)
-    }
-
-    /// The transform from the coordinates inside the object at `path` to the
-    /// stage's, or the identity for an empty path.
-    pub fn to_stage(&self, path: &[u16]) -> Option<Matrix> {
-        let mut matrix = Matrix::IDENTITY;
-        for end in 1..=path.len() {
-            matrix = matrix.then_inner(self.child(&path[..end])?.matrix);
-        }
-        Some(matrix)
-    }
-
-    /// Where a point of the stage is in the coordinates inside the object at
-    /// `path`: what `_xmouse` and `_ymouse` gave for the pointer.
-    pub fn from_stage(&self, path: &[u16], x: f32, y: f32) -> Option<(f32, f32)> {
-        Some(self.to_stage(path)?.inverse()?.apply(x, y))
-    }
-
-    /// Puts a new instance of `symbol` inside the clip at `parent`, at
-    /// `depth`, as `attachMovie` did. Use depths from
-    /// [`Stage::RULES_DEPTH`] up. Returns where the new object is.
-    pub fn attach(
-        &mut self,
-        parent: &[u16],
-        symbol: SymbolId,
-        depth: u16,
-        name: &str,
-        library: &Library,
-    ) -> Option<Path> {
-        let mut events = std::mem::take(&mut self.events);
-        let made = self.clip_mut(parent).is_some_and(|clip| {
-            clip.attach(
-                symbol,
-                depth,
-                Some(name),
-                library,
-                &mut events,
-                &mut parent.to_vec(),
-            )
-            .is_some()
-        });
-        self.events = events;
-        made.then(|| {
-            let mut path = parent.to_vec();
-            path.push(depth);
-            path
-        })
-    }
-
-    /// Takes the object at `path` off the stage. Returns whether it was
-    /// there.
-    pub fn remove(&mut self, path: &[u16]) -> bool {
-        let Some((depth, parent)) = path.split_last() else {
-            return false;
-        };
-        self.clip_mut(parent)
-            .is_some_and(|clip| clip.children.remove(depth).is_some())
-    }
-
-    /// The clip at `path`, or the top timeline for an empty path.
-    pub fn clip(&self, path: &[u16]) -> Option<&ClipState> {
-        if path.is_empty() {
-            return Some(&self.root);
-        }
-        match &self.child(path)?.content {
-            Content::Clip(clip) => Some(clip),
-            _ => None,
-        }
-    }
-
-    /// The clip at `path`, or the top timeline for an empty path.
-    pub fn clip_mut(&mut self, path: &[u16]) -> Option<&mut ClipState> {
-        if path.is_empty() {
-            return Some(&mut self.root);
-        }
-        match &mut self.root.child_mut(path)?.content {
-            Content::Clip(clip) => Some(clip),
-            _ => None,
-        }
-    }
-
-    /// Finds an object by the instance names leading to it, as an
-    /// ActionScript path like `game.hitter` would: `["game", "hitter"]`.
-    /// The search starts inside the clip at `from`.
-    pub fn find(&self, from: &[u16], names: &[&str]) -> Option<Path> {
-        let mut path = from.to_vec();
-        for name in names {
-            let clip = self.clip(&path)?;
-            let (&depth, _) = clip
-                .children
-                .iter()
-                .find(|(_, child)| child.name.as_deref() == Some(*name))?;
-            path.push(depth);
-        }
-        Some(path)
-    }
-
-    /// Finds the first instance of `symbol` at or below the clip at `from`,
-    /// looking through each level before going deeper.
-    pub fn find_symbol(&self, from: &[u16], symbol: SymbolId) -> Option<Path> {
-        self.search(from, &|child| child.symbol == symbol)
-    }
-
-    /// Finds the first object with this instance name at or below the clip
-    /// at `from`, looking through each level before going deeper.
-    pub fn find_named(&self, from: &[u16], name: &str) -> Option<Path> {
-        self.search(from, &|child| child.name.as_deref() == Some(name))
-    }
-
-    fn search(&self, from: &[u16], wanted: &dyn Fn(&Child) -> bool) -> Option<Path> {
-        let mut level = vec![from.to_vec()];
-        while !level.is_empty() {
-            let mut next = Vec::new();
-            for path in &level {
-                let Some(clip) = self.clip(path) else {
-                    continue;
-                };
-                for (&depth, child) in &clip.children {
-                    let mut here = path.clone();
-                    here.push(depth);
-                    if wanted(child) {
-                        return Some(here);
-                    }
-                    if matches!(child.content, Content::Clip(_)) {
-                        next.push(here);
-                    }
-                }
-            }
-            level = next;
-        }
-        None
-    }
-
-    /// Jumps the clip at `path` to `frame`.
-    pub fn goto_clip(&mut self, path: &[u16], frame: u16, library: &Library) {
-        let mut events = std::mem::take(&mut self.events);
-        if let Some(clip) = self.clip_mut(path) {
-            clip.goto(frame, library, &mut events, &mut path.to_vec());
-        }
-        self.events = events;
-    }
-
-    /// Jumps the clip at `path` to the frame with this label, and sets it
-    /// playing or stopped. Returns whether there is such a clip and label.
-    pub fn goto_label(&mut self, path: &[u16], label: &str, play: bool, library: &Library) -> bool {
-        let mut events = std::mem::take(&mut self.events);
-        let found = self.clip_mut(path).is_some_and(|clip| {
-            let found = clip.goto_label(label, library, &mut events, &mut path.to_vec());
-            if found {
-                clip.playing = play;
-            }
-            found
-        });
-        self.events = events;
-        found
-    }
-
-    /// Makes every text field that shows `variable` say `value`.
-    pub fn set_text(&mut self, variable: &str, value: impl Into<String>) {
-        self.texts.insert(variable.to_owned(), value.into());
     }
 
     /// Tells the stage where the pointer is, in the top timeline's
