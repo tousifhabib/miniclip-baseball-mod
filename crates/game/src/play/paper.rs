@@ -85,19 +85,24 @@ enum Miss {
     TooMany,
 }
 
-/// Plays the half of an innings that is to come to `made` runs. `winning`
-/// is whether those runs win the match, which then ends the moment the
-/// last of them is in. `first_up` is whose turn it is. With `steals` their
+/// The half of an innings that is to be played.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Wanted {
+    /// The runs it is to come to.
+    pub made: u32,
+    /// Whether those runs win the match, which then ends the moment the
+    /// last of them is in.
+    pub winning: bool,
+    /// Which innings it is, the first being 1.
+    pub innings: u32,
+    /// Whose turn it is, by his place in the order.
+    pub first_up: usize,
+}
+
+/// Plays the half of an innings that is wanted. With `steals` their
 /// runners try for a base now and then, as those rules say.
-#[allow(
-    clippy::too_many_arguments,
-    reason = "it takes each thing it needs on its own, until they are gathered up"
-)]
 pub fn half(
-    made: u32,
-    winning: bool,
-    innings: u32,
-    first_up: usize,
+    wanted: Wanted,
     rules: &TheirBattingRules,
     steals: Option<&StealRules>,
     ground: &Ground,
@@ -107,7 +112,7 @@ pub fn half(
     // each playing that falls short makes them likelier for the next.
     let mut lean = 1.0_f32;
     for _ in 0..TRIES {
-        let mut play = Play::new(made, winning, innings, first_up, lean, rules, ground);
+        let mut play = Play::new(wanted, lean, rules, ground);
         play.steals = steals;
         match play.out(rng) {
             Ok(()) => return play.half(),
@@ -115,12 +120,18 @@ pub fn half(
             Err(Miss::TooMany) => lean = (lean / LEAN).max(1.0 / MOST_LEAN),
         }
     }
-    plainly(made, winning, innings, first_up, ground)
+    plainly(wanted, ground)
 }
 
 /// An innings of just so many runs, for when none would come out that way
 /// by itself: a home run for each, and then three strikeouts.
-fn plainly(made: u32, winning: bool, innings: u32, first_up: usize, ground: &Ground) -> Half {
+fn plainly(wanted: Wanted, ground: &Ground) -> Half {
+    let Wanted {
+        made,
+        winning,
+        innings,
+        first_up,
+    } = wanted;
     let mut half = Half {
         turns: Vec::new(),
         steals: Vec::new(),
@@ -198,18 +209,15 @@ struct Play<'a> {
 
 impl<'a> Play<'a> {
     fn new(
-        made: u32,
-        winning: bool,
-        innings: u32,
-        first_up: usize,
+        wanted: Wanted,
         lean: f32,
         rules: &'a TheirBattingRules,
         ground: &'a Ground,
     ) -> Play<'a> {
         Play {
-            made,
-            winning,
-            innings,
+            made: wanted.made,
+            winning: wanted.winning,
+            innings: wanted.innings,
             lean,
             rules,
             steals: None,
@@ -217,7 +225,7 @@ impl<'a> Play<'a> {
             bases: [None; 3],
             outs: 0,
             runs: 0,
-            up: first_up % ORDER,
+            up: wanted.first_up % ORDER,
             turns: Vec::new(),
             stolen: Vec::new(),
             by_order: [0; ORDER],
@@ -607,16 +615,13 @@ mod tests {
     ) -> Half {
         let rules = Rules::default().full_match.their_batting;
         let mut rng = Rng::new(seed);
-        half(
+        let wanted = Wanted {
             made,
             winning,
-            3,
+            innings: 3,
             first_up,
-            &rules,
-            steals,
-            &Ground::default(),
-            &mut rng,
-        )
+        };
+        half(wanted, &rules, steals, &Ground::default(), &mut rng)
     }
 
     /// Checks everything that has to be so of a half however it went.
@@ -812,9 +817,15 @@ mod tests {
     #[test]
     fn an_innings_that_will_not_come_out_is_written_plainly() {
         let ground = Ground::default();
-        let half = plainly(4, false, 3, 7, &ground);
+        let wanted = |made, winning, first_up| Wanted {
+            made,
+            winning,
+            innings: 3,
+            first_up,
+        };
+        let half = plainly(wanted(4, false, 7), &ground);
         sound(&half, 4, false, 7);
-        let winning = plainly(2, true, 3, 0, &ground);
+        let winning = plainly(wanted(2, true, 0), &ground);
         sound(&winning, 2, true, 0);
     }
 

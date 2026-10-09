@@ -172,17 +172,14 @@ impl FullMatch {
         let innings = self.theirs.len() as u32 + 1;
         let mut rng = Rng::new(self.seed ^ PAPER_SEED.wrapping_mul(u64::from(innings)));
         let rules = &self.rules.their_batting;
-        let first_up = self.their_turn;
-        let half = paper::half(
+        let wanted = paper::Wanted {
             made,
             winning,
             innings,
-            first_up,
-            rules,
-            self.steals.as_ref(),
-            &self.ground,
-            &mut rng,
-        );
+            first_up: self.their_turn,
+        };
+        let steals = self.steals.as_ref();
+        let half = paper::half(wanted, rules, steals, &self.ground, &mut rng);
         self.their_turn = half.next;
         let theirs = &mut self.book.theirs;
         // A steal is told by how many of the side's turns were over.
