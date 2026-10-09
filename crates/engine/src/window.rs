@@ -586,22 +586,15 @@ fn typed(logical: &Key, text: Option<&str>) -> Vec<input::Key> {
 /// it has names for, the space bar, and whatever letters the key types,
 /// in small letters whether Shift is held or not.
 fn held(logical: &Key) -> Vec<input::Key> {
-    match logical {
-        Key::Named(NamedKey::Backspace) => vec![input::Key::Backspace],
-        Key::Named(NamedKey::Enter) => vec![input::Key::Enter],
-        Key::Named(NamedKey::Tab) => vec![input::Key::Tab],
-        Key::Named(NamedKey::Escape) => vec![input::Key::Escape],
-        Key::Named(NamedKey::ArrowLeft) => vec![input::Key::Left],
-        Key::Named(NamedKey::ArrowRight) => vec![input::Key::Right],
-        Key::Named(NamedKey::ArrowUp) => vec![input::Key::Up],
-        Key::Named(NamedKey::ArrowDown) => vec![input::Key::Down],
-        Key::Named(NamedKey::Space) => vec![input::Key::Char(' ')],
-        Key::Character(text) => text
+    match (named(logical), logical) {
+        (Some(key), _) => vec![key],
+        (None, Key::Named(NamedKey::Space)) => vec![input::Key::Char(' ')],
+        (None, Key::Character(text)) => text
             .chars()
             .flat_map(char::to_lowercase)
             .map(input::Key::Char)
             .collect(),
-        _ => Vec::new(),
+        (None, _) => Vec::new(),
     }
 }
 
