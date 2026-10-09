@@ -17,7 +17,7 @@ use winit::keyboard::{Key, NamedKey};
 use winit::window::{CursorIcon, Window, WindowId};
 
 use crate::app::Runner;
-use crate::gpu::Renderer;
+use crate::gpu::{Renderer, open_device};
 use crate::input;
 use crate::inspector::{Action, Info, Inspector};
 use crate::math::Matrix;
@@ -124,14 +124,7 @@ impl App {
         let surface = instance
             .create_surface(window.clone())
             .context("attaching to the window")?;
-        let adapter = pollster::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions {
-            compatible_surface: Some(&surface),
-            ..wgpu::RequestAdapterOptions::default()
-        }))
-        .context("finding a graphics adapter")?;
-        let (device, queue) =
-            pollster::block_on(adapter.request_device(&wgpu::DeviceDescriptor::default()))
-                .context("opening the graphics device")?;
+        let (adapter, device, queue) = open_device(&instance, Some(&surface))?;
 
         let size = window.inner_size();
         let mut config = surface

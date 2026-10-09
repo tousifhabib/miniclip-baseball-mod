@@ -335,12 +335,7 @@ impl Renderer {
     /// Opens the default graphics device, with no window.
     pub fn headless() -> Result<Renderer> {
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::new_without_display_handle());
-        let adapter =
-            pollster::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions::default()))
-                .context("finding a graphics adapter")?;
-        let (device, queue) =
-            pollster::block_on(adapter.request_device(&wgpu::DeviceDescriptor::default()))
-                .context("opening the graphics device")?;
+        let (_adapter, device, queue) = open_device(&instance, None)?;
         Ok(Renderer::new(
             device,
             queue,
@@ -1198,6 +1193,23 @@ impl Geometry for Renderer {
     ) -> bool {
         self.meshes.contains(library, symbol, ratio, x, y)
     }
+}
+
+/// Finds a graphics adapter and opens the device it gives. With `surface`,
+/// the adapter is one that can draw to that window.
+pub(crate) fn open_device(
+    instance: &wgpu::Instance,
+    surface: Option<&wgpu::Surface<'_>>,
+) -> Result<(wgpu::Adapter, wgpu::Device, wgpu::Queue)> {
+    let adapter = pollster::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions {
+        compatible_surface: surface,
+        ..wgpu::RequestAdapterOptions::default()
+    }))
+    .context("finding a graphics adapter")?;
+    let (device, queue) =
+        pollster::block_on(adapter.request_device(&wgpu::DeviceDescriptor::default()))
+            .context("opening the graphics device")?;
+    Ok((adapter, device, queue))
 }
 
 /// Where a blurred object's layer goes: `bounds` grown by `reach`, cut down
