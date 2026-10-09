@@ -5,7 +5,7 @@
 use std::path::PathBuf;
 
 use anyhow::{Context, Result, bail, ensure};
-use bb_engine::display::{bounds_of, union};
+use bb_engine::display::{Bounds, ClipState, Texts, bounds_of, commands, union};
 use bb_engine::gpu::Renderer;
 use bb_engine::library::Library;
 use bb_engine::math::Matrix;
@@ -117,87 +117,17 @@ fn main() -> Result<()> {
     let count = Stage::new(Some(args.clip), &library)
         .root
         .frame_count(&library);
-    let frames: Vec<u16> = if args.frames.is_empty() {
-        (args.from.max(1)..=args.to.unwrap_or(count).min(count))
-            .step_by(usize::from(args.every.max(1)))
-            .collect()
-    } else {
-        args.frames.clone()
-    };
-    ensure!(!frames.is_empty(), "there are no frames to draw");
-    if let Some(&bad) = frames.iter().find(|&&frame| frame < 1 || frame > count) {
-        bail!("clip {} has frames 1 to {count}, not {bad}", args.clip);
-    }
-    ensure!(
-        !args.play || frames.is_sorted(),
-        "with --play the frames must be in order"
-    );
+    let frames = frames_wanted(&args, count)?;
 
     let mut renderer = Renderer::headless()?;
-    // The stage as it stands on each frame wanted.
-    let mut stages = Vec::new();
-    if args.play {
-        let mut stage = Stage::new(Some(args.clip), &library);
-        // The clips inside play on while the one being looked at is moved
-        // by hand, so that a frame can be asked for twice.
-        stage.root.playing = false;
-        for &frame in &frames {
-            while stage.root.frame < frame {
-                stage.advance(&library, &mut renderer);
-                let next = stage.root.frame + 1;
-                stage.goto(next, &library);
-            }
-            stages.push((frame, stage.root.clone()));
-        }
-    } else {
-        for &frame in &frames {
-            let mut stage = Stage::new(Some(args.clip), &library);
-            stage.goto(frame, &library);
-            stages.push((frame, stage.root.clone()));
-        }
-    }
-
-    let area = match args.area[..] {
-        [left, top, right, bottom] => [left, top, right, bottom],
-        [] => stages
-            .iter()
-            .fold(None, |all, (_, root)| {
-                union(all, bounds_of(&root.children, Matrix::IDENTITY, &library))
-            })
-            .with_context(|| format!("clip {} draws nothing on these frames", args.clip))?,
-        _ => bail!("--area takes four numbers: left,top,right,bottom"),
-    };
-    let (width, height) = (area[2] - area[0], area[3] - area[1]);
-    ensure!(width > 0.0 && height > 0.0, "the area to show is empty");
+    let stages = stages_on(&frames, &args, &library, &mut renderer);
+    let area = area_to_show(&args, &stages, &library)?;
     let cell = args.cell.max(16);
-    let scale = cell as f32 / width.max(height);
-    // The area sits in the middle of its square.
-    let base = Matrix::translate(
-        (cell as f32 - width * scale) / 2.0,
-        (cell as f32 - height * scale) / 2.0,
-    )
-    .then_inner(Matrix::scale(scale, scale))
-    .then_inner(Matrix::translate(-area[0], -area[1]));
+    let (base, scale) = fit(area, cell)?;
     renderer.min_stroke = scale.max(1.0);
 
     let columns = args.columns.clamp(1, frames.len() as u32);
-    let rows = (frames.len() as u32).div_ceil(columns);
-    // A gap between the pictures, so that it is clear where each one ends.
-    let step = cell + 2;
-    let mut sheet = RgbaImage::from_pixel(columns * step, rows * step, Rgba([255, 0, 255, 255]));
-    let empty = bb_engine::display::Texts::new();
-    for (index, (frame, root)) in stages.iter().enumerate() {
-        let commands = bb_engine::display::commands(root, base, &library, &empty);
-        // A flat grey shows up both light artwork and dark.
-        let picture =
-            renderer.capture(&library, &commands, (cell, cell), [0.45, 0.45, 0.5, 1.0])?;
-        let (left, top) = (
-            (index as u32 % columns) * step,
-            (index as u32 / columns) * step,
-        );
-        image::imageops::replace(&mut sheet, &picture, i64::from(left), i64::from(top));
-        stamp(&mut sheet, *frame, left, top);
-    }
+    let sheet = draw_sheet(&stages, base, (cell, columns), &library, &mut renderer)?;
     sheet
         .save(&args.out)
         .with_context(|| format!("writing {}", args.out.display()))?;
@@ -216,4 +146,117 @@ fn main() -> Result<()> {
         println!("  problem: {problem}");
     }
     Ok(())
+}
+
+/// The frames to draw of a clip that has `count` of them: the ones named,
+/// or every so many from one to another.
+fn frames_wanted(args: &Args, count: u16) -> Result<Vec<u16>> {
+    let frames: Vec<u16> = if args.frames.is_empty() {
+        (args.from.max(1)..=args.to.unwrap_or(count).min(count))
+            .step_by(usize::from(args.every.max(1)))
+            .collect()
+    } else {
+        args.frames.clone()
+    };
+    ensure!(!frames.is_empty(), "there are no frames to draw");
+    if let Some(&bad) = frames.iter().find(|&&frame| frame < 1 || frame > count) {
+        bail!("clip {} has frames 1 to {count}, not {bad}", args.clip);
+    }
+    ensure!(
+        !args.play || frames.is_sorted(),
+        "with --play the frames must be in order"
+    );
+    Ok(frames)
+}
+
+/// The clip as it stands on each frame wanted, with the frame's number.
+fn stages_on(
+    frames: &[u16],
+    args: &Args,
+    library: &Library,
+    renderer: &mut Renderer,
+) -> Vec<(u16, ClipState)> {
+    let mut stages = Vec::new();
+    if args.play {
+        let mut stage = Stage::new(Some(args.clip), library);
+        // The clips inside play on while the one being looked at is moved
+        // by hand, so that a frame can be asked for twice.
+        stage.root.playing = false;
+        for &frame in frames {
+            while stage.root.frame < frame {
+                stage.advance(library, renderer);
+                let next = stage.root.frame + 1;
+                stage.goto(next, library);
+            }
+            stages.push((frame, stage.root.clone()));
+        }
+    } else {
+        for &frame in frames {
+            let mut stage = Stage::new(Some(args.clip), library);
+            stage.goto(frame, library);
+            stages.push((frame, stage.root.clone()));
+        }
+    }
+    stages
+}
+
+/// The part of the clip to show, in its own coordinates: what was asked
+/// for, or whatever the frames cover between them.
+fn area_to_show(args: &Args, stages: &[(u16, ClipState)], library: &Library) -> Result<Bounds> {
+    Ok(match args.area[..] {
+        [left, top, right, bottom] => [left, top, right, bottom],
+        [] => stages
+            .iter()
+            .fold(None, |all, (_, root)| {
+                union(all, bounds_of(&root.children, Matrix::IDENTITY, library))
+            })
+            .with_context(|| format!("clip {} draws nothing on these frames", args.clip))?,
+        _ => bail!("--area takes four numbers: left,top,right,bottom"),
+    })
+}
+
+/// How `area` is drawn in a square `cell` pixels across: the transform that
+/// puts it there, and how many pixels there are to each of its own.
+fn fit(area: Bounds, cell: u32) -> Result<(Matrix, f32)> {
+    let (width, height) = (area[2] - area[0], area[3] - area[1]);
+    ensure!(width > 0.0 && height > 0.0, "the area to show is empty");
+    let scale = cell as f32 / width.max(height);
+    // The area sits in the middle of its square.
+    let base = Matrix::translate(
+        (cell as f32 - width * scale) / 2.0,
+        (cell as f32 - height * scale) / 2.0,
+    )
+    .then_inner(Matrix::scale(scale, scale))
+    .then_inner(Matrix::translate(-area[0], -area[1]));
+    Ok((base, scale))
+}
+
+/// Draws each stage in a square of its own, marked with its frame's number,
+/// and sets the squares out in rows. `squares` is how many pixels a square
+/// is across, and how many of them go in a row.
+fn draw_sheet(
+    stages: &[(u16, ClipState)],
+    base: Matrix,
+    squares: (u32, u32),
+    library: &Library,
+    renderer: &mut Renderer,
+) -> Result<RgbaImage> {
+    let (cell, columns) = squares;
+    let rows = (stages.len() as u32).div_ceil(columns);
+    // A gap between the pictures, so that it is clear where each one ends.
+    let step = cell + 2;
+    let mut sheet = RgbaImage::from_pixel(columns * step, rows * step, Rgba([255, 0, 255, 255]));
+    let empty = Texts::new();
+    for (index, (frame, root)) in stages.iter().enumerate() {
+        let list = commands(root, base, library, &empty);
+        // A flat grey shows up both light artwork and dark.
+        let picture = renderer.capture(library, &list, (cell, cell), [0.45, 0.45, 0.5, 1.0])?;
+        let (left, top) = (
+            (index as u32 % columns) * step,
+            (index as u32 / columns) * step,
+        );
+        image::imageops::replace(&mut sheet, &picture, i64::from(left), i64::from(top));
+        stamp(&mut sheet, *frame, left, top);
+    }
+    Ok(sheet)
 }

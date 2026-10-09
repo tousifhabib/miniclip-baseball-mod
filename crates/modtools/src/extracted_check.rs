@@ -9,7 +9,7 @@ use anyhow::{Result, ensure};
 use bb_engine::library::read_json;
 use bb_format::{
     Align, Button, Clip, EditText, FORMAT_VERSION, FieldFlag, Font, Look, Manifest, MorphShape, Op,
-    PlaceAction, SoundStart, SymbolId, SymbolInfo, Text,
+    PlaceAction, SoundStart, Symbol, SymbolId, SymbolInfo, Text,
 };
 use clap::Parser;
 use serde::de::DeserializeOwned;
@@ -75,110 +75,154 @@ impl Checker {
                 self.glyph_counts.insert(*id, font.glyphs.len());
             }
         }
-
         for (id, symbol) in &symbols {
-            match &symbol.info {
-                SymbolInfo::Font { .. } => {}
-                SymbolInfo::Shape { .. } | SymbolInfo::Bitmap { .. } | SymbolInfo::Sound { .. } => {
-                    self.files += 1;
-                    let path = self.dir.join(&symbol.file);
-                    let size = fs::metadata(&path).map_or(0, |meta| meta.len());
-                    if size == 0 {
-                        self.problem(format!("{} is missing or empty", symbol.file));
-                    }
-                }
-                SymbolInfo::MorphShape => {
-                    let morph: MorphShape = self.read(&symbol.file)?;
-                    for (index, path) in morph.paths.iter().enumerate() {
-                        if commands(&path.start) != commands(&path.end) {
-                            self.problem(format!(
-                                "morph {id}: path {index} has different commands at its two ends"
-                            ));
-                        }
-                    }
-                }
-                SymbolInfo::Clip { frame_count } => {
-                    let clip: Clip = self.read(&symbol.file)?;
-                    if clip.frames.len() != usize::from(*frame_count) {
-                        self.problem(format!(
-                            "clip {id}: the manifest says {frame_count} frames, the file has {}",
-                            clip.frames.len()
-                        ));
-                    }
-                    self.check_clip(&format!("clip {id}"), &clip);
-                }
-                SymbolInfo::Button => {
-                    let button: Button = self.read(&symbol.file)?;
-                    for record in &button.records {
-                        self.check_drawable(&format!("button {id}"), record.symbol);
-                        for look in &record.states {
-                            if let Look::Other(word) = look {
-                                self.problem(format!(
-                                    "button {id}: `{word}` is not a look a button has"
-                                ));
-                            }
-                        }
-                    }
-                    if let Some(sounds) = &button.sounds {
-                        let starts = [
-                            &sounds.over_to_up,
-                            &sounds.up_to_over,
-                            &sounds.over_to_down,
-                            &sounds.down_to_over,
-                        ];
-                        for start in starts.into_iter().flatten() {
-                            self.check_sound(&format!("button {id}"), start);
-                        }
-                    }
-                }
-                SymbolInfo::Text => {
-                    let text: Text = self.read(&symbol.file)?;
-                    for run in &text.runs {
-                        self.references += 1;
-                        let Some(&glyphs) = self.glyph_counts.get(&run.font) else {
-                            self.problem(format!("text {id}: font {} is not a font", run.font));
-                            continue;
-                        };
-                        if run.glyphs.iter().any(|g| g.glyph as usize >= glyphs) {
-                            self.problem(format!(
-                                "text {id}: uses a glyph font {} does not have",
-                                run.font
-                            ));
-                        }
-                    }
-                }
-                SymbolInfo::EditText => {
-                    let text: EditText = self.read(&symbol.file)?;
-                    if let Some(font) = text.font {
-                        self.references += 1;
-                        if !self.glyph_counts.contains_key(&font) {
-                            self.problem(format!("text field {id}: font {font} is not a font"));
-                        }
-                    }
-                    for flag in &text.flags {
-                        if let FieldFlag::Other(word) = flag {
-                            self.problem(format!(
-                                "text field {id}: `{word}` is not something a text field can be"
-                            ));
-                        }
-                    }
-                    if let Some(Align::Other(word)) =
-                        text.layout.as_ref().map(|layout| &layout.align)
-                    {
-                        self.problem(format!(
-                            "text field {id}: `{word}` is not a side to set lines against"
-                        ));
-                    }
+            self.check_symbol(*id, symbol)?;
+        }
+        self.check_main_timeline()?;
+        self.check_exports();
+        Ok(())
+    }
+
+    /// Checks one symbol by the kind the manifest says it is.
+    fn check_symbol(&mut self, id: SymbolId, symbol: &Symbol) -> Result<()> {
+        match &symbol.info {
+            SymbolInfo::Font { .. } => {}
+            SymbolInfo::Shape { .. } | SymbolInfo::Bitmap { .. } | SymbolInfo::Sound { .. } => {
+                self.check_file_is_there(&symbol.file);
+            }
+            SymbolInfo::MorphShape => self.check_morph(id, &symbol.file)?,
+            SymbolInfo::Clip { frame_count } => {
+                self.check_clip_symbol(id, &symbol.file, *frame_count)?;
+            }
+            SymbolInfo::Button => self.check_button(id, &symbol.file)?,
+            SymbolInfo::Text => self.check_text(id, &symbol.file)?,
+            SymbolInfo::EditText => self.check_field(id, &symbol.file)?,
+        }
+        Ok(())
+    }
+
+    /// A shape, a bitmap or a sound is not read here: its file has only to
+    /// be there, with something in it.
+    fn check_file_is_there(&mut self, file: &str) {
+        self.files += 1;
+        let path = self.dir.join(file);
+        let size = fs::metadata(&path).map_or(0, |meta| meta.len());
+        if size == 0 {
+            self.problem(format!("{file} is missing or empty"));
+        }
+    }
+
+    /// Each path of a morph shape must be made of the same commands at its
+    /// two ends, or there is no blending between them.
+    fn check_morph(&mut self, id: SymbolId, file: &str) -> Result<()> {
+        let morph: MorphShape = self.read(file)?;
+        for (index, path) in morph.paths.iter().enumerate() {
+            if commands(&path.start) != commands(&path.end) {
+                self.problem(format!(
+                    "morph {id}: path {index} has different commands at its two ends"
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    /// A clip must have as many frames as the manifest says, and its
+    /// timeline must hold together.
+    fn check_clip_symbol(&mut self, id: SymbolId, file: &str, frame_count: u16) -> Result<()> {
+        let clip: Clip = self.read(file)?;
+        if clip.frames.len() != usize::from(frame_count) {
+            self.problem(format!(
+                "clip {id}: the manifest says {frame_count} frames, the file has {}",
+                clip.frames.len()
+            ));
+        }
+        self.check_clip(&format!("clip {id}"), &clip);
+        Ok(())
+    }
+
+    /// A button's looks must each be one a button has, made of things that
+    /// can be shown, and its sounds must be sounds.
+    fn check_button(&mut self, id: SymbolId, file: &str) -> Result<()> {
+        let button: Button = self.read(file)?;
+        for record in &button.records {
+            self.check_drawable(&format!("button {id}"), record.symbol);
+            for look in &record.states {
+                if let Look::Other(word) = look {
+                    self.problem(format!("button {id}: `{word}` is not a look a button has"));
                 }
             }
         }
+        if let Some(sounds) = &button.sounds {
+            let starts = [
+                &sounds.over_to_up,
+                &sounds.up_to_over,
+                &sounds.over_to_down,
+                &sounds.down_to_over,
+            ];
+            for start in starts.into_iter().flatten() {
+                self.check_sound(&format!("button {id}"), start);
+            }
+        }
+        Ok(())
+    }
 
+    /// Each run of a text must be in a font, and of glyphs the font has.
+    fn check_text(&mut self, id: SymbolId, file: &str) -> Result<()> {
+        let text: Text = self.read(file)?;
+        for run in &text.runs {
+            self.references += 1;
+            let Some(&glyphs) = self.glyph_counts.get(&run.font) else {
+                self.problem(format!("text {id}: font {} is not a font", run.font));
+                continue;
+            };
+            if run.glyphs.iter().any(|g| g.glyph as usize >= glyphs) {
+                self.problem(format!(
+                    "text {id}: uses a glyph font {} does not have",
+                    run.font
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    /// A text field's font must be a font, and what it is said to be, and
+    /// the side its lines are set against, must be words the format has.
+    fn check_field(&mut self, id: SymbolId, file: &str) -> Result<()> {
+        let text: EditText = self.read(file)?;
+        if let Some(font) = text.font {
+            self.references += 1;
+            if !self.glyph_counts.contains_key(&font) {
+                self.problem(format!("text field {id}: font {font} is not a font"));
+            }
+        }
+        for flag in &text.flags {
+            if let FieldFlag::Other(word) = flag {
+                self.problem(format!(
+                    "text field {id}: `{word}` is not something a text field can be"
+                ));
+            }
+        }
+        if let Some(Align::Other(word)) = text.layout.as_ref().map(|layout| &layout.align) {
+            self.problem(format!(
+                "text field {id}: `{word}` is not a side to set lines against"
+            ));
+        }
+        Ok(())
+    }
+
+    /// The main timeline must be as long as the manifest says, and hold
+    /// together as any clip must.
+    fn check_main_timeline(&mut self) -> Result<()> {
         let root: Clip = self.read("clips/root.json")?;
         if root.frames.len() != usize::from(self.manifest.stage.frame_count) {
             self.problem("the main timeline's length differs from the manifest".to_owned());
         }
         self.check_clip("the main timeline", &root);
+        Ok(())
+    }
 
+    /// Each name the art exports must lead to a symbol that goes by it.
+    fn check_exports(&mut self) {
         for (name, id) in &self.manifest.exports.clone() {
             self.references += 1;
             match self.manifest.symbols.get(id) {
@@ -187,7 +231,6 @@ impl Checker {
                 None => self.problem(format!("export {name:?}: no symbol {id}")),
             }
         }
-        Ok(())
     }
 
     fn check_clip(&mut self, name: &str, clip: &Clip) {
