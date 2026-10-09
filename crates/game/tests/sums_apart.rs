@@ -30,7 +30,7 @@ const SUMS: [&str; 25] = [
     "play/mods/lone_pitcher.rs",
     "play/mods/moon_ball.rs",
     "play/mods/mystery_pitch.rs",
-    "play/mods/pinball_park.rs",
+    "play/mods/pinball_park",
     "play/mods/rally.rs",
     "play/mods/sudden_death.rs",
     "play/mods/tired_arm.rs",
@@ -97,7 +97,8 @@ fn no_mod_does_its_work_as_a_function_of_the_match() {
             file.display()
         );
     }
-    // Every mod's file or folder, and the one that lists them.
+    // Every mod's file or folder, the file that lists them, and the folder
+    // of what the game asks them.
     let listed = fs::read_dir(&mods).unwrap().count();
-    assert_eq!(listed, 24, "in {}", mods.display());
+    assert_eq!(listed, 25, "in {}", mods.display());
 }
