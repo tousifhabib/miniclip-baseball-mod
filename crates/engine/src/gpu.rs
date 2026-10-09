@@ -751,20 +751,10 @@ impl Renderer {
         background: [f64; 4],
     ) -> Result<image::RgbaImage> {
         let (width, height) = size;
-        let texture = self.device.create_texture(&wgpu::TextureDescriptor {
-            label: Some("capture"),
-            size: wgpu::Extent3d {
-                width,
-                height,
-                depth_or_array_layers: 1,
-            },
-            mip_level_count: 1,
-            sample_count: 1,
-            dimension: wgpu::TextureDimension::D2,
-            format: self.format,
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_SRC,
-            view_formats: &[],
-        });
+        let usage = wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_SRC;
+        let texture =
+            self.device
+                .create_texture(&flat_texture("capture", size, 1, self.format, usage));
         let view = texture.create_view(&wgpu::TextureViewDescriptor::default());
         self.render(library, commands, &view, size, background, None);
 
@@ -1076,20 +1066,13 @@ impl Renderer {
             }
             let texture = self.device.create_texture_with_data(
                 &self.queue,
-                &wgpu::TextureDescriptor {
-                    label: Some("image"),
-                    size: wgpu::Extent3d {
-                        width: image.width,
-                        height: image.height,
-                        depth_or_array_layers: 1,
-                    },
-                    mip_level_count: 1,
-                    sample_count: 1,
-                    dimension: wgpu::TextureDimension::D2,
-                    format: wgpu::TextureFormat::Rgba8Unorm,
-                    usage: wgpu::TextureUsages::TEXTURE_BINDING,
-                    view_formats: &[],
-                },
+                &flat_texture(
+                    "image",
+                    (image.width, image.height),
+                    1,
+                    wgpu::TextureFormat::Rgba8Unorm,
+                    wgpu::TextureUsages::TEXTURE_BINDING,
+                ),
                 wgpu::util::TextureDataOrder::LayerMajor,
                 &pixels,
             );
@@ -1146,23 +1129,10 @@ impl Renderer {
     }
 
     fn new_layer_target(&self, size: (u32, u32)) -> LayerTarget {
+        let usage = wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING;
         let sampled = || {
             self.device
-                .create_texture(&wgpu::TextureDescriptor {
-                    label: Some("layer"),
-                    size: wgpu::Extent3d {
-                        width: size.0,
-                        height: size.1,
-                        depth_or_array_layers: 1,
-                    },
-                    mip_level_count: 1,
-                    sample_count: 1,
-                    dimension: wgpu::TextureDimension::D2,
-                    format: self.format,
-                    usage: wgpu::TextureUsages::RENDER_ATTACHMENT
-                        | wgpu::TextureUsages::TEXTURE_BINDING,
-                    view_formats: &[],
-                })
+                .create_texture(&flat_texture("layer", size, 1, self.format, usage))
                 .create_view(&wgpu::TextureViewDescriptor::default())
         };
         let (a, b) = (sampled(), sampled());
@@ -1308,6 +1278,32 @@ fn slot_buffer<T>(
     (buffer, bind)
 }
 
+/// What the graphics card is asked for when a texture is wanted: one flat
+/// picture of `size` pixels, with `samples` to a pixel and no smaller copies
+/// of itself kept beside it.
+fn flat_texture(
+    label: &'static str,
+    size: (u32, u32),
+    samples: u32,
+    format: wgpu::TextureFormat,
+    usage: wgpu::TextureUsages,
+) -> wgpu::TextureDescriptor<'static> {
+    wgpu::TextureDescriptor {
+        label: Some(label),
+        size: wgpu::Extent3d {
+            width: size.0,
+            height: size.1,
+            depth_or_array_layers: 1,
+        },
+        mip_level_count: 1,
+        sample_count: samples,
+        dimension: wgpu::TextureDimension::D2,
+        format,
+        usage,
+        view_formats: &[],
+    }
+}
+
 /// A texture to draw into and nothing else.
 fn attachment(
     device: &wgpu::Device,
@@ -1315,21 +1311,9 @@ fn attachment(
     format: wgpu::TextureFormat,
     samples: u32,
 ) -> wgpu::TextureView {
+    let usage = wgpu::TextureUsages::RENDER_ATTACHMENT;
     device
-        .create_texture(&wgpu::TextureDescriptor {
-            label: Some("attachment"),
-            size: wgpu::Extent3d {
-                width: size.0,
-                height: size.1,
-                depth_or_array_layers: 1,
-            },
-            mip_level_count: 1,
-            sample_count: samples,
-            dimension: wgpu::TextureDimension::D2,
-            format,
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
-            view_formats: &[],
-        })
+        .create_texture(&flat_texture("attachment", size, samples, format, usage))
         .create_view(&wgpu::TextureViewDescriptor::default())
 }
 
@@ -1340,20 +1324,13 @@ fn ramp_texture(
     sampler: &wgpu::Sampler,
     rows: usize,
 ) -> (wgpu::Texture, wgpu::BindGroup) {
-    let texture = device.create_texture(&wgpu::TextureDescriptor {
-        label: Some("ramps"),
-        size: wgpu::Extent3d {
-            width: 256,
-            height: rows as u32,
-            depth_or_array_layers: 1,
-        },
-        mip_level_count: 1,
-        sample_count: 1,
-        dimension: wgpu::TextureDimension::D2,
-        format: wgpu::TextureFormat::Rgba8Unorm,
-        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
-        view_formats: &[],
-    });
+    let texture = device.create_texture(&flat_texture(
+        "ramps",
+        (256, rows as u32),
+        1,
+        wgpu::TextureFormat::Rgba8Unorm,
+        wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
+    ));
     let view = texture.create_view(&wgpu::TextureViewDescriptor::default());
     let bind = texture_bind(device, layout, &view, sampler);
     (texture, bind)
