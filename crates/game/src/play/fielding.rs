@@ -46,20 +46,64 @@ enum Job {
     Rest,
 }
 
-pub(crate) struct Fielding {
+/// What kind of play is being made in the field, and how it stands.
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum Play {
     /// Nobody hit it: the batter walks to first on four balls.
-    walk: bool,
-    foul: bool,
-    home_run: bool,
+    Walk,
+    /// The bat sent it outside the lines. `called` is how many frames ago
+    /// that was settled.
+    Foul { called: u32 },
+    /// Nobody hit it: the catcher is throwing to a base that a runner is
+    /// stealing. `held` once the fielder there has the ball and the play
+    /// is done.
+    Steal { held: bool },
+    /// The bat sent it fair.
+    Fair(Fair),
+}
+
+/// How a ball that was hit fair stands.
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum Fair {
+    /// In play: runners may be put out, and may go on.
+    Live,
     /// A zinger is over the wall, and nothing is called until it comes
     /// down.
-    gone: bool,
+    Gone,
+    /// Over the wall, and called a home run this many frames ago.
+    HomeRun { called: u32 },
+    /// A fielder at a base has it, with nobody left to throw out.
+    Held,
+}
+
+/// What came of a fielder getting his glove to the ball before it came
+/// down.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Catch {
+    Made,
+    /// It was in his glove, and he let it go.
+    Dropped,
+}
+
+impl Play {
+    /// Whether the ball is in play: runners may be put out, and may go on.
+    fn is_live(self) -> bool {
+        matches!(
+            self,
+            Play::Steal { held: false } | Play::Fair(Fair::Live | Fair::Gone)
+        )
+    }
+}
+
+pub(crate) struct Fielding {
+    /// What kind of play it is, and how it stands.
+    play: Play,
+    /// What came of a fielder getting his glove to the ball in the air, if
+    /// one did.
+    catch: Option<Catch>,
     /// The outfielders on their way back to the wall to watch a zinger go
     /// over it, counting from 0.
     watchers: Vec<usize>,
-    /// The ball is in play: runners may be put out, and may go on.
-    live: bool,
-    caught: bool,
     /// Which fielder has the job, counting from 0.
     fielder: usize,
     job: Job,
@@ -69,19 +113,49 @@ pub(crate) struct Fielding {
     /// The base the ball is being thrown to, home being 4.
     throw_to: u8,
     frames: u32,
-    /// Frames since the play was settled by a foul or a home run.
-    since_settled: u32,
     /// The ball on the ground has been fumbled once, and will not be
     /// again before somebody has hold of it.
     fumbled: bool,
     /// Who hit the ball: his place among the runners.
     batter: Option<usize>,
-    /// A fielder had the ball in his glove before it came down, and let it
-    /// go.
-    dropped: bool,
-    /// Nobody hit it: the catcher is throwing to a base that a runner is
-    /// stealing.
-    steal: bool,
+}
+
+impl Fielding {
+    /// A play that has just begun, of this kind, with the catcher's part
+    /// in it still to be said: nobody has the ball, and nothing has come
+    /// of it yet.
+    fn begun(play: Play, home: Point, batter: Option<usize>) -> Fielding {
+        Fielding {
+            play,
+            catch: None,
+            watchers: Vec::new(),
+            fielder: 0,
+            job: Job::Rest,
+            land: home,
+            facing: Facing::Down,
+            throw_to: 1,
+            frames: 0,
+            fumbled: false,
+            batter,
+        }
+    }
+
+    fn is_home_run(&self) -> bool {
+        matches!(self.play, Play::Fair(Fair::HomeRun { .. }))
+    }
+
+    /// Whether the bat sent the ball fair: not a foul, a walk or a steal.
+    fn is_fair(&self) -> bool {
+        matches!(self.play, Play::Fair(_))
+    }
+
+    fn was_caught(&self) -> bool {
+        self.catch == Some(Catch::Made)
+    }
+
+    fn was_dropped(&self) -> bool {
+        self.catch == Some(Catch::Dropped)
+    }
 }
 
 /// The runner clip's frame labels for running and sliding to each base.
@@ -130,6 +204,13 @@ const CALLED_COLOUR: Rgb = [0xff, 0xe2, 0x4a];
 /// The frames of a fielder on which he picks the ball up, throws it or
 /// catches it. Each shows a clip inside him that is meant to play once.
 const ONCE_ONLY: std::ops::RangeInclusive<u16> = 46..=145;
+
+/// How many frames the picture of a foul plays for before the next pitch,
+/// and the picture of a home run, and how far into the home run's the
+/// board in the field joins in.
+const FOUL_PLAYS_FOR: u32 = 91;
+const HOME_RUN_PLAYS_FOR: u32 = 116;
+const BOARD_JOINS_IN: u32 = 60;
 
 impl Match {
     /// Stops a fielder's pick-up, throw or catch when it has played.
@@ -287,26 +368,12 @@ impl Match {
         if let Some(field) = stage.child_mut(&parts.field) {
             field.move_to(rules.field.x, y);
         }
-        let mut fielding = Fielding {
-            walk,
-            foul: false,
-            home_run: false,
-            gone: false,
-            watchers: Vec::new(),
-            live: !walk,
-            caught: false,
-            fielder: 0,
-            job: Job::Rest,
-            land: parts.home,
-            facing: Facing::Down,
-            throw_to: 1,
-            frames: 0,
-            since_settled: 0,
-            fumbled: false,
-            batter: self.batter(),
-            dropped: false,
-            steal: false,
+        let play = if walk {
+            Play::Walk
+        } else {
+            Play::Fair(Fair::Live)
         };
+        let mut fielding = Fielding::begun(play, parts.home, self.batter());
         self.phase = Phase::Fielding;
 
         if walk {
@@ -317,8 +384,7 @@ impl Match {
             let mark_x = parts.field_mark.0 + contact.aside / rules.field.aim_share;
             if mark_x < parts.foul.0 || mark_x > parts.foul.1 {
                 // A foul is a strike, but never the last one.
-                fielding.foul = true;
-                fielding.live = false;
+                fielding.play = Play::Foul { called: 0 };
                 self.steals_go_back(stage, library);
                 if self.strikes + 1 < self.strikes_allowed(game) {
                     self.strikes += 1;
@@ -412,27 +478,13 @@ impl Match {
         self.mods.a_steal_is_in_play(true);
         self.phase = Phase::Fielding;
         at_bat.fielding = Some(Fielding {
-            walk: false,
-            foul: false,
-            home_run: false,
-            gone: false,
-            watchers: Vec::new(),
-            live: true,
-            caught: false,
             fielder: CATCHER,
             // The last of his wait is the drawing back of his arm.
             job: Job::PickUp {
                 left: wait.saturating_sub(rules.field.throw_time),
             },
-            land: parts.home,
-            facing: Facing::Down,
             throw_to: to,
-            frames: 0,
-            since_settled: 0,
-            fumbled: false,
-            batter: None,
-            dropped: false,
-            steal: true,
+            ..Fielding::begun(Play::Steal { held: false }, parts.home, None)
         });
         self.show_numbers(stage);
     }
@@ -504,29 +556,32 @@ impl Match {
             state.job,
             Job::Chase | Job::WaitCatch | Job::Rest | Job::Fumbling { .. }
         );
+        // A walk has no ball in the field, and a foul's is left where it is.
+        let nothing_to_move = matches!(state.play, Play::Walk | Play::Foul { .. });
         // Where across the field it has come to the wall, and how high, if
         // it has on this frame.
         let mut at_wall = None;
-        if let (Some(ball), true, false) = (&mut at_bat.ball, loose, state.walk || state.foul) {
+        if let (Some(ball), true, false) = (&mut at_bat.ball, loose, nothing_to_move) {
             let before = *ball;
             let was_down = before.bounced;
             let pinball = self.mods.the_park_is_a_pinball_table();
             // In a pinball park the air takes nothing from a ball that has
             // been down, however it was hit.
             let miss = if pinball && was_down { 0.0 } else { miss };
-            let mut happened = if state.home_run {
+            let mut happened = if state.is_home_run() {
                 Happened::Nothing
             } else {
                 ball.step(parts.home, miss, rules)
             };
-            if pinball && !state.home_run && !state.gone {
+            let over_the_wall = matches!(state.play, Play::Fair(Fair::Gone | Fair::HomeRun { .. }));
+            if pinball && !over_the_wall {
                 // In a pinball park the wall and the foul lines send it
                 // back, and whoever is nearest takes up the chase.
                 let park = pinball::Park::of(parts);
                 happened = pinball::rebound(ball, before, happened, &park, rules);
                 if happened == Happened::HitWall {
                     at_bat.rebounds += 1;
-                    if state.live && !self.mods.the_pitcher_fields_alone() {
+                    if state.play.is_live() && !self.mods.the_pitcher_fields_alone() {
                         let far =
                             |index: usize| distance(at(stage, &parts.fielders[index]), ball.at);
                         let nearest = (0..5.min(parts.fielders.len()))
@@ -590,20 +645,20 @@ impl Match {
             match happened {
                 // A zinger is followed on to where it comes down before
                 // anything is called.
-                Happened::Cleared if state.live && at_bat.zinger_show.is_some() => {
-                    state.gone = true;
+                Happened::Cleared if state.play.is_live() && at_bat.zinger_show.is_some() => {
+                    state.play = Play::Fair(Fair::Gone);
                     state.job = Job::Rest;
                     let fielder = parts.fielders[state.fielder].clone();
                     stage.goto_label(&fielder, "waiting", false, library);
                 }
-                Happened::Cleared if state.live => {
+                Happened::Cleared if state.play.is_live() => {
                     // Where it would come down, beyond the wall.
                     state.land = ball.landing(parts.home, miss, rules);
                     self.home_run(state, parts, stage, library);
                 }
                 // Back off the wall: somebody has to go and get it.
-                Happened::HitWall if state.live => state.job = Job::Chase,
-                Happened::Landed if state.gone && !state.home_run => {
+                Happened::HitWall if state.play.is_live() => state.job = Job::Chase,
+                Happened::Landed if state.play == Play::Fair(Fair::Gone) => {
                     state.land = ball.at;
                     self.home_run(state, parts, stage, library);
                     if let Some(shown) = &mut at_bat.zinger_show {
@@ -697,7 +752,7 @@ impl Match {
                     {
                         // It is in his glove and out again: nobody is out,
                         // and the ball is on the ground.
-                        state.dropped = true;
+                        state.catch = Some(Catch::Dropped);
                         self.let_go(&mut at_bat.ball, parts, game);
                         Match::sound(stage, library, "ballCatch_3");
                         Match::sound(stage, library, "crowd_smallCheer");
@@ -707,7 +762,7 @@ impl Match {
                             left: game.rules.butterfingers.fumble_time,
                         };
                     } else if ball.lift < 0.0 && ball.height <= rules.catch_height {
-                        state.caught = true;
+                        state.catch = Some(Catch::Made);
                         show(stage, &parts.field_ball, false);
                         Match::sound(stage, library, "ballCatch_3");
                         Match::sound(stage, library, "umpire_out_1");
@@ -748,7 +803,8 @@ impl Match {
                     let gap = distance(here, to).max(0.001);
                     // A catcher's throw to a base being stolen has a speed
                     // of its own.
-                    let speed = if state.steal && state.fielder == CATCHER {
+                    let stealing = matches!(state.play, Play::Steal { .. });
+                    let speed = if stealing && state.fielder == CATCHER {
                         game.rules.steal.throw_speed
                     } else {
                         rules.throw_speed
@@ -810,21 +866,29 @@ impl Match {
         stage: &mut Stage,
         library: &Library,
     ) -> bool {
-        let rules = &game.rules.field;
-        if state.foul || state.home_run {
-            state.since_settled += 1;
-            // The foul and home-run pictures play themselves out first.
-            if state.home_run
-                && state.since_settled == 60
-                && let Some(board) = &parts.field_scoreboard
-            {
-                stage.goto_label(board, "homeRun", true, library);
+        match &mut state.play {
+            Play::Walk => !self.anyone_running(),
+            // The foul's picture plays itself out first.
+            Play::Foul { called } => {
+                *called += 1;
+                *called >= FOUL_PLAYS_FOR
             }
-            state.since_settled >= if state.foul { 91 } else { 116 }
-        } else if state.walk {
-            !self.anyone_running()
-        } else {
-            !state.live || state.frames > rules.longest
+            // And the home run's, which the board joins in part of the way
+            // through.
+            Play::Fair(Fair::HomeRun { called }) => {
+                *called += 1;
+                if *called == BOARD_JOINS_IN
+                    && let Some(board) = &parts.field_scoreboard
+                {
+                    stage.goto_label(board, "homeRun", true, library);
+                }
+                *called >= HOME_RUN_PLAYS_FOR
+            }
+            Play::Steal { held: true } | Play::Fair(Fair::Held) => true,
+            // A ball still in play is called dead if it goes on too long.
+            Play::Steal { held: false } | Play::Fair(Fair::Live | Fair::Gone) => {
+                state.frames > game.rules.field.longest
+            }
         }
     }
 
@@ -848,7 +912,7 @@ impl Match {
                 self.arrive(runner, parts, stage, library);
             }
         }
-        if !state.walk && !state.foul && !state.steal {
+        if state.is_fair() {
             // Where it went is remembered, for the shift to go by.
             let ground = parts.ground(rules);
             self.mods.a_fair_ball_came_down(ground.across(state.land));
@@ -856,7 +920,7 @@ impl Match {
         // A hit puts some of bullet time's meter back, and a home run
         // all of it.
         let batter = state.batter.and_then(|batter| self.runners.get(batter));
-        let hit = !state.walk && !state.foul && !state.steal;
+        let hit = state.is_fair();
         match batter.map(|batter| batter.place) {
             Some(Place::Home) if hit => self.mods.a_hit_came_off(true),
             Some(Place::Base(_)) if hit => self.mods.a_hit_came_off(false),
@@ -872,17 +936,13 @@ impl Match {
         let Some(ground) = self.mode.full().map(|full| *full.ground()) else {
             return;
         };
-        if state.steal {
+        match state.play {
             // The pitch is in the book already: nobody hit it.
-            return;
+            Play::Steal { .. } => return,
+            Play::Foul { .. } => return self.book_pitch(at_bat, Thrown::Foul),
+            Play::Walk => return self.book_end(End::Walk, None),
+            Play::Fair(_) => self.book_pitch(at_bat, Thrown::InPlay),
         }
-        if state.foul {
-            return self.book_pitch(at_bat, Thrown::Foul);
-        }
-        if state.walk {
-            return self.book_end(End::Walk, None);
-        }
-        self.book_pitch(at_bat, Thrown::InPlay);
         let (score, outs) = self.thrown_at;
         let place = state
             .batter
@@ -891,21 +951,21 @@ impl Match {
         let safe = matches!(place, Some(Place::Base(_) | Place::Home));
         let end = match place {
             // He would have been out, had the catch been held.
-            _ if safe && state.dropped => End::Error,
+            _ if safe && state.was_dropped() => End::Error,
             Some(Place::Home) => End::HomeRun,
             Some(Place::Base(2)) => End::Double,
             Some(Place::Base(3)) => End::Triple,
             Some(Place::Base(_)) => End::Single,
             // A run that came in on a catch that was not the last out.
-            _ if state.caught && self.score > score && outs < 2 => End::SacrificeFly,
-            _ if state.caught => End::FlyOut,
+            _ if state.was_caught() && self.score > score && outs < 2 => End::SacrificeFly,
+            _ if state.was_caught() => End::FlyOut,
             _ if self.outs >= outs + 2 => End::DoublePlay,
             _ => End::GroundOut,
         };
         // It was in the air if it was caught, went out of the park, or
         // first came down beyond the infield.
         let deep = reach(ground.home, state.land) >= ground.infield;
-        let fly = state.caught || state.dropped || state.home_run || deep;
+        let fly = state.catch.is_some() || state.is_home_run() || deep;
         let feet = at_bat.zinger.map(|zinger| zinger.feet);
         let hit = Hit::at(&ground, state.land, fly, feet);
         if end == End::Error
@@ -999,7 +1059,12 @@ impl Match {
             state.throw_to = self.pick_base(here, parts);
             state.job = Match::wind_up(state, here, &fielder, parts, game, stage, library);
         } else {
-            state.live = false;
+            state.play = match state.play {
+                Play::Steal { .. } => Play::Steal { held: true },
+                Play::Fair(Fair::Live) => Play::Fair(Fair::Held),
+                // In no other play has a fielder at a base the ball.
+                other => other,
+            };
             state.job = Job::Rest;
         }
     }
@@ -1072,8 +1137,7 @@ impl Match {
         stage: &mut Stage,
         library: &Library,
     ) {
-        state.home_run = true;
-        state.live = false;
+        state.play = Play::Fair(Fair::HomeRun { called: 0 });
         state.job = Job::Rest;
         self.mods.a_home_run_was_hit();
         let worth = self.run_worth;
@@ -1114,7 +1178,7 @@ impl Match {
     ) {
         let rules = &game.rules.field;
         let speed = rules.fielder_speed.at(game.settings.difficulty);
-        let called = state.home_run;
+        let called = state.is_home_run();
         state.watchers.retain(|&index| {
             let fielder = &parts.fielders[index];
             let here = at(stage, fielder);
@@ -1148,7 +1212,7 @@ impl Match {
         // Once the ball has been caught or has come down, a runner on a
         // base may try for the next. Turbo runners may at any time.
         let turbo = self.mods.runners_may_go_at_any_time();
-        let may_go_on = state.live && (turbo || state.caught || ball_down);
+        let may_go_on = state.play.is_live() && (turbo || state.was_caught() || ball_down);
         // A runner's run is a clip that plays a frame at a time. Turbo
         // runners are hurried on through it by more frames than that.
         let hurried = self.mods.hurry_the_runners();
