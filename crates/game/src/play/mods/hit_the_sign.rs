@@ -20,6 +20,11 @@ use crate::play::overlay::{DARK, Says, Words};
 use crate::play::{AtBat, Match, Parts};
 use crate::rules::{FieldRules, SignRules};
 
+/// The mod, in play. What the match keeps for it is with the match still:
+/// which sign is lit this innings, and what the last ball to strike one
+/// was worth.
+pub(crate) struct HitTheSign;
+
 /// How tall a sign is drawn on the wall over the field, in the field's
 /// pixels, and how far up the wall its foot is.
 const TALL: f32 = 11.0;

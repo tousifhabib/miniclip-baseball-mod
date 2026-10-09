@@ -13,7 +13,6 @@ use super::field::{Happened, distance, seen_size};
 use super::pitch::Point;
 use super::{AtBat, Match, Parts, at, put, show, zinger};
 use crate::menu::Game;
-use crate::mods::Mod;
 use crate::rules::ArcadeRules;
 
 pub(crate) struct Arcade {
@@ -95,7 +94,7 @@ impl Match {
         arcade.flying = false;
         arcade.owed = None;
         // With the zinger mod on there is no target to drop the ball on.
-        let target_shown = !game.mods.is_on(Mod::ZingerHit);
+        let target_shown = !self.mods.every_hit_is_a_home_run();
         let area = &rules.target;
         arcade.target = (
             area.x + self.rng.below(area.width as u32) as f32,

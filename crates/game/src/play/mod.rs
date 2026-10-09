@@ -27,7 +27,6 @@ use bb_format::SymbolId;
 use crate::art;
 use crate::look::{Look, Rgb};
 use crate::menu::Game;
-use crate::mods::Mod;
 use crate::rng::Rng;
 use crate::rules::{FieldRules, HitRules, PitchRules};
 use book::{End, ORDER, Thrown};
@@ -416,8 +415,9 @@ pub(crate) fn frame_of(stage: &Stage, path: &[u16]) -> u16 {
 
 impl Match {
     pub fn new(game: &Game, seed: u64, library: &Library) -> Match {
+        let mods = ModsInPlay::for_game(game, false);
         // With every hit a home run there are more runs to get.
-        let behind = if game.mods.is_on(Mod::ZingerHit) {
+        let behind = if mods.every_hit_is_a_home_run() {
             game.rules.zinger.runs_down
         } else {
             game.rules.game.runs_down
@@ -440,7 +440,7 @@ impl Match {
             cues: Vec::new(),
             put_away: Vec::new(),
             mode: Mode::LastInnings,
-            mods: ModsInPlay::for_game(game, false),
+            mods,
             came_up: 0,
             line_up: Vec::new(),
             tally: Vec::new(),
@@ -916,8 +916,7 @@ impl Match {
         // The stadium is lit as by day, unless it is night, and is cooler
         // while bullet time holds the ball back.
         let slowed = std::mem::take(&mut self.slowed);
-        let cooled = game.mods.is_on(Mod::BulletTime).then_some(slowed);
-        if let Some(lighting) = self.mods.lighting(cooled) {
+        if let Some(lighting) = self.mods.lighting(slowed) {
             night_game::light(lighting, stage);
         }
 
@@ -982,8 +981,7 @@ impl Match {
                 // While the pitcher waits, a click on the outfield calls
                 // the shot. The arcade game has a target of its own.
                 if let Some((x, y)) = pressed
-                    && !self.mode.is_arcade()
-                    && game.mods.is_on(Mod::CalledShot)
+                    && self.mods.shots_are_called()
                     && let Some(pointer) = stage.from_stage(&at_bat.parts.main, x, y)
                 {
                     let called = &mut at_bat.called;
@@ -1170,9 +1168,9 @@ impl Match {
             self.mods.the_bat_met_the_ball();
             // With the zinger mod on, whatever the bat meets is on its way
             // out of the ground.
-            let zinger = game
+            let zinger = self
                 .mods
-                .is_on(Mod::ZingerHit)
+                .every_hit_is_a_home_run()
                 .then(|| {
                     let ring = (at_bat.across, at_bat.under);
                     let home = at_bat.parts.home;

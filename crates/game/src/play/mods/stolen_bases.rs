@@ -22,6 +22,10 @@ use crate::play::overlay::{DARK, Says};
 use crate::play::pitch::Point;
 use crate::play::{AtBat, Match, Parts, Place, Runner, frame_of};
 
+/// The mod, in play. What the match keeps for it is with the match still:
+/// the bases stolen, the runners caught, and the news of the last try.
+pub(crate) struct StolenBases;
+
 /// The sizes of a runner's mark on the little field and of the dark edge
 /// under it, the art's dot being 1, and how many times its size a mark
 /// swells to while its runner may be sent.

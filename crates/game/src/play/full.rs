@@ -18,7 +18,6 @@ use super::{AtBat, Match, Mode, Outcome, Parts, Phase, Place};
 use crate::art;
 use crate::look::Rgb;
 use crate::menu::Game;
-use crate::mods::Mod;
 use crate::rng::Rng;
 use crate::rules::{FullMatchRules, StealRules};
 use crate::settings::Difficulty;
@@ -547,9 +546,10 @@ impl Match {
             home,
             &game.rules.full_match,
             game.settings.difficulty,
-            game.mods.is_on(Mod::ZingerHit),
-            game.mods
-                .is_on(Mod::StolenBases)
+            played.mods.every_hit_is_a_home_run(),
+            played
+                .mods
+                .runners_steal()
                 .then(|| game.rules.steal.clone()),
             art::ground(library, &game.rules),
             seed ^ THEIR_SEED,

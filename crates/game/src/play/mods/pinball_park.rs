@@ -13,6 +13,10 @@ use crate::play::field::{Ball, Happened, reach};
 use crate::play::pitch::Point;
 use crate::rules::FieldRules;
 
+/// The mod, in play. It keeps nothing: how bouncy the park is is settled in
+/// the rules the game is played by, when it starts.
+pub(crate) struct PinballPark;
+
 /// The fixed points of the field that the ball is kept in by.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub(crate) struct Park {

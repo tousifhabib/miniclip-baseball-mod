@@ -21,6 +21,10 @@ use crate::play::overlay::{self, DARK, Words};
 use crate::play::pitch::{Pitch, Quality};
 use crate::rules::PitchRules;
 
+/// The mod, in play. It keeps nothing from pitch to pitch: the bar is put up
+/// afresh for each.
+pub(crate) struct TimingIndicator;
+
 /// What a swing begun on each step of a pitch's flight comes to.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Timing {

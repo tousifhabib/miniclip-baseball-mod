@@ -30,6 +30,10 @@ use crate::play::{Parts, put};
 use crate::rules::{FieldRules, HitRules, PitchRules, Rules, ZingerRules};
 use crate::settings::Difficulty;
 
+/// The mod, in play. What a zinger is made of is below; the match keeps the
+/// longest of the game and the record it has to beat.
+pub(crate) struct ZingerHit;
+
 /// How far inside a foul line a zinger is kept, in pixels of the field
 /// where the lines are marked.
 const INSIDE: f32 = 12.0;

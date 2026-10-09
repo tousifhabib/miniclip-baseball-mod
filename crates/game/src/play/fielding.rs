@@ -15,7 +15,6 @@ use super::zinger;
 use super::{AtBat, Match, Parts, Phase, Place, at, frame_of, put, show};
 use crate::look::Rgb;
 use crate::menu::Game;
-use crate::mods::Mod;
 
 /// What the fielder with the ball, or going for it, is doing.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -482,7 +481,7 @@ impl Match {
         if let (Some(ball), true, false) = (&mut at_bat.ball, loose, state.walk || state.foul) {
             let before = *ball;
             let was_down = before.bounced;
-            let pinball = game.mods.is_on(Mod::PinballPark);
+            let pinball = self.mods.the_park_is_a_pinball_table();
             // In a pinball park the air takes nothing from a ball that has
             // been down, however it was hit.
             let miss = if pinball && was_down { 0.0 } else { miss };
@@ -534,7 +533,7 @@ impl Match {
             }
             // The first time it comes down, a shot that was called for
             // there comes off.
-            if happened == Happened::Landed && !was_down && game.mods.is_on(Mod::CalledShot) {
+            if happened == Happened::Landed && !was_down && self.mods.shots_are_called() {
                 at_bat.came_down = Some(ball.at);
                 if let Some(called) = &mut at_bat.called {
                     let runs = called.landed(ball.at, &game.rules, stage, library);
@@ -616,7 +615,7 @@ impl Match {
                 // In a pinball park a ball that is hopping goes by over his
                 // head.
                 let too_high = ball.bounced
-                    && game.mods.is_on(Mod::PinballPark)
+                    && self.mods.the_park_is_a_pinball_table()
                     && ball.height > game.rules.pinball.low;
                 if distance(next, target) <= 2.0 && !too_high {
                     if ball.bounced && !state.fumbled && self.lets_go() {

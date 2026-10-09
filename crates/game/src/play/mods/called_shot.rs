@@ -19,6 +19,10 @@ use crate::play::pitch::Point;
 use crate::play::{Parts, at};
 use crate::rules::Rules;
 
+/// The mod, in play. A shot is called afresh for each pitch, so nothing is
+/// kept between them.
+pub(crate) struct CalledShot;
+
 /// A shot that has been called.
 pub(crate) struct Called {
     /// Where on the field the target is.

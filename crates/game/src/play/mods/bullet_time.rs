@@ -16,11 +16,14 @@ use bb_engine::stage::Stage;
 use crate::art;
 use crate::look::{self, Rgb};
 use crate::menu::Game;
-use crate::mods::Mod;
 use crate::play::overlay::{self, DARK, Words};
 use crate::play::pitch::Point;
 use crate::play::{AtBat, Match, Parts};
 use crate::rules::BulletTimeRules;
+
+/// The mod, in play. What the match keeps for it is with the match still:
+/// what is left in the meter, and whether the ball is being held back.
+pub(crate) struct BulletTime;
 
 /// The key that is held.
 pub const KEY: Key = Key::Char(' ');
@@ -127,7 +130,7 @@ impl Match {
             return false;
         };
         let near = step + rules.near as usize >= at_bat.pitch.samples.len();
-        let wanted = game.mods.is_on(Mod::BulletTime) && stage.key_down(KEY);
+        let wanted = self.mods.the_pitch_can_be_slowed() && stage.key_down(KEY);
         if !wanted || !near || at_bat.swing.is_some() || *left == 0 {
             return false;
         }

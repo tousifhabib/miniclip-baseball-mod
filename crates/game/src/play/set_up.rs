@@ -21,7 +21,6 @@ use super::{
 };
 use crate::look;
 use crate::menu::Game;
-use crate::mods::Mod;
 use crate::rules::PitchRules;
 
 /// What is being got ready for the pitch that is coming, as each step adds
@@ -101,7 +100,7 @@ impl Match {
         self.shift_the_fielders(&mut coming, game, stage, library);
         Match::clear_the_plate(&coming, stage);
         self.stand_the_runners(&coming, stage, library);
-        let leads = self.mark_the_leads(&mut coming, game, stage, library);
+        let leads = self.mark_the_leads(&mut coming, stage, library);
         let signs = self.put_up_the_signs(&coming, game, stage, library);
         self.mark_the_field(&coming, stage, library);
         let them = match self.mode.full() {
@@ -113,7 +112,7 @@ impl Match {
 
         let mound = Match::mound(&coming.parts, stage, library)?;
         let decided = self.decide_the_pitch(&mut coming, &mound, game);
-        let timing = Match::put_up_the_timing_bar(&coming, &decided.pitch, game, stage, library);
+        let timing = self.put_up_the_timing_bar(&coming, &decided.pitch, game, stage, library);
         self.phase = Phase::Settling {
             left: game.rules.throw.settle + decided.wait as u32,
         };
@@ -319,7 +318,7 @@ impl Match {
         stage: &mut Stage,
         library: &Library,
     ) -> Option<bullet::Meter> {
-        if !game.mods.is_on(Mod::BulletTime) {
+        if !self.mods.the_pitch_can_be_slowed() {
             self.bullet = None;
             return None;
         }
@@ -397,12 +396,11 @@ impl Match {
     fn mark_the_leads(
         &self,
         coming: &mut Coming,
-        game: &Game,
         stage: &mut Stage,
         library: &Library,
     ) -> Option<steal::Leads> {
         let on_base = |runner: &Runner| matches!(runner.place, Place::Base(_));
-        if !game.mods.is_on(Mod::StolenBases) || !self.runners.iter().any(on_base) {
+        if !self.mods.runners_steal() || !self.runners.iter().any(on_base) {
             return None;
         }
         let under = coming.corner.line();
@@ -419,7 +417,7 @@ impl Match {
         library: &Library,
     ) -> Option<sign::Board> {
         self.sign_struck = None;
-        if !game.mods.is_on(Mod::HitTheSign) || self.mode.is_arcade() {
+        if !self.mods.the_wall_has_signs() {
             return None;
         }
         let rules = &game.rules;
@@ -509,13 +507,14 @@ impl Match {
     /// the zinger mod on as well, it says how far a swing on each of its
     /// colours sends the ball at the most.
     fn put_up_the_timing_bar(
+        &self,
         coming: &Coming,
         pitch: &Pitch,
         game: &Game,
         stage: &mut Stage,
         library: &Library,
     ) -> Option<timing::Indicator> {
-        if !game.mods.is_on(Mod::TimingIndicator) {
+        if !self.mods.the_timing_bar_is_shown() {
             return None;
         }
         let (table, parts) = (&coming.table, &coming.parts);
@@ -532,7 +531,7 @@ impl Match {
             .map(|zinger| zinger.feet)
         };
         let feet: Option<&dyn Fn(u32) -> Option<u32>> =
-            game.mods.is_on(Mod::ZingerHit).then_some(&feet);
+            self.mods.every_hit_is_a_home_run().then_some(&feet);
         timing::Indicator::new(pitch, table, parts, feet, stage, library)
     }
 }

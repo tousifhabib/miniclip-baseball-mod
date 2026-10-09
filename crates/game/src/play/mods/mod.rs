@@ -30,21 +30,28 @@ mod tired_arm;
 mod turbo_runners;
 pub(crate) mod zinger_hit;
 
+use bullet_time::BulletTime;
 use butterfingers::Butterfingers;
+use called_shot::CalledShot;
 use clutch::Clutch;
 pub(crate) use golden_ball::GoldenBall;
 use heat_check::HeatCheck;
+use hit_the_sign::HitTheSign;
 use hot_bat::HotBat;
 use knuckleball::Knuckleball;
 use lone_pitcher::LonePitcher;
 use mystery_pitch::MysteryPitch;
 use night_game::NightGame;
+use pinball_park::PinballPark;
 use rally::Rally;
 use southpaw::Southpaw;
+use stolen_bases::StolenBases;
 use sudden_death::SuddenDeath;
 use the_shift::TheShift;
+use timing_indicator::TimingIndicator;
 pub(crate) use tired_arm::TiredArm;
 use turbo_runners::TurboRunners;
+use zinger_hit::ZingerHit;
 
 use bb_engine::math::ColorTransform;
 
@@ -73,10 +80,13 @@ pub(crate) struct Line {
 /// What each mod in play keeps. `None` is a mod that is off.
 #[derive(Default)]
 pub(crate) struct ModsInPlay {
+    bullet_time: Option<BulletTime>,
     butterfingers: Option<Butterfingers>,
+    called_shot: Option<CalledShot>,
     clutch: Option<Clutch>,
     golden_ball: Option<GoldenBall>,
     heat_check: Option<HeatCheck>,
+    hit_the_sign: Option<HitTheSign>,
     hot_bat: Option<HotBat>,
     /// The two mods with a hand in deciding the pitch, which the game asks
     /// one by one as it does so.
@@ -84,18 +94,22 @@ pub(crate) struct ModsInPlay {
     lone_pitcher: Option<LonePitcher>,
     pub(in crate::play) mystery_pitch: Option<MysteryPitch>,
     night_game: Option<NightGame>,
+    pinball_park: Option<PinballPark>,
     rally: Option<Rally>,
     /// The left-handed batter, whom the game stands at the plate and
     /// pitches to in steps of its own.
     pub(in crate::play) southpaw: Option<Southpaw>,
+    stolen_bases: Option<StolenBases>,
     sudden_death: Option<SuddenDeath>,
     /// The shift, which the game has move the fielders as the view is got
     /// ready.
     pub(in crate::play) the_shift: Option<TheShift>,
     /// The pitcher's arm, which the game gets ready before each pitch in
     /// several steps of its own.
+    timing_indicator: Option<TimingIndicator>,
     pub(in crate::play) tired_arm: Option<TiredArm>,
     turbo_runners: Option<TurboRunners>,
+    zinger_hit: Option<ZingerHit>,
 }
 
 impl ModsInPlay {
@@ -108,6 +122,16 @@ impl ModsInPlay {
         let level = |which: Mod| game.mods.level(which);
         let rules = &game.rules;
         ModsInPlay {
+            bullet_time: on(Mod::BulletTime).then_some(BulletTime),
+            // The arcade game has a target of its own, and no runs for a
+            // called shot to be worth.
+            called_shot: (on(Mod::CalledShot) && !arcade).then_some(CalledShot),
+            // Nor any for a sign to be worth.
+            hit_the_sign: (on(Mod::HitTheSign) && !arcade).then_some(HitTheSign),
+            pinball_park: on(Mod::PinballPark).then_some(PinballPark),
+            stolen_bases: on(Mod::StolenBases).then_some(StolenBases),
+            timing_indicator: on(Mod::TimingIndicator).then_some(TimingIndicator),
+            zinger_hit: on(Mod::ZingerHit).then_some(ZingerHit),
             butterfingers: on(Mod::Butterfingers)
                 .then(|| Butterfingers::new(&rules.butterfingers, level(Mod::Butterfingers))),
             clutch: (on(Mod::Clutch) && !arcade).then(|| Clutch::new(&rules.clutch)),
@@ -254,21 +278,56 @@ impl ModsInPlay {
 
     /// How the stadium is to be lit this frame, if any mod has a say in
     /// it: dark by night, flashing for a home run, and cooler while the
-    /// ball is being held back. `cooled` is whether it is, and whether the
-    /// mod that holds it back is in play.
-    pub fn lighting(&mut self, cooled: Option<bool>) -> Option<ColorTransform> {
-        if self.night_game.is_none() && cooled.is_none() {
+    /// ball is being held back, which `held_back` says it is.
+    pub fn lighting(&mut self, held_back: bool) -> Option<ColorTransform> {
+        if self.night_game.is_none() && self.bullet_time.is_none() {
             return None;
         }
         let lighting = match &mut self.night_game {
             Some(night) => night.lighting(),
             None => night_game::DAY,
         };
-        Some(if cooled == Some(true) {
+        Some(if held_back {
             bullet_time::cool(lighting)
         } else {
             lighting
         })
+    }
+
+    /// Whether the pitch can be slowed as it comes to the plate.
+    pub fn the_pitch_can_be_slowed(&self) -> bool {
+        self.bullet_time.is_some()
+    }
+
+    /// Whether the batter may call where his hit will come down.
+    pub fn shots_are_called(&self) -> bool {
+        self.called_shot.is_some()
+    }
+
+    /// Whether the outfield wall has signs on it that pay runs.
+    pub fn the_wall_has_signs(&self) -> bool {
+        self.hit_the_sign.is_some()
+    }
+
+    /// Whether the ball keeps its speed when it bounces and cannot get out
+    /// of the field except over the wall on the fly.
+    pub fn the_park_is_a_pinball_table(&self) -> bool {
+        self.pinball_park.is_some()
+    }
+
+    /// Whether runners may be sent to steal a base.
+    pub fn runners_steal(&self) -> bool {
+        self.stolen_bases.is_some()
+    }
+
+    /// Whether the bar that shows when to swing is put up.
+    pub fn the_timing_bar_is_shown(&self) -> bool {
+        self.timing_indicator.is_some()
+    }
+
+    /// Whether whatever the bat meets goes out of the ground.
+    pub fn every_hit_is_a_home_run(&self) -> bool {
+        self.zinger_hit.is_some()
     }
 
     /// A ball that was hit fair has come down this far across the field,
