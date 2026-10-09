@@ -6,11 +6,12 @@ use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 use bb_format::SymbolId;
 
-use super::book::{End, Hit, Thrown};
+use super::book::{End, Hit, ORDER, Thrown};
 use super::field::{Ball, Facing, Happened, distance, reach, seen_size};
 use super::overlay::{Notices, Says};
 use super::pinball;
 use super::pitch::Point;
+use super::steal;
 use super::zinger;
 use super::{AtBat, Match, Parts, Phase, Place, at, frame_of, play_from, put, show};
 use crate::look::Rgb;
@@ -256,6 +257,34 @@ impl Match {
         }
     }
 
+    /// A runner who was stealing has got to `base`, or has been put out on
+    /// his way there: it is counted, written in a full match's book, and
+    /// kept to be told.
+    fn a_steal_came_out(&mut self, runner: usize, base: u8, safe: bool) {
+        self.mods.a_steal_came_out(safe);
+        let order = self.runners[runner].order % ORDER;
+        if let Some(full) = self.mode.full_mut() {
+            let innings = full.innings();
+            full.book.ours.stole(innings, order, base, safe);
+        }
+    }
+
+    /// Says over the field how a steal came out, once it has.
+    fn tell_steal(
+        &mut self,
+        at_bat: &mut AtBat,
+        frames: u32,
+        stage: &mut Stage,
+        library: &Library,
+    ) {
+        let Some(told) = self.mods.news_of_a_steal() else {
+            return;
+        };
+        at_bat.notices.take_down(steal::HINT, stage);
+        let says = steal::news(told, frames, at_bat.parts.centre_x);
+        at_bat.notices.put(says, &at_bat.parts, stage, library);
+    }
+
     /// Sets a runner off for a base.
     pub(super) fn send(&mut self, runner: usize, to: u8, stage: &mut Stage, library: &Library) {
         self.runners[runner].running_to = Some(to);
@@ -283,7 +312,7 @@ impl Match {
             // A runner caught stealing is out, and the batter's count is
             // as it was.
             (Some(_), Some(base)) if self.mods.is_a_steal_in_play() => {
-                self.stole(runner, base, false);
+                self.a_steal_came_out(runner, base, false);
             }
             _ => self.clear_count(),
         }
@@ -316,7 +345,7 @@ impl Match {
         let path = self.runners[runner].path.clone();
         self.runners[runner].sliding = false;
         if self.runners[runner].stole_from.take().is_some() && self.mods.is_a_steal_in_play() {
-            self.stole(runner, base, true);
+            self.a_steal_came_out(runner, base, true);
         }
         if base == 4 {
             self.runners[runner].place = Place::Home;
@@ -369,14 +398,17 @@ impl Match {
 
         if walk {
             show(stage, &parts.field_ball, false);
-            self.steals_on_a_walk();
+            // A runner the walk pushes on has stolen nothing.
+            self.runners.a_walk_takes_the_steals_it_pushes();
+            let stealing = self.runners.anyone_stealing();
+            self.mods.a_steal_is_in_play(stealing);
             self.start_runners(stage, library);
         } else if let (Some(ball), Some(contact)) = (at_bat.ball, at_bat.contact) {
             let mark_x = parts.field_mark.0 + contact.aside / rules.field.aim_share;
             if mark_x < parts.foul.0 || mark_x > parts.foul.1 {
                 // A foul is a strike, but never the last one.
                 fielding.play = Play::Foul { called: 0 };
-                self.steals_go_back(stage, library);
+                steal::send_back(&mut self.runners, stage, library);
                 let allowed = self.strikes_allowed(game);
                 if self.count.foul(allowed) {
                     self.mods.a_foul_took_a_strike();
@@ -403,7 +435,7 @@ impl Match {
                         .unwrap_or(0)
                 };
                 fielding.job = Job::Chase;
-                self.steals_are_runs();
+                self.runners.steals_are_runs();
                 self.start_runners(stage, library);
                 if let Some(zinger) = at_bat.zinger {
                     at_bat.zinger_show =

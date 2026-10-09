@@ -184,6 +184,28 @@ impl Runners {
         [1, 2, 3].map(|base: u8| (1..=base).all(|behind| self.has_one_from(behind)))
     }
 
+    /// The pitch was hit fair: whoever was stealing is a runner like any
+    /// other now, and has stolen nothing.
+    pub fn steals_are_runs(&mut self) {
+        for runner in self {
+            runner.stole_from = None;
+        }
+    }
+
+    /// Four balls: a runner the walk pushes on was going there anyway, and
+    /// has stolen nothing. One it does not push still has a base to steal,
+    /// with nobody throwing.
+    pub fn a_walk_takes_the_steals_it_pushes(&mut self) {
+        let pushed = self.pushed_by_a_walk();
+        for runner in self {
+            if let Some(from) = runner.stole_from
+                && pushed[usize::from(from) - 1]
+            {
+                runner.stole_from = None;
+            }
+        }
+    }
+
     /// The runs made by each place in the batting order: what was made
     /// `before`, in the innings gone by, and what these runners have made.
     pub fn runs_by_order(&self, before: &[u32]) -> Vec<u32> {
@@ -247,12 +269,13 @@ impl Count {
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use proptest::prelude::*;
 
     use super::*;
 
-    fn at(place: Place) -> Runner {
+    /// A runner at a place, with nothing else to say of him.
+    pub(crate) fn at(place: Place) -> Runner {
         Runner {
             place,
             running_to: None,
@@ -280,7 +303,7 @@ mod tests {
         }
     }
 
-    fn runners(list: Vec<Runner>) -> Runners {
+    pub(crate) fn runners(list: Vec<Runner>) -> Runners {
         Runners(list)
     }
 
@@ -370,6 +393,21 @@ mod tests {
         assert_eq!(first_and_second.pushed_by_a_walk(), [true, true, false]);
         let second_only = runners(vec![at(Place::Base(2))]);
         assert_eq!(second_only.pushed_by_a_walk(), [false, false, false]);
+    }
+
+    #[test]
+    fn a_walk_leaves_a_steal_only_to_a_runner_it_does_not_push() {
+        // The runner on first is pushed, and the one on third is not.
+        let mut half = runners(vec![stealing(1), at(Place::Base(3))]);
+        half.a_walk_takes_the_steals_it_pushes();
+        assert!(!half.anyone_stealing());
+        let mut half = runners(vec![stealing(2)]);
+        half.a_walk_takes_the_steals_it_pushes();
+        assert_eq!(half.bases_being_stolen().collect::<Vec<u8>>(), [3]);
+        half.steals_are_runs();
+        assert!(!half.anyone_stealing());
+        // He is still on his way, as a runner like any other.
+        assert!(half.anyone_running());
     }
 
     #[test]

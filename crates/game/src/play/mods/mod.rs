@@ -154,7 +154,7 @@ pub(crate) struct ModsInPlay {
     pub(in crate::play) southpaw: Option<Southpaw>,
     /// Stolen bases, which the fielding counts and tells of as a steal
     /// comes off or fails.
-    pub(in crate::play) stolen_bases: Option<StolenBases>,
+    stolen_bases: Option<StolenBases>,
     sudden_death: Option<SuddenDeath>,
     /// The shift, which the game has move the fielders as the view is got
     /// ready.
@@ -439,6 +439,19 @@ impl ModsInPlay {
         self.stolen_bases
             .as_ref()
             .is_some_and(|steals| steals.in_play)
+    }
+
+    /// A runner who was stealing got there, or was put out on his way.
+    pub fn a_steal_came_out(&mut self, safe: bool) {
+        if let Some(steals) = &mut self.stolen_bases {
+            steals.came_out(safe);
+        }
+    }
+
+    /// How the last steal came out, the first time it is asked for: the
+    /// words to say, and their colour.
+    pub fn news_of_a_steal(&mut self) -> Option<(&'static str, Rgb)> {
+        self.stolen_bases.as_mut()?.to_tell.take()
     }
 
     /// How many bases have been stolen in this game, and how many runners

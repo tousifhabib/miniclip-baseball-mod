@@ -15,7 +15,7 @@ mod mode;
 pub(crate) mod mods;
 pub mod paper;
 pub mod pitch;
-mod runners;
+pub(crate) mod runners;
 mod set_up;
 mod snapshot;
 mod view;

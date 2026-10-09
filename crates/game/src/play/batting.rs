@@ -11,6 +11,7 @@ use bb_engine::stage::Stage;
 use super::book::{End, Thrown};
 use super::field::{Ball, Contact, Happened};
 use super::pitch::{self, Point, Quality};
+use super::steal;
 use super::zinger::Zinger;
 use super::{
     AtBat, Cue, MYSTERY_TOP, Match, PITCH, Parts, Phase, Place, at, called, frame_of, hit_towards,
@@ -62,8 +63,8 @@ impl Match {
         }
         at_bat.notices.fade(stage);
         if let Some(leads) = &mut at_bat.leads {
-            leads.keep(self, self.phase == Phase::WindUp, stage);
-            self.hold_stealers(stage);
+            leads.keep(&self.runners, self.phase == Phase::WindUp, stage);
+            steal::hold(&self.runners, stage);
         }
         if let Some(signs) = &mut at_bat.signs {
             signs.keep(stage);
@@ -98,10 +99,40 @@ impl Match {
         if left == 0 {
             stage.goto_label(&at_bat.parts.pitcher, PITCH, true, library);
             self.phase = Phase::WindUp;
-            self.ask_for_steals(at_bat, stage, library);
+            // If a runner may be sent to steal, the corner of the view
+            // says so.
+            if let Some(leads) = &at_bat.leads
+                && leads.anyone_may_go(&self.runners)
+            {
+                let (notices, parts) = (&mut at_bat.notices, &at_bat.parts);
+                notices.put(steal::asks(leads.hint_at()), parts, stage, library);
+            }
         } else {
             self.phase = Phase::Settling { left: left - 1 };
         }
+    }
+
+    /// A click during the wind-up, at `pointer` in the batting view: with
+    /// the stolen bases mod on, one on the little field sends a runner for
+    /// the next base.
+    fn send_a_stealer(
+        &mut self,
+        at_bat: &mut AtBat,
+        pointer: Point,
+        stage: &mut Stage,
+        library: &Library,
+    ) {
+        let Some(leads) = &at_bat.leads else {
+            return;
+        };
+        let Some(sent) = leads.sent_by(pointer, &self.runners) else {
+            return;
+        };
+        self.runners[sent.runner].stole_from = Some(sent.from);
+        self.send(sent.runner, sent.to, stage, library);
+        let (notices, parts) = (&mut at_bat.notices, &at_bat.parts);
+        let says = steal::says_one_is_going(leads.hint_at());
+        notices.put(says, parts, stage, library);
     }
 
     /// The pitcher winds up, shows where the pitch is going, and lets the
@@ -118,7 +149,7 @@ impl Match {
         if let Some((x, y)) = pressed
             && let Some(pointer) = stage.from_stage(&at_bat.parts.main, x, y)
         {
-            self.steal_click(at_bat, pointer, stage, library);
+            self.send_a_stealer(at_bat, pointer, stage, library);
         }
         let frame = frame_of(stage, &at_bat.parts.pitcher);
         if !at_bat.marker_shown && frame >= at_bat.table.marker_frame {
@@ -132,7 +163,10 @@ impl Match {
         show(stage, &at_bat.parts.shadow, true);
         self.pitched += 1;
         self.mods.the_ball_was_thrown();
-        self.stop_asking_for_steals(at_bat, stage);
+        // Nobody can be sent to steal now.
+        if !self.runners.anyone_stealing() {
+            at_bat.notices.take_down(steal::HINT, stage);
+        }
         self.book_thrown();
         if let Some(arcade) = self.mode.arcade_mut() {
             arcade.left = arcade.left.saturating_sub(1);
@@ -473,7 +507,7 @@ impl Match {
             return self.show_steal(at_bat, game, stage, library);
         }
         // With the side out, nobody has anywhere to steal to.
-        self.steals_go_back(stage, library);
+        steal::send_back(&mut self.runners, stage, library);
         // The call is left up for a moment before the next pitch is offered.
         self.phase = Phase::Called { left: 58 };
     }
