@@ -18,7 +18,7 @@ use super::{
     play_from, put, show, southpaw, timing, zinger,
 };
 use crate::art;
-use crate::menu::Game;
+use crate::game::Game;
 use crate::rules::HitRules;
 
 impl Match {

@@ -19,8 +19,8 @@ use super::{
     AtBat, MYSTERY_TOP, Match, Outcome, Parts, Phase, Place, Runner, at, bullet, full, show, sign,
     steal, timing,
 };
+use crate::game::Game;
 use crate::look;
-use crate::menu::Game;
 use crate::rules::PitchRules;
 
 /// What is being got ready for the pitch that is coming, as each step adds

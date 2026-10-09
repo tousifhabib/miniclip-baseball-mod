@@ -12,8 +12,9 @@ use bb_format::SymbolId;
 
 use crate::art::{self, ButtonLabels};
 use crate::board;
+use crate::game::Game;
 use crate::look::{self, Look, Rgb, Swatch};
-use crate::menu::{Game, Leave, Menu, MenuPage};
+use crate::menu::{Leave, Menu, MenuPage};
 use crate::mods::{Asked, Mod, Mods, ModsPage};
 use crate::play::full::FullMatch;
 use crate::play::overlay::Words;

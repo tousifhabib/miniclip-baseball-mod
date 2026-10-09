@@ -15,8 +15,8 @@ use super::sign;
 use super::steal;
 use super::zinger;
 use super::{AtBat, Match, Parts, Phase, Place, at, frame_of, play_from, put, show};
+use crate::game::Game;
 use crate::look::Rgb;
-use crate::menu::Game;
 use crate::rules::SignRules;
 
 /// What the fielder with the ball, or going for it, is doing.

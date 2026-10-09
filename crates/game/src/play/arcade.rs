@@ -12,7 +12,7 @@ use super::field::{Happened, distance, seen_size};
 use super::pitch::Point;
 use super::view::Lie;
 use super::{AtBat, Match, Parts, at, play_from, put, show, zinger};
-use crate::menu::Game;
+use crate::game::Game;
 use crate::rules::ArcadeRules;
 
 pub(crate) struct Arcade {

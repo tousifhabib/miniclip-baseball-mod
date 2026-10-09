@@ -56,8 +56,8 @@ use zinger_hit::ZingerHit;
 
 use bb_engine::math::ColorTransform;
 
+use crate::game::Game;
 use crate::look::Rgb;
-use crate::menu::Game;
 use crate::mods::{About, Mod};
 use crate::play::pitch::Point;
 use crate::play::snapshot::ArmSeen;

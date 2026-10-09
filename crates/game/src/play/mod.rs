@@ -26,8 +26,8 @@ use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
 use bb_format::SymbolId;
 
+use crate::game::Game;
 use crate::look::{Look, Rgb};
-use crate::menu::Game;
 use crate::rng::Rng;
 use crate::rules::PitchRules;
 use book::ORDER;
