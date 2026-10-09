@@ -66,6 +66,11 @@ const FLY_THIRD: f32 = 0.2;
 const POP_UP: f32 = 0.2;
 const GROUND_SINGLE: f32 = 0.45;
 
+/// The outs the other side has in an innings. On paper they play the game
+/// by its own old rules, three outs, three strikes and four balls, whatever
+/// the numbers the player's side is played by.
+pub const OUTS: u32 = 3;
+
 /// What a ball put in play comes to, before it is known what the runners
 /// do.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -177,7 +182,7 @@ fn plainly(wanted: Wanted, ground: &Ground) -> Half {
         turn(&mut half, End::HomeRun, 0);
     }
     if !winning {
-        for outs in 0..3 {
+        for outs in 0..OUTS {
             turn(&mut half, End::Strikeout, outs);
         }
     }
@@ -245,13 +250,13 @@ impl<'a> Play<'a> {
 
     /// Plays the half out. It is good if it comes to the runs it was to.
     fn out(&mut self, rng: &mut Rng) -> Result<(), Miss> {
-        while self.outs < 3 {
+        while self.outs < OUTS {
             if self.turns.len() >= MOST_TURNS {
                 return Err(Miss::TooMany);
             }
             // A runner thrown out stealing may be the last out there is.
             self.steal(rng);
-            if self.outs >= 3 {
+            if self.outs >= OUTS {
                 break;
             }
             self.turn(rng)?;
@@ -582,7 +587,7 @@ impl<'a> Play<'a> {
         rng: &mut Rng,
     ) -> End {
         let [first, second, third] = self.bases;
-        let two_out = self.outs == 2;
+        let two_out = self.outs + 1 == OUTS;
         if !two_out && first.is_some() && rng.chance(DOUBLE_PLAY) {
             // The runner from first and the batter are both out,
             // and the others stay where they are.
@@ -618,7 +623,7 @@ impl<'a> Play<'a> {
         rng: &mut Rng,
     ) -> End {
         let [first, second, third] = self.bases;
-        let two_out = self.outs == 2;
+        let two_out = self.outs + 1 == OUTS;
         *outs_made = 1;
         let mut end = End::FlyOut;
         if !two_out && deep {

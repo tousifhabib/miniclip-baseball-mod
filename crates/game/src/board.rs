@@ -11,6 +11,7 @@ use crate::look::{self, Rgb};
 use crate::play::book::{End, Figures, ORDER, Side, Turn, average, percent, tenths};
 use crate::play::full::{Cell, FullMatch, hits_words, ordinal, runs_words};
 use crate::play::overlay::Words;
+use crate::play::paper;
 use crate::play::pitch::Quality;
 use crate::sheet::Sheet;
 
@@ -192,6 +193,8 @@ pub struct Pages {
     /// The clip it is all in, which lies over the whole stage.
     holder: Path,
     full: FullMatch,
+    /// The outs the player's side had in an innings.
+    our_outs: u32,
     /// What there is to say about zingers, if there were any.
     zingers: Option<String>,
     pages: Vec<Page>,
@@ -204,9 +207,11 @@ pub struct Pages {
 }
 
 impl Pages {
-    /// Puts the first page up in the clip at `holder`.
+    /// Puts the first page up in the clip at `holder`. `our_outs` is how
+    /// many outs the player's side had in an innings.
     pub fn new(
         full: &FullMatch,
+        our_outs: u32,
         zingers: Option<String>,
         holder: &[u16],
         stage: &mut Stage,
@@ -257,6 +262,7 @@ impl Pages {
         let mut pages = Pages {
             holder: holder.to_vec(),
             full: full.clone(),
+            our_outs,
             zingers,
             pages,
             page: 0,
@@ -357,7 +363,12 @@ impl Pages {
         sheet.write(stage, "pageHeading", &heading, (MIDDLE, down), size, CREAM);
         match page {
             Page::Score => {}
-            Page::Batting { ours } => batting(side(ours), side(!ours), ours, &mut sheet, stage),
+            Page::Batting { ours } => {
+                // The other side's innings are played on paper, by the
+                // game's own old rules.
+                let outs = if ours { self.our_outs } else { paper::OUTS };
+                batting(side(ours), side(!ours), (ours, outs), &mut sheet, stage);
+            }
             Page::Figures => figures(&full.book.ours, &full.book.theirs, &mut sheet, stage),
             Page::Field { ours } => field(side(ours), &mut sheet, stage),
             Page::Timing => timing(&full.book.ours, &mut sheet, stage),
@@ -366,17 +377,27 @@ impl Pages {
     }
 }
 
-/// How many innings a side's pitcher has got through, as a scorer writes
-/// it: the innings, a point, and the outs of the one in hand.
-fn innings_pitched(batting: &Side) -> String {
-    let outs = batting.outs();
-    format!("{}.{}", outs / 3, outs % 3)
+/// How many innings a pitcher has got through when he has put this many
+/// out, as a scorer writes it: the innings, a point, and the outs of the
+/// one in hand. `an_innings` is how many outs the side he pitches to has
+/// in one.
+fn innings_pitched(outs: u32, an_innings: u32) -> String {
+    let an_innings = an_innings.max(1);
+    format!("{}.{}", outs / an_innings, outs % an_innings)
 }
 
 /// The page of what each batter of a side did. `fielding` is the side that
 /// was in the field, whose errors and whose pitcher's figures these are
-/// too.
-fn batting(side: &Side, fielding: &Side, ours: bool, sheet: &mut Sheet<'_>, stage: &mut Stage) {
+/// too. `whose` is whether the side batting is the player's, and how many
+/// outs it had in an innings.
+fn batting(
+    side: &Side,
+    fielding: &Side,
+    whose: (bool, u32),
+    sheet: &mut Sheet<'_>,
+    stage: &mut Stage,
+) {
+    let (ours, outs_an_innings) = whose;
     const ACROSS: [f32; 11] = [
         62.0, 108.0, 150.0, 192.0, 234.0, 276.0, 318.0, 364.0, 408.0, 450.0, 506.0,
     ];
@@ -424,7 +445,7 @@ fn batting(side: &Side, fielding: &Side, ours: bool, sheet: &mut Sheet<'_>, stag
     let whose = if ours { "THEIR" } else { "YOUR" };
     let pitcher = format!(
         "{whose} PITCHER: {} INNINGS, {} PITCHES, {} STRIKES, {} STRIKEOUTS, {} WALKS",
-        innings_pitched(side),
+        innings_pitched(side.outs(), outs_an_innings),
         all.pitches,
         percent(all.strike_rate()),
         all.strikeouts,
@@ -817,5 +838,22 @@ fn turns(full: &FullMatch, innings: u32, part: usize, sheet: &mut Sheet<'_>, sta
             let colour = if *scored { GOLD } else { CREAM };
             sheet.write_left(stage, "turnLine", line, (left, down), SIZE, colour);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn a_pitchers_innings_are_counted_by_the_outs_the_side_he_pitches_to_has() {
+        // Ten out at three to an innings: three innings and one out.
+        assert_eq!(innings_pitched(10, 3), "3.1");
+        assert_eq!(innings_pitched(27, 3), "9.0");
+        // The same ten at five to an innings are two innings exactly.
+        assert_eq!(innings_pitched(10, 5), "2.0");
+        assert_eq!(innings_pitched(0, 3), "0.0");
+        // Rules that give a side no outs are not divided by.
+        assert_eq!(innings_pitched(4, 0), "4.0");
     }
 }

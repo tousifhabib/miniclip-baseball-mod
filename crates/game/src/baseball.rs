@@ -542,7 +542,8 @@ impl Baseball {
         if let Some(full) = &self.finished {
             // A full match has pages, and what there is to say of zingers
             // is on the first of them.
-            self.pages = board::Pages::new(full, zingers, &holder, stage, library);
+            let our_outs = self.playing.rules.game.outs;
+            self.pages = board::Pages::new(full, our_outs, zingers, &holder, stage, library);
             return;
         }
         let Some(zingers) = zingers else {
