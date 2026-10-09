@@ -619,7 +619,7 @@ impl Match {
                     && game.mods.is_on(Mod::PinballPark)
                     && ball.height > game.rules.pinball.low;
                 if distance(next, target) <= 2.0 && !too_high {
-                    if ball.bounced && !state.fumbled && self.lets_go(game) {
+                    if ball.bounced && !state.fumbled && self.lets_go() {
                         // It squirts out of his hands as he bends for it.
                         state.fumbled = true;
                         stage.goto_label(&fielder, state.facing.pick_label(), false, library);
@@ -652,9 +652,7 @@ impl Match {
                     if ball.bounced {
                         // It got down before he could take it.
                         state.job = Job::Chase;
-                    } else if ball.lift < 0.0
-                        && ball.height <= rules.catch_height
-                        && self.lets_go(game)
+                    } else if ball.lift < 0.0 && ball.height <= rules.catch_height && self.lets_go()
                     {
                         // It is in his glove and out again: nobody is out,
                         // and the ball is on the ground.
@@ -760,7 +758,7 @@ impl Match {
         }
 
         let down = at_bat.ball.is_some_and(|ball| ball.bounced);
-        self.move_runners(&state, down, &parts, game, stage, library);
+        self.move_runners(&state, down, &parts, stage, library);
         self.tell_steal(at_bat, game.rules.steal.told_time, stage, library);
         self.tell_sign(at_bat, game.rules.sign.told_time, stage, library);
 
@@ -897,7 +895,7 @@ impl Match {
         Match::sound(stage, library, "ballCatch_1");
         // The fielder minding that base has the ball now, or should have.
         state.fielder = 4 + usize::from(base);
-        if self.lets_go(game) {
+        if self.lets_go() {
             // It is through his hands. Nobody is out, and he has it to
             // gather from the ground beside him.
             let fielder = parts.fielders[state.fielder].clone();
@@ -955,16 +953,8 @@ impl Match {
 
     /// Whether a fielder having a go at the ball lets it go: with the
     /// butterfingers mod on, as often as the level it is set to says.
-    fn lets_go(&mut self, game: &Game) -> bool {
-        if !game.mods.is_on(Mod::Butterfingers) {
-            return false;
-        }
-        let level = game.mods.level(Mod::Butterfingers);
-        let slips = self.rng.below(100) < game.rules.butterfingers.chance_at(level);
-        if slips {
-            self.slips += 1;
-        }
-        slips
+    fn lets_go(&mut self) -> bool {
+        self.mods.a_fielder_lets_go(&mut self.rng)
     }
 
     /// Sends a ball that a fielder has let go rolling off, any way but
@@ -1099,24 +1089,16 @@ impl Match {
         state: &Fielding,
         ball_down: bool,
         parts: &Parts,
-        game: &Game,
         stage: &mut Stage,
         library: &Library,
     ) {
         // Once the ball has been caught or has come down, a runner on a
         // base may try for the next. Turbo runners may at any time.
-        let turbo = game.mods.is_on(Mod::TurboRunners);
+        let turbo = self.mods.runners_may_go_at_any_time();
         let may_go_on = state.live && (turbo || state.caught || ball_down);
         // A runner's run is a clip that plays a frame at a time. Turbo
         // runners are hurried on through it by more frames than that.
-        let mut hurried = 0;
-        if turbo {
-            let level = game.mods.level(Mod::TurboRunners);
-            let speed = crate::rules::level_of(&game.rules.turbo.speed, level).unwrap_or(1.0);
-            self.hurry += (speed - 1.0).max(0.0);
-            hurried = self.hurry.floor() as u16;
-            self.hurry -= f32::from(hurried);
-        }
+        let hurried = self.mods.hurry_the_runners();
         for runner in 0..self.runners.len() {
             let Some(path) = self.runners[runner].path.clone() else {
                 continue;

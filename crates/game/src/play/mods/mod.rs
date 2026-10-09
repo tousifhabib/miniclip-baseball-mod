@@ -7,6 +7,7 @@
 //! below that names the mods with a say in it, in the order they have it.
 //! A mod that is off is not here at all, and so has nothing to say.
 
+mod butterfingers;
 mod clutch;
 mod golden_ball;
 mod heat_check;
@@ -17,7 +18,9 @@ mod mystery_pitch;
 mod rally;
 mod sudden_death;
 mod tired_arm;
+mod turbo_runners;
 
+use butterfingers::Butterfingers;
 use clutch::Clutch;
 pub(crate) use golden_ball::GoldenBall;
 use heat_check::HeatCheck;
@@ -28,6 +31,7 @@ use mystery_pitch::MysteryPitch;
 use rally::Rally;
 use sudden_death::SuddenDeath;
 pub(crate) use tired_arm::TiredArm;
+use turbo_runners::TurboRunners;
 
 use bb_engine::math::ColorTransform;
 
@@ -35,6 +39,7 @@ use crate::look::Rgb;
 use crate::menu::Game;
 use crate::mods::Mod;
 use crate::play::snapshot::ArmSeen;
+use crate::rng::Rng;
 use crate::rules::PitchRules;
 
 /// The colour of something this hot, from warm to as hot as it gets: a bat
@@ -55,6 +60,7 @@ pub(crate) struct Line {
 /// What each mod in play keeps. `None` is a mod that is off.
 #[derive(Default)]
 pub(crate) struct ModsInPlay {
+    butterfingers: Option<Butterfingers>,
     clutch: Option<Clutch>,
     golden_ball: Option<GoldenBall>,
     heat_check: Option<HeatCheck>,
@@ -69,6 +75,7 @@ pub(crate) struct ModsInPlay {
     /// The pitcher's arm, which the game gets ready before each pitch in
     /// several steps of its own.
     pub(in crate::play) tired_arm: Option<TiredArm>,
+    turbo_runners: Option<TurboRunners>,
 }
 
 impl ModsInPlay {
@@ -78,8 +85,11 @@ impl ModsInPlay {
     /// place for the mods that act on those.
     pub fn for_game(game: &Game, arcade: bool) -> ModsInPlay {
         let on = |which: Mod| game.mods.is_on(which);
+        let level = |which: Mod| game.mods.level(which);
         let rules = &game.rules;
         ModsInPlay {
+            butterfingers: on(Mod::Butterfingers)
+                .then(|| Butterfingers::new(&rules.butterfingers, level(Mod::Butterfingers))),
             clutch: (on(Mod::Clutch) && !arcade).then(|| Clutch::new(&rules.clutch)),
             golden_ball: (on(Mod::GoldenBall) && !arcade).then(|| GoldenBall::new(&rules.golden)),
             heat_check: on(Mod::HeatCheck).then(|| HeatCheck::new(&rules.heat)),
@@ -90,6 +100,8 @@ impl ModsInPlay {
             rally: (on(Mod::Rally) && !arcade).then(|| Rally::new(&rules.rally)),
             sudden_death: on(Mod::SuddenDeath).then(|| SuddenDeath::new(&rules.sudden_death)),
             tired_arm: (on(Mod::TiredArm) && !arcade).then(|| TiredArm::new(&rules.tired_arm)),
+            turbo_runners: on(Mod::TurboRunners)
+                .then(|| TurboRunners::new(&rules.turbo, level(Mod::TurboRunners))),
         }
     }
 
@@ -183,6 +195,31 @@ impl ModsInPlay {
     /// else goes after it, goes back to watch it, or throws it on.
     pub fn the_pitcher_fields_alone(&self) -> bool {
         self.lone_pitcher.is_some()
+    }
+
+    /// Whether a fielder having a go at the ball lets it go. A number is
+    /// drawn for the go only if the mod that makes them slip is in play.
+    pub fn a_fielder_lets_go(&mut self, rng: &mut Rng) -> bool {
+        self.butterfingers
+            .as_mut()
+            .is_some_and(|butter| butter.lets_go(rng))
+    }
+
+    /// How often the fielders have let the ball go.
+    pub fn let_go(&self) -> u32 {
+        self.butterfingers.as_ref().map_or(0, Butterfingers::slips)
+    }
+
+    /// Whether a runner on a base may be sent on at any time the ball is
+    /// in play, and need not wait for it to come down or be caught.
+    pub fn runners_may_go_at_any_time(&self) -> bool {
+        self.turbo_runners.is_some()
+    }
+
+    /// How many frames more than the usual one the runners are moved on by
+    /// this frame.
+    pub fn hurry_the_runners(&mut self) -> u16 {
+        self.turbo_runners.as_mut().map_or(0, TurboRunners::hurry)
     }
 
     /// The ball has left the pitcher's hand.

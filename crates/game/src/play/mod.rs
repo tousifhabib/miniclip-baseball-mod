@@ -313,9 +313,6 @@ pub struct Match {
     /// The score and the outs when the pitch in hand was thrown, by which a
     /// full match's book knows what came of it.
     pub(crate) thrown_at: (u32, u32),
-    /// How many times a fielder has let the ball go in this game, with the
-    /// butterfingers mod on.
-    pub(crate) slips: u32,
     /// How many a run counts for on the pitch being played: one, unless a
     /// mod says more.
     pub(crate) run_worth: u32,
@@ -323,9 +320,6 @@ pub struct Match {
     /// flash the lights for, and the frames of a flash still to come.
     pub(crate) lights: bool,
     flash: u32,
-    /// With the turbo runners mod on: the part of a frame that runners are
-    /// owed, on top of the whole frames they have been hurried on by.
-    pub(crate) hurry: f32,
     /// With the bullet time mod on: how many frames of holding the ball
     /// back are left in the meter, how many frames it has been held back
     /// for, whether it is being held back now, and a click made on a frame
@@ -470,11 +464,9 @@ impl Match {
             tally: Vec::new(),
             outs_before: 0,
             thrown_at: (0, 0),
-            slips: 0,
             run_worth: 1,
             lights: false,
             flash: 0,
-            hurry: 0.0,
             bullet: None,
             slow_beat: 0,
             slowed: false,
@@ -1511,7 +1503,7 @@ impl Match {
             .filter_map(|runner| runner.running_to)
             .collect();
         let mods = ModsSeen {
-            let_go: self.slips,
+            let_go: self.mods.let_go(),
             heat: self.mods.heat(),
             hits_in_a_row: self.mods.hits_in_a_row(),
             rally: self.mods.in_a_row(),
