@@ -6,8 +6,7 @@ use bb_engine::stage::Stage;
 
 use crate::game::Game;
 use crate::play::book::{End, Thrown};
-use crate::play::steal;
-use crate::play::{AtBat, Match, Parts, Phase, Place, show};
+use crate::play::{AtBat, Match, Parts, Phase, Place, show, steal};
 
 impl Match {
     /// The ball has gone by: a strike, or a ball.

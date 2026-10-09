@@ -10,9 +10,8 @@ use crate::game::Game;
 use crate::look::Rgb;
 use crate::play::field::{Ball, Facing, Happened, distance, reach, seen_size};
 use crate::play::overlay::Says;
-use crate::play::pinball;
 use crate::play::pitch::Point;
-use crate::play::{AtBat, Match, Parts, at, put};
+use crate::play::{AtBat, Match, Parts, at, pinball, put};
 
 /// Where the view of the field says that a called shot came off: how far
 /// down, and in what colour.

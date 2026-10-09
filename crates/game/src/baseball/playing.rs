@@ -6,7 +6,7 @@ use bb_engine::stage::Stage;
 
 use super::Baseball;
 use super::screen::{Screen, screen_after};
-use crate::art::{self};
+use crate::art;
 use crate::play::Outcome;
 use crate::settings::Difficulty;
 

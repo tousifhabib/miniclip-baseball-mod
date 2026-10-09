@@ -6,8 +6,7 @@ use bb_engine::stage::Stage;
 
 use crate::game::Game;
 use crate::play::pitch::Point;
-use crate::play::steal;
-use crate::play::{AtBat, MYSTERY_TOP, Match, Phase, called, frame_of, put, show};
+use crate::play::{AtBat, MYSTERY_TOP, Match, Phase, called, frame_of, put, show, steal};
 
 /// The pitcher's frame label for his wind-up.
 const PITCH: &str = "pitch";

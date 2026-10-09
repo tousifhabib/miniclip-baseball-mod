@@ -6,7 +6,7 @@ use bb_format::SymbolId;
 
 use super::Baseball;
 use super::screen::Screen;
-use crate::art::{self};
+use crate::art;
 use crate::look::{Look, Rgb, Swatch};
 use crate::mods::{Asked, Mod};
 

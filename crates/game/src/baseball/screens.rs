@@ -7,7 +7,7 @@ use bb_format::SymbolId;
 
 use super::Baseball;
 use super::screen::Screen;
-use crate::art::{self};
+use crate::art;
 use crate::menu::{Leave, MenuPage};
 use crate::play::full::FullMatch;
 use crate::play::{Match, play_from};

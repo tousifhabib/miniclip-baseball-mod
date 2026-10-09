@@ -1,6 +1,5 @@
 //! The change of view, from behind the batter to over the field.
 
-use crate::play::fielding::loose_ball::unreachable_ball;
 use bb_engine::display::Content;
 use bb_engine::library::Library;
 use bb_engine::stage::Stage;
@@ -9,10 +8,9 @@ use super::CATCHER;
 use super::play::{Fair, Fielding, Job, Play};
 use crate::game::Game;
 use crate::play::field::{Ball, distance, reach};
+use crate::play::fielding::loose_ball::unreachable_ball;
 use crate::play::pitch::Point;
-use crate::play::steal;
-use crate::play::zinger;
-use crate::play::{AtBat, Match, Parts, Phase, at, show};
+use crate::play::{AtBat, Match, Parts, Phase, at, show, steal, zinger};
 
 /// The frames of a fielder on which he picks the ball up, throws it or
 /// catches it. Each shows a clip inside him that is meant to play once.

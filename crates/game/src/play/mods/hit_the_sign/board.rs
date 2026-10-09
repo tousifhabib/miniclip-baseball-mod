@@ -8,7 +8,7 @@ use bb_engine::stage::Stage;
 
 use super::{BEAT, LIT, Signs, UNLIT};
 use crate::art;
-use crate::look::{self};
+use crate::look;
 use crate::play::Parts;
 use crate::play::overlay::{self, DARK, Words};
 use crate::play::pitch::Point;

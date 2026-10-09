@@ -1,7 +1,5 @@
 //! Everything that lasts for one pitch and is built again for the next.
 
-use crate::play::fielding;
-use crate::play::full;
 use bb_engine::stage::Stage;
 use overlay::Notices;
 use zinger::Zinger;
@@ -14,6 +12,7 @@ use crate::play::mods::{
 };
 use crate::play::pitch::{Kind, Pitch, Point, Quality};
 use crate::play::view::{Parts, overlay};
+use crate::play::{fielding, full};
 use crate::rules::PitchRules;
 
 /// The pitch being played.

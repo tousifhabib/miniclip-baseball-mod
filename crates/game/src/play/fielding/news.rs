@@ -5,9 +5,7 @@ use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use crate::play::book::ORDER;
-use crate::play::sign;
-use crate::play::steal;
-use crate::play::{AtBat, Match};
+use crate::play::{AtBat, Match, sign, steal};
 use crate::rules::SignRules;
 
 impl Match {

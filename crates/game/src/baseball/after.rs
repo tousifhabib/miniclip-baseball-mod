@@ -6,7 +6,7 @@ use bb_engine::stage::Stage;
 
 use super::Baseball;
 use super::screen::Screen;
-use crate::art::{self};
+use crate::art;
 use crate::board;
 use crate::look::{self, Rgb};
 use crate::play::Match;

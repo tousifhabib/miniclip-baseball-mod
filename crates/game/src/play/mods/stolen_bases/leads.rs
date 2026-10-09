@@ -8,7 +8,7 @@ use bb_engine::stage::Stage;
 
 use super::{GOING, STANDING};
 use crate::art;
-use crate::look::{self};
+use crate::look;
 use crate::play::fielding::ARRIVES;
 use crate::play::overlay::DARK;
 use crate::play::pitch::Point;
