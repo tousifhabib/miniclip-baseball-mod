@@ -221,7 +221,7 @@ impl Menu {
             self.page = page;
             // What the summary pages say about the game to come.
             let rules = &game.rules.game;
-            let behind = rules.runs_down.at(game.settings.difficulty);
+            let behind = *rules.runs_down.at(game.settings.difficulty);
             stage.set_text("oppositionScore", behind.to_string());
             // Drawing level is not enough: the target is one run more.
             stage.set_text("scoreTarget", (behind + 1).to_string());

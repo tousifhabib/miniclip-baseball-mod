@@ -752,7 +752,7 @@ impl Match {
         let ball = at_bat.ball.unwrap_or_else(|| unreachable_ball(state.land));
         let target = if ball.bounced { ball.at } else { state.land };
         let gap = distance(here, target);
-        let speed = rules.fielder_speed.at(game.settings.difficulty);
+        let speed = *rules.fielder_speed.at(game.settings.difficulty);
         let next = if gap <= speed {
             target
         } else {
@@ -1255,7 +1255,7 @@ impl Match {
         library: &Library,
     ) {
         let rules = &game.rules.field;
-        let speed = rules.fielder_speed.at(game.settings.difficulty);
+        let speed = *rules.fielder_speed.at(game.settings.difficulty);
         let called = state.is_home_run();
         state.watchers.retain(|&index| {
             let fielder = &parts.fielders[index];

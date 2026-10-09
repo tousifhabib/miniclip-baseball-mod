@@ -147,7 +147,7 @@ impl Zinger {
         let timed = nearness(table, frames_since_swing)?;
         let zinger = &rules.zinger;
         let aimed = 1.0 - (distance((0.0, 0.0), ring) / zinger.aim_reach.max(0.001)).min(1.0);
-        let (worst, best) = (zinger.carry_worst, zinger.carry_best.at(difficulty));
+        let (worst, best) = (zinger.carry_worst, *zinger.carry_best.at(difficulty));
         let walls = worst + (best - worst - zinger.aim) * timed + zinger.aim * aimed;
         let carry = rules.field.wall * walls;
 

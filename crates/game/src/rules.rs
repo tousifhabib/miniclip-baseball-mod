@@ -33,7 +33,7 @@ pub struct Rules {
     /// The full match: every innings, against a side whose own are made up.
     pub full_match: FullMatchRules,
     /// The pitch, for each skill level.
-    pub pitch: BySkillRef<PitchRules>,
+    pub pitch: BySkill<PitchRules>,
     /// What every pitch shares.
     pub throw: ThrowRules,
     /// The ball off the bat.
@@ -603,25 +603,6 @@ pub struct FieldRules {
     pub fielder_speed: BySkill<f32>,
 }
 
-/// A table that differs with the skill level chosen.
-#[derive(Clone, Debug, PartialEq, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct BySkillRef<T> {
-    pub easy: T,
-    pub medium: T,
-    pub hard: T,
-}
-
-impl<T> BySkillRef<T> {
-    pub fn at(&self, difficulty: Difficulty) -> &T {
-        match difficulty {
-            Difficulty::Easy => &self.easy,
-            Difficulty::Medium => &self.medium,
-            Difficulty::Hard => &self.hard,
-        }
-    }
-}
-
 #[derive(Clone, Debug, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct MatchRules {
@@ -641,7 +622,7 @@ pub struct FullMatchRules {
     pub zinger_innings: u32,
     /// How likely the other side is to make each number of runs in an
     /// innings, from none up.
-    pub runs: BySkillRef<Vec<u32>>,
+    pub runs: BySkill<Vec<u32>>,
     /// The chances their innings are played out on paper by.
     pub their_batting: TheirBattingRules,
 }
@@ -684,7 +665,7 @@ impl FullMatchRules {
     }
 }
 
-/// A number that differs with the skill level chosen.
+/// A number or a table that differs with the skill level chosen.
 #[derive(Clone, Copy, Debug, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BySkill<T> {
@@ -693,12 +674,12 @@ pub struct BySkill<T> {
     pub hard: T,
 }
 
-impl<T: Copy> BySkill<T> {
-    pub fn at(&self, difficulty: Difficulty) -> T {
+impl<T> BySkill<T> {
+    pub fn at(&self, difficulty: Difficulty) -> &T {
         match difficulty {
-            Difficulty::Easy => self.easy,
-            Difficulty::Medium => self.medium,
-            Difficulty::Hard => self.hard,
+            Difficulty::Easy => &self.easy,
+            Difficulty::Medium => &self.medium,
+            Difficulty::Hard => &self.hard,
         }
     }
 }
@@ -864,7 +845,7 @@ mod tests {
     fn the_built_in_rules_are_sound() {
         let rules = Rules::layered(&[]).unwrap();
         assert_eq!(rules.game.outs, 3);
-        assert_eq!(rules.game.runs_down.at(Difficulty::Hard), 3);
+        assert_eq!(*rules.game.runs_down.at(Difficulty::Hard), 3);
     }
 
     #[test]
@@ -946,8 +927,8 @@ mod tests {
     #[test]
     fn a_layer_changes_only_what_it_names() {
         let rules = Rules::layered(&[("a mod", "[match.runs_down]\nhard = 5\n")]).unwrap();
-        assert_eq!(rules.game.runs_down.at(Difficulty::Hard), 5);
-        assert_eq!(rules.game.runs_down.at(Difficulty::Easy), 1);
+        assert_eq!(*rules.game.runs_down.at(Difficulty::Hard), 5);
+        assert_eq!(*rules.game.runs_down.at(Difficulty::Easy), 1);
         assert_eq!(rules.game.outs, 3);
     }
 

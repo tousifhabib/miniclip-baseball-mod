@@ -385,12 +385,12 @@ impl Match {
     pub fn new(game: &Game, seed: u64, library: &Library) -> Match {
         let mods = ModsInPlay::for_game(game, seed, false);
         // With every hit a home run there are more runs to get.
-        let behind = if mods.every_hit_is_a_home_run() {
-            game.rules.zinger.runs_down
+        let runs_down = if mods.every_hit_is_a_home_run() {
+            &game.rules.zinger.runs_down
         } else {
-            game.rules.game.runs_down
-        }
-        .at(game.settings.difficulty);
+            &game.rules.game.runs_down
+        };
+        let behind = *runs_down.at(game.settings.difficulty);
         Match {
             score: 0,
             // Drawing level is not enough: the target is one run more.
@@ -537,7 +537,8 @@ impl Match {
     /// The arcade game's points with the skill level counted in.
     pub fn arcade_score(&self, game: &Game) -> Option<u32> {
         let arcade = self.mode.arcade()?;
-        Some(arcade.points * game.rules.arcade.multiplier.at(game.settings.difficulty))
+        let times = *game.rules.arcade.multiplier.at(game.settings.difficulty);
+        Some(arcade.points * times)
     }
 
     /// How the side should look just now, given the team's own colour.

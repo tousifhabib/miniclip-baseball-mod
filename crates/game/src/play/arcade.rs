@@ -264,7 +264,7 @@ impl Match {
     /// counted in, for the finish screen.
     pub fn show_arcade_result(&self, game: &Game, stage: &mut Stage) {
         let points = self.mode.arcade().map_or(0, |arcade| arcade.points);
-        let times = game.rules.arcade.multiplier.at(game.settings.difficulty);
+        let times = *game.rules.arcade.multiplier.at(game.settings.difficulty);
         stage.set_text("points_total", points.to_string());
         stage.set_text("points_final", (points * times).to_string());
     }
