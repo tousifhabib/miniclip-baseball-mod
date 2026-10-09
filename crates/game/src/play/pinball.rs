@@ -126,7 +126,10 @@ fn unit(of: Point) -> Point {
 
 #[cfg(test)]
 mod tests {
+    use proptest::prelude::*;
+
     use super::*;
+    use crate::play::field::Ground;
     use crate::rules::Rules;
 
     const HOME: Point = (240.8, 336.85);
@@ -226,5 +229,55 @@ mod tests {
             foul,
         };
         rebound(ball, before, happened, &park, rules)
+    }
+
+    /// How far a point is to the fair side of each of a park's foul lines.
+    /// Less than nought is over the line, in foul ground.
+    fn fair_by(park: &Park, at: Point) -> [f32; 2] {
+        let straight = (park.mark.0 - park.home.0, park.mark.1 - park.home.1);
+        [park.foul.0, park.foul.1].map(|line| {
+            let along = (line - park.home.0, park.mark.1 - park.home.1);
+            let off = cross(along, (at.0 - park.home.0, at.1 - park.home.1));
+            off * cross(along, straight).signum() / along.0.hypot(along.1)
+        })
+    }
+
+    proptest! {
+        #[test]
+        fn a_ball_that_is_down_in_fair_ground_stays_between_the_lines_and_inside_the_wall(
+            // Where it is: clear of the lines and short of the wall.
+            (across, far) in (0.05f32..0.95, 100.0f32..780.0),
+            // Which way it is going, how fast, and how hard it is on its
+            // way up.
+            (way, pace, lift) in (0.0f32..std::f32::consts::TAU, 0.5f32..6.0, 0.0f32..3.0),
+            // The share of its speed it keeps when it bounces.
+            keeps in 0.5f32..0.95,
+        ) {
+            let ground = Ground::default();
+            let mut rules = Rules::default().field;
+            (rules.wall_bounce, rules.bounce_run, rules.bounce_lift) = (keeps, keeps, keeps);
+            // The field as the art has it, with the point up its middle
+            // that hits are aimed by.
+            let park = Park {
+                home: ground.home,
+                mark: (303.8, ground.mark_y),
+                foul: ground.foul,
+            };
+            let speed = (way.cos() * pace, way.sin() * pace);
+            let mut ball = rolling(ground.point(across, far), speed);
+            ball.lift = lift;
+            for frame in 0..3000 {
+                let before = ball;
+                let happened = ball.step(park.home, 0.0, &rules);
+                let happened = rebound(&mut ball, before, happened, &park, &rules);
+                // A ball that has bounced is never over the wall, however
+                // high it hops.
+                prop_assert_ne!(happened, Happened::Cleared);
+                let far = reach(park.home, ball.at);
+                prop_assert!(far < rules.wall, "{} off on frame {}", far, frame);
+                let fair = fair_by(&park, ball.at);
+                prop_assert!(fair[0] >= 0.0 && fair[1] >= 0.0, "{:?} on frame {}", fair, frame);
+            }
+        }
     }
 }

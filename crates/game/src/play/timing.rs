@@ -391,7 +391,10 @@ impl Indicator {
 
 #[cfg(test)]
 mod tests {
+    use proptest::prelude::*;
+
     use super::*;
+    use crate::play::pitch::tests::{any_choice, any_window};
     use crate::play::pitch::{Choice, Mound, meets};
     use crate::rules::Rules;
     use crate::settings::Difficulty;
@@ -511,5 +514,73 @@ mod tests {
         assert_eq!(timing.best(), None);
         assert!(timing.stretches().is_empty());
         assert_eq!(timing.verdict(10), None);
+    }
+
+    /// Any pitch, and a table to swing at it by: one of the levels' own,
+    /// with any window in place of its own.
+    fn any_pitch() -> impl Strategy<Value = (Pitch, PitchRules)> {
+        let level = prop::sample::select(&LEVELS[..]);
+        (any_choice(), any_window(), level).prop_map(|(choice, window, level)| {
+            let rules = Rules::default();
+            let table = PitchRules {
+                window,
+                ..rules.pitch.at(level).clone()
+            };
+            (Pitch::throw(&choice, &mound(), &rules.throw), table)
+        })
+    }
+
+    proptest! {
+        #[test]
+        fn a_step_is_coloured_on_the_bar_exactly_when_a_swing_begun_on_it_would_meet_the_ball(
+            (pitch, table) in any_pitch(),
+        ) {
+            let timing = Timing::of(&pitch, &table);
+            let stretches = timing.stretches();
+            // The steps of the pitch, and a couple past the end of it.
+            for step in 0..pitch.samples.len() + 2 {
+                let swing = pitch.swing_from(&table, step);
+                let met = swing.map(|(_, quality, _)| quality);
+                // The colours the bar has for the step: one, and the right
+                // one, or none.
+                let coloured: Vec<Quality> = stretches
+                    .iter()
+                    .filter(|&&(first, last, _)| (first..=last).contains(&step))
+                    .map(|&(.., quality)| quality)
+                    .collect();
+                prop_assert_eq!(coloured, Vec::from_iter(met), "step {}", step);
+                prop_assert_eq!(timing.at(step), met);
+                let frames = swing.map(|(on, ..)| (on - step) as u32);
+                prop_assert_eq!(timing.frames(step), frames);
+            }
+            // Each stretch of colour is as long as it can be: the next is
+            // further on, and if it touches it is of another colour.
+            for pair in stretches.windows(2) {
+                let ((_, last, colour), (first, _, next)) = (pair[0], pair[1]);
+                prop_assert!(last < first && (last + 1 < first || colour != next), "{:?}", pair);
+            }
+        }
+
+        #[test]
+        fn the_best_moment_is_the_first_of_the_longest_stretches_that_meet_the_ball_best(
+            (pitch, table) in any_pitch(),
+        ) {
+            let timing = Timing::of(&pitch, &table);
+            let stretches = timing.stretches();
+            let Some((first, last)) = timing.best() else {
+                // No best moment is no moment at all.
+                prop_assert!(stretches.is_empty(), "{:?}", stretches);
+                return Ok(());
+            };
+            let top = stretches.iter().map(|&(.., quality)| quality).max();
+            prop_assert!(top.is_some_and(|top| stretches.contains(&(first, last, top))));
+            for (from, to, quality) in stretches {
+                if Some(quality) == top {
+                    // None as good is longer, and none as long is sooner.
+                    prop_assert!(to - from <= last - first);
+                    prop_assert!(to - from < last - first || from >= first);
+                }
+            }
+        }
     }
 }

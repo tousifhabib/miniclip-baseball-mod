@@ -81,7 +81,10 @@ pub(crate) fn run(parts: &Parts, stage: &mut Stage, library: &Library) {
 
 #[cfg(test)]
 mod tests {
+    use proptest::prelude::*;
+
     use super::*;
+    use crate::play::pitch::tests::any_choice;
 
     #[test]
     fn a_pitch_turned_over_is_aimed_as_far_the_other_side_and_curves_the_other_way() {
@@ -97,5 +100,38 @@ mod tests {
         // Turned over again it is the pitch it was.
         turn(&mut choice, 295.0);
         assert_eq!((choice.aim, choice.swing), ((270.0, 240.0), 0.4));
+    }
+
+    proptest! {
+        #[test]
+        fn any_pitch_turned_over_twice_is_the_pitch_it_was(
+            choice in any_choice(),
+            centre in 200.0f32..400.0,
+        ) {
+            let mut turned = choice;
+            turn(&mut turned, centre);
+            // Once over, it is aimed as far to the other side of the
+            // middle, and curves the other way.
+            let (was, now) = (choice.aim.0 - centre, turned.aim.0 - centre);
+            prop_assert!((was + now).abs() < 0.001, "{} off, and then {}", was, now);
+            prop_assert_eq!(turned.swing, -choice.swing);
+            turn(&mut turned, centre);
+            // How far across it is aimed has been worked out twice by now,
+            // and so is only within a hair of what it was. Nothing else of
+            // it has been touched.
+            let across = turned.aim.0;
+            prop_assert!((across - choice.aim.0).abs() < 0.001, "aimed {} across", across);
+            turned.aim.0 = choice.aim.0;
+            prop_assert_eq!(turned, choice);
+        }
+
+        #[test]
+        fn a_pitch_aimed_at_the_middle_of_the_plate_is_aimed_there_still_when_turned_over(
+            choice in any_choice(),
+        ) {
+            let mut turned = choice;
+            turn(&mut turned, choice.aim.0);
+            prop_assert_eq!(turned.aim, choice.aim);
+        }
     }
 }

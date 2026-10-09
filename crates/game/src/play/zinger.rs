@@ -420,8 +420,11 @@ pub(crate) fn fair(aim: f32, parts: &Parts, rules: &FieldRules) -> f32 {
 
 #[cfg(test)]
 mod tests {
+    use proptest::prelude::*;
+
     use super::*;
     use crate::play::field::Happened;
+    use crate::play::pitch::meets;
 
     /// The fixed points of the field as they are in the game's art: home,
     /// how far up the field a hit is aimed, and the two foul lines there.
@@ -638,5 +641,72 @@ mod tests {
         // The arcade game's field has no board.
         assert_eq!(Place::of((300.0, 90.0), 1.2, None, &rules), Place::Stands);
         assert_ne!(Place::Stands.words(), Place::OutOfThePark.words());
+    }
+
+    /// Anywhere the ring might be held about the ball: up to sixty pixels
+    /// to either side of it, and as far above or below.
+    fn any_ring() -> impl Strategy<Value = Point> {
+        (-60.0f32..=60.0, -60.0f32..=60.0)
+    }
+
+    fn any_level() -> impl Strategy<Value = Difficulty> {
+        prop::sample::select(&LEVELS[..])
+    }
+
+    proptest! {
+        #[test]
+        fn there_is_a_zinger_exactly_when_the_swing_meets_the_ball(
+            frames in 0u32..25,
+            ring in any_ring(),
+            level in any_level(),
+        ) {
+            let rules = Rules::default();
+            let table = rules.pitch.at(level);
+            let zinger = Zinger::of(table, frames, ring, HOME, level, &rules);
+            prop_assert_eq!(zinger.is_some(), meets(table, frames).is_some());
+        }
+
+        #[test]
+        fn with_the_ring_held_the_same_a_better_timed_swing_never_carries_less(
+            // Two frames of the level's window, whichever they are.
+            (one, other) in any::<(prop::sample::Index, prop::sample::Index)>(),
+            ring in any_ring(),
+            level in any_level(),
+        ) {
+            let rules = Rules::default();
+            let window = &rules.pitch.at(level).window;
+            let of = |frame: prop::sample::Index| zinger(level, frame.get(window).0, ring, &rules);
+            let (one, other) = (of(one), of(other));
+            let (worse, better) = if one.timed <= other.timed {
+                (one, other)
+            } else {
+                (other, one)
+            };
+            prop_assert!(worse.carry <= better.carry, "{:?} and {:?}", worse, better);
+            prop_assert!(worse.feet <= better.feet, "{:?} and {:?}", worse, better);
+        }
+
+        #[test]
+        fn any_zinger_goes_over_the_wall_and_comes_down_where_it_was_sent(
+            frame: prop::sample::Index,
+            ring in any_ring(),
+            level in any_level(),
+            // Sent anywhere from the one foul line to the other.
+            across in 0.0f32..=1.0,
+        ) {
+            let rules = Rules::default();
+            let (frames, ..) = *frame.get(&rules.pitch.at(level).window);
+            let zinger = zinger(level, frames, ring, &rules);
+            // Flying it fails if it comes to the wall too low, or comes
+            // down inside it.
+            let towards = FOUL.0 + (FOUL.1 - FOUL.0) * across;
+            let (over, down, at) = fly(&zinger, towards, &rules);
+            // It goes over once the view has changed to the field, so that
+            // it is seen to go, and comes down in good time.
+            prop_assert!(rules.hit.watch < over && over < down, "over on {}", over);
+            prop_assert!(down < rules.field.longest / 2, "down on {}", down);
+            let far = reach(HOME, at);
+            prop_assert!((far - zinger.carry).abs() < 1.0, "{} off for {:?}", far, zinger);
+        }
     }
 }
