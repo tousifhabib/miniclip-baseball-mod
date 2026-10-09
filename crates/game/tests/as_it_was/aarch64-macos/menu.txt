@@ -1,0 +1,20 @@
+# How these games went when they were last written down: each game's sums of what
+# was said, heard and seen, every so many frames. See tests/as_it_was/main.rs.
+menu, the intro left to play	500	c0dba18f9298f980	88d651aef3feb06c	f7f37af5920d0646
+menu, the intro skipped	301	d31052c4e6bbba6e	d61859b380cd5f2c	ce4b7c3a57687dc7
+menu, setting up a match	543	9f45a73804756325	9f1c7dee38864ccb	c2ec6bce9280983b
+menu, setting up the arcade game	600	ce0f7ae136cd8720	4b803ecc86a84b17	f5b4798f1309703b
+menu, setting up the arcade game	639	9caa05ca78970a33	31934eafb28cb3a1	51c743a353fa4d18
+menu, setting up a full match	529	9fe4714f37021069	a89280c16fddde5e	8a1b8b6f8c036b2f
+menu, the mods' pages	600	6fea19225830ddaf	252bff91aa6508c0	d1cc7148161ec270
+menu, the mods' pages	738	9bfa15f958114268	b36b7403b80e2b60	2771238e5a81fa79
+menu, the high scores and the instructions	600	150a8bc5cfadf279	522903c234fc6659	3d1d7634e88f10cd
+menu, the high scores and the instructions	849	3f6f1db74ad936e0	580e85fbba153654	a834ba1f89409ad9
+menu, quitting a match	524	8de7355d984bf690	ff2dfb7ad196429a	5eea304b90fcbbf6
+menu, an arcade game let go by, and its score	600	58c840e82fd68ebe	3e18c1199fbcd39d	b74d5364a8da88e0
+menu, an arcade game let go by, and its score	1200	4df3e2bad0ab0833	d9924067a333be3a	b7ae99e36c215dde
+menu, an arcade game let go by, and its score	1800	09f87302f8fe8a25	d5e8be98249670f5	9d10b28abe57e5dc
+menu, an arcade game let go by, and its score	2400	c4637ceaf62de9f6	0087d5f00fc397d7	62dc978d266a3b5e
+menu, an arcade game let go by, and its score	3000	0606b0279bb34054	bea0975f52dbdc61	42079386a18ee625
+menu, an arcade game let go by, and its score	3600	a27bd30f2d20db67	df94c55e980eddce	1f6e2fb3d5230a6f
+menu, an arcade game let go by, and its score	3872	b6f4b390a9f28ea7	c56ec07ae6f36c9c	51ce948a971f4ab4

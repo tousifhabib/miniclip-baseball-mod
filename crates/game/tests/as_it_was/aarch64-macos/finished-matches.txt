@@ -1,0 +1,36 @@
+# How these games went when they were last written down: each game's sums of what
+# was said, heard and seen, every so many frames. See tests/as_it_was/main.rs.
+one innings home, no mods	600	cd936b3714411dc2	44edc0e5fcc9fd88	59cd9f14078d076a
+one innings home, no mods	1200	a677eb3f95b085bb	edfb1d3581c38c58	f0d0fe475208d6c6
+one innings home, no mods	1800	1803699620abe48b	c99eeb4f8f7c8e1c	096c61dcc9de230e
+one innings home, no mods	2400	b6f13dccdef7d9ce	afcc7764949e65b8	6b679627815d6684
+one innings home, no mods	3000	331e5a1a03132d72	710bfdcaafc56af3	83ba5225045322ff
+one innings home, no mods	3600	98e9d0623437858e	857392a839c78f57	4e5b854ccd84b397
+one innings home, no mods	4200	c439d2d22f4cd52e	1026fed95230d04b	8d9275afdf21ddeb
+one innings home, no mods	4789	bffc8feda27269f1	7842a311d2a2c6b2	5e428790293099ef
+one innings home, every mod	600	3b52977dac3e80ca	f6cd3925d2702b00	52bde1dab017b27a
+one innings home, every mod	1200	eda0ec74b789e641	4fd460c2d636611f	4221bdab9741603f
+one innings home, every mod	1800	9d99385ff0fbe496	4f764aac5607c9c7	e2d4bde8ce885711
+one innings home, every mod	2400	aeea608ae2be070a	8f9ae7f9e150e678	b5728ce11b47b15e
+one innings home, every mod	3000	37c26338de6c9b54	9ed34fe701835551	06be8d4a7e487f91
+one innings home, every mod	3125	3e5949e739d82aab	2365d890320c4916	68103f283320db4d
+one innings away, no mods	600	fa38c5d91869cd0b	9f7a8a7771156fba	820c40fa607fbcf2
+one innings away, no mods	1200	3acc9e4d4d825d4f	19a550cdf8325b60	44a5c8e42fa9ea56
+one innings away, no mods	1800	d6cd648bfd6d89d1	d9a9e4935eebfb0a	a1ac70a9ff27b3fe
+one innings away, no mods	2400	c714a8bc4a924376	2bf8f5f8318f2f9e	eda165c91bac558f
+one innings away, no mods	3000	e574516df798e6cf	0f0d77067ec0da4a	f024008660dd5cfb
+one innings away, no mods	3600	24d759151b39b292	a974c7bc85f79de7	35a9ac4aac82942c
+one innings away, no mods	4200	484ee77e2defc85a	30bbc179416994a6	0b1e4b808111d19f
+one innings away, no mods	4800	45b25a976f798223	73143614f58a80ef	c14123471b6698a0
+one innings away, no mods	5400	cb6d3256deb0a55f	4ca607f65556cf05	70ebefbfcca000f3
+one innings away, no mods	5974	7c29c798249cb6df	d6d03cb88e8eb259	a97e95714c77651c
+one innings away, every mod	600	3d37346915654b0b	7b4ff02ccdb91230	0fab95594596a8b6
+one innings away, every mod	1200	15485eea9cfed55b	5becd7af9c45b43e	995ccabd9ffede71
+one innings away, every mod	1800	8a38ac53f2a7b234	fdbb4a4956817438	471970bf5c148d90
+one innings away, every mod	2400	f7a64a9ea2e3e741	30c0c43a8c3c3b2a	60a6ac94b058e986
+one innings away, every mod	3000	8f8741bf1fd76b45	621f8b75f275b761	55de85a315c63787
+one innings away, every mod	3600	1ed22e4b245036bc	7a17bb6b4769dba9	834bd98da007465f
+one innings away, every mod	4200	b3bffe6be2d6ca7a	8393c524f709f53c	c711af1ca3cf20d2
+one innings away, every mod	4800	5be2790b244ca1dc	e817765eb77be904	c5e2af9597fe9da4
+one innings away, every mod	5400	53d7bcad4e1df672	91e8a07767b22203	46c5d0fef52538d9
+one innings away, every mod	5463	f8d90e060d527599	6ba4ca8710ab5d2d	5ede8f781aec0f50

@@ -1,0 +1,66 @@
+# How these games went when they were last written down: each game's sums of what
+# was said, heard and seen, every so many frames. See tests/as_it_was/main.rs.
+last innings, easy	600	958f186da1dc0520	0c762485abb312a3	d0eb11a1302ff323
+last innings, easy	1200	ebaf61d4ece5b7e8	550a20a383511196	3ece9855bc29012c
+last innings, easy	1800	5ed7344c10f77801	ddb5de330eafa7e5	4dc6cccf585aa12f
+last innings, easy	2400	d5b23cfffbf4f798	c1f5ac095659e2ed	7b5ce980d90828d4
+last innings, easy	3000	779475fdae97f8cd	680a0919dbd12b97	2f1c1794019552ac
+last innings, easy	3600	447a7950b8872486	1dff99304ea83885	e8035ced8934a825
+last innings, easy	4200	28b6cd81781503c2	58dabb3026da2a62	ee13c78b8a21d89e
+last innings, easy	4800	63e67af39ae3cce5	938ac06a796bab01	dfbeb2b938951cc0
+last innings, easy	5400	bc76948a986757a9	b11c44151ad753be	d68f799a0bb8b91d
+last innings, easy	6000	a0175aea8ec5d50d	daae2e5f89a44bb3	21a24b9a53699213
+last innings, easy	6462	4793e696ba34eb86	8beca83e531a28c3	ebf7c50fa21de175
+last innings, hard	600	f25da72186981094	8b24c8fadd72a280	ffe9d7cdebc4da70
+last innings, hard	1200	0f8947e0ccecfb64	0604e7b3a2345d21	ad9bb25418ad93bb
+last innings, hard	1800	58076cd81aed7a74	1ced6bb92a1820da	3b934df285661add
+last innings, hard	2400	dc9d1fe0b8855721	901e3ed9076f28a8	a9aede97927aff68
+last innings, hard	3000	91120f4218b17793	10ad2b56ee657dce	781e704e7ee1e092
+last innings, hard	3600	290717e7064271c4	578e9532c72d4818	246f4deb12cdaee4
+last innings, hard	4200	b16cf7623699f978	4ffb6b9ff70492e9	e2aa80781610e107
+last innings, hard	4488	cfc8e88bf20cac83	050c169709d1e9b3	3ab976b80298f591
+arcade, easy	600	6fcf570f540e904b	062d8199df899035	b1ed02a1afccf096
+arcade, easy	1200	e3e841d882dbb7ba	8cff900da9254dc8	eb2e58353ae4c609
+arcade, easy	1800	6e56bcf5dc6fc7cf	3a8a830b3ee1bf63	f1d64974c556d4dc
+arcade, easy	2400	26ca58fbd7501c6d	ef720cf716b9f9ae	9add9dfe3d847af8
+arcade, easy	3000	1271f50c7476a21a	58cf086a849d5609	b231386b45ff91bb
+arcade, easy	3600	bf59538900a6e8da	a0efe0d3cafb0880	11bd3e5eec5a893d
+arcade, easy	4200	ccc13368fbc20c40	a7da1be5122d5fb9	241a66beb5827b27
+arcade, easy	4800	ad8b6abc612cc652	90e21ba08e0209c2	a1ddab5ff873e565
+arcade, easy	5400	5e2484695550719a	f9cc1b185152e02e	f49711d53f4dc4dd
+arcade, easy	6000	292003a9ef3f2782	bcf051be1862dacf	60a8cfd204a350a4
+arcade, easy	6600	8e94b01d42b8a4cd	f1f1b4b35d6976ba	51bf8ea8e72907b4
+arcade, hard	600	2906b6a4e21632dd	6896fbad21813d5b	8b413604c581f027
+arcade, hard	1200	13c13e4bfce7b45c	bd83dc7d6a0e1bdb	11496c8a318262b9
+arcade, hard	1800	708c5249f368c14a	f1a9872ef84478a9	eb66c5717955fba8
+arcade, hard	2400	0deacd174e40dabe	ba0d4cd6b9b6f289	6992143e244a0d3a
+arcade, hard	3000	07fb4c05e0047740	8ceef393e38d61d6	7008159c750d211d
+arcade, hard	3600	ba85da35ce57091e	7f05d6f2ade9b6aa	b6864e9634970810
+arcade, hard	4200	2db90e09b9771b5f	39380a9748604ab3	2eb3c07e26efa7ef
+arcade, hard	4800	cf238b64529cf412	d9ca1da01645c374	ac70dd242d9afd94
+arcade, hard	5400	d9e1f7de6164b8f1	3b37b0abb133c937	b58e4b0c1dd0346f
+arcade, hard	6000	6c65c063016d0879	a0b2a00b1c0bbe90	fa8215d5074b9927
+arcade, hard	6600	8eb75e929c5aea66	bff7af9d70de36f1	be9b1d91c7bc7154
+full match, easy	600	47bd7c7017c91413	d1ffbe2e73015644	5c6f0bed5be17623
+full match, easy	1200	28c0151f66917165	dfba1c18aabfff66	abc6fa108745200b
+full match, easy	1800	9c04c2e83d11c3db	9d7f472c16488ff8	af2b02f16f9a9c2c
+full match, easy	2400	918f908195288d87	8edfd3ae84c90ba5	e62eee82448eb31f
+full match, easy	3000	b537f0a0ff153299	eb7cec260d41623a	d565a72e65064162
+full match, easy	3600	8eb61a9f2c7ee9af	ef4291ad8a537dc4	50803bd98faee21c
+full match, easy	4200	8b300e4c56b5dfb3	25ca2b3fad13760f	1a8f59fe9f8384a3
+full match, easy	4800	4f5e98a70114c74b	f111ff08eaed62f3	0f019106fbe0dd67
+full match, easy	5241	c0bae2468703fe94	274cbd1beadb311f	0b6de30cad24d118
+full match, hard	600	f4639224a3db7df7	9bfc595d1c339cd6	b3a050afd42d07c3
+full match, hard	1200	5ee0204316db64f6	7af7523f8f1a4710	7389f3b1b1349950
+full match, hard	1800	58cb157d48aca1b5	253d8bbdf7b65774	5f824fc69c3bb5aa
+full match, hard	2400	1f1c4388653bfdee	a78deee36cfbc11f	0740d58bab2a8160
+full match, hard	3000	b4639b99fc99827d	4d68969b176cf65d	b55a09084c8912fd
+full match, hard	3600	18406abf231cc391	1eb272250bb340b1	b5c7ccecf6c813bd
+full match, hard	4200	ba278fbaad8f432e	d9fd1c9bc5b3bf62	11768de053ea5cc2
+full match, hard	4800	3da3e9c348930d7a	173ef2b008bc3728	5f5d6d6d1aaebdce
+full match, hard	5400	a665c80350fd1fc4	34cf2e68048b77e4	0bd4d72c9af9db1e
+full match, hard	6000	bb1068aa3e9b5e6e	baaf37b056dbf76e	5761dd6de4d01183
+full match, hard	6600	ed125b66d2b9085a	a0f7f06641be4bc7	b61a02ae544a7751
+full match, hard	7200	f4e078146cac8802	2d084ec9e81bf40c	bdc5e73abafe9391
+full match, hard	7800	55c2808cc31bdf44	25f5ba38deef8888	e95040e58d2cd654
+full match, hard	8341	37b33905f28542fa	d90f74c59f84c474	bc0561f56bba3aa8
