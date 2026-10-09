@@ -410,14 +410,11 @@ impl Match {
         stage: &mut Stage,
         library: &Library,
     ) -> Option<sign::Board> {
-        self.sign_struck = None;
-        if !self.mods.the_wall_has_signs() {
-            return None;
-        }
+        self.mods.a_new_pitch_is_coming();
         let rules = &game.rules;
         let parts = &coming.parts;
         let signs = sign::Signs::of(&rules.sign);
-        let lit = self.lit_sign(&signs);
+        let lit = self.lit_sign(&signs)?;
         let ground = parts.ground(&rules.field);
         let (sign, field) = (&rules.sign, &rules.field);
         sign::Board::put(&signs, lit, sign, field, parts, &ground, stage, library)

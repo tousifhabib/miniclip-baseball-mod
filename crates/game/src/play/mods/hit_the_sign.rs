@@ -18,12 +18,72 @@ use crate::look::{self, Rgb};
 use crate::play::field::Ground;
 use crate::play::overlay::{self, DARK, Says, Words};
 use crate::play::{AtBat, Match, Parts};
+use crate::rng::Rng;
 use crate::rules::{FieldRules, SignRules};
 
-/// The mod, in play. What the match keeps for it is with the match still:
-/// which sign is lit this innings, and what the last ball to strike one
+/// What makes the choice of the lit sign come out differently from the
+/// pitches, which are drawn from the seed itself: the same pitches come
+/// whether the mod is on or not.
+const SIGN_SEED: u64 = 0xbb67_ae85_84ca_a73b;
+
+/// The mod, in play: which sign is lit, and what a ball that struck one
 /// was worth.
-pub(crate) struct HitTheSign;
+pub(crate) struct HitTheSign {
+    /// The innings a sign was last lit for, and which it was, counting
+    /// from 0.
+    lit: Option<(u32, usize)>,
+    /// What the next sign to be lit is drawn by.
+    rng: Rng,
+    /// The sign a ball has just struck and the runs that was worth, until
+    /// that has been told.
+    pub news: Option<(usize, u32)>,
+    /// The same for the pitch in hand, once it has been told.
+    pub struck: Option<(usize, u32)>,
+}
+
+impl HitTheSign {
+    /// `seed` is the game's own, from which the signs' is made.
+    pub fn new(seed: u64) -> HitTheSign {
+        HitTheSign {
+            lit: None,
+            rng: Rng::new(seed ^ SIGN_SEED),
+            news: None,
+            struck: None,
+        }
+    }
+
+    /// Which sign is lit, counting from 0, once one has been.
+    pub fn lit(&self) -> Option<usize> {
+        self.lit.map(|(_, lit)| lit)
+    }
+
+    /// The sign a ball has struck on the pitch in hand and what it paid,
+    /// told yet or not.
+    pub fn struck(&self) -> Option<(usize, u32)> {
+        self.struck.or(self.news)
+    }
+
+    /// The sign that is lit for this innings, counting from 0. A new
+    /// innings lights another.
+    pub fn light(&mut self, innings: u32, signs: &Signs) -> usize {
+        let count = signs.count() as u32;
+        match self.lit {
+            Some((lit_in, lit)) if lit_in == innings && lit < signs.count() => lit,
+            // Never the one that was lit the innings before.
+            Some((_, was)) if count > 1 => {
+                let pick = self.rng.below(count - 1) as usize;
+                let lit = if pick >= was { pick + 1 } else { pick };
+                self.lit = Some((innings, lit));
+                lit
+            }
+            _ => {
+                let lit = self.rng.below(count) as usize;
+                self.lit = Some((innings, lit));
+                lit
+            }
+        }
+    }
+}
 
 /// How tall a sign is drawn on the wall over the field, in the field's
 /// pixels, and how far up the wall its foot is.
@@ -258,26 +318,12 @@ impl Board {
 }
 
 impl Match {
-    /// The sign that is lit for the innings in hand, counting from 0. A
-    /// new innings lights another.
-    pub(crate) fn lit_sign(&mut self, signs: &Signs) -> usize {
+    /// The sign that is lit for the innings in hand, counting from 0.
+    /// `None` when the wall has no signs.
+    pub(crate) fn lit_sign(&mut self, signs: &Signs) -> Option<usize> {
         let innings = self.mode.full().map_or(1, |full| full.innings());
-        let count = signs.count() as u32;
-        match self.sign {
-            Some((lit_in, lit)) if lit_in == innings && lit < signs.count() => lit,
-            // Never the one that was lit the innings before.
-            Some((_, was)) if count > 1 => {
-                let pick = self.sign_rng.below(count - 1) as usize;
-                let lit = if pick >= was { pick + 1 } else { pick };
-                self.sign = Some((innings, lit));
-                lit
-            }
-            _ => {
-                let lit = self.sign_rng.below(count) as usize;
-                self.sign = Some((innings, lit));
-                lit
-            }
-        }
+        let sign = self.mods.hit_the_sign.as_mut()?;
+        Some(sign.light(innings, signs))
     }
 
     /// The ball is at the wall, `across` the field and this high: if a
@@ -311,7 +357,9 @@ impl Match {
         if let Some(batter) = self.runners.last_mut() {
             batter.runs += runs;
         }
-        self.sign_news = Some((sign, runs));
+        if let Some(signs) = &mut self.mods.hit_the_sign {
+            signs.news = Some((sign, runs));
+        }
     }
 
     /// Says over the field that a sign was struck, once one has been.
@@ -322,10 +370,13 @@ impl Match {
         stage: &mut Stage,
         library: &Library,
     ) {
-        let Some((sign, runs)) = self.sign_news.take() else {
+        let Some(signs) = &mut self.mods.hit_the_sign else {
             return;
         };
-        self.sign_struck = Some((sign, runs));
+        let Some((sign, runs)) = signs.news.take() else {
+            return;
+        };
+        signs.struck = Some((sign, runs));
         self.show_numbers(stage);
         Match::sound(stage, library, "crowd_bigClap");
         Match::sound(stage, library, "baseball_organ_FX");

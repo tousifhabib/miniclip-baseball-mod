@@ -511,10 +511,9 @@ has happened, and `play/mods/mod.rs` has one short function for each that
 names the mods with a say in it, in the order they have it. A mod that is
 off is simply not among them.
 
-Three of the mods that were written first, hit the sign, stolen bases and
-the zinger hit, reach further into the play than the rest, and still keep
-some of what they need with the match itself. Each says so at the top of
-its file.
+Two of the mods that were written first, stolen bases and the zinger hit,
+reach further into the play than the rest, and still keep some of what
+they need with the match itself. Each says so at the top of its file.
 
 To add one:
 

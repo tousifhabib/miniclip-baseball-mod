@@ -180,9 +180,8 @@ The fielding (`fielding.rs`) is in four named parts, but a fielder's job is
 still one function with an arm for each thing he may be doing, and what
 kind of play it is, and how it stands, is a handful of flags that would
 read better as one thing that says how the play began and how it ended.
-Three mods, hit the sign, stolen bases and the zinger hit, have their files
-and are asked like the rest, but still keep some of what they need with
-the match. The menu, the mods' page and the boards of a full
+Two mods, stolen bases and the zinger hit, have their files and are asked
+like the rest, but still keep some of what they need with the match. The menu, the mods' page and the boards of a full
 match each have their own few lines for writing words on a panel, where
 one would do. Each of these is a change of the same kind as the ones
 already made, with the same nets under it.

@@ -309,14 +309,6 @@ pub struct Match {
     /// How many a run counts for on the pitch being played: one, unless a
     /// mod says more.
     pub(crate) run_worth: u32,
-    /// With the hit the sign mod on: the innings a sign was last lit for
-    /// and which it was, what the next is drawn by, the sign a ball has
-    /// just struck and the runs that was worth, until that has been told,
-    /// and the same for the pitch in hand once it has.
-    sign: Option<(u32, usize)>,
-    sign_rng: Rng,
-    sign_news: Option<(usize, u32)>,
-    sign_struck: Option<(usize, u32)>,
     /// With the stolen bases mod on: how many bases have been stolen in
     /// this game and how many runners caught at it, whether the play in the
     /// field is one on which a base can be stolen, and how the last try
@@ -345,10 +337,6 @@ const CORNER_ROW: f32 = 16.0;
 /// which is between the scoreboard and the pitcher. The tired arm mod says
 /// there that a new pitcher has come in.
 const MYSTERY_TOP: f32 = 141.0;
-/// What makes the choice of the lit sign, with the hit the sign mod on,
-/// come out differently from the pitches, which are drawn from the seed
-/// itself: the same pitches come whether the mod is on or not.
-const SIGN_SEED: u64 = 0xbb67_ae85_84ca_a73b;
 /// The button on the next-ball panel.
 const NEXT_BALL_BUTTON: SymbolId = 1618;
 
@@ -407,7 +395,7 @@ pub(crate) fn frame_of(stage: &Stage, path: &[u16]) -> u16 {
 
 impl Match {
     pub fn new(game: &Game, seed: u64, library: &Library) -> Match {
-        let mods = ModsInPlay::for_game(game, false);
+        let mods = ModsInPlay::for_game(game, seed, false);
         // With every hit a home run there are more runs to get.
         let behind = if mods.every_hit_is_a_home_run() {
             game.rules.zinger.runs_down
@@ -439,10 +427,6 @@ impl Match {
             outs_before: 0,
             thrown_at: (0, 0),
             run_worth: 1,
-            sign: None,
-            sign_rng: Rng::new(seed ^ SIGN_SEED),
-            sign_news: None,
-            sign_struck: None,
             stolen: 0,
             caught: 0,
             steal_play: false,
@@ -457,7 +441,7 @@ impl Match {
     pub fn new_arcade(game: &Game, seed: u64, library: &Library) -> Match {
         let mut arcade = Match::new(game, seed, library);
         arcade.mode = Mode::Arcade(arcade::Arcade::new(game.rules.arcade.pitches));
-        arcade.mods = ModsInPlay::for_game(game, true);
+        arcade.mods = ModsInPlay::for_game(game, seed, true);
         arcade
     }
 
@@ -977,8 +961,8 @@ impl Match {
             clutch: self.mods.clutch_this_pitch(),
             southpaw: self.mods.batting_left_handed(),
             bullet_time: self.mods.bullet_time(),
-            sign_lit: self.sign.map(|(_, lit)| lit),
-            sign_struck: self.sign_struck.or(self.sign_news),
+            sign_lit: self.mods.sign_lit(),
+            sign_struck: self.mods.sign_struck(),
             stealing,
             stolen: self.stolen,
             caught: self.caught,

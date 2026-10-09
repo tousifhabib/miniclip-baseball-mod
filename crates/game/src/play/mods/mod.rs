@@ -89,7 +89,9 @@ pub(crate) struct ModsInPlay {
     clutch: Option<Clutch>,
     golden_ball: Option<GoldenBall>,
     heat_check: Option<HeatCheck>,
-    hit_the_sign: Option<HitTheSign>,
+    /// The signs on the wall, which the game lights and reads as the ball
+    /// comes to them.
+    pub(in crate::play) hit_the_sign: Option<HitTheSign>,
     hot_bat: Option<HotBat>,
     /// The two mods with a hand in deciding the pitch, which the game asks
     /// one by one as it does so.
@@ -117,10 +119,11 @@ pub(crate) struct ModsInPlay {
 
 impl ModsInPlay {
     /// The mods for a game that is about to start. Which are on does not
-    /// change while a game is being played. `arcade` is whether it is the
-    /// arcade game, which has no runs, outs, runners or fielders, and so no
-    /// place for the mods that act on those.
-    pub fn for_game(game: &Game, arcade: bool) -> ModsInPlay {
+    /// change while a game is being played. `seed` is what the game's
+    /// chances are worked out from. `arcade` is whether it is the arcade
+    /// game, which has no runs, outs, runners or fielders, and so no place
+    /// for the mods that act on those.
+    pub fn for_game(game: &Game, seed: u64, arcade: bool) -> ModsInPlay {
         let on = |which: Mod| game.mods.is_on(which);
         let level = |which: Mod| game.mods.level(which);
         let rules = &game.rules;
@@ -130,7 +133,7 @@ impl ModsInPlay {
             // called shot to be worth.
             called_shot: (on(Mod::CalledShot) && !arcade).then_some(CalledShot),
             // Nor any for a sign to be worth.
-            hit_the_sign: (on(Mod::HitTheSign) && !arcade).then_some(HitTheSign),
+            hit_the_sign: (on(Mod::HitTheSign) && !arcade).then(|| HitTheSign::new(seed)),
             pinball_park: on(Mod::PinballPark).then_some(PinballPark),
             stolen_bases: on(Mod::StolenBases).then_some(StolenBases),
             timing_indicator: on(Mod::TimingIndicator).then_some(TimingIndicator),
@@ -343,9 +346,23 @@ impl ModsInPlay {
         self.called_shot.is_some()
     }
 
-    /// Whether the outfield wall has signs on it that pay runs.
-    pub fn the_wall_has_signs(&self) -> bool {
-        self.hit_the_sign.is_some()
+    /// Which sign on the wall is lit, counting from 0, once one has been.
+    pub fn sign_lit(&self) -> Option<usize> {
+        self.hit_the_sign.as_ref().and_then(HitTheSign::lit)
+    }
+
+    /// The sign a ball has struck on the pitch in hand, counting from 0,
+    /// and the runs it paid.
+    pub fn sign_struck(&self) -> Option<(usize, u32)> {
+        self.hit_the_sign.as_ref().and_then(HitTheSign::struck)
+    }
+
+    /// A new view is being got ready: what the last pitch struck has been
+    /// told, and is done with.
+    pub fn a_new_pitch_is_coming(&mut self) {
+        if let Some(signs) = &mut self.hit_the_sign {
+            signs.struck = None;
+        }
     }
 
     /// Whether the ball keeps its speed when it bounces and cannot get out
