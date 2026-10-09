@@ -1,7 +1,6 @@
 //! A pitch that was not hit: what the umpire calls it and what the call
 //! comes to.
 
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use crate::game::Game;
@@ -10,13 +9,7 @@ use crate::play::{AtBat, Match, Parts, Phase, Place, show, steal};
 
 impl Match {
     /// The ball has gone by: a strike, or a ball.
-    pub(super) fn call(
-        &mut self,
-        at_bat: &mut AtBat,
-        game: &Game,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(super) fn call(&mut self, at_bat: &mut AtBat, game: &Game, stage: &mut Stage) {
         let rules = &game.rules;
         let parts = at_bat.parts.clone();
         show(stage, &parts.ball, false);
@@ -26,14 +19,14 @@ impl Match {
             // is a miss all the same to the mods that mind one, and a bat
             // that was hot goes cold on it.
             self.mods.a_strike_was_called();
-            return self.ready(&parts, stage, library);
+            return self.ready(&parts, stage);
         }
-        Match::sound(stage, library, "ballCatch_1");
+        Match::sound(stage, "ballCatch_1");
         if !at_bat.pitch.in_zone && at_bat.swing.is_none() {
             self.book_pitch(at_bat, Thrown::Ball);
             self.count.balls += 1;
             if let Some(board) = &parts.scoreboard {
-                self.play_section(board, "noBall", 261, stage, library);
+                self.play_section(board, "noBall", 261, stage);
             }
             self.show_numbers(stage);
             if self.count.is_a_walk(rules.count.balls) {
@@ -42,9 +35,9 @@ impl Match {
                 };
             } else if self.runners.anyone_stealing() {
                 // The catcher has the ball, and a runner to throw out.
-                self.show_steal(at_bat, game, stage, library);
+                self.show_steal(at_bat, game, stage);
             } else {
-                self.ready(&parts, stage, library);
+                self.ready(&parts, stage);
             }
             return;
         }
@@ -58,18 +51,18 @@ impl Match {
         self.mods.a_strike_was_called();
         if let Some(anim) = &parts.strike_anim {
             let label = format!("strike{}", self.count.strikes.min(3));
-            stage.goto_label(anim, &label, false, library);
+            stage.goto_label(anim, &label, false);
             // The badge plays for 69 frames and is then taken down. Left
             // up, it would play again and again over the scoreboard.
             self.put_away.push((anim.clone(), 68));
         }
         if let Some(board) = &parts.scoreboard {
-            self.play_section(board, "strike", 136, stage, library);
+            self.play_section(board, "strike", 136, stage);
         }
         if self.count.is_out(allowed) {
             let call = ["1", "2", "3"][self.rng.below(3) as usize];
-            Match::sound(stage, library, &format!("umpire_yourOuttaHere_{call}"));
-            Match::sound(stage, library, "crowd_unhappy");
+            Match::sound(stage, &format!("umpire_yourOuttaHere_{call}"));
+            Match::sound(stage, "crowd_unhappy");
             if let Some(batter) = self.runners.batter() {
                 self.runners[batter].place = Place::Out;
             }
@@ -79,29 +72,29 @@ impl Match {
             self.announce = true;
             self.book_end(End::Strikeout, None);
         } else {
-            Match::sound(stage, library, "umpire_Strike_grunt");
+            Match::sound(stage, "umpire_Strike_grunt");
             if self.count.is_one_strike_from_out(allowed) {
                 let organ = ["baseball_organ_FX", "baseball_organ_tense_FX"];
-                Match::sound(stage, library, organ[self.rng.below(2) as usize]);
+                Match::sound(stage, organ[self.rng.below(2) as usize]);
             }
         }
         self.show_numbers(stage);
         if self.runners.anyone_stealing() && self.outs < self.max_outs {
-            return self.show_steal(at_bat, game, stage, library);
+            return self.show_steal(at_bat, game, stage);
         }
         // With the side out, nobody has anywhere to steal to.
-        steal::send_back(&mut self.runners, stage, library);
+        steal::send_back(&mut self.runners, stage);
         // The call is left up for a moment before the next pitch is offered.
         self.phase = Phase::Called { left: 58 };
     }
 
     /// The play is over: offers the next pitch.
-    pub(crate) fn ready(&mut self, parts: &Parts, stage: &mut Stage, library: &Library) {
+    pub(crate) fn ready(&mut self, parts: &Parts, stage: &mut Stage) {
         if self.phase == Phase::Ready {
             return;
         }
         self.phase = Phase::Ready;
-        stage.goto_clip(&parts.next, 2, library);
+        stage.goto_clip(&parts.next, 2);
         self.show_numbers(stage);
     }
 }

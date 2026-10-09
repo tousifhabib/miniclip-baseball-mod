@@ -3,7 +3,6 @@
 mod full_match;
 
 use bb_engine::display::{ClipState, Path};
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use crate::art;
@@ -110,19 +109,19 @@ impl Menu {
     /// The menu has just been put on screen. Coming from the intro it plays
     /// its whole arrival. Coming back from anywhere else it goes straight to
     /// fading in.
-    pub fn shown(&mut self, from_intro: bool, game: &Game, stage: &mut Stage, library: &Library) {
+    pub fn shown(&mut self, from_intro: bool, game: &Game, stage: &mut Stage) {
         self.page = MenuPage::Opening;
         if !from_intro {
-            self.open(MenuPage::Main, game, stage, library);
+            self.open(MenuPage::Main, game, stage);
         }
     }
 
     /// Plays in another page.
-    pub fn open(&mut self, page: MenuPage, game: &Game, stage: &mut Stage, library: &Library) {
+    pub fn open(&mut self, page: MenuPage, game: &Game, stage: &mut Stage) {
         let Some(menu) = art::in_shell(stage, art::MENU) else {
             return;
         };
-        if stage.goto_label(&menu, page.label(), true, library) {
+        if stage.goto_label(&menu, page.label(), true) {
             self.page = page;
             // What the summary pages say about the game to come.
             let rules = &game.rules.game;
@@ -152,22 +151,16 @@ impl Menu {
     }
 
     /// Moves the marker on the setup pages to the chosen difficulty.
-    fn show_difficulty(settings: &Settings, stage: &mut Stage, library: &Library) {
+    fn show_difficulty(settings: &Settings, stage: &mut Stage) {
         let marker =
             art::in_shell(stage, art::MENU).and_then(|menu| stage.find_named(&menu, "skillSelect"));
         if let Some(marker) = marker {
-            stage.goto_label(&marker, settings.difficulty.label(), false, library);
+            stage.goto_label(&marker, settings.difficulty.label(), false);
         }
     }
 
     /// Acts on a button the player has clicked, known by the words on it.
-    pub fn clicked(
-        &mut self,
-        label: &str,
-        game: &mut Game,
-        stage: &mut Stage,
-        library: &Library,
-    ) -> Option<Leave> {
+    pub fn clicked(&mut self, label: &str, game: &mut Game, stage: &mut Stage) -> Option<Leave> {
         use MenuPage::{
             ArcadeSetup, ArcadeSummary, FullSetup, FullSummary, HighScores, Main, MatchSetup,
             MatchSummary, Mods, ToArcade, ToFull, ToMatch,
@@ -199,39 +192,40 @@ impl Menu {
                     "MEDIUM" => Difficulty::Medium,
                     _ => Difficulty::Hard,
                 };
-                Menu::show_difficulty(&game.settings, stage, library);
+                Menu::show_difficulty(&game.settings, stage);
                 return None;
             }
             _ => return None,
         };
-        self.open(page, game, stage, library);
+        self.open(page, game, stage);
         None
     }
 
     /// Called once a frame while the menu is showing.
-    pub fn tick(&mut self, game: &Game, stage: &mut Stage, library: &Library) -> Option<Leave> {
+    pub fn tick(&mut self, game: &Game, stage: &mut Stage) -> Option<Leave> {
         let menu = Menu::clip(stage)?;
-        let (frame, playing, last) = (menu.frame, menu.playing, menu.frame_count(library));
-        let labels = library
+        let (frame, playing, last) = (menu.frame, menu.playing, menu.frame_count(stage.library()));
+        // The frame the fade-out into a match begins on, which is where the
+        // arcade game's own ends.
+        let to_match = stage
+            .library()
             .timeline(menu.symbol)
-            .map(|timeline| &timeline.labels);
+            .and_then(|timeline| timeline.labels.get(MenuPage::ToMatch.label()))
+            .copied();
         if self.arriving && !playing {
             self.arriving = false;
-            Menu::show_difficulty(&game.settings, stage, library);
+            Menu::show_difficulty(&game.settings, stage);
         }
-        self.show_grounds(&game.settings, stage, library);
-        self.show_summary(game, stage, library);
+        self.show_grounds(&game.settings, stage);
+        self.show_summary(game, stage);
         match self.page {
             MenuPage::Opening if !playing => self.page = MenuPage::Main,
             MenuPage::ToMatch if frame >= last => return Some(Leave::Match),
             MenuPage::ToFull if frame >= last => return Some(Leave::FullMatch),
             // The arcade's fade-out is followed directly by the match's, so
             // it has ended when that is about to begin.
-            MenuPage::ToArcade => {
-                let next = labels.and_then(|labels| labels.get(MenuPage::ToMatch.label()));
-                if next.is_some_and(|&next| frame + 1 >= next) {
-                    return Some(Leave::Arcade);
-                }
+            MenuPage::ToArcade if to_match.is_some_and(|next| frame + 1 >= next) => {
+                return Some(Leave::Arcade);
             }
             _ => {}
         }

@@ -31,7 +31,7 @@ The engine has a middle that needs no machine, and three ends that do.
 | `library` | The art in memory, read once and shared |
 | `display` | The tree of clips, each playing its own timeline, and the list of what to draw |
 | `input` | The pointer and the buttons it rolls over, and the keys |
-| `stage` | The tree with its pointer, its text fields and what has happened on it |
+| `stage` | The tree with its pointer, its text fields and what has happened on it, and the art it plays from |
 | `app` | The runner: plays a frame and hands what happened to the rules |
 | `pace` | How many frames to play for each redraw of the screen |
 | `tess`, `meshes` | Cutting the art into triangles, and keeping them |
@@ -66,6 +66,14 @@ The rules meet the engine at two places, both in `app` and `input`:
 - `Logic` is what the engine asks of a game: to be told what happened, to
   be called once a frame, to take a key, and to say where it is.
 - `Geometry` is what the pointer asks: whether a point is inside a thing.
+
+Each time, the rules are handed the stage and nothing else. The stage
+carries the art it plays from, so whatever is given the stage can put a
+thing on it, send a clip to a frame or ask for a sound without being given
+the art as well. The few things that read the art itself, the size of a
+text field, the frames of a clip, ask the stage for it
+(`stage.library()`). Only what has no stage is handed the art: what sets a
+game up before there is one.
 
 ### A frame
 

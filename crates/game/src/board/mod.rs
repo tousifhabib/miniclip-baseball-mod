@@ -15,7 +15,6 @@ mod timing;
 mod turns;
 
 use bb_engine::display::Path;
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use crate::art;
@@ -72,7 +71,7 @@ const TURN_ROWS: usize = 14;
 /// first.
 fn innings(
     full: &FullMatch,
-    sheet: &mut Sheet<'_>,
+    sheet: &mut Sheet,
     middle: f32,
     top: f32,
     size: f32,
@@ -121,15 +120,10 @@ fn innings(
 
 /// Writes what the board between innings says, on the art's board at
 /// `board`. Returns the clip it is all in.
-pub fn interval(
-    full: &FullMatch,
-    board: &[u16],
-    stage: &mut Stage,
-    library: &Library,
-) -> Option<Path> {
+pub fn interval(full: &FullMatch, board: &[u16], stage: &mut Stage) -> Option<Path> {
     let at = Stage::RULES_DEPTH + 1;
-    let holder = stage.attach(board, art::HOLDER, at, "intervalBoard", library)?;
-    let mut sheet = Sheet::on(holder.clone(), 1, library);
+    let holder = stage.attach(board, art::HOLDER, at, "intervalBoard")?;
+    let mut sheet = Sheet::on(holder.clone(), 1);
     let report = full.report();
     let (down, size) = HEADING;
     sheet.write(

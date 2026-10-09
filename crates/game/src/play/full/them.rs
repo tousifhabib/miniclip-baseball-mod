@@ -2,7 +2,6 @@
 //! batted.
 
 use bb_engine::display::Path;
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use crate::art;
@@ -31,7 +30,7 @@ pub(crate) struct Them {
 impl Them {
     /// Puts the word on both of a view's scoreboards. It is not seen until
     /// it is kept.
-    pub fn put(parts: &Parts, stage: &mut Stage, library: &Library) -> Vec<Them> {
+    pub fn put(parts: &Parts, stage: &mut Stage) -> Vec<Them> {
         let boards = [(&parts.scoreboard, false), (&parts.field_scoreboard, true)];
         let mut put = Vec::new();
         for (board, field) in boards {
@@ -39,15 +38,7 @@ impl Them {
                 continue;
             };
             let depth = Stage::RULES_DEPTH + 1;
-            let words = Words::new(
-                board,
-                depth,
-                "themLabel",
-                THEM_AT,
-                THEM_SIZE,
-                stage,
-                library,
-            );
+            let words = Words::new(board, depth, "themLabel", THEM_AT, THEM_SIZE, stage);
             if let Some(words) = words {
                 put.push(Them {
                     board: board.clone(),

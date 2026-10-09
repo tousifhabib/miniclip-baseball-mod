@@ -1,7 +1,6 @@
 //! Words put on the stage in a field of the art's lettering.
 
 use bb_engine::display::Path;
-use bb_engine::library::Library;
 use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
 use bb_format::SymbolId;
@@ -38,13 +37,12 @@ impl Words {
         top: Point,
         size: f32,
         stage: &mut Stage,
-        library: &Library,
     ) -> Option<Words> {
         let lettering = Lettering {
             field: art::TABLE_FIELD,
             size,
         };
-        Words::in_field(lettering, holder, depth, name, top, stage, library)
+        Words::in_field(lettering, holder, depth, name, top, stage)
     }
 
     /// The same in the lettering of another of the art's text fields, which
@@ -56,20 +54,19 @@ impl Words {
         name: &str,
         top: Point,
         stage: &mut Stage,
-        library: &Library,
     ) -> Option<Words> {
         let Lettering {
             field: symbol,
             size,
         } = lettering;
-        let field = library.edit_texts.get(&symbol)?;
+        let field = stage.library().edit_texts.get(&symbol)?;
         // The field centres what it says, so it is placed by its middle.
         let middle = ((field.bounds.x_min + field.bounds.x_max) / 2.0) as f32;
         let drop = size.max(1.0);
         let mut paths = [Path::new(), Path::new()];
         for (index, offset) in [drop, 0.0].into_iter().enumerate() {
             let depth = depth + index as u16;
-            let path = stage.attach(holder, symbol, depth, name, library)?;
+            let path = stage.attach(holder, symbol, depth, name)?;
             let words = stage.child_mut(&path)?;
             words.set_matrix(Matrix {
                 a: size,
@@ -93,9 +90,8 @@ impl Words {
         left: Point,
         size: f32,
         stage: &mut Stage,
-        library: &Library,
     ) -> Option<Words> {
-        let field = library.edit_texts.get(&art::LABEL_FIELD)?;
+        let field = stage.library().edit_texts.get(&art::LABEL_FIELD)?;
         let (from, to) = (field.bounds.x_min as f32, field.bounds.x_max as f32);
         // The field is placed by its middle, and starts what it says from
         // its left edge.
@@ -104,7 +100,7 @@ impl Words {
             field: art::LABEL_FIELD,
             size,
         };
-        Words::in_field(lettering, holder, depth, name, top, stage, library)
+        Words::in_field(lettering, holder, depth, name, top, stage)
     }
 
     /// Takes the words out of sight.

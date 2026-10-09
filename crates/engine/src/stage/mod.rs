@@ -1,6 +1,10 @@
 //! A running movie: the display tree, the pointer, what the text fields say,
 //! and a record of what has happened for the caller to act on.
 //!
+//! The stage carries the art it plays from. Whoever is handed the stage
+//! can steer it, and can ask it for the art, without being handed the art
+//! beside it.
+//!
 //! Finding a thing on the stage is in `find`, and what the rules do to
 //! one in `steer`. The sounds the rules ask for are in `sound`, and the
 //! keys and typing into a text field are in `typing`.
@@ -9,6 +13,8 @@ mod find;
 mod sound;
 mod steer;
 mod typing;
+
+use std::sync::Arc;
 
 use bb_format::SymbolId;
 
@@ -21,6 +27,9 @@ pub use crate::display::CARET;
 pub use typing::Focus;
 
 pub struct Stage {
+    /// The art the stage plays from. Nothing changes it once it is loaded,
+    /// so several stages may play from one copy of it.
+    library: Arc<Library>,
     pub root: ClipState,
     pub pointer: Pointer,
     /// What the text fields say, by the variable each one shows.
@@ -43,11 +52,13 @@ pub struct Stage {
 }
 
 impl Stage {
-    /// Starts playing a clip, or the main timeline for `None`.
-    pub fn new(clip: Option<SymbolId>, library: &Library) -> Stage {
+    /// Starts playing a clip of this art, or its main timeline for `None`.
+    pub fn new(clip: Option<SymbolId>, library: impl Into<Arc<Library>>) -> Stage {
+        let library = library.into();
         let mut events = Vec::new();
         Stage {
-            root: ClipState::new(clip, library, &mut events, &mut Path::new()),
+            root: ClipState::new(clip, &library, &mut events, &mut Path::new()),
+            library,
             pointer: Pointer::default(),
             texts: Texts::new(),
             focus: None,
@@ -64,38 +75,37 @@ impl Stage {
     /// a timeline uses, as the depths `attachMovie` gave were in Flash.
     pub const RULES_DEPTH: u16 = 16384;
 
+    /// The art the stage plays from. It is the stage's to hand out: whoever
+    /// has the stage has no need to be handed the art beside it.
+    pub fn library(&self) -> &Arc<Library> {
+        &self.library
+    }
+
     /// Plays one frame.
-    pub fn advance(&mut self, library: &Library, geometry: &mut dyn Geometry) {
+    pub fn advance(&mut self, geometry: &mut dyn Geometry) {
         self.ticks = self.ticks.wrapping_add(1);
         self.root
-            .advance(library, &mut self.events, &mut Path::new());
+            .advance(&self.library, &mut self.events, &mut Path::new());
         self.end_typing_if_its_field_has_gone();
         // Things have moved, so what is under the pointer may have changed.
         let (x, y, down) = (self.pointer.x, self.pointer.y, self.pointer.down);
-        self.pointer_changed(x, y, down, library, geometry);
+        self.pointer_changed(x, y, down, geometry);
     }
 
     /// Tells the stage where the pointer is, in the top timeline's
     /// coordinates, and whether its button is held.
-    pub fn pointer_changed(
-        &mut self,
-        x: f32,
-        y: f32,
-        down: bool,
-        library: &Library,
-        geometry: &mut dyn Geometry,
-    ) {
+    pub fn pointer_changed(&mut self, x: f32, y: f32, down: bool, geometry: &mut dyn Geometry) {
         let pressed = down && !self.pointer.down;
         self.pointer.update(
             &mut self.root,
             (x, y),
             down,
-            library,
+            &self.library,
             geometry,
             &mut self.events,
         );
         if pressed {
-            self.give_the_typing_to_what_was_pressed(x, y, library);
+            self.give_the_typing_to_what_was_pressed(x, y);
         }
     }
 
@@ -117,10 +127,10 @@ impl Stage {
     }
 
     /// Lists what to draw, back to front.
-    pub fn commands(&self, base: Matrix, library: &Library) -> Vec<Command> {
+    pub fn commands(&self, base: Matrix) -> Vec<Command> {
         let upright = self.upright_text;
-        let mut list = commands_upright(&self.root, base, library, &self.texts, upright);
-        self.add_the_caret(&mut list, library);
+        let mut list = commands_upright(&self.root, base, &self.library, &self.texts, upright);
+        self.add_the_caret(&mut list);
         list
     }
 
@@ -153,7 +163,7 @@ mod tests {
             vec![frame(vec![Op::Place(Box::new(outer))])],
             vec![frame(vec![Op::Place(Box::new(inner))])],
         );
-        let stage = Stage::new(None, &library);
+        let stage = Stage::new(None, library);
         assert_eq!(stage.to_stage(&[]), Some(Matrix::IDENTITY));
         assert_eq!(stage.to_stage(&[3]).unwrap().apply(0.0, 0.0), (100.0, 50.0));
         assert_eq!(
@@ -167,9 +177,9 @@ mod tests {
     #[test]
     fn the_rules_can_add_an_object_and_take_it_away() {
         let library = library_with(vec![frame(vec![put(1, SHAPE)])], vec![frame(vec![])]);
-        let mut stage = Stage::new(None, &library);
+        let mut stage = Stage::new(None, library);
         let path = stage
-            .attach(&[], INNER, Stage::RULES_DEPTH, "extra", &library)
+            .attach(&[], INNER, Stage::RULES_DEPTH, "extra")
             .unwrap();
         assert_eq!(path, [Stage::RULES_DEPTH]);
         assert_eq!(stage.find_named(&[], "extra"), Some(path.clone()));
@@ -177,6 +187,6 @@ mod tests {
         assert!(!stage.remove(&path));
         assert_eq!(stage.find_named(&[], "extra"), None);
         // There is no such clip to add to.
-        assert_eq!(stage.attach(&[7], INNER, 1, "lost", &library), None);
+        assert_eq!(stage.attach(&[7], INNER, 1, "lost"), None);
     }
 }

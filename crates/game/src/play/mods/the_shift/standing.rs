@@ -2,7 +2,6 @@
 //! field in the batting view draws them there.
 
 use bb_engine::display::{Path, child_bounds};
-use bb_engine::library::Library;
 use bb_engine::math::{ColorTransform, Matrix};
 use bb_engine::stage::Stage;
 
@@ -35,13 +34,7 @@ impl Shift {
     /// Moves the fielders who roam to where the shift has them stand: on
     /// the field, behind the pitcher in the batting view, and on the little
     /// field in its corner.
-    pub(crate) fn place(
-        self,
-        parts: &Parts,
-        field: &FieldRules,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(crate) fn place(self, parts: &Parts, field: &FieldRules, stage: &mut Stage) {
         if self.by() == 0.0 {
             return;
         }
@@ -49,7 +42,7 @@ impl Shift {
         let little = stage.find_symbol(&parts.main, art::LITTLE_FIELD);
         // The centre fielder as the batting view draws him before anyone
         // has moved, and the lowest of the men it draws behind the pitcher.
-        let centre = Drawn::of(CENTRE, parts, stage, library).map(|(_, drawn)| drawn);
+        let centre = Drawn::of(CENTRE, parts, stage).map(|(_, drawn)| drawn);
         let lowest = stage.clip(&parts.main).and_then(|view| {
             let men = [art::VIEW_FIELDER, art::VIEW_UMPIRE];
             let lowest = view
@@ -73,7 +66,7 @@ impl Shift {
             // far off as he was, so no higher up the view and no smaller.
             let over = parts.across_view(stands, field);
             let slide = over - parts.across_view(stood, field);
-            let drawn = Drawn::of(index, parts, stage, library);
+            let drawn = Drawn::of(index, parts, stage);
             match OUTFIELD.iter().find(|(who, _)| *who == index) {
                 None => {
                     if let Some((path, drawn)) = drawn
@@ -99,7 +92,7 @@ impl Shift {
                             stage.remove(path);
                         }
                         let symbol = art::VIEW_FIELDER;
-                        let again = stage.attach(&parts.main, symbol, under, name, library);
+                        let again = stage.attach(&parts.main, symbol, under, name);
                         if let Some(figure) = again.and_then(|path| stage.child_mut(&path)) {
                             figure.set_matrix(Matrix {
                                 tx: like.matrix.tx + middle - like.middle,
@@ -141,12 +134,7 @@ struct Drawn {
 impl Drawn {
     /// The art's own drawing of a fielder, counting from 0, and where it
     /// is on the stage. `None` for one it does not draw.
-    pub(super) fn of(
-        index: usize,
-        parts: &Parts,
-        stage: &Stage,
-        library: &Library,
-    ) -> Option<(Path, Drawn)> {
+    pub(super) fn of(index: usize, parts: &Parts, stage: &Stage) -> Option<(Path, Drawn)> {
         let (_, depth) = art::VIEW_FIELDERS.iter().find(|(who, _)| *who == index)?;
         let mut path: Path = parts.main.clone();
         path.push(*depth);
@@ -154,7 +142,7 @@ impl Drawn {
         if child.symbol != art::VIEW_FIELDER {
             return None;
         }
-        let [left, _, right, _] = child_bounds(child, Matrix::IDENTITY, library)?;
+        let [left, _, right, _] = child_bounds(child, Matrix::IDENTITY, stage.library())?;
         let drawn = Drawn {
             matrix: child.matrix,
             color: child.color,

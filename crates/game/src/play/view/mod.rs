@@ -7,7 +7,6 @@ mod lie;
 pub(crate) mod overlay;
 mod parts;
 
-use bb_engine::library::Library;
 use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
 
@@ -49,8 +48,8 @@ pub(crate) fn frame_of(stage: &Stage, path: &[u16]) -> u16 {
 }
 
 /// Sends a clip to a frame and sets it playing from there.
-pub(crate) fn play_from(stage: &mut Stage, path: &[u16], frame: u16, library: &Library) {
-    stage.goto_clip(path, frame, library);
+pub(crate) fn play_from(stage: &mut Stage, path: &[u16], frame: u16) {
+    stage.goto_clip(path, frame);
     if let Some(clip) = stage.clip_mut(path) {
         clip.playing = true;
     }

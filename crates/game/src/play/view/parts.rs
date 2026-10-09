@@ -2,7 +2,6 @@
 //! the ball, the field and what stands on it.
 
 use bb_engine::display::{Path, child_bounds};
-use bb_engine::library::Library;
 use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
 
@@ -72,7 +71,7 @@ impl Parts {
     }
 
     /// Finds the parts of a batting view that has just been built.
-    pub(crate) fn find(stage: &Stage, library: &Library) -> Option<Parts> {
+    pub(crate) fn find(stage: &Stage) -> Option<Parts> {
         let main = stage.find_named(&[], "gameMain")?;
         let part = |names: &[&str]| stage.find(&main, names);
         let field = part(&["field"])?;
@@ -80,7 +79,7 @@ impl Parts {
         let point = |path: Option<Path>| path.map(|path| at(stage, &path));
         let aim_box = stage
             .child(&part(&["acl"])?)
-            .and_then(|child| child_bounds(child, Matrix::IDENTITY, library))?;
+            .and_then(|child| child_bounds(child, Matrix::IDENTITY, stage.library()))?;
         let fly = part(&["ballFly"])?;
         let field_ball = in_field("ballFly")?;
         Some(Parts {

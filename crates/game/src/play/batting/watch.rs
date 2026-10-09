@@ -1,7 +1,6 @@
 //! A hit, watched from behind the batter until the view changes to the
 //! field.
 
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use crate::game::Game;
@@ -10,13 +9,7 @@ use crate::play::{AtBat, Cue, Match, at, put, southpaw};
 
 impl Match {
     /// One frame of the ball leaving the bat, seen from behind the batter.
-    pub(in crate::play) fn watch(
-        &mut self,
-        at_bat: &mut AtBat,
-        game: &Game,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(in crate::play) fn watch(&mut self, at_bat: &mut AtBat, game: &Game, stage: &mut Stage) {
         let rules = &game.rules;
         let Some(contact) = at_bat.contact else {
             return;
@@ -40,13 +33,13 @@ impl Match {
         if let Some(left) = at_bat.run_in {
             if left == 0 {
                 at_bat.run_in = None;
-                stage.goto_label(&parts.hitter, "run", true, library);
+                stage.goto_label(&parts.hitter, "run", true);
                 if self.mods.southpaw.is_some() {
-                    southpaw::run(parts, stage, library);
+                    southpaw::run(parts, stage);
                 }
                 let last = stage
                     .clip(&parts.hitter)
-                    .map_or(1, |clip| clip.frame_count(library));
+                    .map_or(1, |clip| clip.frame_count(stage.library()));
                 self.cues.push(Cue {
                     path: parts.hitter.clone(),
                     frame: last,

@@ -12,7 +12,7 @@ pub(super) fn turns(
     full: &FullMatch,
     innings: u32,
     part: usize,
-    sheet: &mut Sheet<'_>,
+    sheet: &mut Sheet,
     stage: &mut Stage,
 ) {
     const SIZE: f32 = 0.62;

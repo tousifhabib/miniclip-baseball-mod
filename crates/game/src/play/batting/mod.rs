@@ -14,7 +14,6 @@ mod watch;
 mod wind_up;
 
 use bb_engine::display::Content;
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use super::steal;
@@ -32,7 +31,6 @@ impl Match {
         slowed: bool,
         game: &Game,
         stage: &mut Stage,
-        library: &Library,
     ) {
         let rules = &game.rules;
         // While the ring is being aimed it stands for the pointer, which
@@ -49,7 +47,7 @@ impl Match {
                     let [left, top, right, bottom] = at_bat.parts.aim_box;
                     (left..=right).contains(&x) && (top..=bottom).contains(&y)
                 });
-        Match::still_batter(stage, &at_bat.parts.hitter, library);
+        Match::still_batter(stage, &at_bat.parts.hitter);
         if let Some(glow) = self.mods.glow_of_the_bat() {
             // The mark on the bat glows, hotter the longer the run of hits.
             for mark in art::all_named(stage, &at_bat.parts.hitter, "batLogo") {
@@ -58,7 +56,7 @@ impl Match {
                 }
             }
         }
-        Match::settle_fielders(&at_bat.parts, stage, library);
+        Match::settle_fielders(&at_bat.parts, stage);
         for them in &at_bat.them {
             them.keep(stage);
         }
@@ -75,22 +73,17 @@ impl Match {
         }
         if at_bat.contact.is_none() {
             Match::aim(at_bat, stage);
-            Match::point_hit(at_bat, &rules.hit, stage, library);
+            Match::point_hit(at_bat, &rules.hit, stage);
         }
     }
 
     /// The next pitch has been asked for and the last has been cleared
     /// away: the art builds the view again, which starts the next pitch.
-    pub(super) fn ask_for_a_new_view(
-        &mut self,
-        at_bat: &AtBat,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(super) fn ask_for_a_new_view(&mut self, at_bat: &AtBat, stage: &mut Stage) {
         self.zinger_unseen();
         let mut holder = at_bat.parts.main.clone();
         holder.pop();
-        play_from(stage, &holder, 1, library);
+        play_from(stage, &holder, 1);
         self.phase = Phase::Arriving;
     }
 }
@@ -102,7 +95,7 @@ impl Match {
     /// shirt and helmet as clips of their own inside it, moving in step.
     /// The art stopped those from a script. Left alone they go round again
     /// over a body that has stopped, and he swings on for ever.
-    fn still_batter(stage: &mut Stage, hitter: &[u16], library: &Library) {
+    fn still_batter(stage: &mut Stage, hitter: &[u16]) {
         let Some(clip) = stage.clip(hitter) else {
             return;
         };
@@ -111,23 +104,23 @@ impl Match {
             let Content::Clip(swing) = &child.content else {
                 continue;
             };
-            let last = swing.frame_count(library);
+            let last = swing.frame_count(stage.library());
             if swing.playing || last <= 1 || swing.frame != last {
                 continue;
             }
             for (&inner_depth, inner) in &swing.children {
                 if let Content::Clip(part) = &inner.content
                     && part.playing
-                    && part.frame_count(library) > 1
+                    && part.frame_count(stage.library()) > 1
                 {
                     let mut path = hitter.to_vec();
                     path.extend([depth, inner_depth]);
-                    moving.push((path, part.frame_count(library)));
+                    moving.push((path, part.frame_count(stage.library())));
                 }
             }
         }
         for (path, last) in moving {
-            stage.goto_clip(&path, last, library);
+            stage.goto_clip(&path, last);
             if let Some(part) = stage.clip_mut(&path) {
                 part.playing = false;
             }

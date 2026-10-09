@@ -15,7 +15,6 @@ mod mods;
 mod pitch;
 mod side;
 
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use super::mods::Line;
@@ -41,13 +40,12 @@ struct Coming {
 impl Coming {
     /// Writes a mod's line in the corner of the view, under the lines
     /// already there.
-    fn write(&mut self, line: &Line, stage: &mut Stage, library: &Library) {
+    fn write(&mut self, line: &Line, stage: &mut Stage) {
         let top = self.corner.line();
         self.notices.put(
             Says::line(line.name, &line.words, line.colour).at(top),
             &self.parts,
             stage,
-            library,
         );
     }
 }
@@ -67,13 +65,8 @@ struct Decided {
 impl Match {
     /// Gets a freshly built batting view ready for a pitch. Returns how the
     /// match ended if it has.
-    pub(super) fn set_up(
-        &mut self,
-        game: &Game,
-        stage: &mut Stage,
-        library: &Library,
-    ) -> Option<Outcome> {
-        let mut parts = Parts::find(stage, library)?;
+    pub(super) fn set_up(&mut self, game: &Game, stage: &mut Stage) -> Option<Outcome> {
+        let mut parts = Parts::find(stage)?;
         self.cues.clear();
         self.put_away.clear();
         self.stand_the_batter(&mut parts, stage);
@@ -90,31 +83,31 @@ impl Match {
             corner: Corner::default(),
             golden: false,
         };
-        self.say_the_innings(&mut coming, stage, library);
+        self.say_the_innings(&mut coming, stage);
         self.gild_the_ball(&mut coming, stage);
-        self.heat_the_pitch(&mut coming, stage, library);
-        self.tire_the_arm(&mut coming, stage, library);
-        self.widen_for_a_hot_bat(&mut coming, stage, library);
-        Match::say_the_ball_is_golden(&mut coming, stage, library);
-        self.say_it_is_the_clutch(&mut coming, stage, library);
-        self.say_what_a_rally_is_worth(&mut coming, stage, library);
-        let meter = self.put_up_the_meter(&mut coming, stage, library);
-        self.shift_the_fielders(&mut coming, game, stage, library);
+        self.heat_the_pitch(&mut coming, stage);
+        self.tire_the_arm(&mut coming, stage);
+        self.widen_for_a_hot_bat(&mut coming, stage);
+        Match::say_the_ball_is_golden(&mut coming, stage);
+        self.say_it_is_the_clutch(&mut coming, stage);
+        self.say_what_a_rally_is_worth(&mut coming, stage);
+        let meter = self.put_up_the_meter(&mut coming, stage);
+        self.shift_the_fielders(&mut coming, game, stage);
         Match::clear_the_plate(&coming, stage);
-        self.stand_the_runners(&coming, stage, library);
-        let leads = self.mark_the_leads(&mut coming, stage, library);
-        let signs = self.put_up_the_signs(&coming, game, stage, library);
-        self.mark_the_field(&coming, stage, library);
+        self.stand_the_runners(&coming, stage);
+        let leads = self.mark_the_leads(&mut coming, stage);
+        let signs = self.put_up_the_signs(&coming, game, stage);
+        self.mark_the_field(&coming, stage);
         let them = match self.mode.full() {
-            Some(_) => full::Them::put(&coming.parts, stage, library),
+            Some(_) => full::Them::put(&coming.parts, stage),
             None => Vec::new(),
         };
-        self.set_up_arcade(&coming.parts, game, stage, library);
+        self.set_up_arcade(&coming.parts, game, stage);
         self.show_numbers(stage);
 
-        let mound = Match::mound(&coming.parts, stage, library)?;
+        let mound = Match::mound(&coming.parts, stage)?;
         let decided = self.decide_the_pitch(&mut coming, &mound, game);
-        let timing = self.put_up_the_timing_bar(&coming, &decided.pitch, game, stage, library);
+        let timing = self.put_up_the_timing_bar(&coming, &decided.pitch, game, stage);
         self.phase = Phase::Settling {
             left: game.rules.throw.settle + decided.wait as u32,
         };

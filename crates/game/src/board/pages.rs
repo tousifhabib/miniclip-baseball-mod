@@ -2,7 +2,6 @@
 //! that turn them.
 
 use bb_engine::display::Path;
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use super::batting::batting;
@@ -81,7 +80,6 @@ impl Pages {
         zingers: Option<String>,
         holder: &[u16],
         stage: &mut Stage,
-        library: &Library,
     ) -> Option<Pages> {
         let mut pages = vec![
             Page::Score,
@@ -104,7 +102,7 @@ impl Pages {
                 pages.push(Page::Innings { innings, part });
             }
         }
-        let mut sheet = Sheet::on(holder.to_vec(), 500, library);
+        let mut sheet = Sheet::on(holder.to_vec(), 500);
         // The art's arrow points on. The one back is the same, turned
         // round.
         let down = PAGER_TOP;
@@ -124,7 +122,7 @@ impl Pages {
         )?;
         let depth = sheet.depth;
         let top = (MIDDLE, PAGER_TOP - 1.0);
-        let count = Words::new(holder, depth, "pageCount", top, PAGER_SIZE, stage, library)?;
+        let count = Words::new(holder, depth, "pageCount", top, PAGER_SIZE, stage)?;
         let mut pages = Pages {
             holder: holder.to_vec(),
             full: full.clone(),
@@ -137,13 +135,13 @@ impl Pages {
             on,
             count,
         };
-        pages.draw(stage, library);
+        pages.draw(stage);
         Some(pages)
     }
 
     /// Takes in a click on the button at `path`, which may be one of the
     /// arrows. They go round: back from the first page is the last.
-    pub fn clicked(&mut self, path: &[u16], stage: &mut Stage, library: &Library) {
+    pub fn clicked(&mut self, path: &[u16], stage: &mut Stage) {
         let pages = self.pages.len();
         if self.back == path {
             self.page = (self.page + pages - 1) % pages;
@@ -152,7 +150,7 @@ impl Pages {
         } else {
             return;
         }
-        self.draw(stage, library);
+        self.draw(stage);
     }
 
     /// Called every frame the board is up. The art's own figures are only
@@ -175,18 +173,17 @@ impl Pages {
     }
 
     /// Writes the page that is up, in place of the one that was.
-    fn draw(&mut self, stage: &mut Stage, library: &Library) {
+    fn draw(&mut self, stage: &mut Stage) {
         if let Some(old) = self.sheet.take() {
             stage.remove(&old);
         }
         let says = format!("PAGE {} OF {}", self.page + 1, self.pages.len());
         self.count.say(&says, CREAM, stage);
-        let Some(holder) = stage.attach(&self.holder, art::HOLDER, 10, "resultPage", library)
-        else {
+        let Some(holder) = stage.attach(&self.holder, art::HOLDER, 10, "resultPage") else {
             return;
         };
         self.sheet = Some(holder.clone());
-        let mut sheet = Sheet::on(holder, 1, library);
+        let mut sheet = Sheet::on(holder, 1);
         let full = &self.full;
         let page = self.pages[self.page];
         if page == Page::Score {

@@ -136,24 +136,24 @@ impl Baseball {
     /// Starts and stops the music and the crowd for the screen being shown.
     /// The music belongs to the menu and the screens a game ends on. The
     /// crowd is heard under a game.
-    fn sound_for(&mut self, screen: Screen, stage: &mut Stage, library: &Library) {
+    fn sound_for(&mut self, screen: Screen, stage: &mut Stage) {
         let sound = &self.game.rules.sound;
         for (name, level) in &sound.levels {
-            stage.set_sound_level(name, *level, library);
+            stage.set_sound_level(name, *level);
         }
         let in_game = screen.is_game();
         let wants_music = screen == Screen::Menu;
         let stops_music = in_game || screen == Screen::Instructions;
         if wants_music && !self.music_on {
-            self.music_on = stage.play_sound(&sound.music, 999, library);
+            self.music_on = stage.play_sound(&sound.music, 999);
         } else if stops_music && self.music_on {
-            stage.stop_sound(&sound.music, library);
+            stage.stop_sound(&sound.music);
             self.music_on = false;
         }
         if in_game && !self.crowd_on {
-            self.crowd_on = stage.play_sound(&sound.crowd, 999, library);
+            self.crowd_on = stage.play_sound(&sound.crowd, 999);
         } else if screen == Screen::Menu && self.crowd_on {
-            stage.stop_sound(&sound.crowd, library);
+            stage.stop_sound(&sound.crowd);
             self.crowd_on = false;
         }
     }
@@ -178,9 +178,9 @@ impl Baseball {
 }
 
 impl Logic for Baseball {
-    fn event(&mut self, event: &Event, stage: &mut Stage, library: &Library) {
+    fn event(&mut self, event: &Event, stage: &mut Stage) {
         if let (Some(play), true) = (&mut self.play, self.screen.is_game()) {
-            play.event(event, &self.playing, stage, library);
+            play.event(event, &self.playing, stage);
         }
         if let Event::Button {
             symbol,
@@ -191,29 +191,29 @@ impl Logic for Baseball {
             self.choose_look(*symbol, stage);
             self.choose_mod(path);
             self.menu.chose(path, &mut self.game.settings);
-            self.turn_page(path, stage, library);
-            self.clicked(*symbol, stage, library);
+            self.turn_page(path, stage);
+            self.clicked(*symbol, stage);
         }
     }
 
-    fn tick(&mut self, stage: &mut Stage, library: &Library) {
+    fn tick(&mut self, stage: &mut Stage) {
         self.stop_held_clips(stage);
-        self.play_a_frame(stage, library);
-        self.show_interval(stage, library);
-        self.show_result_lines(stage, library);
-        self.name_the_skill_played(stage, library);
+        self.play_a_frame(stage);
+        self.show_interval(stage);
+        self.show_result_lines(stage);
+        self.name_the_skill_played(stage);
         if let Some(shell) = art::shell(stage) {
-            look::dress(stage, &shell, &self.look(), library);
+            look::dress(stage, &shell, &self.look());
         }
-        self.show_scores(stage, library);
+        self.show_scores(stage);
         let on_mods = self.screen == Screen::Menu && self.menu.page() == MenuPage::Mods;
         self.mods_page
-            .show(on_mods, &self.game.mods, &self.game.rules, stage, library);
+            .show(on_mods, &self.game.mods, &self.game.rules, stage);
         self.give_the_pointer_back(stage);
-        self.move_on(stage, library);
+        self.move_on(stage);
     }
 
-    fn key(&mut self, key: &Key, _stage: &mut Stage, _library: &Library) -> bool {
+    fn key(&mut self, key: &Key, _stage: &mut Stage) -> bool {
         // With bullet time on, the space bar is the game's while a game
         // is being played.
         *key == bullet::KEY

@@ -146,21 +146,19 @@ impl Script {
                 );
             }
             Step::Tree => lines.extend(
-                describe_tree(&runner.stage.root.children, &runner.library)
+                describe_tree(&runner.stage.root.children, runner.library())
                     .lines()
                     .map(str::to_owned),
             ),
             Step::Shot(file) => {
                 let scale = self.scale;
-                let size = runner.library.picture_size(scale);
-                let background = runner.library.background();
-                let commands = runner
-                    .stage
-                    .commands(Matrix::scale(scale, scale), &runner.library);
+                let size = runner.library().picture_size(scale);
+                let background = runner.library().background();
+                let commands = runner.stage.commands(Matrix::scale(scale, scale));
                 let renderer = self.eyes.renderer()?;
                 renderer.min_stroke = scale.max(1.0);
                 renderer
-                    .capture(&runner.library, &commands, size, background)?
+                    .capture(runner.library(), &commands, size, background)?
                     .save(&file)
                     .with_context(|| format!("writing {file}"))?;
             }

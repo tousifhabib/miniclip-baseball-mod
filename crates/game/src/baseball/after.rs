@@ -1,7 +1,6 @@
 //! The screens a game leaves behind it: the board between innings, and
 //! the lines of the result.
 
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use super::Baseball;
@@ -23,7 +22,7 @@ const ZINGER_LINE_COLOUR: Rgb = look::CREAM;
 impl Baseball {
     /// While the board between innings is up, keeps the art's own words
     /// off it, and writes the full match's once the board has arrived.
-    pub(super) fn show_interval(&mut self, stage: &mut Stage, library: &Library) {
+    pub(super) fn show_interval(&mut self, stage: &mut Stage) {
         if self.screen != Screen::Interval {
             return;
         }
@@ -51,7 +50,7 @@ impl Baseball {
             return;
         }
         if let Some(full) = self.play.as_ref().and_then(Match::full) {
-            self.board = board::interval(full, &path, stage, library);
+            self.board = board::interval(full, &path, stage);
         }
     }
 
@@ -76,7 +75,7 @@ impl Baseball {
     /// screen has got to its figures: the pages of a full match, and the
     /// longest zinger of the game just finished with the longest there has
     /// ever been. A game with no zinger in it has no such line.
-    pub(super) fn show_result_lines(&mut self, stage: &mut Stage, library: &Library) {
+    pub(super) fn show_result_lines(&mut self, stage: &mut Stage) {
         if let Some(pages) = &self.pages {
             pages.keep(stage);
         }
@@ -97,7 +96,7 @@ impl Baseball {
             return;
         };
         let depth = Stage::RULES_DEPTH + 400;
-        let Some(holder) = stage.attach(&shell, art::HOLDER, depth, "resultLines", library) else {
+        let Some(holder) = stage.attach(&shell, art::HOLDER, depth, "resultLines") else {
             return;
         };
         self.result_lines = Some(holder.clone());
@@ -111,13 +110,13 @@ impl Baseball {
             // A full match has pages, and what there is to say of zingers
             // is on the first of them.
             let our_outs = self.playing.rules.game.outs;
-            self.pages = board::Pages::new(full, our_outs, zingers, &holder, stage, library);
+            self.pages = board::Pages::new(full, our_outs, zingers, &holder, stage);
             return;
         }
         let Some(zingers) = zingers else {
             return;
         };
-        let middle = library.manifest.stage.width as f32 / 2.0;
+        let middle = stage.library().manifest.stage.width as f32 / 2.0;
         if let Some(words) = Words::new(
             &holder,
             1,
@@ -125,7 +124,6 @@ impl Baseball {
             (middle, top),
             ZINGER_LINE_SIZE,
             stage,
-            library,
         ) {
             words.say(&zingers, ZINGER_LINE_COLOUR, stage);
         }
@@ -133,9 +131,9 @@ impl Baseball {
 
     /// Takes in a click on the button at `path`, which may be one of the
     /// arrows that turn the pages of a finished full match.
-    pub(super) fn turn_page(&mut self, path: &[u16], stage: &mut Stage, library: &Library) {
+    pub(super) fn turn_page(&mut self, path: &[u16], stage: &mut Stage) {
         if let Some(pages) = &mut self.pages {
-            pages.clicked(path, stage, library);
+            pages.clicked(path, stage);
         }
     }
 }

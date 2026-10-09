@@ -139,12 +139,12 @@ impl Match {
 
     /// Called once a frame while the match screen is showing. Returns how
     /// the match ended, once it has.
-    pub fn tick(&mut self, game: &Game, stage: &mut Stage, library: &Library) -> Option<Outcome> {
+    pub fn tick(&mut self, game: &Game, stage: &mut Stage) -> Option<Outcome> {
         // Where the player has clicked since the last frame, off the
         // buttons. It is taken from the click itself and not from how the
         // pointer's button is now, which may be up again already.
         let pressed = stage.pointer.went_down;
-        self.run_cues(stage, library);
+        self.run_cues(stage);
         // The stadium is lit as by day, unless it is night, and is cooler
         // while bullet time holds the ball back.
         let slowed = self.mods.the_ball_was_held_back();
@@ -153,23 +153,23 @@ impl Match {
         }
 
         if self.phase == Phase::Arriving {
-            return self.set_up(game, stage, library);
+            return self.set_up(game, stage);
         }
         let mut at_bat = self.at.take()?;
         // The view has gone: the screen was left.
         stage.clip(&at_bat.parts.main)?;
-        self.keep_the_view(&mut at_bat, slowed, game, stage, library);
+        self.keep_the_view(&mut at_bat, slowed, game, stage);
 
         // In the arcade game the ball goes on over the field while the next
         // pitch is already on offer.
         if matches!(self.phase, Phase::Ready | Phase::Leaving { .. }) {
-            self.arcade_ball(&mut at_bat, game, stage, library);
+            self.arcade_ball(&mut at_bat, game, stage);
         }
         match self.phase {
             Phase::Settling { left } => {
-                self.wait_for_the_wind_up(&mut at_bat, left, pressed, game, stage, library);
+                self.wait_for_the_wind_up(&mut at_bat, left, pressed, game, stage);
             }
-            Phase::WindUp => self.wind_up_and_throw(&mut at_bat, pressed, game, stage, library),
+            Phase::WindUp => self.wind_up_and_throw(&mut at_bat, pressed, game, stage),
             Phase::Flight { step } => {
                 let pressed = self.mods.late_press().or(pressed);
                 let (steps, swung) = (at_bat.pitch.samples.len(), at_bat.swing.is_some());
@@ -179,38 +179,38 @@ impl Match {
                     // made on it is for the step the ball is on.
                     self.mods.keep_press(pressed);
                 } else {
-                    self.flight(&mut at_bat, step, pressed, game, stage, library);
+                    self.flight(&mut at_bat, step, pressed, game, stage);
                 }
             }
             Phase::Called { left } => {
                 if left == 0 {
-                    self.ready(&at_bat.parts, stage, library);
+                    self.ready(&at_bat.parts, stage);
                 } else {
                     self.phase = Phase::Called { left: left - 1 };
                 }
             }
             Phase::Watching { left } => {
-                self.watch(&mut at_bat, game, stage, library);
+                self.watch(&mut at_bat, game, stage);
                 if left == 0 && self.mode.is_arcade() {
-                    self.show_arcade_field(&mut at_bat, game, stage, library);
+                    self.show_arcade_field(&mut at_bat, game, stage);
                 } else if left == 0 {
-                    self.show_field(&mut at_bat, false, game, stage, library);
+                    self.show_field(&mut at_bat, false, game, stage);
                 } else {
                     self.phase = Phase::Watching { left: left - 1 };
                 }
             }
             Phase::Walking { left } => {
                 if left == 0 {
-                    self.show_field(&mut at_bat, true, game, stage, library);
+                    self.show_field(&mut at_bat, true, game, stage);
                 } else {
                     self.phase = Phase::Walking { left: left - 1 };
                 }
             }
-            Phase::Fielding => self.field(&mut at_bat, game, stage, library),
+            Phase::Fielding => self.field(&mut at_bat, game, stage),
             Phase::Leaving { left } => {
                 if left == 0 {
                     // The view is built again, and the batting with it.
-                    self.ask_for_a_new_view(&at_bat, stage, library);
+                    self.ask_for_a_new_view(&at_bat, stage);
                     return None;
                 }
                 self.phase = Phase::Leaving { left: left - 1 };
@@ -223,7 +223,7 @@ impl Match {
     }
 
     /// Takes in something the stage has reported.
-    pub fn event(&mut self, event: &Event, game: &Game, stage: &mut Stage, library: &Library) {
+    pub fn event(&mut self, event: &Event, game: &Game, stage: &mut Stage) {
         let Event::Button {
             symbol,
             path,
@@ -240,13 +240,13 @@ impl Match {
                 // The panel plays itself out, and a flare covers the change.
                 let mut panel = path.clone();
                 panel.pop();
-                stage.goto_label(&panel, "nextBall", true, library);
+                stage.goto_label(&panel, "nextBall", true);
                 if let Some(flare) = &at_bat.parts.flare {
-                    play_from(stage, flare, 2, library);
+                    play_from(stage, flare, 2);
                 }
                 self.phase = Phase::Leaving { left: 12 };
             }
-            (_, ButtonEvent::Press) => self.runner_button(*symbol, path, game, stage, library),
+            (_, ButtonEvent::Press) => self.runner_button(*symbol, path, game, stage),
             _ => {}
         }
     }

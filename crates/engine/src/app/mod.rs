@@ -25,18 +25,18 @@ const MAX_ROUNDS: usize = 32;
 /// The game's rules. Every method has a default that does nothing.
 pub trait Logic {
     /// Called once, before the first frame is played.
-    fn start(&mut self, _stage: &mut Stage, _library: &Library) {}
+    fn start(&mut self, _stage: &mut Stage) {}
 
     /// Called for each thing the stage reports: a button the pointer has
     /// touched, a scripted frame a clip has landed on, or a sound.
-    fn event(&mut self, _event: &Event, _stage: &mut Stage, _library: &Library) {}
+    fn event(&mut self, _event: &Event, _stage: &mut Stage) {}
 
     /// Called once a frame, after the timelines have moved on.
-    fn tick(&mut self, _stage: &mut Stage, _library: &Library) {}
+    fn tick(&mut self, _stage: &mut Stage) {}
 
     /// Called for each key the player presses that no text field has taken.
     /// Returns whether the rules had a use for it.
-    fn key(&mut self, _key: &Key, _stage: &mut Stage, _library: &Library) -> bool {
+    fn key(&mut self, _key: &Key, _stage: &mut Stage) -> bool {
         false
     }
 
@@ -52,9 +52,7 @@ pub struct NoLogic;
 impl Logic for NoLogic {}
 
 pub struct Runner {
-    /// The art, which nothing changes once it is loaded, so that several
-    /// games may be played from one copy of it.
-    pub library: Arc<Library>,
+    /// What is being played, which carries the art it is played from.
     pub stage: Stage,
     logic: Box<dyn Logic>,
     /// `None` to play in silence.
@@ -68,14 +66,8 @@ pub struct Runner {
 }
 
 impl Runner {
-    pub fn new(
-        library: impl Into<Arc<Library>>,
-        stage: Stage,
-        logic: Box<dyn Logic>,
-        audio: Option<Audio>,
-    ) -> Runner {
+    pub fn new(stage: Stage, logic: Box<dyn Logic>, audio: Option<Audio>) -> Runner {
         Runner {
-            library: library.into(),
             stage,
             logic,
             audio,
@@ -85,12 +77,17 @@ impl Runner {
         }
     }
 
+    /// The art being played, which is the stage's.
+    pub fn library(&self) -> &Arc<Library> {
+        self.stage.library()
+    }
+
     /// Plays one frame.
     pub fn tick(&mut self, geometry: &mut dyn Geometry) {
         self.ensure_started();
-        self.stage.advance(&self.library, geometry);
+        self.stage.advance(geometry);
         self.react();
-        self.logic.tick(&mut self.stage, &self.library);
+        self.logic.tick(&mut self.stage);
         self.react();
         // The frame has been told of any click made before it.
         self.stage.forget_click();
@@ -100,8 +97,7 @@ impl Runner {
     /// whether its button is held.
     pub fn pointer(&mut self, x: f32, y: f32, down: bool, geometry: &mut dyn Geometry) {
         self.ensure_started();
-        self.stage
-            .pointer_changed(x, y, down, &self.library, geometry);
+        self.stage.pointer_changed(x, y, down, geometry);
         self.react();
     }
 
@@ -110,8 +106,7 @@ impl Runner {
     /// had a use for it.
     pub fn key(&mut self, key: Key) -> bool {
         self.ensure_started();
-        let used = self.stage.key(&key, &self.library)
-            || self.logic.key(&key, &mut self.stage, &self.library);
+        let used = self.stage.key(&key) || self.logic.key(&key, &mut self.stage);
         keep(&mut self.notes, Note::Key(key));
         self.react();
         used
@@ -145,7 +140,7 @@ impl Runner {
     fn ensure_started(&mut self) {
         if !self.started {
             self.started = true;
-            self.logic.start(&mut self.stage, &self.library);
+            self.logic.start(&mut self.stage);
             self.react();
         }
     }
@@ -163,7 +158,7 @@ impl Runner {
                     Event::Sound(start) => {
                         self.sounds_asked += 1;
                         if let Some(audio) = &mut self.audio {
-                            audio.play(&self.library, start);
+                            audio.play(self.stage.library(), start);
                         }
                         keep(&mut self.notes, Note::Sound(start.sound));
                     }
@@ -192,7 +187,7 @@ impl Runner {
                         keep(&mut self.notes, reached);
                     }
                 }
-                self.logic.event(event, &mut self.stage, &self.library);
+                self.logic.event(event, &mut self.stage);
             }
         }
     }
@@ -214,7 +209,7 @@ mod tests {
     struct Clicks(Rc<RefCell<Told>>);
 
     impl Logic for Clicks {
-        fn tick(&mut self, stage: &mut Stage, _: &Library) {
+        fn tick(&mut self, stage: &mut Stage) {
             self.0.borrow_mut().push(stage.pointer.went_down);
         }
     }
@@ -227,8 +222,8 @@ mod tests {
     #[test]
     fn a_runner_nobody_asks_keeps_the_latest_of_what_happened_and_no_more() {
         let library = library_with(vec![frame(vec![])], vec![frame(vec![])]);
-        let stage = Stage::new(None, &library);
-        let mut runner = Runner::new(library, stage, Box::new(Idle), None);
+        let stage = Stage::new(None, library);
+        let mut runner = Runner::new(stage, Box::new(Idle), None);
         for _ in 0..10 {
             runner.key(Key::Char('a'));
         }
@@ -247,9 +242,9 @@ mod tests {
     #[test]
     fn a_frame_is_told_of_a_click_made_before_it_and_the_next_is_not() {
         let library = library_with(vec![frame(vec![])], vec![frame(vec![])]);
-        let stage = Stage::new(None, &library);
+        let stage = Stage::new(None, library);
         let seen = Rc::new(RefCell::new(Vec::new()));
-        let mut runner = Runner::new(library, stage, Box::new(Clicks(seen.clone())), None);
+        let mut runner = Runner::new(stage, Box::new(Clicks(seen.clone())), None);
         runner.tick(&mut Empty);
         // The button goes down and comes up before a frame is played.
         runner.pointer(30.0, 40.0, false, &mut Empty);

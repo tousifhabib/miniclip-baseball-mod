@@ -71,20 +71,20 @@ fn main() -> Result<()> {
 
     let mut renderer = Renderer::headless()?;
     renderer.min_stroke = args.scale.max(1.0);
-    let mut stage = Stage::new(args.clip, &library);
-    stage.goto(args.frame, &library);
+    let mut stage = Stage::new(args.clip, library);
+    stage.goto(args.frame);
     if args.hold {
         stage.root.playing = false;
     }
     for _ in 0..args.ticks {
-        stage.advance(&library, &mut renderer);
+        stage.advance(&mut renderer);
     }
 
     if let Some((x, y)) = args.pointer {
         // Arrive first, then press, as a real pointer would.
-        stage.pointer_changed(x, y, false, &library, &mut renderer);
+        stage.pointer_changed(x, y, false, &mut renderer);
         if args.press {
-            stage.pointer_changed(x, y, true, &library, &mut renderer);
+            stage.pointer_changed(x, y, true, &mut renderer);
         }
     }
     for event in stage.take_events() {
@@ -97,7 +97,7 @@ fn main() -> Result<()> {
     }
 
     if args.tree {
-        print!("{}", describe_tree(&stage.root.children, &library));
+        print!("{}", describe_tree(&stage.root.children, stage.library()));
     }
 
     let scale = Matrix::scale(args.scale, args.scale);
@@ -105,10 +105,10 @@ fn main() -> Result<()> {
         Some(_) => Matrix::translate(size.0 as f32 / 2.0, size.1 as f32 / 2.0).then_inner(scale),
         None => scale,
     };
-    let background = library.background();
+    let background = stage.library().background();
 
-    let list = stage.commands(base, &library);
-    let image = renderer.capture(&library, &list, size, background)?;
+    let list = stage.commands(base);
+    let image = renderer.capture(stage.library(), &list, size, background)?;
     image
         .save(&args.out)
         .with_context(|| format!("writing {}", args.out.display()))?;
@@ -116,7 +116,7 @@ fn main() -> Result<()> {
     println!(
         "Drew frame {} of {} to {}: {} draws in {} blurred layers",
         stage.root.frame,
-        stage.root.frame_count(&library),
+        stage.root.frame_count(stage.library()),
         args.out.display(),
         renderer.stats.draws,
         renderer.stats.layers,

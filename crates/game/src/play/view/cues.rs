@@ -2,7 +2,6 @@
 //! a frame, where the art's own script did them.
 
 use bb_engine::display::Path;
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use crate::play::Match;
@@ -18,22 +17,15 @@ pub(crate) struct Cue {
 }
 
 impl Match {
-    pub(crate) fn sound(stage: &mut Stage, library: &Library, name: &str) {
-        stage.play_sound(name, 1, library);
+    pub(crate) fn sound(stage: &mut Stage, name: &str) {
+        stage.play_sound(name, 1);
     }
 
     /// Sets a clip playing from a label, to be sent back to its first frame
     /// when it reaches `end`, where the art's own script did that.
-    pub(crate) fn play_section(
-        &mut self,
-        path: &[u16],
-        label: &str,
-        end: u16,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(crate) fn play_section(&mut self, path: &[u16], label: &str, end: u16, stage: &mut Stage) {
         self.cues.retain(|cue| cue.path != path);
-        if stage.goto_label(path, label, true, library) {
+        if stage.goto_label(path, label, true) {
             self.cues.push(Cue {
                 path: path.to_vec(),
                 frame: end,
@@ -42,13 +34,13 @@ impl Match {
         }
     }
 
-    pub(crate) fn run_cues(&mut self, stage: &mut Stage, library: &Library) {
+    pub(crate) fn run_cues(&mut self, stage: &mut Stage) {
         self.put_away.retain_mut(|(path, left)| {
             if *left > 0 {
                 *left -= 1;
                 return true;
             }
-            stage.goto_clip(path, 1, library);
+            stage.goto_clip(path, 1);
             if let Some(clip) = stage.clip_mut(path) {
                 clip.playing = false;
             }
@@ -65,7 +57,7 @@ impl Match {
         });
         for cue in due {
             if cue.rewind {
-                stage.goto_clip(&cue.path, 1, library);
+                stage.goto_clip(&cue.path, 1);
             }
             if let Some(clip) = stage.clip_mut(&cue.path) {
                 clip.playing = false;

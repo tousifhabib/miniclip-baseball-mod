@@ -2,7 +2,6 @@
 //! each mod on it, and the pips of one that has a setting.
 
 use bb_engine::display::Path;
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use super::{Line, ModsPage, Pager};
@@ -24,13 +23,7 @@ impl ModsPage {
     /// Takes the score table's drawings off the panel and puts on what
     /// every page of the list has. Returns whether the panel was there to
     /// do it to.
-    pub(super) fn make_ready(
-        &mut self,
-        panel: &Path,
-        rules: &Rules,
-        stage: &mut Stage,
-        library: &Library,
-    ) -> bool {
+    pub(super) fn make_ready(&mut self, panel: &Path, rules: &Rules, stage: &mut Stage) -> bool {
         // What the panel was drawn with for the scores: its backing with
         // the table's tabs, the publisher's mark, and the notice.
         let table: Vec<Path> = stage.clip(panel).map_or(Vec::new(), |clip| {
@@ -58,15 +51,9 @@ impl ModsPage {
         }
         // A backing without the tabs goes under the panel's border, which
         // stays.
-        stage.attach(
-            panel,
-            art::MODS_PANEL,
-            art::MODS_PANEL_DEPTH,
-            "modsPanel",
-            library,
-        );
+        stage.attach(panel, art::MODS_PANEL, art::MODS_PANEL_DEPTH, "modsPanel");
         self.pages = ModsPage::pages(rules).len();
-        let mut on = Sheet::on(panel.clone(), Stage::RULES_DEPTH + 301, library);
+        let mut on = Sheet::on(panel.clone(), Stage::RULES_DEPTH + 301);
         self.heading = on.label(stage, WORDS, "MODS", (-166.0, -123.0), 0.8, WHITE);
         if self.pages > 1 {
             let down = ModsPage::PAGER_DOWN;
@@ -102,7 +89,7 @@ impl ModsPage {
         setting: &str,
         levels: u8,
         from: (f32, f32),
-        panel: &mut Sheet<'_>,
+        panel: &mut Sheet,
         stage: &mut Stage,
     ) {
         let (words, row) = from;
@@ -127,18 +114,12 @@ impl ModsPage {
     }
 
     /// Puts the mods of the page that is up on the panel.
-    pub(super) fn lay_out(
-        &mut self,
-        panel: &Path,
-        rules: &Rules,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(super) fn lay_out(&mut self, panel: &Path, rules: &Rules, stage: &mut Stage) {
         let listed = ModsPage::pages(rules)
             .into_iter()
             .nth(self.page)
             .unwrap_or_default();
-        let mut panel = Sheet::on(panel.clone(), self.depth, library);
+        let mut panel = Sheet::on(panel.clone(), self.depth);
         let (left, mut down) = ModsPage::FIRST;
         for which in listed {
             let words = left + 24.0;

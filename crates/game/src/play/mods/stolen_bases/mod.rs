@@ -11,7 +11,6 @@
 
 mod leads;
 
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use crate::look::Rgb;
@@ -112,7 +111,7 @@ pub(crate) fn hold(runners: &Runners, stage: &mut Stage) {
 
 /// The pitch was fouled off, or the side is out: whoever was stealing goes
 /// back to the base he left.
-pub(crate) fn send_back(runners: &mut Runners, stage: &mut Stage, library: &Library) {
+pub(crate) fn send_back(runners: &mut Runners, stage: &mut Stage) {
     for runner in runners {
         let Some(from) = runner.stole_from.take() else {
             continue;
@@ -120,7 +119,7 @@ pub(crate) fn send_back(runners: &mut Runners, stage: &mut Stage, library: &Libr
         runner.running_to = None;
         runner.sliding = false;
         if let Some(path) = &runner.path {
-            stage.goto_label(path, &format!("base{from}"), false, library);
+            stage.goto_label(path, &format!("base{from}"), false);
         }
     }
 }

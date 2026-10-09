@@ -59,7 +59,7 @@ pub fn written(script: &Script, name: &str) -> Vec<String> {
 /// art.
 pub fn sounds(script: &mut Script) -> Vec<String> {
     let lines = script.run("events").unwrap();
-    let exports = &script.runner.library.manifest.exports;
+    let exports = &script.runner.library().manifest.exports;
     lines
         .iter()
         .filter_map(|line| line.trim().strip_prefix("sound ")?.parse::<u16>().ok())

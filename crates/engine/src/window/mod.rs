@@ -50,7 +50,7 @@ pub struct Summary {
 pub fn run(runner: Runner, options: Options) -> Result<Summary> {
     let mut inspector = Inspector::new();
     inspector.open = options.inspect;
-    let frame = Duration::from_secs_f64(1.0 / runner.library.manifest.stage.frame_rate);
+    let frame = Duration::from_secs_f64(1.0 / runner.library().manifest.stage.frame_rate);
     let mut app = App {
         runner,
         options,

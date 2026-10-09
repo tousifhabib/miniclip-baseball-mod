@@ -22,20 +22,18 @@ pub(crate) use play::Fielding;
 use play::Job;
 pub(super) use running::ARRIVES;
 
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use super::{AtBat, Match, Parts, at, show};
 use crate::game::Game;
 
 /// What a fielder does his job on: the parts of the view, the numbers the
-/// game is played by, the stage and the art. They are handed on together
-/// to whichever job is his this frame.
+/// game is played by, and the stage. They are handed on together to
+/// whichever job is his this frame.
 struct Scene<'a> {
     parts: &'a Parts,
     game: &'a Game,
     stage: &'a mut Stage,
-    library: &'a Library,
 }
 
 /// The fielder behind the plate, counting from 0 as [`Fielding::fielder`]
@@ -47,33 +45,27 @@ const WARNING_TRACK: f32 = 40.0;
 
 impl Match {
     /// One frame of the play in the field.
-    pub(crate) fn field(
-        &mut self,
-        at_bat: &mut AtBat,
-        game: &Game,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(crate) fn field(&mut self, at_bat: &mut AtBat, game: &Game, stage: &mut Stage) {
         let parts = at_bat.parts.clone();
         let Some(mut state) = at_bat.fielding.take() else {
             return;
         };
         state.frames += 1;
-        self.move_the_loose_ball(at_bat, &mut state, &parts, game, stage, library);
-        Match::watch_zinger(&mut state, &parts, game, stage, library);
-        self.do_the_fielders_job(at_bat, &mut state, &parts, game, stage, library);
+        self.move_the_loose_ball(at_bat, &mut state, &parts, game, stage);
+        Match::watch_zinger(&mut state, &parts, game, stage);
+        self.do_the_fielders_job(at_bat, &mut state, &parts, game, stage);
 
         let down = at_bat.ball.is_some_and(|ball| ball.bounced);
-        self.move_runners(&state, down, &parts, stage, library);
-        self.tell_steal(at_bat, game.rules.steal.told_time, stage, library);
-        self.tell_sign(at_bat, game.rules.sign.told_time, stage, library);
+        self.move_runners(&state, down, &parts, stage);
+        self.tell_steal(at_bat, game.rules.steal.told_time, stage);
+        self.tell_sign(at_bat, game.rules.sign.told_time, stage);
 
-        if self.the_play_is_over(&mut state, &parts, game, stage, library) {
-            self.end_the_play(at_bat, &state, &parts, game, stage, library);
+        if self.the_play_is_over(&mut state, &parts, game, stage) {
+            self.end_the_play(at_bat, &state, &parts, game, stage);
             // A runner still between bases was given his base as the play
             // was called dead. If he was stealing it, that is told now,
             // and not left to be told on the play after.
-            self.tell_steal(at_bat, game.rules.steal.told_time, stage, library);
+            self.tell_steal(at_bat, game.rules.steal.told_time, stage);
         }
         at_bat.fielding = Some(state);
     }
@@ -88,22 +80,16 @@ impl Match {
         parts: &Parts,
         game: &Game,
         stage: &mut Stage,
-        library: &Library,
     ) {
         let fielder = parts.fielders[state.fielder].clone();
         let here = at(stage, &fielder);
-        let scene = Scene {
-            parts,
-            game,
-            stage,
-            library,
-        };
+        let scene = Scene { parts, game, stage };
         match state.job {
             Job::Chase => self.go_after_the_ball(at_bat, state, &fielder, here, scene),
             Job::WaitCatch => self.wait_under_the_ball(at_bat, state, &fielder, here, scene),
             // He has it up off the ground, and draws back to throw.
             Job::PickUp { left: 0 } => {
-                state.job = Match::wind_up(state, here, &fielder, parts, game, stage, library);
+                state.job = Match::wind_up(state, here, &fielder, parts, game, stage);
             }
             Job::PickUp { left } => state.job = Job::PickUp { left: left - 1 },
             Job::WindUp { left: 0 } => {
@@ -117,8 +103,8 @@ impl Match {
             Job::Fumbling { left } => state.job = Job::Fumbling { left: left - 1 },
             Job::Gather { left: 0 } => {
                 show(stage, &parts.field_ball, false);
-                stage.goto_label(&fielder, "baseWaiting", false, library);
-                self.hold_or_throw_on(state, parts, game, stage, library);
+                stage.goto_label(&fielder, "baseWaiting", false);
+                self.hold_or_throw_on(state, parts, game, stage);
             }
             Job::Gather { left } => state.job = Job::Gather { left: left - 1 },
             Job::Rest => {}

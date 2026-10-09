@@ -7,7 +7,6 @@ use std::rc::Rc;
 use bb_engine::app::Logic;
 use bb_engine::display::{ButtonMode, Child, Children, ClipState, Command, Content, Event};
 use bb_engine::input::Key;
-use bb_engine::library::Library;
 use bb_engine::math::{ColorTransform, Matrix};
 use bb_engine::stage::Stage;
 use bb_game::script::Script;
@@ -27,23 +26,23 @@ pub struct Listening {
 }
 
 impl Logic for Listening {
-    fn start(&mut self, stage: &mut Stage, library: &Library) {
-        self.game.start(stage, library);
+    fn start(&mut self, stage: &mut Stage) {
+        self.game.start(stage);
     }
 
-    fn event(&mut self, event: &Event, stage: &mut Stage, library: &Library) {
+    fn event(&mut self, event: &Event, stage: &mut Stage) {
         if let Event::Sound(start) = event {
             self.sounds.borrow_mut().push(format!("{start:?}"));
         }
-        self.game.event(event, stage, library);
+        self.game.event(event, stage);
     }
 
-    fn tick(&mut self, stage: &mut Stage, library: &Library) {
-        self.game.tick(stage, library);
+    fn tick(&mut self, stage: &mut Stage) {
+        self.game.tick(stage);
     }
 
-    fn key(&mut self, key: &Key, stage: &mut Stage, library: &Library) -> bool {
-        self.game.key(key, stage, library)
+    fn key(&mut self, key: &Key, stage: &mut Stage) -> bool {
+        self.game.key(key, stage)
     }
 
     fn describe(&self) -> String {
@@ -100,7 +99,7 @@ pub fn seen(script: &Script, into: &mut impl Sink) {
         into.next();
     }
     clip(&stage.root, 0, into);
-    let commands = stage.commands(Matrix::IDENTITY, &script.runner.library);
+    let commands = stage.commands(Matrix::IDENTITY);
     into.number("commands", commands.len() as u64);
     into.next();
     for command in &commands {

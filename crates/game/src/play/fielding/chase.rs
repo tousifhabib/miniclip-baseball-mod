@@ -2,7 +2,6 @@
 //! for it, waiting under it, catching it or letting it go.
 
 use bb_engine::display::Path;
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use super::loose_ball::unreachable_ball;
@@ -37,12 +36,7 @@ impl Match {
         here: Point,
         scene: Scene<'_>,
     ) {
-        let Scene {
-            parts,
-            game,
-            stage,
-            library,
-        } = scene;
+        let Scene { parts, game, stage } = scene;
         let rules = &game.rules.field;
         let ball = at_bat.ball.unwrap_or_else(|| unreachable_ball(state.land));
         let target = if ball.bounced { ball.at } else { state.land };
@@ -59,7 +53,7 @@ impl Match {
         if gap > 0.01 {
             state.facing = Facing::towards(here, target);
         }
-        stage.goto_label(fielder, state.facing.run_label(), false, library);
+        stage.goto_label(fielder, state.facing.run_label(), false);
         // He is drawn smaller the further up the field he is.
         let out = reach(parts.home, next);
         put(stage, fielder, next, (0.6 - out / 5000.0).max(0.2));
@@ -72,28 +66,28 @@ impl Match {
             if ball.bounced && !state.fumbled && self.lets_go() {
                 // It squirts out of his hands as he bends for it.
                 state.fumbled = true;
-                stage.goto_label(fielder, state.facing.pick_label(), false, library);
+                stage.goto_label(fielder, state.facing.pick_label(), false);
                 self.let_go(&mut at_bat.ball, parts, game);
-                Match::sound(stage, library, "crowd_smallCheer");
+                Match::sound(stage, "crowd_smallCheer");
                 let told = &mut at_bat.notices;
-                Match::tell(told, "FUMBLED!", next, parts, game, stage, library);
+                Match::tell(told, "FUMBLED!", next, parts, game, stage);
                 state.job = Job::Fumbling {
                     left: game.rules.butterfingers.fumble_time,
                 };
             } else if ball.bounced {
                 state.fumbled = false;
                 show(stage, &parts.field_ball, false);
-                stage.goto_label(fielder, state.facing.pick_label(), false, library);
+                stage.goto_label(fielder, state.facing.pick_label(), false);
                 state.throw_to = self.pick_base(next, parts);
                 state.job = Job::PickUp {
                     left: rules.pick_time,
                 };
             } else {
-                stage.goto_label(fielder, "waitingToCatch", false, library);
+                stage.goto_label(fielder, "waitingToCatch", false);
                 state.job = Job::WaitCatch;
             }
         } else if out >= rules.fielder_reach {
-            stage.goto_label(fielder, "waiting", false, library);
+            stage.goto_label(fielder, "waiting", false);
             state.job = Job::Rest;
         }
     }
@@ -109,12 +103,7 @@ impl Match {
         here: Point,
         scene: Scene<'_>,
     ) {
-        let Scene {
-            parts,
-            game,
-            stage,
-            library,
-        } = scene;
+        let Scene { parts, game, stage } = scene;
         let rules = &game.rules.field;
         let Some(ball) = at_bat.ball else {
             return;
@@ -127,34 +116,29 @@ impl Match {
             // and the ball is on the ground.
             state.catch = Some(Catch::Dropped);
             self.let_go(&mut at_bat.ball, parts, game);
-            Match::sound(stage, library, "ballCatch_3");
-            Match::sound(stage, library, "crowd_smallCheer");
+            Match::sound(stage, "ballCatch_3");
+            Match::sound(stage, "crowd_smallCheer");
             let told = &mut at_bat.notices;
-            Match::tell(told, "DROPPED!", here, parts, game, stage, library);
+            Match::tell(told, "DROPPED!", here, parts, game, stage);
             state.job = Job::Fumbling {
                 left: game.rules.butterfingers.fumble_time,
             };
         } else if ball.lift < 0.0 && ball.height <= rules.catch_height {
             state.catch = Some(Catch::Made);
             show(stage, &parts.field_ball, false);
-            Match::sound(stage, library, "ballCatch_3");
-            Match::sound(stage, library, "umpire_out_1");
-            Match::sound(stage, library, "crowd_unhappy");
-            self.the_batter_is_caught_out(state.batter, stage, library);
+            Match::sound(stage, "ballCatch_3");
+            Match::sound(stage, "umpire_out_1");
+            Match::sound(stage, "crowd_unhappy");
+            self.the_batter_is_caught_out(state.batter, stage);
             state.throw_to = self.pick_base(here, parts);
-            state.job = Match::wind_up(state, here, fielder, parts, game, stage, library);
+            state.job = Match::wind_up(state, here, fielder, parts, game, stage);
         }
     }
 
     /// Caught: the batter is out wherever he has got to, which on a ball
     /// that hung a long time may be a base, or all the way round. A run he
     /// scored on it is no run.
-    fn the_batter_is_caught_out(
-        &mut self,
-        batter: Option<usize>,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    fn the_batter_is_caught_out(&mut self, batter: Option<usize>, stage: &mut Stage) {
         let batter = batter.filter(|&batter| {
             self.runners
                 .get(batter)
@@ -166,7 +150,7 @@ impl Match {
                 self.runners[batter].runs -= worth;
                 self.score = self.score.saturating_sub(worth);
             }
-            self.put_out(batter, stage, library);
+            self.put_out(batter, stage);
         }
     }
 
@@ -210,7 +194,6 @@ impl Match {
         parts: &Parts,
         game: &Game,
         stage: &mut Stage,
-        library: &Library,
     ) {
         // The field is drawn at a size and a place of its own in the view.
         let Some(field) = stage.child(&parts.field).map(|field| field.matrix) else {
@@ -226,7 +209,6 @@ impl Match {
                 .sized(TOLD_SIZE),
             parts,
             stage,
-            library,
         );
     }
 }

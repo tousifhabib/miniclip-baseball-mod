@@ -9,7 +9,6 @@
 //! miss up or down the field counts for more than one to the side.
 
 use bb_engine::display::Path;
-use bb_engine::library::Library;
 use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
 
@@ -57,7 +56,6 @@ impl Called {
         parts: &Parts,
         rules: &Rules,
         stage: &mut Stage,
-        library: &Library,
     ) {
         let lie = Lie::read(parts, stage);
         let area = &rules.called_shot.area;
@@ -68,7 +66,7 @@ impl Called {
         );
         let size = rules.called_shot.size;
         if called.is_none() {
-            *called = Called::put_out(place, parts, stage, library);
+            *called = Called::put_out(place, parts, stage);
         }
         let Some(called) = called else {
             return;
@@ -90,12 +88,7 @@ impl Called {
 
     /// Puts the two targets on the stage: one behind the players in the
     /// batting view, and one on the field under the ball.
-    fn put_out(
-        place: Point,
-        parts: &Parts,
-        stage: &mut Stage,
-        library: &Library,
-    ) -> Option<Called> {
+    fn put_out(place: Point, parts: &Parts, stage: &mut Stage) -> Option<Called> {
         let free_from = |clip: &Path, from: u16, up: bool, stage: &Stage| {
             let clip = stage.clip(clip)?;
             if up {
@@ -111,10 +104,10 @@ impl Called {
             .and_then(|path| path.last().copied())
             .unwrap_or(4);
         let depth = free_from(&parts.main, board, true, stage)?;
-        let in_view = stage.attach(&parts.main, art::TARGET, depth, "calledShot", library)?;
+        let in_view = stage.attach(&parts.main, art::TARGET, depth, "calledShot")?;
         let (&ball, _) = parts.field_ball.split_last()?;
         let depth = free_from(&parts.field, ball, false, stage)?;
-        let on_field = stage.attach(&parts.field, art::TARGET, depth, "calledShot", library)?;
+        let on_field = stage.attach(&parts.field, art::TARGET, depth, "calledShot")?;
         Some(Called {
             at: place,
             in_view,
@@ -126,13 +119,7 @@ impl Called {
 
     /// The hit has come down at `ball`: works out the runs that is worth,
     /// lights the ring of the target it came down in, and returns the runs.
-    pub fn landed(
-        &mut self,
-        ball: Point,
-        rules: &Rules,
-        stage: &mut Stage,
-        library: &Library,
-    ) -> u32 {
+    pub fn landed(&mut self, ball: Point, rules: &Rules, stage: &mut Stage) -> u32 {
         self.down = Some(ball);
         let shot = &rules.called_shot;
         // As the arcade game measures it, on a target this much smaller.
@@ -149,7 +136,7 @@ impl Called {
         // The art numbers its rings from the outside in.
         let name = format!("ring{}", rules.arcade.rings.len() - ring);
         if let Some(lit) = stage.find(&self.on_field, &[&name]) {
-            stage.goto_clip(&lit, 2, library);
+            stage.goto_clip(&lit, 2);
         }
         self.runs
     }

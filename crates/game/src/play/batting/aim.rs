@@ -1,7 +1,6 @@
 //! Where the player is pointing: the ring over the plate, the pointer
 //! that shows where a hit would go, and the timing bar's marker.
 
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use crate::game::Game;
@@ -61,12 +60,7 @@ impl Match {
     }
 
     /// Works out where a hit made now would go sideways, and shows it.
-    pub(super) fn point_hit(
-        at_bat: &mut AtBat,
-        rules: &HitRules,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(super) fn point_hit(at_bat: &mut AtBat, rules: &HitRules, stage: &mut Stage) {
         if at_bat.contact.is_some() {
             return;
         }
@@ -95,7 +89,7 @@ impl Match {
         }
         // The pointer's look is drawn for every position, one a frame.
         let frame = at_bat.aim_area_x.clamp(1.0, 550.0) as u16;
-        stage.goto_clip(&parts.aim_area, frame, library);
+        stage.goto_clip(&parts.aim_area, frame);
         if let Some(clip) = stage.clip_mut(&parts.aim_area) {
             clip.playing = false;
         }

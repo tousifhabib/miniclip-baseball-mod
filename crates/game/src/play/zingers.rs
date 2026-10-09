@@ -1,7 +1,6 @@
 //! The match's zingers: the longest, the record there is to beat, and
 //! what is told when one comes down.
 
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use super::Match;
@@ -25,12 +24,7 @@ impl Match {
 
     /// A zinger has come down: the player is told how far it went and
     /// where, and the crowd is heard.
-    pub(crate) fn zinger_down(
-        &mut self,
-        show: &mut zinger::Show,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(crate) fn zinger_down(&mut self, show: &mut zinger::Show, stage: &mut Stage) {
         let record = self.mods.a_zinger_went(show.zinger.feet);
         show.landed(record, stage);
         self.mods.a_home_run_was_hit();
@@ -39,7 +33,7 @@ impl Match {
             sounds.push("baseball_organ_FX");
         }
         for name in sounds {
-            Match::sound(stage, library, name);
+            Match::sound(stage, name);
         }
     }
 }

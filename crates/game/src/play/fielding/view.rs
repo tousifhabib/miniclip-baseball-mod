@@ -1,7 +1,6 @@
 //! The change of view, from behind the batter to over the field.
 
 use bb_engine::display::Content;
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use super::CATCHER;
@@ -30,7 +29,7 @@ impl Match {
     /// Each is a clip inside the fielder, and the art stopped most of them
     /// from scripts on their last frames. Left alone they start again, and
     /// he throws the same ball over and over.
-    pub(crate) fn settle_fielders(parts: &Parts, stage: &mut Stage, library: &Library) {
+    pub(crate) fn settle_fielders(parts: &Parts, stage: &mut Stage) {
         let mut played = Vec::new();
         for fielder in &parts.fielders {
             let Some(clip) = stage.clip(fielder) else {
@@ -42,8 +41,8 @@ impl Match {
             for (&depth, child) in &clip.children {
                 if let Content::Clip(part) = &child.content
                     && part.playing
-                    && part.frame_count(library) > 1
-                    && part.frame >= part.frame_count(library)
+                    && part.frame_count(stage.library()) > 1
+                    && part.frame >= part.frame_count(stage.library())
                 {
                     let mut path = fielder.clone();
                     path.push(depth);
@@ -65,7 +64,6 @@ impl Match {
         walk: bool,
         game: &Game,
         stage: &mut Stage,
-        library: &Library,
     ) {
         let rules = &game.rules;
         let parts = at_bat.parts.clone();
@@ -88,18 +86,18 @@ impl Match {
             self.runners.a_walk_takes_the_steals_it_pushes();
             let stealing = self.runners.anyone_stealing();
             self.mods.a_steal_is_in_play(stealing);
-            self.start_runners(stage, library);
+            self.start_runners(stage);
         } else if let (Some(ball), Some(contact)) = (at_bat.ball, at_bat.contact) {
             let mark_x = parts.field_mark.0 + contact.aside / rules.field.aim_share;
             if mark_x < parts.foul.0 || mark_x > parts.foul.1 {
                 // A foul is a strike, but never the last one.
                 fielding.play = Play::Foul { called: 0 };
-                steal::send_back(&mut self.runners, stage, library);
+                steal::send_back(&mut self.runners, stage);
                 let allowed = self.strikes_allowed(game);
                 if self.count.foul(allowed) {
                     self.mods.a_foul_took_a_strike();
                 }
-                stage.goto_label(&parts.transitions, "foulHit", true, library);
+                stage.goto_label(&parts.transitions, "foulHit", true);
             } else {
                 fielding.land = if ball.bounced {
                     ball.at
@@ -119,10 +117,9 @@ impl Match {
                 };
                 fielding.job = Job::Chase;
                 self.runners.steals_are_runs();
-                self.start_runners(stage, library);
+                self.start_runners(stage);
                 if let Some(zinger) = at_bat.zinger {
-                    at_bat.zinger_show =
-                        zinger::Show::new(zinger, &ball, &parts, rules, stage, library);
+                    at_bat.zinger_show = zinger::Show::new(zinger, &ball, &parts, rules, stage);
                     // The outfielders go back to the wall to watch it over,
                     // unless the pitcher has been left to do it all.
                     if !self.mods.the_pitcher_fields_alone() {
@@ -143,19 +140,13 @@ impl Match {
 
     /// Changes the view to the field for a pitch that nobody hit, with a
     /// runner on his way to steal a base: the catcher throws there.
-    pub(crate) fn show_steal(
-        &mut self,
-        at_bat: &mut AtBat,
-        game: &Game,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(crate) fn show_steal(&mut self, at_bat: &mut AtBat, game: &Game, stage: &mut Stage) {
         let rules = &game.rules;
         let parts = at_bat.parts.clone();
         // He throws for the runner who is furthest on.
         let to = self.runners.bases_being_stolen().max();
         let (Some(to), Some(catcher)) = (to, parts.fielders.get(CATCHER)) else {
-            return self.ready(&parts, stage, library);
+            return self.ready(&parts, stage);
         };
         at_bat.leave_batting_view(stage);
         let y = at(stage, &parts.field).1;

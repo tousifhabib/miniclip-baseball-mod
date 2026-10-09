@@ -1,7 +1,6 @@
 //! The summary of a full match that is about to be played: the ground,
 //! the skill, and the mods that are on.
 
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 // The game was this file's once, and is still found here.
@@ -44,7 +43,7 @@ impl Menu {
 
     /// On the full match's summary page, takes the art's words about the
     /// last innings out of sight and writes what a full match is to be.
-    pub(crate) fn show_summary(&mut self, game: &Game, stage: &mut Stage, library: &Library) {
+    pub(crate) fn show_summary(&mut self, game: &Game, stage: &mut Stage) {
         if let Some(holder) = &self.summary
             && stage.child(holder).is_none()
         {
@@ -59,7 +58,7 @@ impl Menu {
         let Some(clip) = stage.clip(&menu) else {
             return;
         };
-        let (frame, last) = (clip.frame, clip.frame_count(library));
+        let (frame, last) = (clip.frame, clip.frame_count(stage.library()));
         let theirs: Vec<u16> = clip
             .children
             .iter()
@@ -76,7 +75,8 @@ impl Menu {
         if self.page == MenuPage::ToFull {
             // The page fades away over the frames that are left, and what
             // was written on it with it.
-            let labels = library
+            let labels = stage
+                .library()
                 .timeline(Some(art::MENU))
                 .map(|timeline| &timeline.labels);
             let first = labels
@@ -94,10 +94,10 @@ impl Menu {
             return;
         }
         let depth = Stage::RULES_DEPTH + 510;
-        let Some(holder) = stage.attach(&menu, art::HOLDER, depth, "fullSummary", library) else {
+        let Some(holder) = stage.attach(&menu, art::HOLDER, depth, "fullSummary") else {
             return;
         };
-        let mut sheet = Sheet::on(holder.clone(), 1, library).lettered(art::MENU_FIELD);
+        let mut sheet = Sheet::on(holder.clone(), 1).lettered(art::MENU_FIELD);
         let badge = SUMMARY_BADGE;
         for symbol in art::BADGE {
             sheet.add(stage, symbol, "badge", badge, (1.0, 1.0));

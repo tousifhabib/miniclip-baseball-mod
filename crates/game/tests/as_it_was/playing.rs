@@ -79,8 +79,8 @@ impl<A: Sink, B: Sink> Sink for Both<'_, A, B> {
 /// asks for listened to.
 fn start(game: &Game) -> Option<(Script, Sounds)> {
     let library = Library::load(&extracted()?).expect("loading the extracted art");
-    let stage = Stage::new(None, &library);
     let mut baseball = Box::new(Baseball::new(&library));
+    let stage = Stage::new(None, library);
     baseball.start_on(Screen::from_label(game.screen).expect("a screen with that label"));
     baseball.seed(game.seed);
     if !game.rules.is_empty() {
@@ -101,7 +101,7 @@ fn start(game: &Game) -> Option<(Script, Sounds)> {
         game: baseball,
         sounds: sounds.clone(),
     });
-    let runner = Runner::new(library, stage, listening, None);
+    let runner = Runner::new(stage, listening, None);
     let script = Script::new(runner).expect("a renderer with no window");
     Some((script, sounds))
 }

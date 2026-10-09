@@ -1,7 +1,6 @@
 //! The end of a play: when it is over, what it comes to, and how it goes
 //! in the book.
 
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use super::play::{Fair, Fielding, Job, Play};
@@ -27,7 +26,6 @@ impl Match {
         parts: &Parts,
         game: &Game,
         stage: &mut Stage,
-        library: &Library,
     ) -> bool {
         match &mut state.play {
             Play::Walk => !self.runners.anyone_running(),
@@ -43,7 +41,7 @@ impl Match {
                 if *called == BOARD_JOINS_IN
                     && let Some(board) = &parts.field_scoreboard
                 {
-                    stage.goto_label(board, "homeRun", true, library);
+                    stage.goto_label(board, "homeRun", true);
                 }
                 *called >= HOME_RUN_PLAYS_FOR
             }
@@ -65,14 +63,13 @@ impl Match {
         parts: &Parts,
         game: &Game,
         stage: &mut Stage,
-        library: &Library,
     ) {
         let rules = &game.rules.field;
         // Anyone still between bases when a play is called dead is given
         // the base he was making for.
         for runner in 0..self.runners.len() {
             if self.runners[runner].running_to.is_some() {
-                self.arrive(runner, parts, stage, library);
+                self.arrive(runner, parts, stage);
             }
         }
         if state.is_fair() {
@@ -90,7 +87,7 @@ impl Match {
             _ => {}
         }
         self.book_play(at_bat, state);
-        self.ready(parts, stage, library);
+        self.ready(parts, stage);
     }
 
     /// In a full match, writes a play that is over into the book: a foul,
@@ -140,13 +137,7 @@ impl Match {
     }
 
     /// The ball has cleared the wall: everybody scores.
-    pub(super) fn home_run(
-        &mut self,
-        state: &mut Fielding,
-        parts: &Parts,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(super) fn home_run(&mut self, state: &mut Fielding, parts: &Parts, stage: &mut Stage) {
         state.play = Play::Fair(Fair::HomeRun { called: 0 });
         state.job = Job::Rest;
         self.mods.a_home_run_was_hit();
@@ -162,17 +153,17 @@ impl Match {
                 runner.runs += worth;
                 self.score += worth;
                 if let Some(path) = &runner.path {
-                    stage.goto_label(path, "empty", false, library);
+                    stage.goto_label(path, "empty", false);
                 }
             }
         }
         self.clear_count();
         self.announce = true;
         let fielder = parts.fielders[state.fielder].clone();
-        stage.goto_label(&fielder, "waiting", false, library);
+        stage.goto_label(&fielder, "waiting", false);
         show(stage, &parts.field_ball, false);
         let transitions = parts.transitions.clone();
-        self.play_section(&transitions, "homeRun", 117, stage, library);
+        self.play_section(&transitions, "homeRun", 117, stage);
         self.show_numbers(stage);
     }
 }

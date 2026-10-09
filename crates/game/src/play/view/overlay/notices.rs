@@ -2,7 +2,6 @@
 //! news across it that fades.
 
 use bb_engine::display::Path;
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use super::holder;
@@ -84,13 +83,13 @@ pub(crate) struct Notices(Vec<Notice>);
 
 impl Notices {
     /// Puts a notice up, taking the place of any of the same name.
-    pub fn put(&mut self, says: Says<'_>, parts: &Parts, stage: &mut Stage, library: &Library) {
+    pub fn put(&mut self, says: Says<'_>, parts: &Parts, stage: &mut Stage) {
         self.take_down(says.name, stage);
-        let Some(holder) = holder(parts, "notice", stage, library) else {
+        let Some(holder) = holder(parts, "notice", stage) else {
             return;
         };
         let (name, top, size) = (says.name, says.top, says.size);
-        if let Some(words) = Words::new(&holder, 1, name, top, size, stage, library) {
+        if let Some(words) = Words::new(&holder, 1, name, top, size, stage) {
             words.say(says.words, says.colour, stage);
         }
         self.0.push(Notice {

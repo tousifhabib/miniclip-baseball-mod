@@ -1,7 +1,6 @@
 //! The arcade game as the match plays it: its view, the ball over its
 //! field, and its result.
 
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use crate::game::Game;
@@ -11,13 +10,7 @@ use crate::play::{AtBat, Match, Parts, at, play_from, put, show, zinger};
 
 impl Match {
     /// Gets the arcade game's own parts of a new batting view ready.
-    pub(crate) fn set_up_arcade(
-        &mut self,
-        parts: &Parts,
-        game: &Game,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(crate) fn set_up_arcade(&mut self, parts: &Parts, game: &Game, stage: &mut Stage) {
         let rules = &game.rules.arcade;
         let Some(arcade) = self.mode.arcade_mut() else {
             return;
@@ -54,7 +47,7 @@ impl Match {
         }
         // One ball lit for every pitch still to come, this one included.
         if let Some(row) = stage.find(&parts.main, &["onScreen_ballsLeft"]) {
-            stage.goto_clip(&row, left.max(1) as u16, library);
+            stage.goto_clip(&row, left.max(1) as u16);
             if let Some(clip) = stage.clip_mut(&row) {
                 clip.playing = false;
             }
@@ -63,13 +56,7 @@ impl Match {
 
     /// Changes the view to the overhead field, where the ball is followed
     /// to the target. The next pitch is on offer from this moment.
-    pub(crate) fn show_arcade_field(
-        &mut self,
-        at_bat: &mut AtBat,
-        game: &Game,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(crate) fn show_arcade_field(&mut self, at_bat: &mut AtBat, game: &Game, stage: &mut Stage) {
         let parts = at_bat.parts.clone();
         at_bat.leave_batting_view(stage);
         let y = at(stage, &parts.field).1;
@@ -80,10 +67,9 @@ impl Match {
             arcade.flying = true;
         }
         if let (Some(zinger), Some(ball)) = (at_bat.zinger, at_bat.ball) {
-            at_bat.zinger_show =
-                zinger::Show::new(zinger, &ball, &parts, &game.rules, stage, library);
+            at_bat.zinger_show = zinger::Show::new(zinger, &ball, &parts, &game.rules, stage);
         }
-        self.ready(&parts, stage, library);
+        self.ready(&parts, stage);
     }
 
     /// A zinger still in the air when the view is left for the next pitch
@@ -99,13 +85,7 @@ impl Match {
     }
 
     /// One frame of the ball over the arcade game's field.
-    pub(crate) fn arcade_ball(
-        &mut self,
-        at_bat: &mut AtBat,
-        game: &Game,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(crate) fn arcade_ball(&mut self, at_bat: &mut AtBat, game: &Game, stage: &mut Stage) {
         let rules = &game.rules;
         let (Some(arcade), Some(ball), Some(contact)) =
             (self.mode.arcade_mut(), &mut at_bat.ball, at_bat.contact)
@@ -152,7 +132,7 @@ impl Match {
         }
         arcade.last_distance = arcade.off_target(ball.at, &rules.arcade);
         if zinger_down && let Some(shown) = &mut at_bat.zinger_show {
-            self.zinger_down(shown, stage, library);
+            self.zinger_down(shown, stage);
         }
 
         if let Some((ring, points)) = scored {
@@ -162,12 +142,12 @@ impl Match {
                 // The art numbers its rings from the outside in.
                 let name = format!("ring{}", rules.arcade.rings.len() - ring);
                 if let Some(path) = stage.find(&parts.field, &["landMarker", &name]) {
-                    stage.goto_clip(&path, 2, library);
+                    stage.goto_clip(&path, 2);
                 }
             }
             stage.set_text("thisScore", points.to_string());
             if let Some(pulse) = stage.find(&parts.main, &["onScreenScore", "scoreAnim"]) {
-                play_from(stage, &pulse, 2, library);
+                play_from(stage, &pulse, 2);
             }
             self.show_numbers(stage);
         }

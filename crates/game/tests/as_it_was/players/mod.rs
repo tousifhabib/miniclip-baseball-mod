@@ -97,7 +97,7 @@ pub fn buttons(script: &Script) -> Vec<(SymbolId, f32, f32)> {
     look(
         &runner.stage.root.children,
         Matrix::IDENTITY,
-        &runner.library,
+        runner.library(),
         &mut found,
     );
     found.retain(|&(_, x, y)| {
@@ -129,7 +129,7 @@ impl Hand {
     fn click_a_button(&mut self, script: &mut Script, otherwise: &str, may_quit: bool) {
         let labels = self
             .labels
-            .get_or_insert_with(|| ButtonLabels::read(&script.runner.library));
+            .get_or_insert_with(|| ButtonLabels::read(script.runner.library()));
         let mut seen = buttons(script);
         if !may_quit {
             seen.retain(|&(button, _, _)| labels.get(button) != Some(QUIT));

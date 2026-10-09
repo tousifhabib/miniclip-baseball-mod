@@ -9,7 +9,6 @@
 
 use bb_engine::display::Path;
 use bb_engine::input::Key;
-use bb_engine::library::Library;
 use bb_engine::math::{ColorTransform, Matrix};
 use bb_engine::stage::Stage;
 
@@ -153,18 +152,12 @@ pub(crate) struct Meter {
 impl Meter {
     /// Draws the meter with its words at `top`, the middle of their top
     /// edge, and the meter itself at `under`, the same of it.
-    pub fn put(
-        parts: &Parts,
-        top: Point,
-        under: Point,
-        stage: &mut Stage,
-        library: &Library,
-    ) -> Option<Meter> {
-        let holder = overlay::holder(parts, "bulletTime", stage, library)?;
-        let words = Words::new(&holder, 1, "bulletWords", top, 0.8, stage, library)?;
+    pub fn put(parts: &Parts, top: Point, under: Point, stage: &mut Stage) -> Option<Meter> {
+        let holder = overlay::holder(parts, "bulletTime", stage)?;
+        let words = Words::new(&holder, 1, "bulletWords", top, 0.8, stage)?;
         let left = under.0 - WIDE / 2.0;
         let mut bar = |depth: u16, name: &str, at: [f32; 4], colour: Rgb| {
-            let path = stage.attach(&holder, art::BLOCK, depth, name, library)?;
+            let path = stage.attach(&holder, art::BLOCK, depth, name)?;
             let block = stage.child_mut(&path)?;
             block.set_matrix(Matrix {
                 a: at[2] / art::BLOCK_SIDE,

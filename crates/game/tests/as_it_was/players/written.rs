@@ -33,7 +33,7 @@ impl Written {
     fn find(&mut self, words: &str, script: &Script) -> Option<(f32, f32)> {
         let labels = self
             .labels
-            .get_or_insert_with(|| ButtonLabels::read(&script.runner.library));
+            .get_or_insert_with(|| ButtonLabels::read(script.runner.library()));
         buttons(script)
             .into_iter()
             .find(|&(button, _, _)| labels.get(button) == Some(words))

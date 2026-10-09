@@ -20,7 +20,7 @@ pub(super) fn innings_pitched(outs: u32, an_innings: u32) -> String {
 type Row = (&'static str, String, String);
 
 /// The page of the two sides' figures, side by side.
-pub(super) fn figures(ours: &Side, theirs: &Side, sheet: &mut Sheet<'_>, stage: &mut Stage) {
+pub(super) fn figures(ours: &Side, theirs: &Side, sheet: &mut Sheet, stage: &mut Stage) {
     const SIZE: f32 = 0.68;
     const TOP: f32 = 90.0;
     const PITCH: f32 = 16.2;

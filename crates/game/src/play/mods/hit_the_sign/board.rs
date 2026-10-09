@@ -2,7 +2,6 @@
 //! field and behind the pitcher.
 
 use bb_engine::display::Path;
-use bb_engine::library::Library;
 use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
 
@@ -91,14 +90,13 @@ fn stand(
     name: &str,
     shape: Upright,
     stage: &mut Stage,
-    library: &Library,
 ) -> Option<Path> {
     let Upright {
         left: from,
         right: to,
         tall,
     } = shape;
-    let path = stage.attach(holder, art::BLOCK, depth, name, library)?;
+    let path = stage.attach(holder, art::BLOCK, depth, name)?;
     stage.child_mut(&path)?.set_matrix(Matrix {
         a: (to.0 - from.0) / art::BLOCK_SIDE,
         b: (to.1 - from.1) / art::BLOCK_SIDE,
@@ -119,16 +117,15 @@ impl Panel {
         shape: Upright,
         words: &str,
         stage: &mut Stage,
-        library: &Library,
     ) -> Option<Panel> {
         let base = sign as u16 * 4 + 1;
-        let edge = stand(holder, base, "signEdge", shape.edged(EDGE), stage, library)?;
+        let edge = stand(holder, base, "signEdge", shape.edged(EDGE), stage)?;
         if let Some(edge) = stage.child_mut(&edge) {
             edge.set_color(look::tint(DARK));
         }
-        let face = stand(holder, base + 1, "sign", shape, stage, library)?;
+        let face = stand(holder, base + 1, "sign", shape, stage)?;
         let top = shape.top();
-        let words = Words::new(holder, base + 2, words, top, WORDS_SIZE, stage, library)?;
+        let words = Words::new(holder, base + 2, words, top, WORDS_SIZE, stage)?;
         Some(Panel { sign, face, words })
     }
 }
@@ -142,7 +139,6 @@ impl Board {
         rules: &Rules,
         parts: &Parts,
         stage: &mut Stage,
-        library: &Library,
     ) -> Option<Board> {
         let mut board = Board {
             panels: Vec::new(),
@@ -159,7 +155,7 @@ impl Board {
             } else {
                 (&parts.main, "signWordsSeen")
             };
-            let holder = Board::holder_in(view, stage, library)?;
+            let holder = Board::holder_in(view, stage)?;
             for sign in 0..signs.count() {
                 let (from, to) = signs.span(sign);
                 // The two feet of the sign, and how tall it stands.
@@ -181,7 +177,7 @@ impl Board {
                         tall: VIEW_TALL,
                     }
                 };
-                let panel = Panel::stand(sign, &holder, shape, words, stage, library)?;
+                let panel = Panel::stand(sign, &holder, shape, words, stage)?;
                 board.panels.push(panel);
             }
         }
@@ -191,7 +187,7 @@ impl Board {
 
     /// A clip for the signs in one of the views, just over its picture of
     /// the stadium and under everything else.
-    fn holder_in(view: &[u16], stage: &mut Stage, library: &Library) -> Option<Path> {
+    fn holder_in(view: &[u16], stage: &mut Stage) -> Option<Path> {
         let clip = stage.clip(view)?;
         let backdrop = clip
             .children
@@ -199,7 +195,7 @@ impl Board {
             .find(|(_, child)| art::BACKDROPS.contains(&child.symbol))
             .map(|(&depth, _)| depth)?;
         let depth = overlay::free_above(clip, backdrop)?;
-        stage.attach(view, art::HOLDER, depth, "signs", library)
+        stage.attach(view, art::HOLDER, depth, "signs")
     }
 
     /// Called every frame: colours each sign, and has the lit one beat.

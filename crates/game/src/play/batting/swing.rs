@@ -1,7 +1,6 @@
 //! The ball's flight to the plate and the swing at it, up to the bat
 //! meeting the ball and sending it off.
 
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use super::aim::hit_towards;
@@ -30,10 +29,9 @@ impl Match {
         pressed: Option<Point>,
         game: &Game,
         stage: &mut Stage,
-        library: &Library,
     ) {
         let Some(&sample) = at_bat.pitch.samples.get(step) else {
-            return self.call(at_bat, game, stage, library);
+            return self.call(at_bat, game, stage);
         };
         for (path, point) in [
             (&at_bat.parts.ball, sample.ball),
@@ -48,7 +46,7 @@ impl Match {
         if let Some(clicked) = pressed
             && at_bat.swing.is_none()
         {
-            self.start_the_swing(at_bat, step, clicked, stage, library);
+            self.start_the_swing(at_bat, step, clicked, stage);
         } else if let Some(frames) = &mut at_bat.swing {
             *frames += 1;
         }
@@ -63,7 +61,7 @@ impl Match {
             })
         });
         if let (true, Some(met)) = (in_band, met) {
-            self.the_bat_meets_the_ball(at_bat, sample, met, game, stage, library);
+            self.the_bat_meets_the_ball(at_bat, sample, met, game, stage);
         } else {
             self.phase = Phase::Flight { step: step + 1 };
         }
@@ -77,7 +75,6 @@ impl Match {
         step: usize,
         clicked: Point,
         stage: &mut Stage,
-        library: &Library,
     ) {
         let (x, y) = clicked;
         // The swing is high, level or low by where the click was.
@@ -89,9 +86,9 @@ impl Match {
             y if y <= 280.0 => "hitMed",
             _ => "hitLow",
         };
-        stage.goto_label(&at_bat.parts.hitter, label, true, library);
+        stage.goto_label(&at_bat.parts.hitter, label, true);
         if !self.mode.is_arcade() {
-            Match::sound(stage, library, "batSwing_fast");
+            Match::sound(stage, "batSwing_fast");
         }
         at_bat.swing = Some(0);
         if self.mode.full().is_some() {
@@ -115,7 +112,6 @@ impl Match {
         met: Met,
         game: &Game,
         stage: &mut Stage,
-        library: &Library,
     ) {
         let rules = &game.rules;
         let Met {
@@ -137,7 +133,7 @@ impl Match {
                 Zinger::of(&at_bat.table, frames, ring, home, difficulty, rules)
             })
             .flatten();
-        Match::cheer_the_hit(quality, zinger.as_ref(), stage, library);
+        Match::cheer_the_hit(quality, zinger.as_ref(), stage);
         let contact = Match::contact_made(at_bat, power, zinger.as_ref(), rules);
         self.send_the_ball_off(at_bat, sample, &contact, zinger, rules, stage);
         at_bat.contact = Some(contact);
@@ -155,12 +151,7 @@ impl Match {
 
     /// The sound of the bat on the ball and the crowd's answer to it, by
     /// how well it was met, or by the zinger it is.
-    fn cheer_the_hit(
-        quality: Quality,
-        zinger: Option<&Zinger>,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    fn cheer_the_hit(quality: Quality, zinger: Option<&Zinger>, stage: &mut Stage) {
         let (hit, cheer): (&str, &[&str]) = match quality {
             Quality::Poor => ("batHit_poorly", &["crowd_smallClap"]),
             Quality::MediumPoor => ("batHit_mediumPoor", &["crowd_smallCheer"]),
@@ -168,9 +159,9 @@ impl Match {
             Quality::Good => ("batHit_good", &["crowd_bigClap"]),
         };
         let (hit, cheer) = zinger.map_or((hit, cheer), |zinger| zinger.hit_sounds());
-        Match::sound(stage, library, hit);
+        Match::sound(stage, hit);
         for name in cheer {
-            Match::sound(stage, library, name);
+            Match::sound(stage, name);
         }
     }
 

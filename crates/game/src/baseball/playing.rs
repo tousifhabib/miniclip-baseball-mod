@@ -1,7 +1,6 @@
 //! A game in progress: a frame of it, the end of it, and what comes
 //! after.
 
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use super::Baseball;
@@ -12,12 +11,12 @@ use crate::settings::Difficulty;
 
 impl Baseball {
     /// The board between innings has been read: back to the batting.
-    pub(super) fn bat_again(&mut self, stage: &mut Stage, library: &Library) {
+    pub(super) fn bat_again(&mut self, stage: &mut Stage) {
         let Some(play) = &mut self.play else {
             return;
         };
         play.bat_again();
-        self.switch(Screen::FullMatch, stage, library);
+        self.switch(Screen::FullMatch, stage);
     }
 
     /// Stops each clip that was left playing to a frame, once it is there.
@@ -37,25 +36,25 @@ impl Baseball {
     /// Plays a frame of the game in hand, if one is being played, and
     /// moves on when it has come to the board between innings or to its
     /// end.
-    pub(super) fn play_a_frame(&mut self, stage: &mut Stage, library: &Library) {
+    pub(super) fn play_a_frame(&mut self, stage: &mut Stage) {
         // A game that has stopped for the board between innings waits.
         let outcome = match (&mut self.play, self.screen.is_game()) {
-            (Some(play), true) => play.tick(&self.playing, stage, library),
+            (Some(play), true) => play.tick(&self.playing, stage),
             _ => None,
         };
         self.keep_zinger_record();
         match outcome {
             None => {}
             Some(Outcome::Interval) => {
-                self.switch(Screen::Interval, stage, library);
+                self.switch(Screen::Interval, stage);
             }
-            Some(outcome) => self.end_the_game(outcome, stage, library),
+            Some(outcome) => self.end_the_game(outcome, stage),
         }
     }
 
     /// The game is over: its result is shown on the screen for how it
     /// ended, and an arcade score goes in the table.
-    fn end_the_game(&mut self, outcome: Outcome, stage: &mut Stage, library: &Library) {
+    fn end_the_game(&mut self, outcome: Outcome, stage: &mut Stage) {
         let Some(play) = &mut self.play else {
             return;
         };
@@ -78,7 +77,7 @@ impl Baseball {
                 eprintln!("The score could not be saved: {error:#}");
             }
         }
-        self.show(screen_after(outcome), stage, library);
+        self.show(screen_after(outcome), stage);
         self.last_zinger = longest;
         self.finished = finished;
     }
@@ -86,7 +85,7 @@ impl Baseball {
     /// The arcade game's finish screen names the skill level played, on a
     /// clip with a frame for each. It appears part of the way through the
     /// screen's arrival, so it is set whenever it is there.
-    pub(super) fn name_the_skill_played(&self, stage: &mut Stage, library: &Library) {
+    pub(super) fn name_the_skill_played(&self, stage: &mut Stage) {
         if self.screen != Screen::ArcadeFinish {
             return;
         }
@@ -99,7 +98,7 @@ impl Baseball {
             Difficulty::Hard => 3,
         };
         for path in art::all_named(stage, &shell, "skillLevelText") {
-            stage.goto_clip(&path, frame, library);
+            stage.goto_clip(&path, frame);
             if let Some(clip) = stage.clip_mut(&path) {
                 clip.playing = false;
             }
@@ -119,12 +118,12 @@ impl Baseball {
     }
 
     /// Goes from a screen that leads to another by itself, once it is time.
-    pub(super) fn move_on(&mut self, stage: &mut Stage, library: &Library) {
+    pub(super) fn move_on(&mut self, stage: &mut Stage) {
         match self.screen {
             Screen::Loading => {
                 if art::shell(stage).is_some() {
                     match self.first.take() {
-                        Some(first) => self.show(first, stage, library),
+                        Some(first) => self.show(first, stage),
                         None => self.screen = Screen::Intro,
                     }
                 }
@@ -133,14 +132,14 @@ impl Baseball {
             Screen::Intro => {
                 let finished = art::in_shell(stage, art::INTRO)
                     .and_then(|path| stage.clip(&path))
-                    .is_some_and(|intro| intro.frame >= intro.frame_count(library));
+                    .is_some_and(|intro| intro.frame >= intro.frame_count(stage.library()));
                 if finished {
-                    self.show(Screen::Menu, stage, library);
+                    self.show(Screen::Menu, stage);
                 }
             }
             Screen::Menu => {
-                if let Some(leave) = self.menu.tick(&self.game, stage, library) {
-                    self.leave_menu(leave, stage, library);
+                if let Some(leave) = self.menu.tick(&self.game, stage) {
+                    self.leave_menu(leave, stage);
                 }
             }
             _ => {}

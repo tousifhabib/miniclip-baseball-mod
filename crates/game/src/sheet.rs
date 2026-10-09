@@ -4,7 +4,6 @@
 //! on over the last.
 
 use bb_engine::display::Path;
-use bb_engine::library::Library;
 use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
 use bb_format::SymbolId;
@@ -15,7 +14,7 @@ use crate::play::overlay::{Lettering, Words};
 
 type Point = (f32, f32);
 
-pub(crate) struct Sheet<'a> {
+pub(crate) struct Sheet {
     pub holder: Path,
     /// The depth the next thing goes at. Each thing takes the next depth,
     /// and words with a shadow the next two, whether or not the art had
@@ -23,24 +22,22 @@ pub(crate) struct Sheet<'a> {
     pub depth: u16,
     /// Which of the art's text fields its words are written in.
     lettering: SymbolId,
-    library: &'a Library,
 }
 
-impl<'a> Sheet<'a> {
+impl Sheet {
     /// A sheet on the clip at `holder`, whose first thing goes at `depth`.
     /// Its words are in the lettering of the score table.
-    pub fn on(holder: Path, depth: u16, library: &'a Library) -> Sheet<'a> {
+    pub fn on(holder: Path, depth: u16) -> Sheet {
         Sheet {
             holder,
             depth,
             lettering: art::TABLE_FIELD,
-            library,
         }
     }
 
     /// The same sheet with its words in the lettering of another of the
     /// art's text fields, which has to be one that centres what it says.
-    pub fn lettered(self, field: SymbolId) -> Sheet<'a> {
+    pub fn lettered(self, field: SymbolId) -> Sheet {
         Sheet {
             lettering: field,
             ..self
@@ -74,7 +71,7 @@ impl<'a> Sheet<'a> {
             size,
         };
         let (holder, depth) = (&self.holder, self.depth);
-        let words = Words::in_field(lettering, holder, depth, name, top, stage, self.library);
+        let words = Words::in_field(lettering, holder, depth, name, top, stage);
         if let Some(words) = words {
             words.say(text, colour, stage);
         }
@@ -94,7 +91,7 @@ impl<'a> Sheet<'a> {
         colour: Rgb,
     ) {
         let (holder, depth) = (&self.holder, self.depth);
-        let words = Words::from_left(holder, depth, name, left, size, stage, self.library);
+        let words = Words::from_left(holder, depth, name, left, size, stage);
         if let Some(words) = words {
             words.say(text, colour, stage);
         }
@@ -112,7 +109,7 @@ impl<'a> Sheet<'a> {
         size: f32,
         colour: Rgb,
     ) -> Option<Path> {
-        let field = self.library.edit_texts.get(&self.lettering)?;
+        let field = stage.library().edit_texts.get(&self.lettering)?;
         // The field centres what it says, so it is placed by its middle.
         let middle = ((field.bounds.x_min + field.bounds.x_max) / 2.0) as f32;
         let at = (top.0 - middle * size, top.1);
@@ -157,7 +154,7 @@ impl<'a> Sheet<'a> {
     ) -> Option<Path> {
         let depth = self.depth;
         self.depth += 1;
-        let path = stage.attach(&self.holder, symbol, depth, name, self.library)?;
+        let path = stage.attach(&self.holder, symbol, depth, name)?;
         stage.child_mut(&path)?.set_matrix(Matrix {
             a: size.0,
             d: size.1,

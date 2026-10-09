@@ -1,7 +1,6 @@
 //! The table of high scores, as the scores screen shows it.
 
 use bb_engine::display::Path;
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use super::Baseball;
@@ -14,7 +13,7 @@ use crate::sheet::Sheet;
 impl Baseball {
     /// Writes the score table over the panel on the high-score page, for as
     /// long as that page is up.
-    pub(super) fn show_scores(&mut self, stage: &mut Stage, library: &Library) {
+    pub(super) fn show_scores(&mut self, stage: &mut Stage) {
         // The lines go when the panel does, as the page is left.
         if self
             .table
@@ -71,7 +70,7 @@ impl Baseball {
             lines.push((entry.points.to_string(), 125.0, down, DARK));
         }
         const SIZE: f32 = 0.8;
-        let mut sheet = Sheet::on(panel, Stage::RULES_DEPTH + 200, library);
+        let mut sheet = Sheet::on(panel, Stage::RULES_DEPTH + 200);
         for (text, across, down, colour) in lines {
             let line = sheet.write_plain(stage, "scoreLine", &text, (across, down), SIZE, colour);
             self.table.extend(line);

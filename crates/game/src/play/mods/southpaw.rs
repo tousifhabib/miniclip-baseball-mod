@@ -7,7 +7,6 @@
 //! over about the middle of the plate, and its curve with it, so that a
 //! pitch that came in on a right-hander's hands comes in on his.
 
-use bb_engine::library::Library;
 use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
 
@@ -94,7 +93,7 @@ pub fn turn(choice: &mut Choice, centre: f32) {
 /// The batter has hit the ball and has just been set off for first, by
 /// the art's way of running there. He goes to the right as anyone does,
 /// from where he stands.
-pub(crate) fn run(parts: &Parts, stage: &mut Stage, library: &Library) {
+pub(crate) fn run(parts: &Parts, stage: &mut Stage) {
     let Some(hitter) = stage.child_mut(&parts.hitter) else {
         return;
     };
@@ -102,7 +101,7 @@ pub(crate) fn run(parts: &Parts, stage: &mut Stage, library: &Library) {
     faced.tx += RUN_ACROSS;
     hitter.set_matrix(faced);
     let frame = frame_of(stage, &parts.hitter) + RUN_JOINS;
-    play_from(stage, &parts.hitter, frame, library);
+    play_from(stage, &parts.hitter, frame);
 }
 
 #[cfg(test)]

@@ -2,7 +2,6 @@
 //! click there that sends one.
 
 use bb_engine::display::{Path, child_bounds};
-use bb_engine::library::Library;
 use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
 
@@ -71,20 +70,19 @@ impl Leads {
         hint_at: Point,
         parts: &Parts,
         stage: &mut Stage,
-        library: &Library,
     ) -> Option<Leads> {
         let little = stage.find_symbol(&parts.main, art::LITTLE_FIELD)?;
         let child = stage.child(&little)?;
         let at = (child.matrix.tx, child.matrix.ty);
-        let area = child_bounds(child, Matrix::IDENTITY, library)?;
+        let area = child_bounds(child, Matrix::IDENTITY, stage.library())?;
         let mut leads = Vec::new();
         for (index, runner) in runners.iter().enumerate() {
             let Place::Base(base) = runner.place else {
                 continue;
             };
             let depth = Stage::RULES_DEPTH + 100 + index as u16 * 2;
-            let edge = stage.attach(&little, art::DOT, depth, "leadEdge", library)?;
-            let face = stage.attach(&little, art::DOT, depth + 1, "lead", library)?;
+            let edge = stage.attach(&little, art::DOT, depth, "leadEdge")?;
+            let face = stage.attach(&little, art::DOT, depth + 1, "lead")?;
             if let Some(edge) = stage.child_mut(&edge) {
                 edge.set_color(look::tint(DARK));
             }

@@ -29,7 +29,7 @@ fn mark(end: End) -> Rgb {
 
 /// The page of where a side's hits went: a picture of the field with a
 /// mark where each ball came down, and what they come to beside it.
-pub(super) fn field(side: &Side, sheet: &mut Sheet<'_>, stage: &mut Stage) {
+pub(super) fn field(side: &Side, sheet: &mut Sheet, stage: &mut Stage) {
     const SIZE: f32 = 0.68;
     let [left, top, wide, high] = FIELD_SEEN.map(|pixels| pixels * FIELD_SIZE);
     let (left, top) = (FIELD_AT.0 + left, FIELD_AT.1 + top);

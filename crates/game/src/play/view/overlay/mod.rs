@@ -5,7 +5,6 @@ mod notices;
 mod words;
 
 use bb_engine::display::{ClipState, Path};
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use super::Parts;
@@ -17,16 +16,11 @@ pub(crate) use words::{DARK, Lettering, Words};
 /// Puts an empty clip into the view for a mod to draw in, and returns where
 /// it is. It goes just over the field: over the batter, and under
 /// everything the art lays over the game.
-pub(crate) fn holder(
-    parts: &Parts,
-    name: &str,
-    stage: &mut Stage,
-    library: &Library,
-) -> Option<Path> {
+pub(crate) fn holder(parts: &Parts, name: &str, stage: &mut Stage) -> Option<Path> {
     let (&field, _) = parts.field.split_last()?;
     let view = stage.clip(&parts.main)?;
     let depth = free_above(view, field)?;
-    stage.attach(&parts.main, art::HOLDER, depth, name, library)
+    stage.attach(&parts.main, art::HOLDER, depth, name)
 }
 
 /// The first free depth over `depth` in a clip: where a thing put there is

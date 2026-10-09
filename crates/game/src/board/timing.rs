@@ -14,7 +14,7 @@ const TIMING_REACH: i32 = 8;
 /// The page of how the player's swings were timed: a bar for each frame
 /// early or late, as tall as the swings that began on it are many, and what
 /// they come to under it.
-pub(super) fn timing(side: &Side, sheet: &mut Sheet<'_>, stage: &mut Stage) {
+pub(super) fn timing(side: &Side, sheet: &mut Sheet, stage: &mut Stage) {
     const SIZE: f32 = 0.66;
     const FLOOR: f32 = 228.0;
     const TALL: f32 = 96.0;

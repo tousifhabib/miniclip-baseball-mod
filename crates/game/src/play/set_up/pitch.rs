@@ -2,7 +2,6 @@
 //! and the points of the view it is drawn between.
 
 use bb_engine::display::child_bounds;
-use bb_engine::library::Library;
 use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
 
@@ -66,7 +65,7 @@ impl Match {
     }
 
     /// The fixed points a pitch is drawn between.
-    pub(super) fn mound(parts: &Parts, stage: &Stage, library: &Library) -> Option<Mound> {
+    pub(super) fn mound(parts: &Parts, stage: &Stage) -> Option<Mound> {
         let test = stage.find(&parts.main, &["test"])?;
         let point = |name: &str| stage.find(&test, &[name]).map(|path| at(stage, &path));
         // With no strike zone to miss, as in the arcade game, no pitch is
@@ -74,7 +73,7 @@ impl Match {
         let zone = stage
             .find(&parts.main, &["strikeZone"])
             .and_then(|path| stage.child(&path))
-            .and_then(|child| child_bounds(child, Matrix::IDENTITY, library))
+            .and_then(|child| child_bounds(child, Matrix::IDENTITY, stage.library()))
             .unwrap_or([f32::MIN, f32::MIN, f32::MAX, f32::MAX]);
         Some(Mound {
             ball: point("ballAll")?,

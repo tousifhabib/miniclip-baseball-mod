@@ -1,7 +1,6 @@
 //! What each mod does to a pitch before it is thrown, and what it puts
 //! up in the view. Each step is one mod's, and is called in its place.
 
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use super::Coming;
@@ -28,75 +27,50 @@ impl Match {
 
     /// With the heat check mod on, every run since the last pitch makes
     /// this one faster.
-    pub(super) fn heat_the_pitch(
-        &mut self,
-        coming: &mut Coming,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(super) fn heat_the_pitch(&mut self, coming: &mut Coming, stage: &mut Stage) {
         if let Some(line) = self.mods.heat_the_pitch(self.score, &mut coming.table) {
-            coming.write(&line, stage, library);
+            coming.write(&line, stage);
         }
     }
 
     /// With the tired arm mod on, the pitcher is slower and wilder the more
     /// he has thrown, and one who has thrown his last gives way to a fresh
     /// one.
-    pub(super) fn tire_the_arm(
-        &mut self,
-        coming: &mut Coming,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(super) fn tire_the_arm(&mut self, coming: &mut Coming, stage: &mut Stage) {
         let Some(arm) = &mut self.mods.tired_arm else {
             return;
         };
         if arm.relieve() {
-            Match::sound(stage, library, "baseball_organ_FX");
+            Match::sound(stage, "baseball_organ_FX");
             coming.notices.put(
                 arm.news().at((coming.parts.centre_x, MYSTERY_TOP)),
                 &coming.parts,
                 stage,
-                library,
             );
         }
         let tired = arm.tire(&mut coming.table);
         if let Some(pitcher) = stage.child_mut(&coming.parts.pitcher) {
             pitcher.set_color(TiredArm::flush(tired));
         }
-        coming.write(&arm.line(tired), stage, library);
+        coming.write(&arm.line(tired), stage);
     }
 
     /// With the hot bat mod on, every hit in a row has widened the window
     /// by a frame at each end.
-    pub(super) fn widen_for_a_hot_bat(
-        &self,
-        coming: &mut Coming,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(super) fn widen_for_a_hot_bat(&self, coming: &mut Coming, stage: &mut Stage) {
         if let Some(line) = self.mods.widen_for_a_hot_bat(&mut coming.table) {
-            coming.write(&line, stage, library);
+            coming.write(&line, stage);
         }
     }
 
-    pub(super) fn say_the_ball_is_golden(
-        coming: &mut Coming,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(super) fn say_the_ball_is_golden(coming: &mut Coming, stage: &mut Stage) {
         if coming.golden {
-            coming.write(&GoldenBall::line(), stage, library);
+            coming.write(&GoldenBall::line(), stage);
         }
     }
 
     /// Settles whether this pitch is thrown in the clutch, and says so.
-    pub(super) fn say_it_is_the_clutch(
-        &mut self,
-        coming: &mut Coming,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(super) fn say_it_is_the_clutch(&mut self, coming: &mut Coming, stage: &mut Stage) {
         let in_it = self.in_the_clutch();
         let Some(line) = self.mods.settle_the_clutch(in_it) else {
             return;
@@ -104,20 +78,15 @@ impl Match {
         // The organ plays as the batter comes up to it, and not again for
         // every pitch to him.
         if self.count.is_clean() {
-            Match::sound(stage, library, "baseball_organ_tense_FX");
+            Match::sound(stage, "baseball_organ_tense_FX");
         }
-        coming.write(&line, stage, library);
+        coming.write(&line, stage);
     }
 
     /// Says what runs are worth while a rally is on.
-    pub(super) fn say_what_a_rally_is_worth(
-        &self,
-        coming: &mut Coming,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(super) fn say_what_a_rally_is_worth(&self, coming: &mut Coming, stage: &mut Stage) {
         if let Some(line) = self.mods.rally_line() {
-            coming.write(&line, stage, library);
+            coming.write(&line, stage);
         }
     }
 
@@ -126,14 +95,13 @@ impl Match {
         &mut self,
         coming: &mut Coming,
         stage: &mut Stage,
-        library: &Library,
     ) -> Option<bullet::Meter> {
         if !self.mods.fill_the_meter_at_the_start() {
             return None;
         }
         let (top, under) = (coming.corner.line(), coming.corner.line());
         let under = (under.0, under.1 + 2.0);
-        let meter = bullet::Meter::put(&coming.parts, top, under, stage, library);
+        let meter = bullet::Meter::put(&coming.parts, top, under, stage);
         if let (Some(meter), Some(left)) = (&meter, self.mods.meter_left()) {
             meter.keep(left, false, stage);
         }
@@ -146,15 +114,14 @@ impl Match {
         coming: &mut Coming,
         game: &Game,
         stage: &mut Stage,
-        library: &Library,
     ) {
         let Some(the_shift) = &mut self.mods.the_shift else {
             return;
         };
         let shift = the_shift.stand();
-        shift.place(&coming.parts, &game.rules.field, stage, library);
+        shift.place(&coming.parts, &game.rules.field, stage);
         if let Some(line) = the_shift.line(shift) {
-            coming.write(&line, stage, library);
+            coming.write(&line, stage);
         }
     }
 
@@ -164,13 +131,12 @@ impl Match {
         &self,
         coming: &mut Coming,
         stage: &mut Stage,
-        library: &Library,
     ) -> Option<steal::Leads> {
         if !self.mods.runners_steal() || self.runners.on_the_bases() == 0 {
             return None;
         }
         let under = coming.corner.line();
-        steal::Leads::put(&self.runners, under, &coming.parts, stage, library)
+        steal::Leads::put(&self.runners, under, &coming.parts, stage)
     }
 
     /// With the hit the sign mod on, the wall has its signs, one lit for
@@ -180,7 +146,6 @@ impl Match {
         coming: &Coming,
         game: &Game,
         stage: &mut Stage,
-        library: &Library,
     ) -> Option<sign::Board> {
         self.mods.a_new_pitch_is_coming();
         let rules = &game.rules;
@@ -188,13 +153,13 @@ impl Match {
         let signs = sign::Signs::of(&rules.sign);
         let innings = self.mode.full().map_or(1, |full| full.innings());
         let lit = self.mods.light_a_sign(innings, &signs)?;
-        sign::Board::put(&signs, lit, rules, parts, stage, library)
+        sign::Board::put(&signs, lit, rules, parts, stage)
     }
 
     /// The marks the art keeps on the field: whether a runner is on second,
     /// the fielders who mind the bases standing ready at them, and the
     /// runs to get called out when a side comes in.
-    pub(super) fn mark_the_field(&mut self, coming: &Coming, stage: &mut Stage, library: &Library) {
+    pub(super) fn mark_the_field(&mut self, coming: &Coming, stage: &mut Stage) {
         let parts = &coming.parts;
         if let Some(mark) = stage.find(&parts.main, &["runnerOnSecond"]) {
             let label = if self.runners.on_base(2).is_some() {
@@ -202,10 +167,10 @@ impl Match {
             } else {
                 "none"
             };
-            stage.goto_label(&mark, label, false, library);
+            stage.goto_label(&mark, label, false);
         }
         for fielder in parts.fielders.iter().skip(5) {
-            stage.goto_label(fielder, "baseWaiting", false, library);
+            stage.goto_label(fielder, "baseWaiting", false);
         }
         if self.announce {
             self.announce = false;
@@ -213,7 +178,7 @@ impl Match {
             // when getting ahead ends it.
             let to_win = self.mode.full().is_none_or(|full| full.sudden());
             if let (true, Some(board)) = (to_win, parts.scoreboard.clone()) {
-                self.play_section(&board, "runsToGet", 361, stage, library);
+                self.play_section(&board, "runsToGet", 361, stage);
             }
         }
     }
@@ -227,7 +192,6 @@ impl Match {
         pitch: &Pitch,
         game: &Game,
         stage: &mut Stage,
-        library: &Library,
     ) -> Option<timing::Indicator> {
         if !self.mods.the_timing_bar_is_shown() {
             return None;
@@ -247,6 +211,6 @@ impl Match {
         };
         let feet: Option<&dyn Fn(u32) -> Option<u32>> =
             self.mods.every_hit_is_a_home_run().then_some(&feet);
-        timing::Indicator::new(pitch, table, parts, feet, stage, library)
+        timing::Indicator::new(pitch, table, parts, feet, stage)
     }
 }

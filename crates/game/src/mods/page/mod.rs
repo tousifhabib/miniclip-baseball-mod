@@ -3,7 +3,6 @@
 mod layout;
 
 use bb_engine::display::Path;
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use super::Mod;
@@ -116,14 +115,7 @@ impl ModsPage {
 
     /// Puts the list on the panel once the page has arrived, and keeps its
     /// ticks and levels true to `mods` for as long as it is up.
-    pub fn show(
-        &mut self,
-        showing: bool,
-        mods: &Mods,
-        rules: &Rules,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub fn show(&mut self, showing: bool, mods: &Mods, rules: &Rules, stage: &mut Stage) {
         // Everything goes when the panel does, as the page is left. The
         // list opens at its first page again the next time.
         if self
@@ -141,7 +133,7 @@ impl ModsPage {
         else {
             return;
         };
-        if self.heading.is_none() && !self.make_ready(&panel, rules, stage, library) {
+        if self.heading.is_none() && !self.make_ready(&panel, rules, stage) {
             return;
         }
         if self.lines.is_empty() || self.wanted != self.page {
@@ -150,7 +142,7 @@ impl ModsPage {
             }
             self.lines.clear();
             self.page = self.wanted;
-            self.lay_out(&panel, rules, stage, library);
+            self.lay_out(&panel, rules, stage);
         }
         for line in &self.lines {
             if let Some(tick) = stage.child_mut(&line.tick) {

@@ -1,7 +1,6 @@
 //! The runners round the bases: sent on, arriving, put out, and the
 //! buttons that send them.
 
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 use bb_format::SymbolId;
 
@@ -33,29 +32,23 @@ const SLIDE: [&str; 4] = [
 
 impl Match {
     /// Sets a runner off for a base.
-    pub(in crate::play) fn send(
-        &mut self,
-        runner: usize,
-        to: u8,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(in crate::play) fn send(&mut self, runner: usize, to: u8, stage: &mut Stage) {
         self.runners[runner].running_to = Some(to);
         self.runners[runner].sliding = false;
         if let Some(path) = &self.runners[runner].path {
-            stage.goto_label(path, RUN[usize::from(to) - 1], true, library);
+            stage.goto_label(path, RUN[usize::from(to) - 1], true);
         }
     }
 
     /// The batter runs to first, and pushes on anyone in his way.
-    pub(super) fn start_runners(&mut self, stage: &mut Stage, library: &Library) {
+    pub(super) fn start_runners(&mut self, stage: &mut Stage) {
         for (runner, to) in self.runners.forced_on() {
-            self.send(runner, to, stage, library);
+            self.send(runner, to, stage);
         }
     }
 
     /// Puts a runner out.
-    pub(super) fn put_out(&mut self, runner: usize, stage: &mut Stage, library: &Library) {
+    pub(super) fn put_out(&mut self, runner: usize, stage: &mut Stage) {
         let stealing = self.runners[runner].stole_from.take();
         let making_for = self.runners[runner].running_to.take();
         self.runners[runner].place = Place::Out;
@@ -84,19 +77,13 @@ impl Match {
         // "OUT" comes up over him, and he walks off.
         for name in ["outText", "outWalk"] {
             if let Some(part) = stage.find(&path, &[name]) {
-                play_from(stage, &part, 2, library);
+                play_from(stage, &part, 2);
             }
         }
     }
 
     /// A runner has got to the base he was running to.
-    pub(super) fn arrive(
-        &mut self,
-        runner: usize,
-        parts: &Parts,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(super) fn arrive(&mut self, runner: usize, parts: &Parts, stage: &mut Stage) {
         let Some(base) = self.runners[runner].running_to.take() else {
             return;
         };
@@ -111,18 +98,18 @@ impl Match {
             self.runners[runner].runs += self.run_worth;
             self.score += self.run_worth;
             if let Some(path) = &path {
-                stage.goto_label(path, "addRun", false, library);
+                stage.goto_label(path, "addRun", false);
                 if let Some(walk) = stage.find(path, &["outWalk"]) {
-                    play_from(stage, &walk, 2, library);
+                    play_from(stage, &walk, 2);
                 }
             }
         } else {
             self.runners[runner].place = Place::Base(base);
             if let Some(path) = &path {
-                stage.goto_label(path, &format!("base{base}"), false, library);
+                stage.goto_label(path, &format!("base{base}"), false);
             }
             let umpire = parts.umpires[usize::from(base) - 1].clone();
-            self.play_section(&umpire, "safe", 49, stage, library);
+            self.play_section(&umpire, "safe", 49, stage);
         }
         if was_batting {
             self.mods.the_batter_reached_base();
@@ -139,7 +126,6 @@ impl Match {
         ball_down: bool,
         parts: &Parts,
         stage: &mut Stage,
-        library: &Library,
     ) {
         // Once the ball has been caught or has come down, a runner on a
         // base may try for the next. Turbo runners may at any time.
@@ -164,16 +150,16 @@ impl Match {
                 };
                 if frame < end {
                     frame = (frame + hurried).min(end);
-                    play_from(stage, &path, frame, library);
+                    play_from(stage, &path, frame);
                 }
             }
             if let Some(base) = self.runners[runner].running_to {
                 let index = usize::from(base) - 1;
                 if self.runners[runner].sliding && frame >= SLIDE_ENDS[index] {
                     self.runners[runner].sliding = false;
-                    play_from(stage, &path, SLIDE_JOINS[index], library);
+                    play_from(stage, &path, SLIDE_JOINS[index]);
                 } else if frame >= ARRIVES[index] && frame < FIRST_SLIDE_FRAME {
-                    self.arrive(runner, parts, stage, library);
+                    self.arrive(runner, parts, stage);
                 }
             } else if let Place::Base(base) = self.runners[runner].place {
                 // The way on must be clear: nobody on the next base and
@@ -199,7 +185,6 @@ impl Match {
         path: &[u16],
         _game: &Game,
         stage: &mut Stage,
-        library: &Library,
     ) {
         if self.phase != Phase::Fielding {
             return;
@@ -221,7 +206,7 @@ impl Match {
                 self.runners[runner].sliding,
             ) {
                 self.runners[runner].sliding = true;
-                stage.goto_label(&own, SLIDE[usize::from(base) - 1], true, library);
+                stage.goto_label(&own, SLIDE[usize::from(base) - 1], true);
             }
         } else if RUN_BUTTONS.contains(&symbol)
             && self.runners[runner].running_to.is_none()
@@ -229,7 +214,7 @@ impl Match {
         {
             // The button is only showing when he may go, so going is all
             // there is to do.
-            self.send(runner, base + 1, stage, library);
+            self.send(runner, base + 1, stage);
         }
     }
 }

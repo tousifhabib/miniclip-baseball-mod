@@ -4,7 +4,6 @@
 mod summary;
 
 use bb_engine::display::Path;
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 // The game was this file's once, and is still found here.
@@ -94,12 +93,7 @@ impl Menu {
     /// On the full match's setup page, puts the choice of ground under the
     /// skill levels once the page is there, and keeps the box of the one
     /// chosen filled.
-    pub(super) fn show_grounds(
-        &mut self,
-        settings: &Settings,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(super) fn show_grounds(&mut self, settings: &Settings, stage: &mut Stage) {
         // The menu may have been left and come back to since.
         if let Some(grounds) = &self.grounds
             && stage.child(&grounds.holder).is_none()
@@ -114,10 +108,10 @@ impl Menu {
                 return;
             };
             let depth = Stage::RULES_DEPTH + 500;
-            let Some(holder) = stage.attach(&menu, art::HOLDER, depth, "grounds", library) else {
+            let Some(holder) = stage.attach(&menu, art::HOLDER, depth, "grounds") else {
                 return;
             };
-            let mut sheet = Sheet::on(holder.clone(), 1, library).lettered(art::MENU_FIELD);
+            let mut sheet = Sheet::on(holder.clone(), 1).lettered(art::MENU_FIELD);
             let (heading, size) = (GROUND_HEADING, WORDS_SIZE);
             sheet.write(
                 stage,

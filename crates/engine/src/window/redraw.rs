@@ -30,8 +30,8 @@ impl App {
         };
         // What to draw is only worked out once there is something to draw
         // it on.
-        let library = &self.runner.library;
-        let commands = self.runner.stage.commands(base, library);
+        let library = self.runner.library();
+        let commands = self.runner.stage.commands(base);
         let target = picture
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
@@ -39,7 +39,6 @@ impl App {
 
         let info = Info {
             stage: &self.runner.stage,
-            library,
             stats: view.renderer.stats,
             paused: self.paused,
             frames_per_second: 1.0 / self.frame_time.max(1e-6),

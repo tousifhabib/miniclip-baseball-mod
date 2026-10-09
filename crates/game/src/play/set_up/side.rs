@@ -1,7 +1,6 @@
 //! The side at bat, put back for the pitch: the batter at the plate, the
 //! runners on their bases, and the innings said.
 
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use super::Coming;
@@ -69,19 +68,13 @@ impl Match {
 
     /// A full match says which half of which innings this is, and what the
     /// mods say goes under that.
-    pub(super) fn say_the_innings(
-        &self,
-        coming: &mut Coming,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(super) fn say_the_innings(&self, coming: &mut Coming, stage: &mut Stage) {
         if let Some(full) = self.mode.full() {
             coming.notices.put(
                 Says::line("innings", &full.half_words(), [0xfd, 0xf6, 0xc0])
                     .at(coming.corner.line()),
                 &coming.parts,
                 stage,
-                library,
             );
         }
     }
@@ -98,12 +91,7 @@ impl Match {
     }
 
     /// Every runner still in the game stands where the last pitch left him.
-    pub(super) fn stand_the_runners(
-        &mut self,
-        coming: &Coming,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(super) fn stand_the_runners(&mut self, coming: &Coming, stage: &mut Stage) {
         self.mods.a_steal_is_in_play(false);
         for index in 0..self.runners.len() {
             self.runners[index].path = None;
@@ -123,8 +111,8 @@ impl Match {
             };
             let depth = Stage::RULES_DEPTH + index as u16;
             let name = format!("runner{}", index + 1);
-            if let Some(path) = stage.attach(holder, symbol, depth, &name, library) {
-                stage.goto_label(&path, &label, false, library);
+            if let Some(path) = stage.attach(holder, symbol, depth, &name) {
+                stage.goto_label(&path, &label, false);
                 self.runners[index].path = Some(path);
             }
         }

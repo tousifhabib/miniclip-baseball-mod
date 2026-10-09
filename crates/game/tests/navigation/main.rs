@@ -124,7 +124,7 @@ fn the_menu_has_music_and_a_game_has_a_crowd() {
         return;
     };
     let note = |script: &bb_game::script::Script, name: &str| {
-        format!("sound {}", script.runner.library.manifest.exports[name])
+        format!("sound {}", script.runner.library().manifest.exports[name])
     };
     let (music, crowd) = (
         note(&script, "introMusic_loop"),

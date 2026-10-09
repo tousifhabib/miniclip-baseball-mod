@@ -7,7 +7,6 @@ use std::collections::VecDeque;
 
 use crate::display::{ClipState, Path};
 use crate::gpu::Stats;
-use crate::library::Library;
 use crate::math::Matrix;
 use crate::stage::Stage;
 
@@ -33,7 +32,6 @@ pub struct Inspector {
 /// What the panel shows this frame.
 pub struct Info<'a> {
     pub stage: &'a Stage,
-    pub library: &'a Library,
     pub stats: Stats,
     pub paused: bool,
     pub frames_per_second: f32,
@@ -160,7 +158,7 @@ impl Inspector {
         info: &Info<'_>,
         actions: &mut Vec<Action>,
     ) {
-        let count = clip.frame_count(info.library);
+        let count = clip.frame_count(info.stage.library());
         ui.horizontal(|ui| {
             let mut playing = clip.playing;
             if ui.checkbox(&mut playing, "playing").changed() {

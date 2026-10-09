@@ -1,7 +1,6 @@
 //! The ball while nobody has hold of it: through the air, along the
 //! ground, off the wall or over it.
 
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use super::WARNING_TRACK;
@@ -29,7 +28,6 @@ impl Match {
         parts: &Parts,
         game: &Game,
         stage: &mut Stage,
-        library: &Library,
     ) {
         let rules = &game.rules.field;
         let miss = at_bat.contact.map_or(0.0, |contact| contact.miss());
@@ -64,7 +62,7 @@ impl Match {
             if happened == Happened::HitWall {
                 at_bat.rebounds += 1;
                 if state.play.is_live() && !self.mods.the_pitcher_fields_alone() {
-                    Match::the_nearest_takes_up_the_chase(state, ball.at, parts, stage, library);
+                    Match::the_nearest_takes_up_the_chase(state, ball.at, parts, stage);
                 }
             }
         }
@@ -92,7 +90,7 @@ impl Match {
         // The first time it comes down, a shot that was called for
         // there comes off.
         if happened == Happened::Landed && !was_down && self.mods.shots_are_called() {
-            self.a_called_shot_comes_down(at_bat, ball.at, parts, game, stage, library);
+            self.a_called_shot_comes_down(at_bat, ball.at, parts, game, stage);
         }
         match happened {
             // A zinger is followed on to where it comes down before
@@ -101,20 +99,20 @@ impl Match {
                 state.play = Play::Fair(Fair::Gone);
                 state.job = Job::Rest;
                 let fielder = parts.fielders[state.fielder].clone();
-                stage.goto_label(&fielder, "waiting", false, library);
+                stage.goto_label(&fielder, "waiting", false);
             }
             Happened::Cleared if state.play.is_live() => {
                 // Where it would come down, beyond the wall.
                 state.land = ball.landing(parts.home, miss, rules);
-                self.home_run(state, parts, stage, library);
+                self.home_run(state, parts, stage);
             }
             // Back off the wall: somebody has to go and get it.
             Happened::HitWall if state.play.is_live() => state.job = Job::Chase,
             Happened::Landed if state.play == Play::Fair(Fair::Gone) => {
                 state.land = ball.at;
-                self.home_run(state, parts, stage, library);
+                self.home_run(state, parts, stage);
                 if let Some(shown) = &mut at_bat.zinger_show {
-                    self.zinger_down(shown, stage, library);
+                    self.zinger_down(shown, stage);
                 }
             }
             _ => {}
@@ -132,7 +130,6 @@ impl Match {
         ball_at: Point,
         parts: &Parts,
         stage: &mut Stage,
-        library: &Library,
     ) {
         let far = |index: usize| distance(at(stage, &parts.fielders[index]), ball_at);
         let nearest = (0..5.min(parts.fielders.len()))
@@ -140,7 +137,7 @@ impl Match {
             .unwrap_or(state.fielder);
         if nearest != state.fielder {
             let was = parts.fielders[state.fielder].clone();
-            stage.goto_label(&was, "waiting", false, library);
+            stage.goto_label(&was, "waiting", false);
             state.fielder = nearest;
         }
     }
@@ -155,26 +152,25 @@ impl Match {
         parts: &Parts,
         game: &Game,
         stage: &mut Stage,
-        library: &Library,
     ) {
         at_bat.came_down = Some(place);
         let Some(called) = &mut at_bat.called else {
             return;
         };
-        let runs = called.landed(place, &game.rules, stage, library);
+        let runs = called.landed(place, &game.rules, stage);
         if runs == 0 {
             return;
         }
         self.score += runs;
         self.show_numbers(stage);
-        Match::sound(stage, library, "crowd_bigClap");
-        Match::sound(stage, library, "baseball_organ_FX");
+        Match::sound(stage, "crowd_bigClap");
+        Match::sound(stage, "baseball_organ_FX");
         let words = format!("CALLED IT! +{runs}");
         let frames = game.rules.called_shot.told_time;
         let says = Says::news("calledIt", &words, CALLED_COLOUR, frames)
             .at((parts.centre_x, CALLED_TOP))
             .sized(1.2);
-        at_bat.notices.put(says, parts, stage, library);
+        at_bat.notices.put(says, parts, stage);
     }
 
     /// Moves the outfielders who are going back to watch a zinger a step
@@ -185,7 +181,6 @@ impl Match {
         parts: &Parts,
         game: &Game,
         stage: &mut Stage,
-        library: &Library,
     ) {
         let rules = &game.rules.field;
         let speed = *rules.fielder_speed.at(game.settings.difficulty);
@@ -200,11 +195,11 @@ impl Match {
             );
             let out = reach(parts.home, next);
             if called || out >= rules.wall - WARNING_TRACK {
-                stage.goto_label(fielder, "waiting", false, library);
+                stage.goto_label(fielder, "waiting", false);
                 return false;
             }
             let label = Facing::towards(here, next).run_label();
-            stage.goto_label(fielder, label, false, library);
+            stage.goto_label(fielder, label, false);
             put(stage, fielder, next, (0.6 - out / 5000.0).max(0.2));
             true
         });

@@ -116,7 +116,7 @@ impl ApplicationHandler for App {
         if self.view.is_some() {
             return;
         }
-        let stage = &self.runner.library.manifest.stage;
+        let stage = &self.runner.library().manifest.stage;
         match View::open(event_loop, &self.options.title, stage) {
             Ok(view) => {
                 view.window.request_redraw();

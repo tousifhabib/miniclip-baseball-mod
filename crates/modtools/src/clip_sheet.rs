@@ -3,6 +3,7 @@
 //! stepping through it in a window.
 
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use anyhow::{Context, Result, bail, ensure};
 use bb_engine::display::{Bounds, ClipState, Texts, bounds_of, commands, union};
@@ -109,12 +110,14 @@ fn main() -> Result<()> {
     let mut library = Library::load(&args.extracted)?;
     // The point is to see every frame, so nothing may halt on the way.
     library.obey_stops = false;
+    // One copy of the art, for as many stages as there are frames to draw.
+    let library = Arc::new(library);
     ensure!(
         library.clips.contains_key(&args.clip),
         "there is no clip {}",
         args.clip
     );
-    let count = Stage::new(Some(args.clip), &library)
+    let count = Stage::new(Some(args.clip), Arc::clone(&library))
         .root
         .frame_count(&library);
     let frames = frames_wanted(&args, count)?;
@@ -173,27 +176,27 @@ fn frames_wanted(args: &Args, count: u16) -> Result<Vec<u16>> {
 fn stages_on(
     frames: &[u16],
     args: &Args,
-    library: &Library,
+    library: &Arc<Library>,
     renderer: &mut Renderer,
 ) -> Vec<(u16, ClipState)> {
     let mut stages = Vec::new();
     if args.play {
-        let mut stage = Stage::new(Some(args.clip), library);
+        let mut stage = Stage::new(Some(args.clip), Arc::clone(library));
         // The clips inside play on while the one being looked at is moved
         // by hand, so that a frame can be asked for twice.
         stage.root.playing = false;
         for &frame in frames {
             while stage.root.frame < frame {
-                stage.advance(library, renderer);
+                stage.advance(renderer);
                 let next = stage.root.frame + 1;
-                stage.goto(next, library);
+                stage.goto(next);
             }
             stages.push((frame, stage.root.clone()));
         }
     } else {
         for &frame in frames {
-            let mut stage = Stage::new(Some(args.clip), library);
-            stage.goto(frame, library);
+            let mut stage = Stage::new(Some(args.clip), Arc::clone(library));
+            stage.goto(frame);
             stages.push((frame, stage.root.clone()));
         }
     }

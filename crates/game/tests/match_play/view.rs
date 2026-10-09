@@ -186,7 +186,7 @@ fn a_fielder_throws_once_and_then_stands() {
         for child in fielder.children.values() {
             if let Content::Clip(part) = &child.content {
                 assert!(
-                    !part.playing || part.frame_count(&script.runner.library) <= 1,
+                    !part.playing || part.frame_count(script.runner.library()) <= 1,
                     "fielder {number} is still going through frame {}",
                     part.frame
                 );

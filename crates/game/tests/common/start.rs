@@ -126,8 +126,8 @@ fn game_made(
         eprintln!("skipped: there is no extracted art to play");
         return None;
     };
-    let stage = Stage::new(None, &library);
     let mut logic = Box::new(Baseball::new(&library));
+    let stage = Stage::new(None, library);
     logic.start_on(Screen::from_label(screen).expect("a screen with that label"));
     if let Some(seed) = seed {
         logic.seed(seed);
@@ -147,6 +147,6 @@ fn game_made(
     if let Some(ground) = ground {
         logic.play_on(ground);
     }
-    let runner = Runner::new(library, stage, logic, None);
+    let runner = Runner::new(stage, logic, None);
     Some(Script::new(runner).expect("a renderer with no window"))
 }

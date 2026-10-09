@@ -21,7 +21,7 @@ impl Inspector {
     ) {
         for (&depth, child) in children.iter().rev() {
             path.push(depth);
-            let title = title(depth, child, info.library);
+            let title = title(depth, child, info.stage.library());
             match &child.content {
                 Content::Graphic => {
                     ui.horizontal(|ui| self.row(ui, &title, child, path, reachable, actions));
@@ -116,14 +116,15 @@ impl Inspector {
             self.selected = None;
             return;
         };
-        let bounds = child_bounds(child, matrix, info.library).or_else(|| match &child.content {
-            Content::Clip(clip) => bounds_of(
-                &clip.children,
-                matrix.then_inner(child.matrix),
-                info.library,
-            ),
-            _ => None,
-        });
+        let bounds =
+            child_bounds(child, matrix, info.stage.library()).or_else(|| match &child.content {
+                Content::Clip(clip) => bounds_of(
+                    &clip.children,
+                    matrix.then_inner(child.matrix),
+                    info.stage.library(),
+                ),
+                _ => None,
+            });
         if let Some([left, top, right, bottom]) = bounds {
             let scale = ctx.pixels_per_point();
             let rect = egui::Rect::from_min_max(

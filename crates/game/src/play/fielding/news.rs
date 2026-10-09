@@ -1,7 +1,6 @@
 //! What a play in the field tells the mods that have news to give: a
 //! sign struck, a base stolen.
 
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use crate::play::book::ORDER;
@@ -47,37 +46,25 @@ impl Match {
     }
 
     /// Says over the field that a sign was struck, once one has been.
-    pub(super) fn tell_sign(
-        &mut self,
-        at_bat: &mut AtBat,
-        frames: u32,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(super) fn tell_sign(&mut self, at_bat: &mut AtBat, frames: u32, stage: &mut Stage) {
         let Some(runs) = self.mods.news_of_a_sign() else {
             return;
         };
         self.show_numbers(stage);
-        Match::sound(stage, library, "crowd_bigClap");
-        Match::sound(stage, library, "baseball_organ_FX");
+        Match::sound(stage, "crowd_bigClap");
+        Match::sound(stage, "baseball_organ_FX");
         let words = sign::news_words(runs);
         let says = sign::news(&words, frames, at_bat.parts.centre_x);
-        at_bat.notices.put(says, &at_bat.parts, stage, library);
+        at_bat.notices.put(says, &at_bat.parts, stage);
     }
 
     /// Says over the field how a steal came out, once it has.
-    pub(super) fn tell_steal(
-        &mut self,
-        at_bat: &mut AtBat,
-        frames: u32,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    pub(super) fn tell_steal(&mut self, at_bat: &mut AtBat, frames: u32, stage: &mut Stage) {
         let Some(told) = self.mods.news_of_a_steal() else {
             return;
         };
         at_bat.notices.take_down(steal::HINT, stage);
         let says = steal::news(told, frames, at_bat.parts.centre_x);
-        at_bat.notices.put(says, &at_bat.parts, stage, library);
+        at_bat.notices.put(says, &at_bat.parts, stage);
     }
 }

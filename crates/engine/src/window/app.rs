@@ -35,7 +35,7 @@ impl App {
     /// How the stage sits in a window of this size: the transform from stage
     /// coordinates to window pixels, and the rectangle the stage covers.
     pub(super) fn layout(&self, width: u32, height: u32) -> (Matrix, [u32; 4]) {
-        let stage = &self.runner.library.manifest.stage;
+        let stage = &self.runner.library().manifest.stage;
         stage_in_window(stage, self.options.centre_origin, width, height)
     }
 
@@ -77,7 +77,7 @@ impl App {
                 }
             }
             Action::Goto(path, frame) => {
-                stage.goto_clip(&path, frame, &self.runner.library);
+                stage.goto_clip(&path, frame);
                 // Hold it there, or it would play straight on.
                 if let Some(clip) = stage.clip_mut(&path) {
                     clip.playing = false;

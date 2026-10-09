@@ -2,7 +2,6 @@
 //! marker that crosses it, and the word on a swing.
 
 use bb_engine::display::Path;
-use bb_engine::library::Library;
 use bb_engine::math::{ColorTransform, Matrix};
 use bb_engine::stage::Stage;
 
@@ -102,9 +101,8 @@ impl Indicator {
         parts: &Parts,
         feet: Option<&dyn Fn(u32) -> Option<u32>>,
         stage: &mut Stage,
-        library: &Library,
     ) -> Option<Indicator> {
-        let holder = overlay::holder(parts, "timingBar", stage, library)?;
+        let holder = overlay::holder(parts, "timingBar", stage)?;
         let timing = Timing::of(pitch, rules);
         let left = parts.centre_x - WIDTH / 2.0;
         // That puts the verdict on the dirt beside the plate, where it can
@@ -116,7 +114,6 @@ impl Indicator {
             (left + WORD_AT, TOP - WORD_ABOVE),
             WORD_SIZE,
             stage,
-            library,
         )?;
         // With nothing to swing for, the marker just runs out with the
         // pitch.
@@ -139,7 +136,7 @@ impl Indicator {
         let mut depth = 0;
         let mut block = |stage: &mut Stage, left: f32, top: f32, width: f32, height: f32, paint| {
             depth += 1;
-            let path = stage.attach(&indicator.holder, art::BLOCK, depth, "block", library)?;
+            let path = stage.attach(&indicator.holder, art::BLOCK, depth, "block")?;
             let block = stage.child_mut(&path)?;
             block.set_matrix(Matrix {
                 a: width / art::BLOCK_SIDE,
@@ -185,7 +182,7 @@ impl Indicator {
             paint(MARKER_COLOUR, 1.0),
         )?;
         if let Some(feet) = feet {
-            indicator.label(feet, stage, library);
+            indicator.label(feet, stage);
         }
         Some(indicator)
     }
@@ -193,7 +190,7 @@ impl Indicator {
     /// Writes over the bar how far a swing on each of its colours sends the
     /// ball at the most, each figure in the colour it speaks for and in the
     /// order the colours come. The figure for the best is over the best.
-    fn label(&mut self, feet: &dyn Fn(u32) -> Option<u32>, stage: &mut Stage, library: &Library) {
+    fn label(&mut self, feet: &dyn Fn(u32) -> Option<u32>, stage: &mut Stage) {
         let stretches = self.timing.stretches();
         let Some(best) = self
             .timing
@@ -212,15 +209,8 @@ impl Indicator {
             let middle = self.left + BEST_AT + (index as f32 - best as f32) * FEET_APART;
             let depth = WORD_DEPTH + 2 + 2 * index as u16;
             let top = (middle, TOP - FEET_ABOVE);
-            let Some(words) = Words::new(
-                &self.holder,
-                depth,
-                "zoneFeet",
-                top,
-                FEET_SIZE,
-                stage,
-                library,
-            ) else {
+            let Some(words) = Words::new(&self.holder, depth, "zoneFeet", top, FEET_SIZE, stage)
+            else {
                 continue;
             };
             words.say(&most.to_string(), colour(quality), stage);

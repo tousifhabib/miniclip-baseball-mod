@@ -54,8 +54,8 @@ fn main() -> Result<()> {
         return Ok(());
     }
 
-    let mut stage = Stage::new(args.clip, &library);
-    stage.goto(args.frame, &library);
+    let mut stage = Stage::new(args.clip, library);
+    stage.goto(args.frame);
     if args.hold {
         stage.root.playing = false;
     }
@@ -68,7 +68,7 @@ fn main() -> Result<()> {
             .ok()
     };
 
-    let runner = Runner::new(library, stage, Box::new(NoLogic), audio);
+    let runner = Runner::new(stage, Box::new(NoLogic), audio);
     let summary = window::run(
         runner,
         Options {

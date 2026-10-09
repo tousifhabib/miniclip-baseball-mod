@@ -71,7 +71,7 @@ struct Drawn {
 }
 
 fn drawn(script: &Script, path: &[u16]) -> Drawn {
-    let (stage, library) = (&script.runner.stage, &script.runner.library);
+    let (stage, library) = (&script.runner.stage, script.runner.library());
     let (depth, view) = path.split_last().unwrap();
     let within = stage.to_stage(view).unwrap();
     let [left, top, right, bottom] =

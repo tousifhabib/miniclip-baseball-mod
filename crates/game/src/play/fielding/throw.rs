@@ -2,7 +2,6 @@
 //! there while anybody is still running.
 
 use bb_engine::display::Path;
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use super::play::{Fair, Fielding, Job, Play};
@@ -50,12 +49,7 @@ impl Match {
         step: Point,
         scene: Scene<'_>,
     ) {
-        let Scene {
-            parts,
-            game,
-            stage,
-            library,
-        } = scene;
+        let Scene { parts, game, stage } = scene;
         let to = parts.bases[usize::from(state.throw_to) - 1];
         let Some(ball) = &mut at_bat.ball else {
             return;
@@ -68,7 +62,7 @@ impl Match {
         }
         if distance(ball.at, to) < game.rules.field.throw_near {
             let told = &mut at_bat.notices;
-            self.ball_at_base(state, told, parts, game, stage, library);
+            self.ball_at_base(state, told, parts, game, stage);
         }
     }
 
@@ -80,11 +74,10 @@ impl Match {
         parts: &Parts,
         game: &Game,
         stage: &mut Stage,
-        library: &Library,
     ) -> Job {
         let to = parts.bases[usize::from(state.throw_to) - 1];
         let label = Facing::towards(here, to).throw_label();
-        stage.goto_label(fielder, label, false, library);
+        stage.goto_label(fielder, label, false);
         Job::WindUp {
             left: game.rules.field.throw_time,
         }
@@ -98,10 +91,9 @@ impl Match {
         parts: &Parts,
         game: &Game,
         stage: &mut Stage,
-        library: &Library,
     ) {
         let base = state.throw_to;
-        Match::sound(stage, library, "ballCatch_1");
+        Match::sound(stage, "ballCatch_1");
         // The fielder minding that base has the ball now, or should have.
         state.fielder = 4 + usize::from(base);
         if self.lets_go() {
@@ -109,9 +101,9 @@ impl Match {
             // gather from the ground beside him.
             let fielder = parts.fielders[state.fielder].clone();
             let here = at(stage, &fielder);
-            stage.goto_label(&fielder, Facing::Down.pick_label(), false, library);
-            Match::sound(stage, library, "crowd_smallCheer");
-            Match::tell(told, "DROPPED!", here, parts, game, stage, library);
+            stage.goto_label(&fielder, Facing::Down.pick_label(), false);
+            Match::sound(stage, "crowd_smallCheer");
+            Match::tell(told, "DROPPED!", here, parts, game, stage);
             state.job = Job::Gather {
                 left: game.rules.butterfingers.gather_time,
             };
@@ -122,16 +114,16 @@ impl Match {
             .filter(|&runner| self.runners[runner].running_to == Some(base))
             .collect();
         for runner in late {
-            self.put_out(runner, stage, library);
-            Match::sound(stage, library, "umpire_out_2");
-            Match::sound(stage, library, "crowd_unhappy");
+            self.put_out(runner, stage);
+            Match::sound(stage, "umpire_out_2");
+            Match::sound(stage, "crowd_unhappy");
             if base <= 3 {
                 let umpire = parts.umpires[usize::from(base) - 1].clone();
-                self.play_section(&umpire, "out", 99, stage, library);
+                self.play_section(&umpire, "out", 99, stage);
             }
         }
         self.show_numbers(stage);
-        self.hold_or_throw_on(state, parts, game, stage, library);
+        self.hold_or_throw_on(state, parts, game, stage);
     }
 
     /// The fielder at a base has the ball in his hands. He throws it on if
@@ -142,7 +134,6 @@ impl Match {
         parts: &Parts,
         game: &Game,
         stage: &mut Stage,
-        library: &Library,
     ) {
         // With the pitcher fielding alone nobody throws the ball on: the
         // play ends where his throw does, and anyone still running is given
@@ -153,7 +144,7 @@ impl Match {
             let fielder = parts.fielders[state.fielder].clone();
             let here = at(stage, &fielder);
             state.throw_to = self.pick_base(here, parts);
-            state.job = Match::wind_up(state, here, &fielder, parts, game, stage, library);
+            state.job = Match::wind_up(state, here, &fielder, parts, game, stage);
         } else {
             state.play = match state.play {
                 Play::Steal { .. } => Play::Steal { held: true },

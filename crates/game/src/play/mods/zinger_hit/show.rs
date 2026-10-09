@@ -4,7 +4,6 @@
 use std::collections::VecDeque;
 
 use bb_engine::display::{Path, child_bounds};
-use bb_engine::library::Library;
 use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
 
@@ -72,7 +71,6 @@ impl Show {
         parts: &Parts,
         rules: &Rules,
         stage: &mut Stage,
-        library: &Library,
     ) -> Option<Show> {
         // It is followed past the wall to where it comes down.
         let mut landing = *ball;
@@ -85,13 +83,13 @@ impl Show {
             .field_scoreboard
             .as_ref()
             .and_then(|board| stage.child(board))
-            .and_then(|board| child_bounds(board, Matrix::IDENTITY, library));
+            .and_then(|board| child_bounds(board, Matrix::IDENTITY, stage.library()));
         let place = Place::of(landing.at, zinger.walls, scoreboard, &rules.zinger);
 
-        let holder = overlay::holder(parts, "zinger", stage, library)?;
+        let holder = overlay::holder(parts, "zinger", stage)?;
         let mut words = |depth: u16, name: &str, top: f32, size: f32| {
             let top = (parts.centre_x, top);
-            Words::new(&holder, depth, name, top, size, stage, library)
+            Words::new(&holder, depth, name, top, size, stage)
         };
         let feet = words(1, "zingerFeet", FEET_TOP, FEET_SIZE)?;
         let named = words(3, "zingerPlace", PLACE_TOP, SMALL_SIZE)?;
@@ -113,13 +111,13 @@ impl Show {
             feet_each: rules.zinger.wall_feet / rules.field.wall,
             home: parts.home,
         };
-        show.lay_under(parts, stage, library);
+        show.lay_under(parts, stage);
         Some(show)
     }
 
     /// Puts the marker and the dots of the trail under the ball. They are
     /// the ball's own shadow and the ball's own picture.
-    fn lay_under(&mut self, parts: &Parts, stage: &mut Stage, library: &Library) -> Option<()> {
+    fn lay_under(&mut self, parts: &Parts, stage: &mut Stage) -> Option<()> {
         let (&ball, _) = parts.field_ball.split_last()?;
         let field = stage.clip(&parts.field)?;
         let depth = overlay::free_below(field, ball)?;
@@ -128,13 +126,13 @@ impl Show {
             .and_then(|shadow| stage.child(&shadow))
             .map(|shadow| shadow.symbol);
         let picture = stage.child(&parts.field_ball_inner)?.symbol;
-        let under = stage.attach(&parts.field, art::HOLDER, depth, "zingerTrail", library)?;
+        let under = stage.attach(&parts.field, art::HOLDER, depth, "zingerTrail")?;
         if let Some(shadow) = shadow {
-            self.marker = stage.attach(&under, shadow, 1, "zingerMarker", library);
+            self.marker = stage.attach(&under, shadow, 1, "zingerMarker");
         }
         for dot in 0..TRAIL {
             let depth = 2 + dot as u16;
-            let Some(path) = stage.attach(&under, picture, depth, "zingerDot", library) else {
+            let Some(path) = stage.attach(&under, picture, depth, "zingerDot") else {
                 break;
             };
             if let Some(dot) = stage.child_mut(&path) {

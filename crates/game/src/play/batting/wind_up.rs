@@ -1,7 +1,6 @@
 //! Before the ball is thrown: the pitcher stands, a runner may be sent,
 //! and the wind-up ends in the throw.
 
-use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use crate::game::Game;
@@ -21,17 +20,16 @@ impl Match {
         pressed: Option<Point>,
         game: &Game,
         stage: &mut Stage,
-        library: &Library,
     ) {
         if let Some((x, y)) = pressed
             && self.mods.shots_are_called()
             && let Some(pointer) = stage.from_stage(&at_bat.parts.main, x, y)
         {
             let called = &mut at_bat.called;
-            called::Called::call(called, pointer, &at_bat.parts, &game.rules, stage, library);
+            called::Called::call(called, pointer, &at_bat.parts, &game.rules, stage);
         }
         if left == 0 {
-            stage.goto_label(&at_bat.parts.pitcher, PITCH, true, library);
+            stage.goto_label(&at_bat.parts.pitcher, PITCH, true);
             self.phase = Phase::WindUp;
             // If a runner may be sent to steal, the corner of the view
             // says so.
@@ -39,7 +37,7 @@ impl Match {
                 && leads.anyone_may_go(&self.runners)
             {
                 let (notices, parts) = (&mut at_bat.notices, &at_bat.parts);
-                notices.put(steal::asks(leads.hint_at()), parts, stage, library);
+                notices.put(steal::asks(leads.hint_at()), parts, stage);
             }
         } else {
             self.phase = Phase::Settling { left: left - 1 };
@@ -49,13 +47,7 @@ impl Match {
     /// A click during the wind-up, at `pointer` in the batting view: with
     /// the stolen bases mod on, one on the little field sends a runner for
     /// the next base.
-    fn send_a_stealer(
-        &mut self,
-        at_bat: &mut AtBat,
-        pointer: Point,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
+    fn send_a_stealer(&mut self, at_bat: &mut AtBat, pointer: Point, stage: &mut Stage) {
         let Some(leads) = &at_bat.leads else {
             return;
         };
@@ -63,10 +55,10 @@ impl Match {
             return;
         };
         self.runners[sent.runner].stole_from = Some(sent.from);
-        self.send(sent.runner, sent.to, stage, library);
+        self.send(sent.runner, sent.to, stage);
         let (notices, parts) = (&mut at_bat.notices, &at_bat.parts);
         let says = steal::says_one_is_going(leads.hint_at());
-        notices.put(says, parts, stage, library);
+        notices.put(says, parts, stage);
     }
 
     /// The pitcher winds up, shows where the pitch is going, and lets the
@@ -78,12 +70,11 @@ impl Match {
         pressed: Option<Point>,
         game: &Game,
         stage: &mut Stage,
-        library: &Library,
     ) {
         if let Some((x, y)) = pressed
             && let Some(pointer) = stage.from_stage(&at_bat.parts.main, x, y)
         {
-            self.send_a_stealer(at_bat, pointer, stage, library);
+            self.send_a_stealer(at_bat, pointer, stage);
         }
         let frame = frame_of(stage, &at_bat.parts.pitcher);
         if !at_bat.marker_shown && frame >= at_bat.table.marker_frame {
@@ -111,7 +102,7 @@ impl Match {
             let top = (at_bat.parts.centre_x, MYSTERY_TOP);
             at_bat
                 .notices
-                .put(mystery.news(kind).at(top), &at_bat.parts, stage, library);
+                .put(mystery.news(kind).at(top), &at_bat.parts, stage);
         }
         self.phase = Phase::Flight { step: 0 };
     }

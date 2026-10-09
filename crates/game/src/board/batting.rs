@@ -15,7 +15,7 @@ pub(super) fn batting(
     side: &Side,
     fielding: &Side,
     whose: (bool, u32),
-    sheet: &mut Sheet<'_>,
+    sheet: &mut Sheet,
     stage: &mut Stage,
 ) {
     let (ours, outs_an_innings) = whose;
