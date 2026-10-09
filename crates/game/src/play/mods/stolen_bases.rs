@@ -168,7 +168,7 @@ impl Leads {
                 }
                 _ => stood,
             };
-            let asked = winding && play.may_steal(lead.runner).is_some();
+            let asked = winding && play.runners.may_steal(lead.runner).is_some();
             let swell = if asked && beat { SWELL } else { 1.0 };
             let colour = if going.is_some() { GOING } else { STANDING };
             for (mark, size) in lead.marks.iter().zip([EDGE, FACE]) {
@@ -191,31 +191,6 @@ impl Leads {
 }
 
 impl Match {
-    /// The base a runner may be sent to steal, if he may be: he is standing
-    /// on first or second, and the base in front of him is free, or will be
-    /// because the runner on it is going himself.
-    pub(crate) fn may_steal(&self, runner: usize) -> Option<u8> {
-        let stands = self.runners.get(runner)?;
-        let Place::Base(base) = stands.place else {
-            return None;
-        };
-        if stands.running_to.is_some() || base >= 3 {
-            return None;
-        }
-        let next = base + 1;
-        let free = self.runners.iter().all(|other| {
-            let in_the_way = other.place == Place::Base(next) && other.running_to.is_none();
-            !in_the_way && other.running_to != Some(next)
-        });
-        free.then_some(next)
-    }
-
-    pub(crate) fn anyone_stealing(&self) -> bool {
-        self.runners
-            .iter()
-            .any(|runner| runner.stole_from.is_some())
-    }
-
     /// The wind-up has begun: if a runner may be sent, the corner of the
     /// view says so.
     pub(crate) fn ask_for_steals(&self, at_bat: &mut AtBat, stage: &mut Stage, library: &Library) {
@@ -225,7 +200,7 @@ impl Match {
         let anyone = leads
             .leads
             .iter()
-            .any(|lead| self.may_steal(lead.runner).is_some());
+            .any(|lead| self.runners.may_steal(lead.runner).is_some());
         if anyone {
             let (notices, parts, top) = (&mut at_bat.notices, &at_bat.parts, leads.hint_at);
             notices.put(
@@ -239,7 +214,7 @@ impl Match {
 
     /// The ball has left the pitcher's hand: nobody can be sent now.
     pub(crate) fn stop_asking_for_steals(&self, at_bat: &mut AtBat, stage: &mut Stage) {
-        if !self.anyone_stealing() {
+        if !self.runners.anyone_stealing() {
             at_bat.notices.take_down("steal", stage);
         }
     }
@@ -269,7 +244,7 @@ impl Match {
         let nearest = leads
             .leads
             .iter()
-            .filter_map(|lead| Some((lead.runner, lead.base, self.may_steal(lead.runner)?)))
+            .filter_map(|lead| Some((lead.runner, lead.base, self.runners.may_steal(lead.runner)?)))
             .min_by(|a, b| far(a.1).total_cmp(&far(b.1)));
         let Some((runner, from, to)) = nearest else {
             return;
@@ -330,14 +305,9 @@ impl Match {
     /// has stolen nothing. One it does not push has a base to steal, with
     /// nobody throwing.
     pub(crate) fn steals_on_a_walk(&mut self) {
-        let on = |base: u8| {
-            self.runners
-                .iter()
-                .any(|runner| runner.place == Place::Base(base))
-        };
         // The walk pushes the runner on first, and whoever is on the bases
         // behind him without a gap.
-        let pushed: Vec<bool> = (1..=3u8).map(|base| (1..=base).all(on)).collect();
+        let pushed = self.runners.pushed_by_a_walk();
         for runner in &mut self.runners {
             if let Some(from) = runner.stole_from
                 && pushed[usize::from(from) - 1]
@@ -345,7 +315,7 @@ impl Match {
                 runner.stole_from = None;
             }
         }
-        let stealing = self.anyone_stealing();
+        let stealing = self.runners.anyone_stealing();
         self.mods.a_steal_is_in_play(stealing);
     }
 

@@ -14,7 +14,7 @@ use super::field::Ground;
 use super::overlay::Words;
 use super::paper;
 use super::pitch::Point;
-use super::{AtBat, Match, Mode, Outcome, Parts, Phase, Place};
+use super::{AtBat, Match, Mode, Outcome, Parts, Phase};
 use crate::art;
 use crate::look::Rgb;
 use crate::menu::Game;
@@ -565,9 +565,8 @@ impl Match {
     /// It is written up and the other side has its turn, after which what
     /// was only a side being out may be the match won or lost.
     pub(crate) fn close_half(&mut self, outcome: Outcome) -> Outcome {
-        let by_order = self.runs_by_order();
-        let on_base = |runner: &&super::Runner| matches!(runner.place, Place::Base(_));
-        let left = self.runners.iter().filter(on_base).count() as u32;
+        let by_order = self.runners.runs_by_order(&self.tally);
+        let left = self.runners.on_the_bases() as u32;
         let Some(full) = self.mode.full_mut() else {
             return outcome;
         };
@@ -596,13 +595,13 @@ impl Match {
     /// for when it is known what came of the pitch.
     pub(crate) fn book_thrown(&mut self) {
         self.thrown_at = (self.score, self.outs);
-        let order = self.batter().map(|batter| self.runners[batter].order);
+        let order = self
+            .runners
+            .batter()
+            .map(|batter| self.runners[batter].order);
         // A runner who has set off to steal is still the runner from his
         // base.
-        let on = [1, 2, 3].map(|base| {
-            let there = |runner: &super::Runner| runner.place == Place::Base(base);
-            self.runners.iter().any(there)
-        });
+        let on = [1, 2, 3].map(|base| self.runners.has_one_from(base));
         if let (Some(full), Some(order)) = (self.mode.full_mut(), order) {
             let innings = full.innings();
             full.book

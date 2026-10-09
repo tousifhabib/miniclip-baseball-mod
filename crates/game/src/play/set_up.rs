@@ -176,7 +176,7 @@ impl Match {
     /// logos in turn. The arcade game's one batter is as chosen. A full
     /// match's nine come round again, each as he was.
     fn bring_up_a_batter(&mut self, game: &Game) {
-        if self.batter().is_some() {
+        if self.runners.batter().is_some() {
             return;
         }
         let team = &game.rules.team;
@@ -297,7 +297,7 @@ impl Match {
         };
         // The organ plays as the batter comes up to it, and not again for
         // every pitch to him.
-        if self.strikes + self.balls == 0 {
+        if self.count.is_clean() {
             Match::sound(stage, library, "baseball_organ_tense_FX");
         }
         coming.write(&line, stage, library);
@@ -393,8 +393,7 @@ impl Match {
         stage: &mut Stage,
         library: &Library,
     ) -> Option<steal::Leads> {
-        let on_base = |runner: &Runner| matches!(runner.place, Place::Base(_));
-        if !self.mods.runners_steal() || !self.runners.iter().any(on_base) {
+        if !self.mods.runners_steal() || self.runners.on_the_bases() == 0 {
             return None;
         }
         let under = coming.corner.line();
@@ -424,7 +423,7 @@ impl Match {
     fn mark_the_field(&mut self, coming: &Coming, stage: &mut Stage, library: &Library) {
         let parts = &coming.parts;
         if let Some(mark) = stage.find(&parts.main, &["runnerOnSecond"]) {
-            let label = if self.on_base(2).is_some() {
+            let label = if self.runners.on_base(2).is_some() {
                 "full"
             } else {
                 "none"

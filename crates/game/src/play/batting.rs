@@ -417,16 +417,16 @@ impl Match {
         Match::sound(stage, library, "ballCatch_1");
         if !at_bat.pitch.in_zone && at_bat.swing.is_none() {
             self.book_pitch(at_bat, Thrown::Ball);
-            self.balls += 1;
+            self.count.balls += 1;
             if let Some(board) = &parts.scoreboard {
                 self.play_section(board, "noBall", 261, stage, library);
             }
             self.show_numbers(stage);
-            if self.balls >= rules.count.balls {
+            if self.count.is_a_walk(rules.count.balls) {
                 self.phase = Phase::Walking {
                     left: rules.hit.walk_wait,
                 };
-            } else if self.anyone_stealing() {
+            } else if self.runners.anyone_stealing() {
                 // The catcher has the ball, and a runner to throw out.
                 self.show_steal(at_bat, game, stage, library);
             } else {
@@ -439,14 +439,11 @@ impl Match {
             None => Thrown::Called,
         };
         self.book_pitch(at_bat, thrown);
-        self.strikes += 1;
-        if at_bat.golden {
-            // A strike on a golden ball is all the strikes there are.
-            self.strikes = self.strikes.max(self.strikes_allowed(game));
-        }
+        let allowed = self.strikes_allowed(game);
+        self.count.strike(at_bat.golden, allowed);
         self.mods.a_strike_was_called();
         if let Some(anim) = &parts.strike_anim {
-            let label = format!("strike{}", self.strikes.min(3));
+            let label = format!("strike{}", self.count.strikes.min(3));
             stage.goto_label(anim, &label, false, library);
             // The badge plays for 69 frames and is then taken down. Left
             // up, it would play again and again over the scoreboard.
@@ -455,11 +452,11 @@ impl Match {
         if let Some(board) = &parts.scoreboard {
             self.play_section(board, "strike", 136, stage, library);
         }
-        if self.strikes >= self.strikes_allowed(game) {
+        if self.count.is_out(allowed) {
             let call = ["1", "2", "3"][self.rng.below(3) as usize];
             Match::sound(stage, library, &format!("umpire_yourOuttaHere_{call}"));
             Match::sound(stage, library, "crowd_unhappy");
-            if let Some(batter) = self.batter() {
+            if let Some(batter) = self.runners.batter() {
                 self.runners[batter].place = Place::Out;
             }
             self.outs += 1;
@@ -469,13 +466,13 @@ impl Match {
             self.book_end(End::Strikeout, None);
         } else {
             Match::sound(stage, library, "umpire_Strike_grunt");
-            if self.strikes + 1 == self.strikes_allowed(game) {
+            if self.count.is_one_strike_from_out(allowed) {
                 let organ = ["baseball_organ_FX", "baseball_organ_tense_FX"];
                 Match::sound(stage, library, organ[self.rng.below(2) as usize]);
             }
         }
         self.show_numbers(stage);
-        if self.anyone_stealing() && self.outs < self.max_outs {
+        if self.runners.anyone_stealing() && self.outs < self.max_outs {
             return self.show_steal(at_bat, game, stage, library);
         }
         // With the side out, nobody has anywhere to steal to.

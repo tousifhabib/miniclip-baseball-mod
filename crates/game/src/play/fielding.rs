@@ -267,20 +267,7 @@ impl Match {
 
     /// The batter runs to first, and pushes on anyone in his way.
     fn start_runners(&mut self, stage: &mut Stage, library: &Library) {
-        let mut going = Vec::new();
-        if let Some(batter) = self.batter() {
-            going.push((batter, 1));
-        }
-        for base in 1..=3 {
-            // Only a runner with someone coming up behind him has to go.
-            match self.on_base(base) {
-                Some(runner) if going.len() == usize::from(base) => {
-                    going.push((runner, base + 1));
-                }
-                _ => break,
-            }
-        }
-        for (runner, to) in going {
+        for (runner, to) in self.runners.forced_on() {
             self.send(runner, to, stage, library);
         }
     }
@@ -383,7 +370,7 @@ impl Match {
         } else {
             Play::Fair(Fair::Live)
         };
-        let mut fielding = Fielding::begun(play, parts.home, self.batter());
+        let mut fielding = Fielding::begun(play, parts.home, self.runners.batter());
         self.phase = Phase::Fielding;
 
         if walk {
@@ -396,8 +383,8 @@ impl Match {
                 // A foul is a strike, but never the last one.
                 fielding.play = Play::Foul { called: 0 };
                 self.steals_go_back(stage, library);
-                if self.strikes + 1 < self.strikes_allowed(game) {
-                    self.strikes += 1;
+                let allowed = self.strikes_allowed(game);
+                if self.count.foul(allowed) {
                     self.mods.a_foul_took_a_strike();
                 }
                 stage.goto_label(&parts.transitions, "foulHit", true, library);
@@ -457,12 +444,7 @@ impl Match {
         let rules = &game.rules;
         let parts = at_bat.parts.clone();
         // He throws for the runner who is furthest on.
-        let to = self
-            .runners
-            .iter()
-            .filter(|runner| runner.stole_from.is_some())
-            .filter_map(|runner| runner.running_to)
-            .max();
+        let to = self.runners.bases_being_stolen().max();
         let (Some(to), Some(catcher)) = (to, parts.fielders.get(CATCHER)) else {
             return self.ready(&parts, stage, library);
         };
@@ -502,11 +484,7 @@ impl Match {
     /// The base to throw to: the nearest one that a runner is making for.
     /// With nobody running, the nearest base at all.
     fn pick_base(&self, from: Point, parts: &Parts) -> u8 {
-        let wanted = |base: u8| {
-            self.runners
-                .iter()
-                .any(|runner| runner.running_to == Some(base))
-        };
+        let wanted = |base: u8| self.runners.anyone_making_for(base);
         let nearest = |bases: &mut dyn Iterator<Item = u8>| {
             bases.min_by(|&a, &b| {
                 let far = |base: u8| distance(from, parts.bases[usize::from(base) - 1]);
@@ -945,7 +923,7 @@ impl Match {
         library: &Library,
     ) -> bool {
         match &mut state.play {
-            Play::Walk => !self.anyone_running(),
+            Play::Walk => !self.runners.anyone_running(),
             // The foul's picture plays itself out first.
             Play::Foul { called } => {
                 *called += 1;
@@ -1129,7 +1107,7 @@ impl Match {
         // With the pitcher fielding alone nobody throws the ball on: the
         // play ends where his throw does, and anyone still running is given
         // his base.
-        let thrown_on = self.anyone_running() && !self.mods.the_pitcher_fields_alone();
+        let thrown_on = self.runners.anyone_running() && !self.mods.the_pitcher_fields_alone();
         if thrown_on {
             // Somebody is still between bases: on it goes.
             let fielder = parts.fielders[state.fielder].clone();
@@ -1220,7 +1198,7 @@ impl Match {
         self.mods.a_home_run_was_hit();
         let worth = self.run_worth;
         // The batter has reached every base there is.
-        if self.batter().is_some() {
+        if self.runners.batter().is_some() {
             self.mods.the_batter_reached_base();
         }
         for runner in &mut self.runners {
@@ -1332,7 +1310,7 @@ impl Match {
                 // nobody making for it.
                 let next = base + 1;
                 let clear = next == 4
-                    || (self.on_base(next).is_none()
+                    || (self.runners.on_base(next).is_none()
                         && !self
                             .runners
                             .iter()

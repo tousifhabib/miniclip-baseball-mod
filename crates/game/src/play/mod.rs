@@ -16,6 +16,7 @@ pub(crate) mod mods;
 pub(crate) mod overlay;
 pub mod paper;
 pub mod pitch;
+mod runners;
 mod set_up;
 mod snapshot;
 
@@ -39,6 +40,7 @@ use mods::{
 };
 use overlay::Notices;
 use pitch::{Kind, Mound, Pitch, Point, Quality};
+pub(crate) use runners::{Count, Place, Runner, Runners};
 use snapshot::{ModsSeen, PitchSeen, Score, Snapshot, Standing};
 use zinger::Zinger;
 
@@ -53,36 +55,6 @@ pub enum Outcome {
     /// In a full match, the player's side is out and the other side has
     /// batted: there is a board to read, and then more to play.
     Interval,
-}
-
-/// Where a batter has got to.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(crate) enum Place {
-    /// At the plate, batting.
-    AtBat,
-    /// Standing on first, second or third.
-    Base(u8),
-    Out,
-    /// Round all the bases: a run.
-    Home,
-}
-
-#[derive(Clone, Debug)]
-pub(crate) struct Runner {
-    pub place: Place,
-    /// The base he is running to now, home being 4.
-    pub running_to: Option<u8>,
-    pub sliding: bool,
-    pub runs: u32,
-    /// His place in the batting order, counting from nought. A full match
-    /// has nine, who come round again. Otherwise every batter is new.
-    pub order: usize,
-    /// The base he left to steal the next, on the pitch in hand.
-    pub stole_from: Option<u8>,
-    pub skin: Option<Rgb>,
-    pub logo: Option<String>,
-    /// His clip on the field, for as long as this pitch's view lasts.
-    pub path: Option<Path>,
 }
 
 /// What stage a pitch has reached.
@@ -277,10 +249,9 @@ pub struct Match {
     pub(crate) target: u32,
     pub(crate) outs: u32,
     pub(crate) max_outs: u32,
-    pub(crate) strikes: u32,
-    pub(crate) balls: u32,
+    pub(crate) count: Count,
     pub(crate) pitched: u32,
-    pub(crate) runners: Vec<Runner>,
+    pub(crate) runners: Runners,
     pub(crate) rng: Rng,
     pub(crate) phase: Phase,
     /// The last pitch ended a batter's turn, which the scoreboard marks at
@@ -397,10 +368,9 @@ impl Match {
             target: behind + 1,
             outs: 0,
             max_outs: game.rules.game.outs,
-            strikes: 0,
-            balls: 0,
+            count: Count::default(),
             pitched: 0,
-            runners: Vec::new(),
+            runners: Runners::default(),
             rng: Rng::new(seed),
             phase: Phase::Arriving,
             announce: false,
@@ -444,7 +414,8 @@ impl Match {
     /// on second or third.
     fn in_the_clutch(&self) -> bool {
         let one_out_left = self.outs + 1 == self.max_outs;
-        let runner_in_reach_of_home = self.on_base(2).is_some() || self.on_base(3).is_some();
+        let runner_in_reach_of_home =
+            self.runners.on_base(2).is_some() || self.runners.on_base(3).is_some();
         self.mods
             .in_the_clutch(one_out_left, runner_in_reach_of_home)
     }
@@ -514,26 +485,6 @@ impl Match {
         }
     }
 
-    /// The batter at the plate: his place in `runners`.
-    pub(crate) fn batter(&self) -> Option<usize> {
-        self.runners
-            .iter()
-            .position(|runner| runner.place == Place::AtBat)
-    }
-
-    /// The runner standing on a base, if there is one.
-    pub(crate) fn on_base(&self, base: u8) -> Option<usize> {
-        self.runners
-            .iter()
-            .position(|runner| runner.place == Place::Base(base) && runner.running_to.is_none())
-    }
-
-    pub(crate) fn anyone_running(&self) -> bool {
-        self.runners
-            .iter()
-            .any(|runner| runner.running_to.is_some())
-    }
-
     /// The arcade game's points with the skill level counted in.
     pub fn arcade_score(&self, game: &Game) -> Option<u32> {
         let arcade = self.mode.arcade()?;
@@ -543,24 +494,27 @@ impl Match {
 
     /// How the side should look just now, given the team's own colour.
     pub fn look(&self, clothes: Option<Rgb>) -> Look {
-        let batter = self.batter().map(|index| &self.runners[index]);
+        let batter = self.runners.batter().map(|index| &self.runners[index]);
         Look {
             clothes,
             skin: batter.and_then(|runner| runner.skin),
             logo: batter.and_then(|runner| runner.logo.clone()),
-            second_skin: self.on_base(2).and_then(|index| self.runners[index].skin),
+            second_skin: self
+                .runners
+                .on_base(2)
+                .and_then(|index| self.runners[index].skin),
         }
     }
 
     /// The batter's turn is over: the next one starts with a clean count.
     pub(crate) fn clear_count(&mut self) {
-        self.strikes = 0;
-        self.balls = 0;
+        self.count = Count::default();
     }
 
     /// Writes the numbers the scoreboards show.
     pub(crate) fn show_numbers(&self, stage: &mut Stage) {
         let batter = self
+            .runners
             .batter()
             .map_or(self.came_up, |index| self.runners[index].order + 1);
         // In a full match the board shows the other side's score where it
@@ -572,8 +526,8 @@ impl Match {
         for (name, value) in [
             ("score", self.score),
             ("out", self.outs),
-            ("strikes", self.strikes),
-            ("noBalls", self.balls),
+            ("strikes", self.count.strikes),
+            ("noBalls", self.count.balls),
             ("scoreTarget", shown_target),
             ("oppositionScore", self.target - 1),
             ("maximumOuts", self.max_outs),
@@ -587,21 +541,14 @@ impl Match {
         ] {
             stage.set_text(name, value.to_string());
         }
-        for (order, runs) in self.runs_by_order().into_iter().enumerate() {
+        for (order, runs) in self
+            .runners
+            .runs_by_order(&self.tally)
+            .into_iter()
+            .enumerate()
+        {
             stage.set_text(&format!("batsman{}_score", order + 1), runs.to_string());
         }
-    }
-
-    /// The runs made by each place in the batting order.
-    pub(crate) fn runs_by_order(&self) -> Vec<u32> {
-        let mut runs = self.tally.clone();
-        for runner in &self.runners {
-            if runs.len() <= runner.order {
-                runs.resize(runner.order + 1, 0);
-            }
-            runs[runner.order] += runner.runs;
-        }
-        runs
     }
 
     /// What the result screens say about the match just played.
@@ -611,7 +558,7 @@ impl Match {
         // put out more than were left to get is not counted for more.
         let outs = self.outs_before + self.outs.min(self.max_outs);
         stage.set_text("out", outs.to_string());
-        for order in self.runs_by_order().len()..ORDER {
+        for order in self.runners.runs_by_order(&self.tally).len()..ORDER {
             stage.set_text(&format!("batsman{}_score", order + 1), "0");
         }
     }
@@ -920,12 +867,7 @@ impl Match {
             called: at_bat.called.as_ref().map(|called| called.at),
             came_down: at_bat.came_down,
         });
-        let stealing = self
-            .runners
-            .iter()
-            .filter(|runner| runner.stole_from.is_some())
-            .filter_map(|runner| runner.running_to)
-            .collect();
+        let stealing = self.runners.bases_being_stolen().collect();
         let mods = ModsSeen {
             let_go: self.mods.let_go(),
             heat: self.mods.heat(),
@@ -945,9 +887,9 @@ impl Match {
         let in_a_match = |score: Score, innings: Option<String>| Standing::Match {
             score,
             outs: self.outs,
-            balls: self.balls,
-            strikes: self.strikes,
-            bases: [1, 2, 3].map(|base| self.on_base(base).is_some()),
+            balls: self.count.balls,
+            strikes: self.count.strikes,
+            bases: [1, 2, 3].map(|base| self.runners.on_base(base).is_some()),
             pitched: self.pitched,
             innings,
         };
