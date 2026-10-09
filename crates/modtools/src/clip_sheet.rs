@@ -5,7 +5,7 @@
 use std::path::PathBuf;
 
 use anyhow::{Context, Result, bail, ensure};
-use bb_engine::display::{Bounds, bounds_of};
+use bb_engine::display::{bounds_of, union};
 use bb_engine::gpu::Renderer;
 use bb_engine::library::Library;
 use bb_engine::math::Matrix;
@@ -101,18 +101,6 @@ fn stamp(image: &mut RgbaImage, number: u16, left: u32, top: u32) {
                 }
             }
         }
-    }
-}
-
-fn union(a: Option<Bounds>, b: Option<Bounds>) -> Option<Bounds> {
-    match (a, b) {
-        (Some(a), Some(b)) => Some([
-            a[0].min(b[0]),
-            a[1].min(b[1]),
-            a[2].max(b[2]),
-            a[3].max(b[3]),
-        ]),
-        (one, other) => one.or(other),
     }
 }
 

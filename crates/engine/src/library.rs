@@ -113,7 +113,9 @@ impl Library {
     }
 }
 
-fn read_json<T: DeserializeOwned>(path: &Path) -> Result<T> {
+/// Reads one of the files the extractor wrote as JSON, as the type it
+/// holds.
+pub fn read_json<T: DeserializeOwned>(path: &Path) -> Result<T> {
     let text = fs::read_to_string(path).with_context(|| format!("reading {}", path.display()))?;
     serde_json::from_str(&text).with_context(|| format!("parsing {}", path.display()))
 }

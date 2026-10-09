@@ -583,7 +583,8 @@ fn new_child(
 /// A rectangle: left, top, right, bottom.
 pub type Bounds = [f32; 4];
 
-fn union(a: Option<Bounds>, b: Option<Bounds>) -> Option<Bounds> {
+/// The least rectangle that holds both, where `None` is no area at all.
+pub fn union(a: Option<Bounds>, b: Option<Bounds>) -> Option<Bounds> {
     match (a, b) {
         (Some(a), Some(b)) => Some([
             a[0].min(b[0]),

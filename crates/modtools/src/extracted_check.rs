@@ -3,9 +3,10 @@
 
 use std::collections::BTreeMap;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
-use anyhow::{Context, Result, ensure};
+use anyhow::{Result, ensure};
+use bb_engine::library::read_json;
 use bb_format::{
     Align, Button, Clip, EditText, FORMAT_VERSION, FieldFlag, Font, Look, Manifest, MorphShape, Op,
     PlaceAction, SoundStart, SymbolId, SymbolInfo, Text,
@@ -249,11 +250,6 @@ impl Checker {
     fn problem(&mut self, message: String) {
         self.problems.push(message);
     }
-}
-
-fn read_json<T: DeserializeOwned>(path: &Path) -> Result<T> {
-    let text = fs::read_to_string(path).with_context(|| format!("reading {}", path.display()))?;
-    serde_json::from_str(&text).with_context(|| format!("parsing {}", path.display()))
 }
 
 /// The command letters of some SVG path data, without their numbers.
