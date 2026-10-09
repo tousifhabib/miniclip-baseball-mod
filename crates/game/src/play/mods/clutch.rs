@@ -6,7 +6,16 @@
 //! no runs, so the mod has no place there.
 
 use super::Line;
+use crate::mods::About;
 use crate::rules::ClutchRules;
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "clutch",
+    name: "CLUTCH",
+    does: "TWO OUT AND A RUNNER ON SECOND OR THIRD: RUNS COUNT DOUBLE",
+    setting: None,
+};
 
 pub(crate) struct Clutch {
     rules: ClutchRules,

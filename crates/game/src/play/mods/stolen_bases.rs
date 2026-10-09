@@ -16,11 +16,20 @@ use bb_engine::stage::Stage;
 
 use crate::art;
 use crate::look::{self, Rgb};
+use crate::mods::About;
 use crate::play::book::ORDER;
 use crate::play::fielding::ARRIVES;
 use crate::play::overlay::{DARK, Says};
 use crate::play::pitch::Point;
 use crate::play::{AtBat, Match, Parts, Place, Runner, frame_of};
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "stolen_bases",
+    name: "STOLEN BASES",
+    does: "CLICK THE LITTLE FIELD IN THE WIND-UP TO SEND A RUNNER",
+    setting: None,
+};
 
 /// The mod, in play: the bases stolen, the runners caught, and how the last
 /// try came out.

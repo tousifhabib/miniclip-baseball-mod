@@ -18,8 +18,8 @@ use crate::look::{self, Rgb};
 use crate::rules::Rules;
 
 /// One change to the game. To add a mod, add it here and to [`Mod::ALL`],
-/// and have the rules ask [`Mods::is_on`] for it: the menu lists whatever
-/// is in `ALL`.
+/// and give it a file in `play/mods/`: the menu lists whatever is in `ALL`,
+/// by what its file says of it. The README's "A mod" has the rest.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Mod {
     /// A bar in the batting view that shows when to swing.
@@ -93,17 +93,29 @@ pub enum Mod {
     Southpaw,
 }
 
-/// What the menu and the files know a mod by.
-struct Info {
+/// What the menu and the files know a mod by. Each mod says its own, in
+/// its file in `play/mods/`.
+pub(crate) struct About {
     /// The name it is saved under, and asked for by on the command line.
-    key: &'static str,
-    /// What the menu calls it, and what the menu says it does.
-    name: &'static str,
-    about: &'static str,
-    /// What the menu calls its setting, if it has one besides being on or
-    /// off, and the level that is at until it is set to another. A setting
-    /// is a level, counted from 1.
-    setting: Option<(&'static str, u8)>,
+    pub(crate) key: &'static str,
+    /// What the menu calls it.
+    pub(crate) name: &'static str,
+    /// What the menu says it does.
+    pub(crate) does: &'static str,
+    /// Its setting, if it has one besides being on or off.
+    pub(crate) setting: Option<Setting>,
+}
+
+/// A mod's setting: a level, counted from 1.
+pub(crate) struct Setting {
+    /// What the menu calls it.
+    pub(crate) name: &'static str,
+    /// The level it is at until it is set to another.
+    pub(crate) usual: u8,
+    /// How many levels the rules give it.
+    pub(crate) levels: fn(&Rules) -> u8,
+    /// What the menu says a level comes to.
+    pub(crate) words: fn(u8, &Rules) -> String,
 }
 
 impl Mod {
@@ -134,153 +146,14 @@ impl Mod {
         Mod::Southpaw,
     ];
 
-    fn info(self) -> Info {
-        match self {
-            Mod::TimingIndicator => Info {
-                key: "timing_indicator",
-                name: "TIMING INDICATOR",
-                about: "A BAR THAT SHOWS WHEN TO SWING",
-                setting: None,
-            },
-            Mod::LonePitcher => Info {
-                key: "lone_pitcher",
-                name: "LONE PITCHER",
-                about: "ONLY THE PITCHER GOES AFTER THE BALL",
-                setting: None,
-            },
-            Mod::ZingerHit => Info {
-                key: "zinger_hit",
-                name: "ZINGER HIT",
-                about: "EVERY HIT IS A HOME RUN, BIGGER THE BETTER TIMED",
-                setting: None,
-            },
-            Mod::Butterfingers => Info {
-                key: "butterfingers",
-                name: "BUTTERFINGERS",
-                about: "FIELDERS DROP AND FUMBLE THE BALL",
-                setting: Some(("HOW OFTEN", 3)),
-            },
-            Mod::Knuckleball => Info {
-                key: "knuckleball",
-                name: "KNUCKLEBALL",
-                about: "PITCHES SWAY, AND THE MARKER IS ONLY ROUGHLY RIGHT",
-                setting: None,
-            },
-            Mod::HeatCheck => Info {
-                key: "heat_check",
-                name: "HEAT CHECK",
-                about: "RUNS MAKE THE PITCHES FASTER, STRIKES SLOW THEM",
-                setting: None,
-            },
-            Mod::MysteryPitch => Info {
-                key: "mystery_pitch",
-                name: "MYSTERY PITCH",
-                about: "FASTBALL, CHANGE-UP OR CURVE: FIND OUT AS IT IS THROWN",
-                setting: None,
-            },
-            Mod::CalledShot => Info {
-                key: "called_shot",
-                name: "CALLED SHOT",
-                about: "CLICK THE OUTFIELD BEFORE A PITCH: LAND IT THERE FOR RUNS",
-                setting: None,
-            },
-            Mod::HotBat => Info {
-                key: "hot_bat",
-                name: "HOT BAT",
-                about: "EACH HIT IN A ROW WIDENS THE TIMING, A MISS RESETS IT",
-                setting: None,
-            },
-            Mod::SuddenDeath => Info {
-                key: "sudden_death",
-                name: "SUDDEN DEATH",
-                about: "ONE STRIKE AND YOU ARE OUT, BUT RUNS COUNT DOUBLE",
-                setting: None,
-            },
-            Mod::GoldenBall => Info {
-                key: "golden_ball",
-                name: "GOLDEN BALL",
-                about: "EVERY FIFTH PITCH IS GOLD: TRIPLE RUNS, OR OUT ON A MISS",
-                setting: None,
-            },
-            Mod::PinballPark => Info {
-                key: "pinball_park",
-                name: "PINBALL PARK",
-                about: "THE BALL BOUNCES OFF THE WALL AND THE GROUND, AND ON",
-                setting: Some(("BOUNCE", 3)),
-            },
-            Mod::MoonBall => Info {
-                key: "moon_ball",
-                name: "MOON BALL",
-                about: "EVERY HIT FLOATS: THE SAME FLIGHT, MANY TIMES SLOWER",
-                setting: Some(("FLOAT", 2)),
-            },
-            Mod::TurboRunners => Info {
-                key: "turbo_runners",
-                name: "TURBO RUNNERS",
-                about: "RUNNERS ARE FAST, AND CAN GO ON WITH THE BALL IN THE AIR",
-                setting: Some(("SPEED", 2)),
-            },
-            Mod::NightGame => Info {
-                key: "night_game",
-                name: "NIGHT GAME",
-                about: "THE STADIUM IS DARK, AND HOME RUNS FLASH THE LIGHTS",
-                setting: None,
-            },
-            Mod::TheShift => Info {
-                key: "the_shift",
-                name: "THE SHIFT",
-                about: "FIELDERS STAND WHERE YOU HIT IT: GO THE OTHER WAY",
-                setting: None,
-            },
-            Mod::TiredArm => Info {
-                key: "tired_arm",
-                name: "TIRED ARM",
-                about: "THE PITCHER TIRES AS HE THROWS, UNTIL A NEW ONE COMES IN",
-                setting: None,
-            },
-            Mod::StolenBases => Info {
-                key: "stolen_bases",
-                name: "STOLEN BASES",
-                about: "CLICK THE LITTLE FIELD IN THE WIND-UP TO SEND A RUNNER",
-                setting: None,
-            },
-            Mod::HitTheSign => Info {
-                key: "hit_the_sign",
-                name: "HIT THE SIGN",
-                about: "SIGNS ON THE WALL PAY RUNS, THE LIT ONE MOST OF ALL",
-                setting: None,
-            },
-            Mod::Rally => Info {
-                key: "rally",
-                name: "RALLY",
-                about: "EACH BATTER IN A ROW ON BASE ADDS ONE TO EVERY RUN",
-                setting: None,
-            },
-            Mod::Clutch => Info {
-                key: "clutch",
-                name: "CLUTCH",
-                about: "TWO OUT AND A RUNNER ON SECOND OR THIRD: RUNS COUNT DOUBLE",
-                setting: None,
-            },
-            Mod::BulletTime => Info {
-                key: "bullet_time",
-                name: "BULLET TIME",
-                about: "HOLD SPACE TO SLOW THE PITCH: HITS REFILL THE METER",
-                setting: None,
-            },
-            Mod::Southpaw => Info {
-                key: "southpaw",
-                name: "SOUTHPAW",
-                about: "BAT LEFT-HANDED, FROM THE OTHER SIDE OF THE PLATE",
-                setting: None,
-            },
-        }
+    fn about_it(self) -> &'static About {
+        crate::play::mods::about(self)
     }
 
     /// The name the mod is saved under, and asked for by on the command
     /// line.
     pub fn key(self) -> &'static str {
-        self.info().key
+        self.about_it().key
     }
 
     /// The mod with this key.
@@ -290,51 +163,40 @@ impl Mod {
 
     /// What the menu calls it.
     pub fn name(self) -> &'static str {
-        self.info().name
+        self.about_it().name
     }
 
     /// What the menu says it does.
     pub fn about(self) -> &'static str {
-        self.info().about
+        self.about_it().does
+    }
+
+    fn its_setting(self) -> Option<&'static Setting> {
+        self.about_it().setting.as_ref()
     }
 
     /// What the menu calls the mod's setting, if it has one besides being
     /// on or off.
     pub fn setting(self) -> Option<&'static str> {
-        self.info().setting.map(|(name, _)| name)
+        self.its_setting().map(|setting| setting.name)
     }
 
     /// The level the mod's setting is at until it is set to another.
     pub fn usual_level(self) -> u8 {
-        self.info().setting.map_or(1, |(_, usual)| usual)
+        self.its_setting().map_or(1, |setting| setting.usual)
     }
 
     /// How many levels the mod's setting has. None, for a mod with no
     /// setting.
     pub fn levels(self, rules: &Rules) -> u8 {
-        match self {
-            Mod::Butterfingers => rules.butterfingers.chance.count(),
-            Mod::PinballPark => rules.pinball.keeps.count(),
-            Mod::MoonBall => rules.moon.slow.count(),
-            Mod::TurboRunners => rules.turbo.speed.count(),
-            _ => 0,
-        }
+        self.its_setting()
+            .map_or(0, |setting| (setting.levels)(rules))
     }
 
     /// What the menu says a level of the mod's setting comes to.
     pub fn level_words(self, level: u8, rules: &Rules) -> String {
-        match self {
-            Mod::Butterfingers => {
-                format!("{}%", rules.butterfingers.chance.at(level).unwrap_or(0))
-            }
-            Mod::PinballPark => {
-                let keeps = rules.pinball.keeps.at(level).unwrap_or(0.0);
-                format!("{:.0}%", keeps * 100.0)
-            }
-            Mod::MoonBall => format!("{}X", rules.moon.slow.at(level).unwrap_or(1.0)),
-            Mod::TurboRunners => format!("{}X", rules.turbo.speed.at(level).unwrap_or(1.0)),
-            _ => String::new(),
-        }
+        self.its_setting()
+            .map_or_else(String::new, |setting| (setting.words)(level, rules))
     }
 }
 

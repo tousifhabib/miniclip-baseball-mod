@@ -6,8 +6,17 @@
 //! where the ball really was, and a pitch that sways out of the strike zone
 //! is a ball.
 
+use crate::mods::About;
 use crate::play::pitch::{Mound, Pitch};
 use crate::rules::KnuckleballRules;
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "knuckleball",
+    name: "KNUCKLEBALL",
+    does: "PITCHES SWAY, AND THE MARKER IS ONLY ROUGHLY RIGHT",
+    setting: None,
+};
 
 pub(crate) struct Knuckleball {
     rules: KnuckleballRules,

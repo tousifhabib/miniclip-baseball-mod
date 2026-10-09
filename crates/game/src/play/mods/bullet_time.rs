@@ -15,10 +15,19 @@ use bb_engine::stage::Stage;
 
 use crate::art;
 use crate::look::{self, Rgb};
+use crate::mods::About;
 use crate::play::overlay::{self, DARK, Words};
 use crate::play::pitch::Point;
 use crate::play::{AtBat, Match, Parts};
 use crate::rules::BulletTimeRules;
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "bullet_time",
+    name: "BULLET TIME",
+    does: "HOLD SPACE TO SLOW THE PITCH: HITS REFILL THE METER",
+    setting: None,
+};
 
 /// The mod, in play: the meter, and how the ball is being held back.
 pub(crate) struct BulletTime {

@@ -12,7 +12,7 @@ pub mod field;
 mod fielding;
 pub mod full;
 mod mode;
-mod mods;
+pub(crate) mod mods;
 pub(crate) mod overlay;
 pub mod paper;
 pub mod pitch;

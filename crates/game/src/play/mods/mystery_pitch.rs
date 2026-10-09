@@ -6,10 +6,19 @@
 //! shown until the ball has left his hand. Then the pitch is named over
 //! him.
 
+use crate::mods::About;
 use crate::play::overlay::Says;
 use crate::play::pitch::Kind;
 use crate::rng::Rng;
 use crate::rules::{MysteryRules, PitchRules};
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "mystery_pitch",
+    name: "MYSTERY PITCH",
+    does: "FASTBALL, CHANGE-UP OR CURVE: FIND OUT AS IT IS THROWN",
+    setting: None,
+};
 
 pub(crate) struct MysteryPitch {
     rules: MysteryRules,

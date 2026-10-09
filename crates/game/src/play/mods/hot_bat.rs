@@ -11,8 +11,17 @@ use bb_engine::math::ColorTransform;
 
 use super::{Line, hot_colour};
 use crate::look;
+use crate::mods::About;
 use crate::play::pitch;
 use crate::rules::{HotBatRules, PitchRules};
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "hot_bat",
+    name: "HOT BAT",
+    does: "EACH HIT IN A ROW WIDENS THE TIMING, A MISS RESETS IT",
+    setting: None,
+};
 
 pub(crate) struct HotBat {
     rules: HotBatRules,

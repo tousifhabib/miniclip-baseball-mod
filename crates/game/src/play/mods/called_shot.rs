@@ -14,10 +14,19 @@ use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
 
 use crate::art;
+use crate::mods::About;
 use crate::play::field::distance;
 use crate::play::pitch::Point;
 use crate::play::{Parts, at, overlay};
 use crate::rules::Rules;
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "called_shot",
+    name: "CALLED SHOT",
+    does: "CLICK THE OUTFIELD BEFORE A PITCH: LAND IT THERE FOR RUNS",
+    setting: None,
+};
 
 /// The mod, in play. A shot is called afresh for each pitch, so nothing is
 /// kept between them.

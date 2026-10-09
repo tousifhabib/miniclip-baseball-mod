@@ -17,6 +17,7 @@ pub(crate) mod hit_the_sign;
 mod hot_bat;
 mod knuckleball;
 mod lone_pitcher;
+mod moon_ball;
 mod mystery_pitch;
 pub(crate) mod night_game;
 pub(crate) mod pinball_park;
@@ -57,11 +58,41 @@ use bb_engine::math::ColorTransform;
 
 use crate::look::Rgb;
 use crate::menu::Game;
-use crate::mods::Mod;
+use crate::mods::{About, Mod};
 use crate::play::pitch::Point;
 use crate::play::snapshot::ArmSeen;
 use crate::rng::Rng;
 use crate::rules::PitchRules;
+
+/// What the menu and the files know a mod by. Each mod says its own, in
+/// its file.
+pub(crate) fn about(which: Mod) -> &'static About {
+    match which {
+        Mod::BulletTime => &bullet_time::ABOUT,
+        Mod::Butterfingers => &butterfingers::ABOUT,
+        Mod::CalledShot => &called_shot::ABOUT,
+        Mod::Clutch => &clutch::ABOUT,
+        Mod::GoldenBall => &golden_ball::ABOUT,
+        Mod::HeatCheck => &heat_check::ABOUT,
+        Mod::HitTheSign => &hit_the_sign::ABOUT,
+        Mod::HotBat => &hot_bat::ABOUT,
+        Mod::Knuckleball => &knuckleball::ABOUT,
+        Mod::LonePitcher => &lone_pitcher::ABOUT,
+        Mod::MoonBall => &moon_ball::ABOUT,
+        Mod::MysteryPitch => &mystery_pitch::ABOUT,
+        Mod::NightGame => &night_game::ABOUT,
+        Mod::PinballPark => &pinball_park::ABOUT,
+        Mod::Rally => &rally::ABOUT,
+        Mod::Southpaw => &southpaw::ABOUT,
+        Mod::StolenBases => &stolen_bases::ABOUT,
+        Mod::SuddenDeath => &sudden_death::ABOUT,
+        Mod::TheShift => &the_shift::ABOUT,
+        Mod::TimingIndicator => &timing_indicator::ABOUT,
+        Mod::TiredArm => &tired_arm::ABOUT,
+        Mod::TurboRunners => &turbo_runners::ABOUT,
+        Mod::ZingerHit => &zinger_hit::ABOUT,
+    }
+}
 
 /// The colour of something this hot, from warm to as hot as it gets: a bat
 /// that keeps meeting the ball, or a rally that keeps going.

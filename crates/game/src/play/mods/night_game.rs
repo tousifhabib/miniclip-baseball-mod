@@ -12,7 +12,16 @@ use bb_engine::math::ColorTransform;
 use bb_engine::stage::Stage;
 
 use crate::art;
+use crate::mods::About;
 use crate::rules::NightRules;
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "night_game",
+    name: "NIGHT GAME",
+    does: "THE STADIUM IS DARK, AND HOME RUNS FLASH THE LIGHTS",
+    setting: None,
+};
 
 /// The mod, in play: the lights, and a flash of them still to come.
 pub(crate) struct NightGame {

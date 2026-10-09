@@ -8,10 +8,29 @@
 //! bounced never goes over the wall however high it hops, and the foul
 //! lines are cushions too once the ball has been down.
 
+use crate::mods::{About, Setting};
 use crate::play::Parts;
 use crate::play::field::{Ball, Happened, reach};
 use crate::play::pitch::Point;
 use crate::rules::FieldRules;
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "pinball_park",
+    name: "PINBALL PARK",
+    does: "THE BALL BOUNCES OFF THE WALL AND THE GROUND, AND ON",
+    setting: Some(Setting {
+        name: "BOUNCE",
+        usual: 3,
+        levels: |rules| rules.pinball.keeps.count(),
+        words: |level, rules| {
+            format!(
+                "{:.0}%",
+                rules.pinball.keeps.at(level).unwrap_or(0.0) * 100.0
+            )
+        },
+    }),
+};
 
 /// The mod, in play. It keeps nothing: how bouncy the park is is settled in
 /// the rules the game is played by, when it starts.

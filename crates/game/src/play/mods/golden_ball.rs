@@ -10,8 +10,17 @@ use bb_engine::math::ColorTransform;
 use bb_engine::stage::Stage;
 
 use super::Line;
+use crate::mods::About;
 use crate::play::Parts;
 use crate::rules::GoldenRules;
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "golden_ball",
+    name: "GOLDEN BALL",
+    does: "EVERY FIFTH PITCH IS GOLD: TRIPLE RUNS, OR OUT ON A MISS",
+    setting: None,
+};
 
 /// What turns the white of the ball to gold.
 const GOLD: ColorTransform = ColorTransform {

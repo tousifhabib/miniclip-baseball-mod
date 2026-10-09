@@ -6,7 +6,16 @@
 //! it did.
 
 use super::Line;
+use crate::mods::About;
 use crate::rules::{HeatRules, PitchRules};
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "heat_check",
+    name: "HEAT CHECK",
+    does: "RUNS MAKE THE PITCHES FASTER, STRIKES SLOW THEM",
+    setting: None,
+};
 
 pub(crate) struct HeatCheck {
     rules: HeatRules,

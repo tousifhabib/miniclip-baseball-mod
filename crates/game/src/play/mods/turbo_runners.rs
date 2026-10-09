@@ -6,7 +6,21 @@
 //! be sent on at any time the ball is in play, where as the game was he had
 //! to wait for it to come down or be caught.
 
+use crate::mods::{About, Setting};
 use crate::rules::TurboRules;
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "turbo_runners",
+    name: "TURBO RUNNERS",
+    does: "RUNNERS ARE FAST, AND CAN GO ON WITH THE BALL IN THE AIR",
+    setting: Some(Setting {
+        name: "SPEED",
+        usual: 2,
+        levels: |rules| rules.turbo.speed.count(),
+        words: |level, rules| format!("{}X", rules.turbo.speed.at(level).unwrap_or(1.0)),
+    }),
+};
 
 pub(crate) struct TurboRunners {
     /// How many times as fast as usual the runners go.

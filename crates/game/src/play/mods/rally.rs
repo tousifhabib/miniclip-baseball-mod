@@ -8,7 +8,16 @@
 //! place there.
 
 use super::{Line, hot_colour};
+use crate::mods::About;
 use crate::rules::RallyRules;
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "rally",
+    name: "RALLY",
+    does: "EACH BATTER IN A ROW ON BASE ADDS ONE TO EVERY RUN",
+    setting: None,
+};
 
 pub(crate) struct Rally {
     rules: RallyRules,

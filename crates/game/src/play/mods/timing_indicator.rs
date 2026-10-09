@@ -16,10 +16,19 @@ use bb_engine::stage::Stage;
 
 use crate::art;
 use crate::look::{self, Rgb};
+use crate::mods::About;
 use crate::play::Parts;
 use crate::play::overlay::{self, DARK, Words};
 use crate::play::pitch::{Pitch, Quality};
 use crate::rules::PitchRules;
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "timing_indicator",
+    name: "TIMING INDICATOR",
+    does: "A BAR THAT SHOWS WHEN TO SWING",
+    setting: None,
+};
 
 /// The mod, in play. It keeps nothing from pitch to pitch: the bar is put up
 /// afresh for each.

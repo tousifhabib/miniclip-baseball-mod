@@ -15,10 +15,19 @@ use bb_engine::stage::Stage;
 
 use super::Line;
 use crate::art;
+use crate::mods::About;
 use crate::play::field::reach;
 use crate::play::pitch::Point;
 use crate::play::{Parts, at, overlay};
 use crate::rules::{FieldRules, ShiftRules};
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "the_shift",
+    name: "THE SHIFT",
+    does: "FIELDERS STAND WHERE YOU HIT IT: GO THE OTHER WAY",
+    setting: None,
+};
 
 /// The mod, in play: where the balls have been going, and where that has
 /// the fielders standing.

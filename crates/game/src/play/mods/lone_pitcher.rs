@@ -10,4 +10,14 @@
 //! The mod keeps nothing and has no numbers. That it is in play is all the
 //! fielding needs to know.
 
+use crate::mods::About;
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "lone_pitcher",
+    name: "LONE PITCHER",
+    does: "ONLY THE PITCHER GOES AFTER THE BALL",
+    setting: None,
+};
+
 pub(crate) struct LonePitcher;

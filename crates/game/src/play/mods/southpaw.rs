@@ -11,8 +11,17 @@ use bb_engine::library::Library;
 use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
 
+use crate::mods::About;
 use crate::play::pitch::Choice;
 use crate::play::{Parts, frame_of};
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "southpaw",
+    name: "SOUTHPAW",
+    does: "BAT LEFT-HANDED, FROM THE OTHER SIDE OF THE PLATE",
+    setting: None,
+};
 
 /// The mod, in play: that the batter bats left-handed.
 #[derive(Default)]

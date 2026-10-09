@@ -23,12 +23,21 @@ use bb_engine::stage::Stage;
 
 use crate::art;
 use crate::look::{self, Rgb};
+use crate::mods::About;
 use crate::play::field::{Ball, Contact, Happened, distance, reach, seen_size};
 use crate::play::overlay::{self, Words};
 use crate::play::pitch::{Point, nearness};
 use crate::play::{Parts, put};
 use crate::rules::{FieldRules, HitRules, PitchRules, Rules, ZingerRules};
 use crate::settings::Difficulty;
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "zinger_hit",
+    name: "ZINGER HIT",
+    does: "EVERY HIT IS A HOME RUN, BIGGER THE BETTER TIMED",
+    setting: None,
+};
 
 /// The mod, in play: the longest zinger of the game, and the record its
 /// zingers have to beat. What a zinger is made of is below.

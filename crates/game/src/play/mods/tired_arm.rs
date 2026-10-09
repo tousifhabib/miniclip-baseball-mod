@@ -12,9 +12,18 @@ use bb_engine::math::ColorTransform;
 
 use super::Line;
 use crate::look::Rgb;
+use crate::mods::About;
 use crate::play::overlay::Says;
 use crate::play::snapshot::ArmSeen;
 use crate::rules::{PitchRules, TiredArmRules};
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "tired_arm",
+    name: "TIRED ARM",
+    does: "THE PITCHER TIRES AS HE THROWS, UNTIL A NEW ONE COMES IN",
+    setting: None,
+};
 
 /// How much of the green and the blue of a pitcher goes when he is spent:
 /// he is flushed.

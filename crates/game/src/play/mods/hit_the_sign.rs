@@ -15,11 +15,20 @@ use bb_engine::stage::Stage;
 
 use crate::art;
 use crate::look::{self, Rgb};
+use crate::mods::About;
 use crate::play::field::Ground;
 use crate::play::overlay::{self, DARK, Says, Words};
 use crate::play::{AtBat, Match, Parts};
 use crate::rng::Rng;
 use crate::rules::{FieldRules, SignRules};
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "hit_the_sign",
+    name: "HIT THE SIGN",
+    does: "SIGNS ON THE WALL PAY RUNS, THE LIT ONE MOST OF ALL",
+    setting: None,
+};
 
 /// What makes the choice of the lit sign come out differently from the
 /// pitches, which are drawn from the seed itself: the same pitches come

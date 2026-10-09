@@ -7,8 +7,22 @@
 //! Whoever did it has a word over him for a moment. The arcade game has no
 //! fielders, and plays as it did.
 
+use crate::mods::{About, Setting};
 use crate::rng::Rng;
 use crate::rules::ButterfingersRules;
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "butterfingers",
+    name: "BUTTERFINGERS",
+    does: "FIELDERS DROP AND FUMBLE THE BALL",
+    setting: Some(Setting {
+        name: "HOW OFTEN",
+        usual: 3,
+        levels: |rules| rules.butterfingers.chance.count(),
+        words: |level, rules| format!("{}%", rules.butterfingers.chance.at(level).unwrap_or(0)),
+    }),
+};
 
 pub(crate) struct Butterfingers {
     /// How many goes in a hundred a fielder lets the ball go.

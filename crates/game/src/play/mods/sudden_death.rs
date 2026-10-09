@@ -4,7 +4,16 @@
 //! A foul is still never the last strike, so with only one to give it is no
 //! strike at all. Runs a called shot or a sign is worth are not doubled.
 
+use crate::mods::About;
 use crate::rules::SuddenDeathRules;
+
+/// What the menu and the files know this mod by.
+pub(crate) const ABOUT: About = About {
+    key: "sudden_death",
+    name: "SUDDEN DEATH",
+    does: "ONE STRIKE AND YOU ARE OUT, BUT RUNS COUNT DOUBLE",
+    setting: None,
+};
 
 pub(crate) struct SuddenDeath {
     rules: SuddenDeathRules,
