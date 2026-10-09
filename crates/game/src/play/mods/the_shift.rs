@@ -17,7 +17,7 @@ use super::Line;
 use crate::art;
 use crate::play::field::reach;
 use crate::play::pitch::Point;
-use crate::play::{Parts, at};
+use crate::play::{Parts, at, overlay};
 use crate::rules::{FieldRules, ShiftRules};
 
 /// The mod, in play: where the balls have been going, and where that has
@@ -205,11 +205,7 @@ impl Shift {
                     };
                     let under = lowest
                         .zip(stage.clip(&parts.main))
-                        .and_then(|(lowest, view)| {
-                            (1..lowest)
-                                .rev()
-                                .find(|depth| !view.children.contains_key(depth))
-                        });
+                        .and_then(|(lowest, view)| overlay::free_below(view, lowest));
                     if let (Some(like), Some(under)) = (like, under) {
                         if let Some((path, _)) = &drawn {
                             stage.remove(path);

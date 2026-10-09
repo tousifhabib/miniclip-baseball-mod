@@ -311,9 +311,7 @@ impl Show {
     fn lay_under(&mut self, parts: &Parts, stage: &mut Stage, library: &Library) -> Option<()> {
         let (&ball, _) = parts.field_ball.split_last()?;
         let field = stage.clip(&parts.field)?;
-        let depth = (1..ball)
-            .rev()
-            .find(|depth| !field.children.contains_key(depth))?;
+        let depth = overlay::free_below(field, ball)?;
         let shadow = stage
             .find(&parts.field_ball, &["ballShadow"])
             .and_then(|shadow| stage.child(&shadow))

@@ -16,7 +16,7 @@ use bb_engine::stage::Stage;
 use crate::art;
 use crate::play::field::distance;
 use crate::play::pitch::Point;
-use crate::play::{Parts, at};
+use crate::play::{Parts, at, overlay};
 use crate::rules::Rules;
 
 /// The mod, in play. A shot is called afresh for each pitch, so nothing is
@@ -132,11 +132,10 @@ impl Called {
     ) -> Option<Called> {
         let free_from = |clip: &Path, from: u16, up: bool, stage: &Stage| {
             let clip = stage.clip(clip)?;
-            let free = |depth: &u16| !clip.children.contains_key(depth);
             if up {
-                (from + 1..).find(free)
+                overlay::free_above(clip, from)
             } else {
-                (1..from).rev().find(free)
+                overlay::free_below(clip, from)
             }
         };
         // Just over the scoreboard, which is behind everybody.

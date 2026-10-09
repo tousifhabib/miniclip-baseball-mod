@@ -1,7 +1,7 @@
 //! What the mods lay over the game's own views: a clip to keep their parts
 //! in, and words that can be read against whatever is behind them.
 
-use bb_engine::display::Path;
+use bb_engine::display::{ClipState, Path};
 use bb_engine::library::Library;
 use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
@@ -26,8 +26,22 @@ pub(crate) fn holder(
 ) -> Option<Path> {
     let (&field, _) = parts.field.split_last()?;
     let view = stage.clip(&parts.main)?;
-    let depth = (field + 1..).find(|depth| !view.children.contains_key(depth))?;
+    let depth = free_above(view, field)?;
     stage.attach(&parts.main, art::HOLDER, depth, name, library)
+}
+
+/// The first free depth over `depth` in a clip: where a thing put there is
+/// drawn just on top of what is at `depth`.
+pub(crate) fn free_above(clip: &ClipState, depth: u16) -> Option<u16> {
+    (depth.checked_add(1)?..=u16::MAX).find(|depth| !clip.children.contains_key(depth))
+}
+
+/// The first free depth under `depth` in a clip: where a thing put there is
+/// drawn just beneath what is at `depth`.
+pub(crate) fn free_below(clip: &ClipState, depth: u16) -> Option<u16> {
+    (1..depth)
+        .rev()
+        .find(|depth| !clip.children.contains_key(depth))
 }
 
 /// A line of words in the game's display lettering. It is written twice,

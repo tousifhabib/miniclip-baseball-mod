@@ -16,7 +16,7 @@ use bb_engine::stage::Stage;
 use crate::art;
 use crate::look::{self, Rgb};
 use crate::play::field::Ground;
-use crate::play::overlay::{DARK, Says, Words};
+use crate::play::overlay::{self, DARK, Says, Words};
 use crate::play::{AtBat, Match, Parts};
 use crate::rules::{FieldRules, SignRules};
 
@@ -182,7 +182,7 @@ impl Board {
                 .iter()
                 .find(|(_, child)| art::BACKDROPS.contains(&child.symbol))
                 .map(|(&depth, _)| depth)?;
-            let depth = (backdrop + 1..).find(|depth| !clip.children.contains_key(depth))?;
+            let depth = overlay::free_above(clip, backdrop)?;
             let holder = stage.attach(view, art::HOLDER, depth, "signs", library)?;
             for sign in 0..signs.count() {
                 let (from, to) = signs.span(sign);
