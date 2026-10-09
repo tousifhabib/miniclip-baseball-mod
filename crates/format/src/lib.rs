@@ -94,7 +94,9 @@ impl TryFrom<String> for Color {
 
     fn try_from(s: String) -> Result<Self, String> {
         let hex = s.strip_prefix('#').unwrap_or(&s);
-        if hex.len() != 8 || !hex.is_ascii() {
+        // Every one of the eight has to be a hex digit. Reading a pair as
+        // a number would let a plus sign by in place of the first of them.
+        if hex.len() != 8 || !hex.bytes().all(|digit| digit.is_ascii_hexdigit()) {
             return Err(format!("expected a colour like #rrggbbaa, got {s:?}"));
         }
         let byte = |i: usize| {
@@ -658,7 +660,7 @@ mod tests {
         }
 
         #[test]
-        fn text_of_the_wrong_length_is_refused_and_eight_hex_digits_never_are(
+        fn anything_but_eight_hex_digits_is_refused_and_eight_hex_digits_never_are(
             marks in prop::collection::vec(prop::sample::select(&MARKS[..]), 0..=10),
         ) {
             let text: String = marks.into_iter().collect();
@@ -666,34 +668,21 @@ mod tests {
             // more than one byte are not to be cut in half.
             let read = Color::try_from(text.clone());
             let digits = text.strip_prefix('#').unwrap_or(&text);
-            if digits.len() != 8 || !digits.is_ascii() {
-                prop_assert!(read.is_err(), "{:?} was read as {:?}", text, read);
-            }
-            // And eight hex digits are always a colour.
-            if digits.len() == 8 && digits.bytes().all(|digit| digit.is_ascii_hexdigit()) {
-                prop_assert!(read.is_ok(), "{:?} was refused: {:?}", text, read);
-            }
+            // Eight hex digits are always a colour, and nothing else is.
+            let hex = digits.len() == 8 && digits.bytes().all(|digit| digit.is_ascii_hexdigit());
+            prop_assert_eq!(read.is_ok(), hex, "{:?} was read as {:?}", text, read);
         }
     }
 
     #[test]
-    fn a_plus_sign_is_let_by_in_place_of_a_hex_digit_as_things_stand() {
-        // An oddity, written down so that a change to it is noticed. The
-        // text is read two letters at a time, each pair as a number, and a
-        // number may be written with a plus sign before it. So this, which
-        // is no colour at all, is read as one.
-        assert_eq!(
-            Color::try_from("#+1+2+3+4".to_owned()),
-            Ok(Color {
-                r: 1,
-                g: 2,
-                b: 3,
-                a: 4,
-            })
-        );
-        // Only before a digit, though, and a minus sign is not let by.
-        assert!(Color::try_from("#1+2+3+4+".to_owned()).is_err());
-        assert!(Color::try_from("#-1-2-3-4".to_owned()).is_err());
+    fn a_sign_is_not_let_by_in_place_of_a_hex_digit() {
+        // The text is read two letters at a time, each pair as a number,
+        // and a number may be written with a plus sign before it. This is
+        // no colour at all, and was once read as one.
+        for text in ["#+1+2+3+4", "#1+2+3+4+", "#-1-2-3-4", "+1+2+3+4"] {
+            let read = Color::try_from(text.to_owned());
+            assert!(read.is_err(), "{text:?} was read as {read:?}");
+        }
     }
 
     #[test]
