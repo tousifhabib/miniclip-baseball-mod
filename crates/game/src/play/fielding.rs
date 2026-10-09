@@ -815,7 +815,7 @@ impl Match {
     /// In a full match, writes a play that is over into the book: a foul,
     /// a walk, or what came of a ball that was put in play.
     fn book_play(&mut self, at_bat: &AtBat, state: &Fielding) {
-        let Some(ground) = self.full.as_ref().map(|full| *full.ground()) else {
+        let Some(ground) = self.mode.full().map(|full| *full.ground()) else {
             return;
         };
         if state.steal {
@@ -855,7 +855,7 @@ impl Match {
         let feet = at_bat.zinger.map(|zinger| zinger.feet);
         let hit = Hit::at(&ground, state.land, fly, feet);
         if end == End::Error
-            && let Some(full) = &mut self.full
+            && let Some(full) = self.mode.full_mut()
         {
             full.book.theirs.errors += 1;
         }

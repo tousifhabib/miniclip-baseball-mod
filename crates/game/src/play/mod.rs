@@ -12,6 +12,7 @@ mod called;
 pub mod field;
 mod fielding;
 pub mod full;
+mod mode;
 pub mod night;
 pub(crate) mod overlay;
 pub mod paper;
@@ -39,6 +40,7 @@ use crate::rng::Rng;
 use crate::rules::{FieldRules, HitRules, PitchRules};
 use book::{End, ORDER, Thrown};
 use field::{Ball, Contact, Ground, Happened, reach};
+use mode::Mode;
 use overlay::{Notices, Says};
 use pitch::{Choice, Kind, Mound, Pitch, Point, Quality};
 use snapshot::{ArmSeen, ModsSeen, PitchSeen, Score, Snapshot, Standing};
@@ -293,11 +295,8 @@ pub struct Match {
     /// Clips to send back to their first frame, where they show nothing,
     /// once this many more frames have gone by.
     put_away: Vec<(Path, u32)>,
-    /// The arcade game's own state, when that is what is being played.
-    pub(crate) arcade: Option<arcade::Arcade>,
-    /// The match all of whose innings are being played, when that is the
-    /// game.
-    pub(crate) full: Option<full::FullMatch>,
+    /// Which kind of game this is, with what only that kind keeps.
+    pub(crate) mode: Mode,
     /// How many batters have come to the plate, and the skins of those in
     /// a full match's batting order, as far as they have been seen.
     came_up: usize,
@@ -495,8 +494,7 @@ impl Match {
             at: None,
             cues: Vec::new(),
             put_away: Vec::new(),
-            arcade: None,
-            full: None,
+            mode: Mode::LastInnings,
             came_up: 0,
             line_up: Vec::new(),
             tally: Vec::new(),
@@ -540,7 +538,7 @@ impl Match {
     /// The arcade game instead of a match.
     pub fn new_arcade(game: &Game, seed: u64, library: &Library) -> Match {
         let mut arcade = Match::new(game, seed, library);
-        arcade.arcade = Some(arcade::Arcade::new(game.rules.arcade.pitches));
+        arcade.mode = Mode::Arcade(arcade::Arcade::new(game.rules.arcade.pitches));
         arcade
     }
 
@@ -577,7 +575,7 @@ impl Match {
     /// on second or third.
     fn in_the_clutch(&self, game: &Game) -> bool {
         game.mods.is_on(Mod::Clutch)
-            && self.arcade.is_none()
+            && !self.mode.is_arcade()
             && self.outs + 1 == self.max_outs
             && (self.on_base(2).is_some() || self.on_base(3).is_some())
     }
@@ -637,28 +635,31 @@ impl Match {
 
     /// How the match stands, if it is over.
     fn outcome(&self) -> Option<Outcome> {
-        if let Some(arcade) = &self.arcade {
-            return (arcade.left == 0).then_some(Outcome::ArcadeOver);
-        }
-        if let Some(full) = &self.full {
-            // Batting last with every innings all but played, to be ahead
-            // is to have won. Otherwise the side bats until it is out, and
-            // what that comes to is worked out once the other side has
-            // batted.
-            if full.sudden() && self.score > full.theirs() {
-                return Some(Outcome::Won);
+        match &self.mode {
+            Mode::Arcade(arcade) => (arcade.left == 0).then_some(Outcome::ArcadeOver),
+            Mode::Full(full) => {
+                // Batting last with every innings all but played, to be
+                // ahead is to have won. Otherwise the side bats until it is
+                // out, and what that comes to is worked out once the other
+                // side has batted.
+                if full.sudden() && self.score > full.theirs() {
+                    Some(Outcome::Won)
+                } else {
+                    (self.outs >= self.max_outs).then_some(Outcome::Interval)
+                }
             }
-            return (self.outs >= self.max_outs).then_some(Outcome::Interval);
-        }
-        let level = self.target - 1;
-        if self.score >= self.target {
-            Some(Outcome::Won)
-        } else if self.outs < self.max_outs {
-            None
-        } else if self.score == level {
-            Some(Outcome::Tied)
-        } else {
-            Some(Outcome::Lost)
+            Mode::LastInnings => {
+                let level = self.target - 1;
+                if self.score >= self.target {
+                    Some(Outcome::Won)
+                } else if self.outs < self.max_outs {
+                    None
+                } else if self.score == level {
+                    Some(Outcome::Tied)
+                } else {
+                    Some(Outcome::Lost)
+                }
+            }
         }
     }
 
@@ -684,7 +685,7 @@ impl Match {
 
     /// The arcade game's points with the skill level counted in.
     pub fn arcade_score(&self, game: &Game) -> Option<u32> {
-        let arcade = self.arcade.as_ref()?;
+        let arcade = self.mode.arcade()?;
         Some(arcade.points * game.rules.arcade.multiplier.at(game.settings.difficulty))
     }
 
@@ -712,7 +713,7 @@ impl Match {
             .map_or(self.came_up, |index| self.runners[index].order + 1);
         // In a full match the board shows the other side's score where it
         // would show the score to beat.
-        let shown_target = match self.full {
+        let shown_target = match self.mode.full() {
             Some(_) => self.target - 1,
             None => self.target,
         };
@@ -728,7 +729,7 @@ impl Match {
             ("ballsPitched", self.pitched),
             (
                 "points_total",
-                self.arcade.as_ref().map_or(0, |arcade| arcade.points),
+                self.mode.arcade().map_or(0, |arcade| arcade.points),
             ),
             ("batsmanOnStrike", batter as u32),
         ] {
@@ -918,19 +919,19 @@ impl Match {
             // bat logos in turn. The arcade game's one batter is as chosen.
             // A full match's nine come round again, each as he was.
             let team = &game.rules.team;
-            let order = match self.full {
+            let order = match self.mode.full() {
                 Some(_) => self.came_up % ORDER,
                 None => self.came_up,
             };
-            let (skin, logo) = if self.arcade.is_some() {
+            let (skin, logo) = if self.mode.is_arcade() {
                 (game.settings.skin, game.settings.logo.clone())
             } else {
-                let known = self.full.as_ref().and(self.line_up.get(order).copied());
+                let known = self.mode.full().and(self.line_up.get(order).copied());
                 let skin = known.unwrap_or_else(|| {
                     let pick = self.rng.below(team.skins.len() as u32) as usize;
                     team.skins.get(pick).and_then(|skin| look::rgb(skin))
                 });
-                if self.full.is_some() && self.line_up.len() <= order {
+                if self.mode.full().is_some() && self.line_up.len() <= order {
                     self.line_up.resize(order + 1, None);
                     self.line_up[order] = skin;
                 }
@@ -960,7 +961,7 @@ impl Match {
         // A full match says which half of which innings this is, and what
         // the mods say goes under that.
         let mut corner = Corner::default();
-        if let Some(full) = &self.full {
+        if let Some(full) = self.mode.full() {
             notices.put(
                 Says::line("innings", &full.half_words(), [0xfd, 0xf6, 0xc0]).at(corner.line()),
                 &parts,
@@ -971,7 +972,7 @@ impl Match {
         // The pitch about to be thrown is one more than have been. The
         // arcade game has no runs and no outs for a golden ball to change.
         let golden = game.mods.is_on(Mod::GoldenBall)
-            && self.arcade.is_none()
+            && !self.mode.is_arcade()
             && rules.golden.is_gold(self.pitched + 1);
         self.run_worth = self.worth_of_a_run(golden, game);
         if golden {
@@ -1003,7 +1004,7 @@ impl Match {
         // A tired arm is slower and wilder, and one that has thrown its last
         // gives way to a fresh one. The arcade game is over before any arm
         // tires.
-        if game.mods.is_on(Mod::TiredArm) && self.arcade.is_none() {
+        if game.mods.is_on(Mod::TiredArm) && !self.mode.is_arcade() {
             let arm = &rules.tired_arm;
             if self.arm >= arm.relief.max(1) {
                 self.arm = 0;
@@ -1086,7 +1087,7 @@ impl Match {
                 library,
             );
         }
-        self.rallying = game.mods.is_on(Mod::Rally) && self.arcade.is_none();
+        self.rallying = game.mods.is_on(Mod::Rally) && !self.mode.is_arcade();
         if self.rallying && self.rally > 0 {
             let worth = rules.rally.worth(self.rally);
             notices.put(
@@ -1117,7 +1118,7 @@ impl Match {
         };
         // With the shift on, the fielders stand where the last few balls
         // went. The arcade game has no fielders to move.
-        if game.mods.is_on(Mod::TheShift) && self.arcade.is_none() {
+        if game.mods.is_on(Mod::TheShift) && !self.mode.is_arcade() {
             let shift = shift::Shift::of(&self.spray, &rules.shift);
             self.shift = shift.by();
             shift.place(&parts, &rules.field, stage, library);
@@ -1170,7 +1171,7 @@ impl Match {
         // With the hit the sign mod on, the wall has its signs, one lit for
         // the innings. The arcade game has no runs for a sign to be worth.
         self.sign_struck = None;
-        let signs = if game.mods.is_on(Mod::HitTheSign) && self.arcade.is_none() {
+        let signs = if game.mods.is_on(Mod::HitTheSign) && !self.mode.is_arcade() {
             let signs = sign::Signs::of(&rules.sign);
             let lit = self.lit_sign(&signs);
             let ground = parts.ground(&rules.field);
@@ -1195,12 +1196,12 @@ impl Match {
             self.announce = false;
             // In a full match there is a number of runs that wins it only
             // when getting ahead ends it.
-            let to_win = self.full.as_ref().is_none_or(|full| full.sudden());
+            let to_win = self.mode.full().is_none_or(|full| full.sudden());
             if let (true, Some(board)) = (to_win, parts.scoreboard.clone()) {
                 self.play_section(&board, "runsToGet", 361, stage, library);
             }
         }
-        let them = match self.full {
+        let them = match self.mode.full() {
             Some(_) => full::Them::put(&parts, stage, library),
             None => Vec::new(),
         };
@@ -1495,7 +1496,7 @@ impl Match {
                 // While the pitcher waits, a click on the outfield calls
                 // the shot. The arcade game has a target of its own.
                 if let Some((x, y)) = pressed
-                    && self.arcade.is_none()
+                    && !self.mode.is_arcade()
                     && game.mods.is_on(Mod::CalledShot)
                     && let Some(pointer) = stage.from_stage(&at_bat.parts.main, x, y)
                 {
@@ -1530,7 +1531,7 @@ impl Match {
                     self.arm += 1;
                     self.stop_asking_for_steals(&mut at_bat, stage);
                     self.book_thrown();
-                    if let Some(arcade) = &mut self.arcade {
+                    if let Some(arcade) = self.mode.arcade_mut() {
                         arcade.left = arcade.left.saturating_sub(1);
                     }
                     self.show_numbers(stage);
@@ -1568,7 +1569,7 @@ impl Match {
             }
             Phase::Watching { left } => {
                 self.watch(&mut at_bat, game, stage, library);
-                if left == 0 && self.arcade.is_some() {
+                if left == 0 && self.mode.is_arcade() {
                     self.show_arcade_field(&mut at_bat, game, stage, library);
                 } else if left == 0 {
                     self.show_field(&mut at_bat, false, game, stage, library);
@@ -1657,11 +1658,11 @@ impl Match {
                 _ => "hitLow",
             };
             stage.goto_label(&at_bat.parts.hitter, label, true, library);
-            if self.arcade.is_none() {
+            if !self.mode.is_arcade() {
                 Match::sound(stage, library, "batSwing_fast");
             }
             at_bat.swing = Some(0);
-            if self.full.is_some() {
+            if self.mode.full().is_some() {
                 at_bat.swing_off = timing::Timing::of(&at_bat.pitch, &at_bat.table)
                     .best()
                     .map(|(first, last)| step as i32 - step.clamp(first, last) as i32);
@@ -1756,7 +1757,7 @@ impl Match {
                 None => Ball::hit(parts.home, mark, &contact, &rules.hit, &rules.field),
             });
             at_bat.zinger = zinger;
-            if let (Some(arcade), Some(zinger)) = (&mut self.arcade, zinger) {
+            if let (Some(arcade), Some(zinger)) = (self.mode.arcade_mut(), zinger) {
                 // In the arcade game a zinger scores by how far it goes.
                 arcade.owed = Some(zinger.feet);
             }
@@ -1766,7 +1767,7 @@ impl Match {
             // He is 34 frames into his swing when he drops the bat.
             at_bat.run_in = Some(34u32.saturating_sub(at_bat.swing.unwrap_or(0)));
             self.phase = Phase::Watching {
-                left: if self.arcade.is_some() {
+                left: if self.mode.is_arcade() {
                     at_bat.run_in = None;
                     rules.arcade.watch
                 } else {
@@ -1784,7 +1785,7 @@ impl Match {
         let parts = at_bat.parts.clone();
         show(stage, &parts.ball, false);
         show(stage, &parts.shadow, false);
-        if self.arcade.is_some() {
+        if self.mode.is_arcade() {
             // No count in the arcade game: a miss is just a pitch gone.
             return self.ready(&parts, stage, library);
         }
@@ -2003,34 +2004,38 @@ impl Match {
             }),
             shifted: self.shift,
         };
-        let standing = match &self.arcade {
-            Some(arcade) => Standing::Arcade {
+        let in_a_match = |score: Score, innings: Option<String>| Standing::Match {
+            score,
+            outs: self.outs,
+            balls: self.balls,
+            strikes: self.strikes,
+            bases: [1, 2, 3].map(|base| self.on_base(base).is_some()),
+            pitched: self.pitched,
+            innings,
+        };
+        let standing = match &self.mode {
+            Mode::Arcade(arcade) => Standing::Arcade {
                 points: arcade.points,
                 pitches_left: arcade.left,
             },
-            None => Standing::Match {
-                // A full match has no score to reach: it says which
-                // innings it is, and what both sides have made.
-                score: match &self.full {
-                    Some(full) => Score::Against {
-                        batting_in: full.batting_in(),
-                        score: self.score,
-                        theirs: full.theirs(),
-                    },
-                    None => Score::Of {
-                        score: self.score,
-                        target: self.target,
-                    },
-                },
-                outs: self.outs,
-                balls: self.balls,
-                strikes: self.strikes,
-                bases: [1, 2, 3].map(|base| self.on_base(base).is_some()),
-                pitched: self.pitched,
-                // And, at the end, what each side made in every innings
-                // so far.
-                innings: self.full.as_ref().map(|full| full.describe()),
-            },
+            Mode::LastInnings => {
+                let score = Score::Of {
+                    score: self.score,
+                    target: self.target,
+                };
+                in_a_match(score, None)
+            }
+            // A full match has no score to reach: it says which innings it
+            // is and what both sides have made, and, at the end, what each
+            // made in every innings so far.
+            Mode::Full(full) => {
+                let score = Score::Against {
+                    batting_in: full.batting_in(),
+                    score: self.score,
+                    theirs: full.theirs(),
+                };
+                in_a_match(score, Some(full.describe()))
+            }
         };
         Snapshot {
             phase: self.phase,

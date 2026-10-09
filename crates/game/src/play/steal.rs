@@ -334,7 +334,7 @@ impl Match {
         }
         self.steal_news = Some(if safe { STOLEN } else { CAUGHT });
         let order = self.runners[runner].order % ORDER;
-        if let Some(full) = &mut self.full {
+        if let Some(full) = self.mode.full_mut() {
             let innings = full.innings();
             full.book.ours.stole(innings, order, base, safe);
         }

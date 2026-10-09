@@ -86,7 +86,7 @@ impl Match {
         library: &Library,
     ) {
         let rules = &game.rules.arcade;
-        let Some(arcade) = &mut self.arcade else {
+        let Some(arcade) = self.mode.arcade_mut() else {
             return;
         };
         arcade.lit = vec![false; rules.rings.len()];
@@ -161,7 +161,7 @@ impl Match {
         if let Some(field) = stage.child_mut(&parts.field) {
             field.move_to(game.rules.field.x, y);
         }
-        if let Some(arcade) = &mut self.arcade {
+        if let Some(arcade) = self.mode.arcade_mut() {
             arcade.flying = true;
         }
         if let (Some(zinger), Some(ball)) = (at_bat.zinger, at_bat.ball) {
@@ -174,7 +174,7 @@ impl Match {
     /// A zinger still in the air when the view is left for the next pitch
     /// scores what it was going to, unseen.
     pub(crate) fn zinger_unseen(&mut self) {
-        let Some(arcade) = &mut self.arcade else {
+        let Some(arcade) = self.mode.arcade_mut() else {
             return;
         };
         if let Some(feet) = arcade.owed.take() {
@@ -193,7 +193,7 @@ impl Match {
     ) {
         let rules = &game.rules;
         let (Some(arcade), Some(ball), Some(contact)) =
-            (&mut self.arcade, &mut at_bat.ball, at_bat.contact)
+            (self.mode.arcade_mut(), &mut at_bat.ball, at_bat.contact)
         else {
             return;
         };
@@ -264,7 +264,7 @@ impl Match {
     /// The arcade game's points and what they come to with the skill level
     /// counted in, for the finish screen.
     pub fn show_arcade_result(&self, game: &Game, stage: &mut Stage) {
-        let points = self.arcade.as_ref().map_or(0, |arcade| arcade.points);
+        let points = self.mode.arcade().map_or(0, |arcade| arcade.points);
         let times = game.rules.arcade.multiplier.at(game.settings.difficulty);
         stage.set_text("points_total", points.to_string());
         stage.set_text("points_final", (points * times).to_string());

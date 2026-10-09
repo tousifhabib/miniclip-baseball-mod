@@ -14,7 +14,7 @@ use super::field::Ground;
 use super::overlay::Words;
 use super::paper;
 use super::pitch::Point;
-use super::{AtBat, Match, Outcome, Parts, Phase, Place};
+use super::{AtBat, Match, Mode, Outcome, Parts, Phase, Place};
 use crate::art;
 use crate::look::Rgb;
 use crate::menu::Game;
@@ -555,13 +555,13 @@ impl Match {
             seed ^ THEIR_SEED,
         );
         played.target = full.theirs() + 1;
-        played.full = Some(full);
+        played.mode = Mode::Full(Box::new(full));
         played
     }
 
     /// The full match being played, if that is the game.
     pub fn full(&self) -> Option<&FullMatch> {
-        self.full.as_ref()
+        self.mode.full()
     }
 
     /// In a full match, the half the player's side was batting in is over.
@@ -571,7 +571,7 @@ impl Match {
         let by_order = self.runs_by_order();
         let on_base = |runner: &&super::Runner| matches!(runner.place, Place::Base(_));
         let left = self.runners.iter().filter(on_base).count() as u32;
-        let Some(full) = &mut self.full else {
+        let Some(full) = self.mode.full_mut() else {
             return outcome;
         };
         // The book is made up for the half: who made the runs, and how many
@@ -606,7 +606,7 @@ impl Match {
             let there = |runner: &super::Runner| runner.place == Place::Base(base);
             self.runners.iter().any(there)
         });
-        if let (Some(full), Some(order)) = (&mut self.full, order) {
+        if let (Some(full), Some(order)) = (self.mode.full_mut(), order) {
             let innings = full.innings();
             full.book
                 .ours
@@ -617,7 +617,7 @@ impl Match {
     /// Writes the pitch into a full match's book, now that it is known how
     /// it ended.
     pub(crate) fn book_pitch(&mut self, at_bat: &AtBat, thrown: Thrown) {
-        if let Some(full) = &mut self.full {
+        if let Some(full) = self.mode.full_mut() {
             full.book.ours.pitch(Pitch {
                 in_zone: at_bat.pitch.in_zone,
                 thrown,
@@ -635,7 +635,7 @@ impl Match {
         let (score, outs) = self.thrown_at;
         let runs_in = self.score.saturating_sub(score);
         let outs_made = self.outs.min(self.max_outs).saturating_sub(outs);
-        if let Some(full) = &mut self.full {
+        if let Some(full) = self.mode.full_mut() {
             full.book.ours.close(end, ball, runs_in, outs_made);
         }
     }
@@ -643,7 +643,7 @@ impl Match {
     /// The board has been read: the player's side comes in to bat, with
     /// nobody out and nobody on base.
     pub fn bat_again(&mut self) {
-        let Some(full) = &self.full else {
+        let Some(full) = self.mode.full() else {
             return;
         };
         self.target = full.theirs() + 1;

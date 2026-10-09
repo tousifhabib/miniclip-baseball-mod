@@ -256,7 +256,7 @@ impl Match {
     /// The sign that is lit for the innings in hand, counting from 0. A
     /// new innings lights another.
     pub(crate) fn lit_sign(&mut self, signs: &Signs) -> usize {
-        let innings = self.full.as_ref().map_or(1, |full| full.innings());
+        let innings = self.mode.full().map_or(1, |full| full.innings());
         let count = signs.count() as u32;
         match self.sign {
             Some((lit_in, lit)) if lit_in == innings && lit < signs.count() => lit,
