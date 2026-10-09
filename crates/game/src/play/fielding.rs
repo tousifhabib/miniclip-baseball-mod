@@ -12,7 +12,7 @@ use super::overlay::{Notices, Says};
 use super::pinball;
 use super::pitch::Point;
 use super::zinger;
-use super::{AtBat, Match, Parts, Phase, Place, at, frame_of, put, show};
+use super::{AtBat, Match, Parts, Phase, Place, at, frame_of, play_from, put, show};
 use crate::look::Rgb;
 use crate::menu::Game;
 
@@ -302,10 +302,7 @@ impl Match {
         // "OUT" comes up over him, and he walks off.
         for name in ["outText", "outWalk"] {
             if let Some(part) = stage.find(&path, &[name]) {
-                stage.goto_clip(&part, 2, library);
-                if let Some(clip) = stage.clip_mut(&part) {
-                    clip.playing = true;
-                }
+                play_from(stage, &part, 2, library);
             }
         }
     }
@@ -328,10 +325,7 @@ impl Match {
             if let Some(path) = &path {
                 stage.goto_label(path, "addRun", false, library);
                 if let Some(walk) = stage.find(path, &["outWalk"]) {
-                    stage.goto_clip(&walk, 2, library);
-                    if let Some(clip) = stage.clip_mut(&walk) {
-                        clip.playing = true;
-                    }
+                    play_from(stage, &walk, 2, library);
                 }
             }
         } else {
@@ -1288,20 +1282,14 @@ impl Match {
                 };
                 if frame < end {
                     frame = (frame + hurried).min(end);
-                    stage.goto_clip(&path, frame, library);
-                    if let Some(clip) = stage.clip_mut(&path) {
-                        clip.playing = true;
-                    }
+                    play_from(stage, &path, frame, library);
                 }
             }
             if let Some(base) = self.runners[runner].running_to {
                 let index = usize::from(base) - 1;
                 if self.runners[runner].sliding && frame >= SLIDE_ENDS[index] {
                     self.runners[runner].sliding = false;
-                    stage.goto_clip(&path, SLIDE_JOINS[index], library);
-                    if let Some(clip) = stage.clip_mut(&path) {
-                        clip.playing = true;
-                    }
+                    play_from(stage, &path, SLIDE_JOINS[index], library);
                 } else if frame >= ARRIVES[index] && frame < FIRST_SLIDE_FRAME {
                     self.arrive(runner, parts, stage, library);
                 }

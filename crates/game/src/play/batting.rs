@@ -14,7 +14,7 @@ use super::pitch::{self, Point, Quality};
 use super::zinger::Zinger;
 use super::{
     AtBat, Cue, MYSTERY_TOP, Match, PITCH, Parts, Phase, Place, at, called, frame_of, hit_towards,
-    put, show, southpaw, timing, zinger,
+    play_from, put, show, southpaw, timing, zinger,
 };
 use crate::art;
 use crate::menu::Game;
@@ -159,10 +159,7 @@ impl Match {
         self.zinger_unseen();
         let mut holder = at_bat.parts.main.clone();
         holder.pop();
-        stage.goto_clip(&holder, 1, library);
-        if let Some(clip) = stage.clip_mut(&holder) {
-            clip.playing = true;
-        }
+        play_from(stage, &holder, 1, library);
         self.phase = Phase::Arriving;
     }
 

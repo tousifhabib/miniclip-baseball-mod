@@ -17,7 +17,7 @@ use crate::menu::{Game, Leave, Menu, MenuPage};
 use crate::mods::{Asked, Mod, Mods, ModsPage};
 use crate::play::full::FullMatch;
 use crate::play::overlay::Words;
-use crate::play::{Match, Outcome, bullet};
+use crate::play::{Match, Outcome, bullet, play_from};
 use crate::rng::Rng;
 use crate::rules::Rules;
 use crate::scores::Scores;
@@ -668,10 +668,7 @@ impl Baseball {
                     .filter(|&start| start <= clip.frame)
                     .collect();
                 if let [.., previous, _] = before[..] {
-                    stage.goto_clip(&path, previous, library);
-                    if let Some(clip) = stage.clip_mut(&path) {
-                        clip.playing = true;
-                    }
+                    play_from(stage, &path, previous, library);
                 }
             }
             _ => {}

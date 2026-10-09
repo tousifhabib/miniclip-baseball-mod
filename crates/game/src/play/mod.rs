@@ -13,12 +13,12 @@ mod fielding;
 pub mod full;
 mod mode;
 pub(crate) mod mods;
-pub(crate) mod overlay;
 pub mod paper;
 pub mod pitch;
 mod runners;
 mod set_up;
 mod snapshot;
+mod view;
 
 use bb_engine::display::{ButtonEvent, Content, Event, Path, child_bounds};
 use bb_engine::library::Library;
@@ -29,9 +29,9 @@ use bb_format::SymbolId;
 use crate::look::{Look, Rgb};
 use crate::menu::Game;
 use crate::rng::Rng;
-use crate::rules::{FieldRules, PitchRules};
+use crate::rules::PitchRules;
 use book::ORDER;
-use field::{Ball, Contact, Ground, reach};
+use field::{Ball, Contact};
 use mode::Mode;
 pub(crate) use mods::bullet_time as bullet;
 use mods::{
@@ -42,6 +42,7 @@ use overlay::Notices;
 use pitch::{Kind, Mound, Pitch, Point, Quality};
 pub(crate) use runners::{Count, Place, Runner, Runners};
 use snapshot::{ModsSeen, PitchSeen, Score, Snapshot, Standing};
+pub(crate) use view::{Cue, Parts, at, frame_of, overlay, play_from, put, show};
 use zinger::Zinger;
 
 /// How a match ended.
@@ -92,56 +93,6 @@ pub(crate) enum Phase {
         left: u32,
     },
     Over,
-}
-
-/// Something to do to a clip when it reaches a frame, where the art has
-/// nothing to do it.
-#[derive(Clone, Debug)]
-pub(crate) struct Cue {
-    pub path: Path,
-    pub frame: u16,
-    /// Go back to the first frame and wait there. Otherwise just stop.
-    pub rewind: bool,
-}
-
-/// Where the parts of the view are, found afresh for each pitch.
-#[derive(Clone, Debug)]
-pub(crate) struct Parts {
-    pub main: Path,
-    pub pitcher: Path,
-    pub hitter: Path,
-    pub aim: Path,
-    pub aim_shadow: Path,
-    pub marker: Path,
-    pub ball: Path,
-    pub shadow: Path,
-    pub fly: Path,
-    pub fly_ball: Path,
-    pub fly_shadow: Option<Path>,
-    pub aim_area: Path,
-    pub field: Path,
-    pub scoreboard: Option<Path>,
-    pub strike_anim: Option<Path>,
-    pub transitions: Path,
-    pub next: Path,
-    pub flare: Option<Path>,
-    pub field_ball: Path,
-    pub field_ball_inner: Path,
-    pub holder: Option<Path>,
-    pub fielders: Vec<Path>,
-    pub umpires: Vec<Path>,
-    pub field_scoreboard: Option<Path>,
-    /// Fixed points of the batting view.
-    pub centre_x: f32,
-    pub fly_mark: Point,
-    pub ground_y: f32,
-    /// The box the aiming ring is kept inside: left, top, right, bottom.
-    pub aim_box: [f32; 4],
-    /// Fixed points of the field.
-    pub home: Point,
-    pub field_mark: Point,
-    pub foul: (f32, f32),
-    pub bases: [Point; 4],
 }
 
 /// The pitch being played.
@@ -213,27 +164,6 @@ pub(crate) struct AtBat {
     pub meter: Option<bullet::Meter>,
 }
 
-impl Parts {
-    /// How far across the batting view a place this far across the field
-    /// is: where the art's pointer stands for a ball that comes down there.
-    pub(crate) fn across_view(&self, across: f32, rules: &FieldRules) -> f32 {
-        let mark = self.foul.0 + across * (self.foul.1 - self.foul.0);
-        self.centre_x + (mark - self.field_mark.0) * rules.aim_share
-    }
-
-    /// The fixed points of the field that a hit is placed by.
-    pub(crate) fn ground(&self, rules: &FieldRules) -> Ground {
-        Ground {
-            home: self.home,
-            mark_y: self.field_mark.1,
-            foul: self.foul,
-            wall: rules.wall,
-            infield: reach(self.home, self.bases[1]),
-            ..Ground::default()
-        }
-    }
-}
-
 impl AtBat {
     /// The view is changing to the field, where the timing bar has no
     /// place.
@@ -285,59 +215,12 @@ pub struct Match {
 
 /// The pitcher's frame label for his wind-up.
 const PITCH: &str = "pitch";
-/// Where a full match and the mods write in the corner of the batting view,
-/// under the little field: the middle of the top of the first line, and how
-/// far under each line the next one is. A full match says which half of
-/// which innings it is, and each mod with something to say says it under
-/// that.
-const CORNER_AT: Point = (60.0, 88.0);
-const CORNER_ROW: f32 = 16.0;
 /// How far down the batting view the mystery pitch mod names the pitch,
 /// which is between the scoreboard and the pitcher. The tired arm mod says
 /// there that a new pitcher has come in.
 const MYSTERY_TOP: f32 = 141.0;
 /// The button on the next-ball panel.
 const NEXT_BALL_BUTTON: SymbolId = 1618;
-
-pub(crate) fn at(stage: &Stage, path: &[u16]) -> Point {
-    stage
-        .child(path)
-        .map_or((0.0, 0.0), |child| (child.matrix.tx, child.matrix.ty))
-}
-
-/// Puts an object at a point, at a size, the art's own size being 1.
-pub(crate) fn put(stage: &mut Stage, path: &[u16], at: Point, size: f32) {
-    if let Some(child) = stage.child_mut(path) {
-        child.set_matrix(Matrix {
-            a: size,
-            d: size,
-            tx: at.0,
-            ty: at.1,
-            ..Matrix::IDENTITY
-        });
-    }
-}
-
-pub(crate) fn show(stage: &mut Stage, path: &[u16], visible: bool) {
-    if let Some(child) = stage.child_mut(path) {
-        child.set_visible(visible);
-    }
-}
-
-/// The lines written in the corner of the batting view, each under the last.
-#[derive(Default)]
-struct Corner {
-    lines: u32,
-}
-
-impl Corner {
-    /// Where the next line goes: the middle of the top of its words.
-    fn line(&mut self) -> Point {
-        let at = (CORNER_AT.0, CORNER_AT.1 + self.lines as f32 * CORNER_ROW);
-        self.lines += 1;
-        at
-    }
-}
 
 /// Where across the batting view the art's pointer shows a hit going, for a
 /// ball that crosses at `crosses` with the ring held at `aim`. Aiming to
@@ -346,10 +229,6 @@ impl Corner {
 fn hit_towards(crosses: f32, aim: f32, centre: f32, pull: f32) -> f32 {
     let off = (crosses - aim) + (crosses - centre);
     (crosses + off * pull).ceil()
-}
-
-pub(crate) fn frame_of(stage: &Stage, path: &[u16]) -> u16 {
-    stage.clip(path).map_or(0, |clip| clip.frame)
 }
 
 impl Match {
@@ -563,118 +442,6 @@ impl Match {
         }
     }
 
-    pub(crate) fn sound(stage: &mut Stage, library: &Library, name: &str) {
-        stage.play_sound(name, 1, library);
-    }
-
-    /// Sets a clip playing from a label, to be sent back to its first frame
-    /// when it reaches `end`, where the art's own script did that.
-    pub(crate) fn play_section(
-        &mut self,
-        path: &[u16],
-        label: &str,
-        end: u16,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
-        self.cues.retain(|cue| cue.path != path);
-        if stage.goto_label(path, label, true, library) {
-            self.cues.push(Cue {
-                path: path.to_vec(),
-                frame: end,
-                rewind: true,
-            });
-        }
-    }
-
-    fn run_cues(&mut self, stage: &mut Stage, library: &Library) {
-        self.put_away.retain_mut(|(path, left)| {
-            if *left > 0 {
-                *left -= 1;
-                return true;
-            }
-            stage.goto_clip(path, 1, library);
-            if let Some(clip) = stage.clip_mut(path) {
-                clip.playing = false;
-            }
-            false
-        });
-        let mut due = Vec::new();
-        self.cues.retain(|cue| match stage.clip(&cue.path) {
-            Some(clip) if clip.frame >= cue.frame => {
-                due.push(cue.clone());
-                false
-            }
-            Some(_) => true,
-            None => false,
-        });
-        for cue in due {
-            if cue.rewind {
-                stage.goto_clip(&cue.path, 1, library);
-            }
-            if let Some(clip) = stage.clip_mut(&cue.path) {
-                clip.playing = false;
-            }
-        }
-    }
-
-    /// Finds the parts of a batting view that has just been built.
-    fn parts(stage: &Stage, library: &Library) -> Option<Parts> {
-        let main = stage.find_named(&[], "gameMain")?;
-        let part = |names: &[&str]| stage.find(&main, names);
-        let field = part(&["field"])?;
-        let in_field = |name: &str| stage.find(&field, &[name]);
-        let point = |path: Option<Path>| path.map(|path| at(stage, &path));
-        let aim_box = stage
-            .child(&part(&["acl"])?)
-            .and_then(|child| child_bounds(child, Matrix::IDENTITY, library))?;
-        let fly = part(&["ballFly"])?;
-        let field_ball = in_field("ballFly")?;
-        Some(Parts {
-            pitcher: part(&["pitcher"])?,
-            hitter: part(&["hitter"])?,
-            aim: part(&["aimCircle"])?,
-            aim_shadow: part(&["aimCircleShadow"])?,
-            marker: part(&["ballPassesBat_marker"])?,
-            ball: part(&["ballAll"])?,
-            shadow: part(&["ballShadow"])?,
-            fly_ball: stage.find(&fly, &["ball"])?,
-            fly_shadow: stage.find(&fly, &["ballShadow"]),
-            fly,
-            aim_area: part(&["aimArea"])?,
-            scoreboard: part(&["scoreboard"]),
-            strike_anim: part(&["strikeAnim_old"]).or_else(|| part(&["strikeAnim"])),
-            transitions: part(&["transitions"])?,
-            next: part(&["btn_nextBall"])?,
-            flare: part(&["lightFlare"]),
-            field_ball_inner: stage.find(&field_ball, &["ball"])?,
-            field_ball,
-            holder: in_field("runnerHolder"),
-            fielders: (1..=9)
-                .filter_map(|number| in_field(&format!("fielder{number}")))
-                .collect(),
-            umpires: (1..=3)
-                .filter_map(|number| in_field(&format!("umpire{number}")))
-                .collect(),
-            field_scoreboard: in_field("scoreboard"),
-            centre_x: point(part(&["centreMarker"]))?.0,
-            fly_mark: point(part(&["shadowFlyMarker"]))?,
-            ground_y: point(part(&["uMarker"]))?.1,
-            aim_box,
-            home: point(in_field("startPointMarker"))?,
-            field_mark: point(in_field("shadowFlyMarker"))?,
-            // The arcade game's field has no foul lines and no bases.
-            foul: (
-                point(in_field("foulMarkerLeft")).map_or(f32::MIN, |at| at.0),
-                point(in_field("foulMarkerRight")).map_or(f32::MAX, |at| at.0),
-            ),
-            bases: [1, 2, 3, 4]
-                .map(|base| point(in_field(&format!("base{base}"))).unwrap_or_default()),
-            field,
-            main,
-        })
-    }
-
     /// The fixed points a pitch is drawn between.
     fn mound(parts: &Parts, stage: &Stage, library: &Library) -> Option<Mound> {
         let test = stage.find(&parts.main, &["test"])?;
@@ -837,10 +604,7 @@ impl Match {
                 panel.pop();
                 stage.goto_label(&panel, "nextBall", true, library);
                 if let Some(flare) = &at_bat.parts.flare {
-                    stage.goto_clip(flare, 2, library);
-                    if let Some(clip) = stage.clip_mut(flare) {
-                        clip.playing = true;
-                    }
+                    play_from(stage, flare, 2, library);
                 }
                 self.phase = Phase::Leaving { left: 12 };
             }

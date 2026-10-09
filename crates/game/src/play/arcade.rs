@@ -11,7 +11,7 @@ use bb_engine::stage::Stage;
 
 use super::field::{Happened, distance, seen_size};
 use super::pitch::Point;
-use super::{AtBat, Match, Parts, at, put, show, zinger};
+use super::{AtBat, Match, Parts, at, play_from, put, show, zinger};
 use crate::menu::Game;
 use crate::rules::ArcadeRules;
 
@@ -251,10 +251,7 @@ impl Match {
             }
             stage.set_text("thisScore", points.to_string());
             if let Some(pulse) = stage.find(&parts.main, &["onScreenScore", "scoreAnim"]) {
-                stage.goto_clip(&pulse, 2, library);
-                if let Some(clip) = stage.clip_mut(&pulse) {
-                    clip.playing = true;
-                }
+                play_from(stage, &pulse, 2, library);
             }
             self.show_numbers(stage);
         }

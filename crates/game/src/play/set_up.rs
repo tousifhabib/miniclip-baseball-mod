@@ -12,12 +12,12 @@ use bb_engine::stage::Stage;
 
 use super::book::ORDER;
 use super::mods::{GoldenBall, Line, TiredArm, southpaw};
-use super::overlay::{Notices, Says};
+use super::overlay::{Corner, Notices, Says};
 use super::pitch::{Choice, Kind, Mound, Pitch, Point};
 use super::zinger::Zinger;
 use super::{
-    AtBat, Corner, MYSTERY_TOP, Match, Outcome, Parts, Phase, Place, Runner, at, bullet, full,
-    show, sign, steal, timing,
+    AtBat, MYSTERY_TOP, Match, Outcome, Parts, Phase, Place, Runner, at, bullet, full, show, sign,
+    steal, timing,
 };
 use crate::look;
 use crate::menu::Game;
@@ -71,7 +71,7 @@ impl Match {
         stage: &mut Stage,
         library: &Library,
     ) -> Option<Outcome> {
-        let mut parts = Match::parts(stage, library)?;
+        let mut parts = Parts::find(stage, library)?;
         self.cues.clear();
         self.put_away.clear();
         self.stand_the_batter(&mut parts, stage);

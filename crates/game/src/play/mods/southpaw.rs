@@ -13,7 +13,7 @@ use bb_engine::stage::Stage;
 
 use crate::mods::About;
 use crate::play::pitch::Choice;
-use crate::play::{Parts, frame_of};
+use crate::play::{Parts, frame_of, play_from};
 
 /// What the menu and the files know this mod by.
 pub(crate) const ABOUT: About = About {
@@ -102,10 +102,7 @@ pub(crate) fn run(parts: &Parts, stage: &mut Stage, library: &Library) {
     faced.tx += RUN_ACROSS;
     hitter.set_matrix(faced);
     let frame = frame_of(stage, &parts.hitter) + RUN_JOINS;
-    stage.goto_clip(&parts.hitter, frame, library);
-    if let Some(clip) = stage.clip_mut(&parts.hitter) {
-        clip.playing = true;
-    }
+    play_from(stage, &parts.hitter, frame, library);
 }
 
 #[cfg(test)]

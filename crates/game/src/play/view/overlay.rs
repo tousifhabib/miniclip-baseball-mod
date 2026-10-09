@@ -8,9 +8,9 @@ use bb_engine::stage::Stage;
 use bb_format::SymbolId;
 
 use super::Parts;
-use super::pitch::Point;
 use crate::art;
 use crate::look::{self, Rgb};
+use crate::play::pitch::Point;
 
 /// The dark colour the mods edge and shadow their drawings with.
 pub(crate) const DARK: Rgb = [0x04, 0x1a, 0x2b];
@@ -42,6 +42,28 @@ pub(crate) fn free_below(clip: &ClipState, depth: u16) -> Option<u16> {
     (1..depth)
         .rev()
         .find(|depth| !clip.children.contains_key(depth))
+}
+
+/// Where a full match and the mods write in the corner of the batting view,
+/// under the little field: the middle of the top of the first line, and how
+/// far under each line the next one is. A full match says which half of
+/// which innings it is, and each mod with something to say says it under
+/// that.
+const CORNER_AT: Point = (60.0, 88.0);
+const CORNER_ROW: f32 = 16.0;
+/// The lines written in the corner of the batting view, each under the last.
+#[derive(Default)]
+pub(crate) struct Corner {
+    lines: u32,
+}
+
+impl Corner {
+    /// Where the next line goes: the middle of the top of its words.
+    pub fn line(&mut self) -> Point {
+        let at = (CORNER_AT.0, CORNER_AT.1 + self.lines as f32 * CORNER_ROW);
+        self.lines += 1;
+        at
+    }
 }
 
 /// The lettering words are written in: which of the art's text fields, and
