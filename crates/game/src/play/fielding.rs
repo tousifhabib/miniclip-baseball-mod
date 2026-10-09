@@ -332,7 +332,7 @@ impl Match {
                 };
                 // Whoever of the five in the field is nearest goes for it,
                 // unless the pitcher has been left to do it all.
-                fielding.fielder = if game.mods.is_on(Mod::LonePitcher) {
+                fielding.fielder = if self.mods.the_pitcher_fields_alone() {
                     PITCHER
                 } else {
                     (0..5)
@@ -352,7 +352,7 @@ impl Match {
                         zinger::Show::new(zinger, &ball, &parts, rules, stage, library);
                     // The outfielders go back to the wall to watch it over,
                     // unless the pitcher has been left to do it all.
-                    if !game.mods.is_on(Mod::LonePitcher) {
+                    if !self.mods.the_pitcher_fields_alone() {
                         let far =
                             |index: usize| reach(parts.home, at(stage, &parts.fielders[index]));
                         let mut field: Vec<usize> = (0..5.min(parts.fielders.len())).collect();
@@ -498,7 +498,7 @@ impl Match {
                 happened = pinball::rebound(ball, before, happened, &park, rules);
                 if happened == Happened::HitWall {
                     at_bat.rebounds += 1;
-                    if state.live && !game.mods.is_on(Mod::LonePitcher) {
+                    if state.live && !self.mods.the_pitcher_fields_alone() {
                         let far =
                             |index: usize| distance(at(stage, &parts.fielders[index]), ball.at);
                         let nearest = (0..5.min(parts.fielders.len()))
@@ -940,7 +940,7 @@ impl Match {
         // With the pitcher fielding alone nobody throws the ball on: the
         // play ends where his throw does, and anyone still running is given
         // his base.
-        let thrown_on = self.anyone_running() && !game.mods.is_on(Mod::LonePitcher);
+        let thrown_on = self.anyone_running() && !self.mods.the_pitcher_fields_alone();
         if thrown_on {
             // Somebody is still between bases: on it goes.
             let fielder = parts.fielders[state.fielder].clone();

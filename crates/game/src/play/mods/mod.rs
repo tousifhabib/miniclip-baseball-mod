@@ -12,6 +12,7 @@ mod golden_ball;
 mod heat_check;
 mod hot_bat;
 mod knuckleball;
+mod lone_pitcher;
 mod mystery_pitch;
 mod rally;
 mod sudden_death;
@@ -22,6 +23,7 @@ pub(crate) use golden_ball::GoldenBall;
 use heat_check::HeatCheck;
 use hot_bat::HotBat;
 use knuckleball::Knuckleball;
+use lone_pitcher::LonePitcher;
 use mystery_pitch::MysteryPitch;
 use rally::Rally;
 use sudden_death::SuddenDeath;
@@ -60,6 +62,7 @@ pub(crate) struct ModsInPlay {
     /// The two mods with a hand in deciding the pitch, which the game asks
     /// one by one as it does so.
     pub(in crate::play) knuckleball: Option<Knuckleball>,
+    lone_pitcher: Option<LonePitcher>,
     pub(in crate::play) mystery_pitch: Option<MysteryPitch>,
     rally: Option<Rally>,
     sudden_death: Option<SuddenDeath>,
@@ -82,6 +85,7 @@ impl ModsInPlay {
             heat_check: on(Mod::HeatCheck).then(|| HeatCheck::new(&rules.heat)),
             hot_bat: on(Mod::HotBat).then(|| HotBat::new(&rules.hot_bat)),
             knuckleball: on(Mod::Knuckleball).then(|| Knuckleball::new(&rules.knuckleball)),
+            lone_pitcher: on(Mod::LonePitcher).then_some(LonePitcher),
             mystery_pitch: on(Mod::MysteryPitch).then(|| MysteryPitch::new(&rules.mystery)),
             rally: (on(Mod::Rally) && !arcade).then(|| Rally::new(&rules.rally)),
             sudden_death: on(Mod::SuddenDeath).then(|| SuddenDeath::new(&rules.sudden_death)),
@@ -173,6 +177,12 @@ impl ModsInPlay {
     /// How many swings in a row have met the ball.
     pub fn hits_in_a_row(&self) -> u32 {
         self.hot_bat.as_ref().map_or(0, HotBat::streak)
+    }
+
+    /// Whether the pitcher is left to field every ball by himself: nobody
+    /// else goes after it, goes back to watch it, or throws it on.
+    pub fn the_pitcher_fields_alone(&self) -> bool {
+        self.lone_pitcher.is_some()
     }
 
     /// The ball has left the pitcher's hand.
