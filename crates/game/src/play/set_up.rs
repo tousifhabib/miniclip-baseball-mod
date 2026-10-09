@@ -91,12 +91,12 @@ impl Match {
             golden: false,
         };
         self.say_the_innings(&mut coming, stage, library);
-        self.gild_the_ball(&mut coming, game, stage);
+        self.gild_the_ball(&mut coming, stage);
         self.heat_the_pitch(&mut coming, game, stage, library);
         self.tire_the_arm(&mut coming, game, stage, library);
         self.widen_for_a_hot_bat(&mut coming, game, stage, library);
         Match::say_the_ball_is_golden(&mut coming, stage, library);
-        self.say_it_is_the_clutch(&mut coming, game, stage, library);
+        self.say_it_is_the_clutch(&mut coming, stage, library);
         self.say_what_a_rally_is_worth(&mut coming, stage, library);
         let meter = self.put_up_the_meter(&mut coming, game, stage, library);
         self.shift_the_fielders(&mut coming, game, stage, library);
@@ -238,10 +238,10 @@ impl Match {
     ///
     /// The pitch about to be thrown is one more than have been. The arcade
     /// game has no runs and no outs for a golden ball to change.
-    fn gild_the_ball(&mut self, coming: &mut Coming, game: &Game, stage: &mut Stage) {
+    fn gild_the_ball(&mut self, coming: &mut Coming, stage: &mut Stage) {
         let golden = self.mods.is_golden(self.pitched + 1);
         coming.golden = golden;
-        self.run_worth = self.worth_of_a_run(golden, game);
+        self.run_worth = self.worth_of_a_run(golden);
         if golden {
             GoldenBall::gild(&coming.parts, stage);
         }
@@ -366,33 +366,17 @@ impl Match {
     }
 
     /// Settles whether this pitch is thrown in the clutch, and says so.
-    fn say_it_is_the_clutch(
-        &mut self,
-        coming: &mut Coming,
-        game: &Game,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
-        self.clutch = self.in_the_clutch(game);
-        if !self.clutch {
+    fn say_it_is_the_clutch(&mut self, coming: &mut Coming, stage: &mut Stage, library: &Library) {
+        let in_it = self.in_the_clutch();
+        let Some(line) = self.mods.settle_the_clutch(in_it) else {
             return;
-        }
+        };
         // The organ plays as the batter comes up to it, and not again for
         // every pitch to him.
         if self.strikes + self.balls == 0 {
             Match::sound(stage, library, "baseball_organ_tense_FX");
         }
-        coming.notices.put(
-            Says::line(
-                "clutch",
-                &format!("CLUTCH: RUNS X{}", game.rules.clutch.runs),
-                [0xff, 0x8a, 0x6a],
-            )
-            .at(coming.corner.line()),
-            &coming.parts,
-            stage,
-            library,
-        );
+        coming.write(&line, stage, library);
     }
 
     /// Says what runs are worth while a rally is on.

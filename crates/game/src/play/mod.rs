@@ -341,9 +341,6 @@ pub struct Match {
     slow_beat: u32,
     pub(crate) slowed: bool,
     late_press: Option<Point>,
-    /// The pitch in hand is one the clutch mod makes runs count for more
-    /// on.
-    clutch: bool,
     /// The batter bats left-handed, by the southpaw mod.
     southpaw: bool,
     /// With the hit the sign mod on: the innings a sign was last lit for
@@ -509,7 +506,6 @@ impl Match {
             slow_beat: 0,
             slowed: false,
             late_press: None,
-            clutch: false,
             southpaw: false,
             sign: None,
             sign_rng: Rng::new(seed ^ SIGN_SEED),
@@ -546,22 +542,18 @@ impl Match {
 
     /// How many a run counts for on the pitch about to be thrown, which is
     /// a golden ball or is not.
-    fn worth_of_a_run(&self, golden: bool, game: &Game) -> u32 {
-        let mut worth = self.mods.worth_of_a_run(golden);
-        if self.in_the_clutch(game) {
-            worth *= game.rules.clutch.runs;
-        }
-        worth
+    fn worth_of_a_run(&self, golden: bool) -> u32 {
+        self.mods.worth_of_a_run(golden, self.in_the_clutch())
     }
 
     /// Whether the pitch about to be thrown is one the clutch mod makes
     /// runs count for more on: the side has one out left, and a runner is
     /// on second or third.
-    fn in_the_clutch(&self, game: &Game) -> bool {
-        game.mods.is_on(Mod::Clutch)
-            && !self.mode.is_arcade()
-            && self.outs + 1 == self.max_outs
-            && (self.on_base(2).is_some() || self.on_base(3).is_some())
+    fn in_the_clutch(&self) -> bool {
+        let one_out_left = self.outs + 1 == self.max_outs;
+        let runner_in_reach_of_home = self.on_base(2).is_some() || self.on_base(3).is_some();
+        self.mods
+            .in_the_clutch(one_out_left, runner_in_reach_of_home)
     }
 
     /// A strike has been called: with the heat check mod on, the pitches
@@ -1568,7 +1560,7 @@ impl Match {
             heat: self.heat,
             hits_in_a_row: self.streak,
             rally: self.mods.in_a_row(),
-            clutch: self.clutch,
+            clutch: self.mods.clutch_this_pitch(),
             southpaw: self.southpaw,
             bullet_time: self.bullet.map(|left| (left, self.slowed)),
             sign_lit: self.sign.map(|(_, lit)| lit),
