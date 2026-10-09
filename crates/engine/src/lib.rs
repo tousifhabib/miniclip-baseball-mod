@@ -17,4 +17,6 @@ pub mod meshes;
 pub mod pace;
 pub mod stage;
 pub mod tess;
+#[cfg(test)]
+pub(crate) mod testing;
 pub mod window;

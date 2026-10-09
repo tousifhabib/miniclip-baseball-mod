@@ -907,45 +907,14 @@ fn draw_child(
 }
 
 #[cfg(test)]
-pub(crate) mod tests {
-    use std::collections::{BTreeMap, HashMap};
-    use std::path::PathBuf;
-
-    use bb_format::{Clip, Frame, Manifest, Rect, SoundEvent, Stage, Symbol};
+mod tests {
+    use bb_format::{Frame, SoundEvent};
     use proptest::prelude::*;
 
     use super::*;
-
-    pub(crate) const SHAPE: SymbolId = 1;
-    pub(crate) const OTHER_SHAPE: SymbolId = 2;
-    pub(crate) const INNER: SymbolId = 10;
-
-    pub(crate) fn place(depth: u16, action: PlaceAction) -> Place {
-        Place {
-            depth,
-            action,
-            matrix: None,
-            color: None,
-            ratio: None,
-            name: None,
-            clip_depth: None,
-            filters: None,
-            blend_mode: None,
-            visible: None,
-            clip_events: Vec::new(),
-        }
-    }
-
-    pub(crate) fn put(depth: u16, symbol: SymbolId) -> Op {
-        Op::Place(Box::new(place(depth, PlaceAction::Place(symbol))))
-    }
-
-    pub(crate) fn frame(ops: Vec<Op>) -> Frame {
-        Frame {
-            ops,
-            ..Frame::default()
-        }
-    }
+    use crate::testing::{
+        FIELD, INNER, OTHER_SHAPE, SHAPE, add_field, frame, library_with, place, put,
+    };
 
     fn sound(id: SymbolId) -> SoundStart {
         SoundStart {
@@ -955,66 +924,6 @@ pub(crate) mod tests {
             in_sample: None,
             out_sample: None,
             envelope: Vec::new(),
-        }
-    }
-
-    fn clip(id: Option<SymbolId>, frames: Vec<Frame>) -> Clip {
-        Clip {
-            id,
-            labels: BTreeMap::new(),
-            frames,
-        }
-    }
-
-    pub(crate) fn symbol(file: &str, info: SymbolInfo) -> Symbol {
-        Symbol {
-            file: file.to_owned(),
-            export_name: None,
-            info,
-        }
-    }
-
-    /// A library with two 10 by 10 shapes, the given main timeline, and one
-    /// inner clip with the given frames.
-    pub(crate) fn library_with(root: Vec<Frame>, inner: Vec<Frame>) -> Library {
-        let shape = SymbolInfo::Shape {
-            bounds: Rect {
-                x_min: 0.0,
-                y_min: 0.0,
-                x_max: 10.0,
-                y_max: 10.0,
-            },
-        };
-        let mut symbols = BTreeMap::new();
-        symbols.insert(SHAPE, symbol("shapes/1.svg", shape.clone()));
-        symbols.insert(OTHER_SHAPE, symbol("shapes/2.svg", shape));
-        let inner_info = SymbolInfo::Clip {
-            frame_count: inner.len() as u16,
-        };
-        symbols.insert(INNER, symbol("clips/10.json", inner_info));
-        Library {
-            dir: PathBuf::new(),
-            obey_stops: true,
-            manifest: Manifest {
-                format_version: bb_format::FORMAT_VERSION,
-                swf_version: 8,
-                stage: Stage {
-                    width: 100.0,
-                    height: 100.0,
-                    frame_rate: 60.0,
-                    frame_count: root.len() as u16,
-                    background: None,
-                },
-                symbols,
-                exports: BTreeMap::new(),
-            },
-            root: clip(None, root),
-            clips: HashMap::from([(INNER, clip(Some(INNER), inner))]),
-            buttons: HashMap::new(),
-            texts: HashMap::new(),
-            edit_texts: HashMap::new(),
-            fonts: HashMap::new(),
-            morphs: HashMap::new(),
         }
     }
 
@@ -1259,37 +1168,6 @@ pub(crate) mod tests {
                     frame: 1,
                 },
             ]
-        );
-    }
-
-    pub(crate) const FIELD: SymbolId = 30;
-
-    /// Adds a text field 50 wide and 20 high, showing `variable`, as symbol
-    /// [`FIELD`].
-    pub(crate) fn add_field(library: &mut Library, variable: &str, flags: &[&str]) {
-        library
-            .manifest
-            .symbols
-            .insert(FIELD, symbol("texts/30.json", SymbolInfo::EditText));
-        library.edit_texts.insert(
-            FIELD,
-            bb_format::EditText {
-                id: FIELD,
-                bounds: Rect {
-                    x_min: 0.0,
-                    y_min: 0.0,
-                    x_max: 50.0,
-                    y_max: 20.0,
-                },
-                font: None,
-                height: None,
-                color: None,
-                max_length: None,
-                layout: None,
-                variable: variable.to_owned(),
-                initial_text: Some("0".to_owned()),
-                flags: flags.iter().map(|flag| (*flag).into()).collect(),
-            },
         );
     }
 

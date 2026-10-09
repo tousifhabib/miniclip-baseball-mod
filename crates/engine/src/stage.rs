@@ -420,16 +420,7 @@ mod tests {
     use bb_format::{FieldFlag, Op, Place, PlaceAction};
 
     use super::*;
-    use crate::display::tests::{FIELD, INNER, SHAPE, add_field, frame, library_with, place, put};
-
-    /// Nothing is ever under the pointer.
-    struct Empty;
-
-    impl Geometry for Empty {
-        fn contains(&mut self, _: &Library, _: SymbolId, _: u16, _: f32, _: f32) -> bool {
-            false
-        }
-    }
+    use crate::testing::{Empty, FIELD, INNER, SHAPE, add_field, frame, library_with, place, put};
 
     fn click(stage: &mut Stage, library: &Library, x: f32, y: f32) {
         stage.pointer_changed(x, y, false, library, &mut Empty);

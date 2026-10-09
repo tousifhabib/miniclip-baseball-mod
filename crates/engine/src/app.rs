@@ -293,16 +293,7 @@ mod tests {
     use bb_format::SymbolId;
 
     use super::*;
-    use crate::display::tests::{frame, library_with};
-
-    /// Nothing is ever under the pointer.
-    struct Empty;
-
-    impl Geometry for Empty {
-        fn contains(&mut self, _: &Library, _: SymbolId, _: u16, _: f32, _: f32) -> bool {
-            false
-        }
-    }
+    use crate::testing::{Empty, frame, library_with};
 
     /// The click each frame was told of, if any.
     type Told = Vec<Option<(f32, f32)>>;

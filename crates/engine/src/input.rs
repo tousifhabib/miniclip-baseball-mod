@@ -312,7 +312,7 @@ mod tests {
     use proptest::prelude::*;
 
     use super::*;
-    use crate::display::tests::{OTHER_SHAPE, SHAPE, frame, library_with, place, symbol};
+    use crate::testing::{OTHER_SHAPE, SHAPE, frame, library_with, place, symbol};
 
     const BUTTON: SymbolId = 20;
     const CLICK: SymbolId = 30;
