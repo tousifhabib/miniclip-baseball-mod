@@ -586,7 +586,8 @@ impl ModsInPlay {
         }
     }
 
-    /// A strike has been called on the batter, swung at or not.
+    /// A strike has been called on the batter, swung at or not. In the
+    /// arcade game, which calls nothing, it is a pitch that went by unhit.
     pub fn a_strike_was_called(&mut self) {
         if let Some(bat) = &mut self.hot_bat {
             bat.missed();

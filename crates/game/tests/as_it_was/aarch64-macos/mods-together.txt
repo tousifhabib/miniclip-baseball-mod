@@ -307,15 +307,15 @@ last innings, what shapes the pitch	5400	e51395aade0c0e97	92f4227d0ee2149f	14f2e
 last innings, what shapes the pitch	6000	d48bc2cd906a3260	bd0cec67a2d61589	e9fa6605175f89d0
 last innings, what shapes the pitch	6266	df1df7014ffb2fa8	5264193c6fb0dd9a	99a2eeccf8fa1a7a
 arcade, what shapes the pitch	600	b5700f67b90a8f35	b071d5923989565a	cb500d865a17afe3
-arcade, what shapes the pitch	1200	ac617068e4560a9b	a00aac8afc63274c	52303f112694dbaa
-arcade, what shapes the pitch	1800	7f48caf9dea84cdb	6071e98b8f678772	bef2e592e859ca0f
-arcade, what shapes the pitch	2400	d13f1093b87d5476	0407b92b26e7a7fc	4466fe97db282e43
-arcade, what shapes the pitch	3000	0c76bdc48fbb90b4	3bbd8e21d8e0f8bc	e49b0379f208856b
-arcade, what shapes the pitch	3600	d765b74504e994fc	46e3497ebacc131b	e9a24aa1fdeab889
-arcade, what shapes the pitch	4200	68a5de491098efb8	c7a49532850cd878	c339b3c8d0afaae1
-arcade, what shapes the pitch	4800	01c0317371f15af7	5f6c8622ec63f862	4c54e8f39b448f58
-arcade, what shapes the pitch	5400	54cc944077d4338f	7a24781a8510c7a9	aeae4aee3601a04f
-arcade, what shapes the pitch	6000	9aee7ae15cf3d97c	cb5a996aef5a535f	9dedcf611af7aadc
+arcade, what shapes the pitch	1200	ac617068e4560a9b	a00aac8afc63274c	b2c55abef2fda469
+arcade, what shapes the pitch	1800	7f48caf9dea84cdb	6071e98b8f678772	fe059a6b7ca44e23
+arcade, what shapes the pitch	2400	d13f1093b87d5476	0407b92b26e7a7fc	e8fc8a25954dd0fc
+arcade, what shapes the pitch	3000	0c76bdc48fbb90b4	3bbd8e21d8e0f8bc	ebe98a5c7a040526
+arcade, what shapes the pitch	3600	d765b74504e994fc	46e3497ebacc131b	9a64ad96ee06ecea
+arcade, what shapes the pitch	4200	68a5de491098efb8	c7a49532850cd878	48c69b3538c71ec0
+arcade, what shapes the pitch	4800	01c0317371f15af7	5f6c8622ec63f862	f71927bdaa457471
+arcade, what shapes the pitch	5400	54cc944077d4338f	7a24781a8510c7a9	32f8aa2ed9b8fd76
+arcade, what shapes the pitch	6000	9aee7ae15cf3d97c	cb5a996aef5a535f	453b7ad90cc185eb
 full match at home, what shapes the pitch	600	22ad155f240aca37	c6c8e4e8adb8a40b	521c85e5c461dbb4
 full match at home, what shapes the pitch	1200	2cabbfc82a4ef9b9	3fc6c8f06122c44b	130cb62dcce89ff3
 full match at home, what shapes the pitch	1800	64d5ca338b9b01c8	73c85aa5604f79af	3a08a37e54c39beb
@@ -348,12 +348,12 @@ last innings, every mod	3508	8f7714a53c3d6314	ec1c4b384b847d56	4b514435e043a309
 arcade, every mod	600	bc9ff7d5b48cabab	45ea639ca00d5a63	c4a8c84f7ec6c55e
 arcade, every mod	1200	34c71051a51b586c	1c09ec6d5b92ce2f	6ba1265d1386ca3a
 arcade, every mod	1800	e960eed40bea6a4e	1aae9fbe521142c2	cff739fb9a2f1eb1
-arcade, every mod	2400	b60f881309f340ac	62c496583de8f13a	d54a87b7984984f1
-arcade, every mod	3000	389e622c7bc444a0	b201d6d1b4b4baae	6827c1816b58ea71
-arcade, every mod	3600	a18bce603a1a2754	c7c83551d0fc94bf	5cfa47fb5662dad9
-arcade, every mod	4200	ccfe9da2064fa74b	c5d39ddec60eaf90	6ab73b2ee21b0f75
-arcade, every mod	4800	999b59a9d308a359	d657355225687502	198dcd30bfebc339
-arcade, every mod	5372	de64965a880d70d6	0369cb8ad18feafe	afb6315c7a9ad4c0
+arcade, every mod	2400	047cc04b99d6771c	4d1e83bf40a2b18d	34dbf4bdb9817910
+arcade, every mod	3000	57e0325f758a70ed	d96c6c152a4fc973	1d1790a6ebbda812
+arcade, every mod	3600	96fea0022694b3f6	bfeced6cc2e160c0	4dee4b197a518afa
+arcade, every mod	4200	f2ea18e339f91254	1012a98516ab0d72	22ab0fa0eacb8af7
+arcade, every mod	4800	7800a0b3335b71a5	fe1d4d05f54cb214	67ce88dafdc424da
+arcade, every mod	5345	71233de5709068d1	16732547375e29d7	74de75c4243a0790
 full match at home, every mod	600	79933690db17103d	1e17556f3cf8081b	7af2649fdc788ac7
 full match at home, every mod	1200	1b0c283837a6ac5b	c53fae2860d22b73	5a790dae6ff19c53
 full match at home, every mod	1800	a2f6123da0fbb0e0	f4a3d09af51e62ba	69ed32ad414a0eb2

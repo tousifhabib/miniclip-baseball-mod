@@ -524,7 +524,10 @@ impl Match {
         show(stage, &parts.ball, false);
         show(stage, &parts.shadow, false);
         if self.mode.is_arcade() {
-            // No count in the arcade game: a miss is just a pitch gone.
+            // No count in the arcade game: a miss is just a pitch gone. It
+            // is a miss all the same to the mods that mind one, and a bat
+            // that was hot goes cold on it.
+            self.mods.a_strike_was_called();
             return self.ready(&parts, stage, library);
         }
         Match::sound(stage, library, "ballCatch_1");
