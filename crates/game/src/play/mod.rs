@@ -30,7 +30,7 @@ pub mod zinger;
 
 use bb_engine::display::{ButtonEvent, Content, Event, Path, child_bounds};
 use bb_engine::library::Library;
-use bb_engine::math::{ColorTransform, Matrix};
+use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
 use bb_format::SymbolId;
 
@@ -396,11 +396,6 @@ const PITCH: &str = "pitch";
 /// that.
 const CORNER_AT: Point = (60.0, 88.0);
 const CORNER_ROW: f32 = 16.0;
-/// What turns the white of the ball to gold, for the golden ball mod.
-const GOLD: ColorTransform = ColorTransform {
-    mult: [1.0, 0.8, 0.22, 1.0],
-    add: [0.0, 0.0, 0.0, 0.0],
-};
 /// How far down the batting view the mystery pitch mod names the pitch,
 /// which is between the scoreboard and the pitcher. The tired arm mod says
 /// there that a new pitcher has come in.
@@ -500,7 +495,7 @@ impl Match {
             cues: Vec::new(),
             put_away: Vec::new(),
             mode: Mode::LastInnings,
-            mods: ModsInPlay::for_game(game),
+            mods: ModsInPlay::for_game(game, false),
             came_up: 0,
             line_up: Vec::new(),
             tally: Vec::new(),
@@ -545,6 +540,7 @@ impl Match {
     pub fn new_arcade(game: &Game, seed: u64, library: &Library) -> Match {
         let mut arcade = Match::new(game, seed, library);
         arcade.mode = Mode::Arcade(arcade::Arcade::new(game.rules.arcade.pitches));
+        arcade.mods = ModsInPlay::for_game(game, true);
         arcade
     }
 
@@ -557,8 +553,7 @@ impl Match {
     /// How many a run counts for on the pitch about to be thrown, which is
     /// a golden ball or is not.
     fn worth_of_a_run(&self, golden: bool, game: &Game) -> u32 {
-        let mut worth = if golden { game.rules.golden.runs } else { 1 };
-        worth *= self.mods.worth_of_a_run();
+        let mut worth = self.mods.worth_of_a_run(golden);
         // A rally makes a run worth one more for each batter in it, and
         // whatever else multiplies runs multiplies that.
         if game.mods.is_on(Mod::Rally) {

@@ -12,12 +12,13 @@ use bb_engine::math::ColorTransform;
 use bb_engine::stage::Stage;
 
 use super::book::ORDER;
+use super::mods::{GoldenBall, Line};
 use super::overlay::{Notices, Says};
 use super::pitch::{self, Choice, Kind, Mound, Pitch, Point};
 use super::zinger::Zinger;
 use super::{
-    AtBat, Corner, FLUSH, GOLD, MYSTERY_TOP, Match, Outcome, Parts, Phase, Place, Runner, at,
-    bullet, full, hot_colour, shift, show, sign, southpaw, steal, timing,
+    AtBat, Corner, FLUSH, MYSTERY_TOP, Match, Outcome, Parts, Phase, Place, Runner, at, bullet,
+    full, hot_colour, shift, show, sign, southpaw, steal, timing,
 };
 use crate::look;
 use crate::menu::Game;
@@ -35,6 +36,20 @@ struct Coming {
     corner: Corner,
     /// Whether the pitch is a golden ball.
     golden: bool,
+}
+
+impl Coming {
+    /// Writes a mod's line in the corner of the view, under the lines
+    /// already there.
+    fn write(&mut self, line: &Line, stage: &mut Stage, library: &Library) {
+        let top = self.corner.line();
+        self.notices.put(
+            Says::line(line.name, &line.words, line.colour).at(top),
+            &self.parts,
+            stage,
+            library,
+        );
+    }
 }
 
 /// The pitch that has been decided on.
@@ -224,18 +239,11 @@ impl Match {
     /// The pitch about to be thrown is one more than have been. The arcade
     /// game has no runs and no outs for a golden ball to change.
     fn gild_the_ball(&mut self, coming: &mut Coming, game: &Game, stage: &mut Stage) {
-        let golden = game.mods.is_on(Mod::GoldenBall)
-            && !self.mode.is_arcade()
-            && game.rules.golden.is_gold(self.pitched + 1);
+        let golden = self.mods.is_golden(self.pitched + 1);
         coming.golden = golden;
         self.run_worth = self.worth_of_a_run(golden, game);
         if golden {
-            let parts = &coming.parts;
-            for ball in [&parts.ball, &parts.fly_ball, &parts.field_ball] {
-                if let Some(ball) = stage.child_mut(ball) {
-                    ball.set_color(GOLD);
-                }
-            }
+            GoldenBall::gild(&coming.parts, stage);
         }
     }
 
@@ -353,13 +361,7 @@ impl Match {
 
     fn say_the_ball_is_golden(coming: &mut Coming, stage: &mut Stage, library: &Library) {
         if coming.golden {
-            coming.notices.put(
-                Says::line("goldenBall", "GOLDEN BALL", [0xff, 0xd2, 0x40])
-                    .at(coming.corner.line()),
-                &coming.parts,
-                stage,
-                library,
-            );
+            coming.write(&GoldenBall::line(), stage, library);
         }
     }
 
