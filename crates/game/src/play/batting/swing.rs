@@ -225,13 +225,10 @@ impl Match {
         );
         // And over the field it heads for the mark, pushed aside by
         // the same amount.
-        let mark = (
-            parts.field_mark.0 + contact.aside / rules.field.aim_share,
-            parts.field_mark.1,
-        );
+        let straight = parts.field_mark;
         at_bat.ball = Some(match &zinger {
-            Some(zinger) => zinger.ball(parts.home, mark),
-            None => Ball::hit(parts.home, mark, contact, &rules.hit, &rules.field),
+            Some(zinger) => zinger.ball(parts.home, contact.heads_for(straight, &rules.field)),
+            None => Ball::hit(parts.home, straight, contact, &rules.hit, &rules.field),
         });
         at_bat.zinger = zinger;
         if let (Some(arcade), Some(zinger)) = (self.mode.arcade_mut(), zinger) {

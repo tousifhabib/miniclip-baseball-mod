@@ -2,9 +2,22 @@
 //!
 //! Nothing here touches the art. Positions are in the overhead field's own
 //! pixels, and height is in the same pixels, up from the grass.
+//!
+//! The field is drawn at a slant, with right field across more of the
+//! screen than left and either across more than the way up the middle. So
+//! how far the ball has gone is never counted in pixels of the screen but
+//! as [`reach`] has it, which is what puts the wall as far off one way as
+//! another. A hit is given its speed and held back by the air by that
+//! measure, and so goes as far whichever way it is sent. The original
+//! counted both by the screen: a ball went up the screen at one pace
+//! whichever way it was sent, which carried one sent to either side
+//! further over the field, and was held back by how much of the screen it
+//! had crossed, which to right field cost it more than it had gained.
 
 mod facing;
 mod ground;
+#[cfg(test)]
+mod properties;
 
 use crate::play::pitch::Point;
 use crate::rules::{FieldRules, HitRules};
@@ -27,6 +40,12 @@ impl Contact {
     /// How far off the ball's height the ring was, either way.
     pub fn miss(&self) -> f32 {
         self.under.abs()
+    }
+
+    /// The mark over the field that the ball heads for, `straight` being
+    /// the one for a hit sent to neither side.
+    pub fn heads_for(&self, straight: Point, rules: &FieldRules) -> Point {
+        (straight.0 + self.aside / rules.aim_share, straight.1)
     }
 
     /// How hard the ball leaves the bat upwards, in the batting view.
@@ -69,6 +88,13 @@ pub fn reach(home: Point, at: Point) -> f32 {
     plain - ((at.1 - home.1) * 3.0 + at.0 / 5.6)
 }
 
+/// How much of the field lies between home and a point: [`reach`] counted
+/// from home, which is not where `reach` itself is nought. Along a straight
+/// line from home it grows evenly.
+pub fn covered(home: Point, at: Point) -> f32 {
+    reach(home, at) - reach(home, home)
+}
+
 /// The size the ball is drawn at over a point of the field, its own being
 /// 1: smaller the further up the field it is.
 pub fn seen_size(home: Point, at: Point) -> f32 {
@@ -80,18 +106,29 @@ pub fn distance(a: Point, b: Point) -> f32 {
 }
 
 impl Ball {
-    /// The ball as it leaves the bat, heading for `mark`.
+    /// The ball as it leaves the bat. `straight` is the mark that a hit sent
+    /// to neither side heads for, which it would come to in as many frames
+    /// as the rules give its power. Sent to one side it heads for a mark of
+    /// its own, and covers as much of the field in a frame as it would have
+    /// going straight, however much of the screen that is.
     pub fn hit(
         home: Point,
-        mark: Point,
+        straight: Point,
         contact: &Contact,
         hit: &HitRules,
         rules: &FieldRules,
     ) -> Ball {
         let frames = contact.power * rules.pace;
+        let mark = contact.heads_for(straight, rules);
+        let way = distance(home, mark).max(0.001);
+        let towards = ((mark.0 - home.0) / way, (mark.1 - home.1) / way);
+        // What a pixel that way is worth, which is never nothing: the mark
+        // is up the field from home.
+        let each = covered(home, (home.0 + towards.0, home.1 + towards.1));
+        let pace = covered(home, straight) / each / frames;
         Ball {
             at: home,
-            speed: ((mark.0 - home.0) / frames, (mark.1 - home.1) / frames),
+            speed: (towards.0 * pace, towards.1 * pace),
             height: 0.0,
             lift: contact.lift(hit) * rules.lift_share,
             fall: rules.gravity,
@@ -133,7 +170,10 @@ impl Ball {
     pub fn step(&mut self, home: Point, miss: f32, rules: &FieldRules) -> Happened {
         self.at.0 += self.speed.0;
         self.at.1 += self.speed.1;
-        let far = distance(home, self.at);
+        // How much of the field it has covered, and not how much of the
+        // screen it has crossed, so that the air holds it back alike
+        // whichever way it has gone.
+        let far = covered(home, self.at);
         // Never more than all of it, or a mishit far from home would turn
         // round in the air.
         let lost = (rules.drag * (miss / rules.drag_aim) * (far * far / rules.drag_reach)).min(1.0);

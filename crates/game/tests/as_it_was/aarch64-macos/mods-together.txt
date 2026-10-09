@@ -63,282 +63,291 @@ full match away, zinger and timing	10200	d864a457cbe47b06	7bd6827cab3954b8	ad250
 full match away, zinger and timing	10800	a7514f16e4a28d89	9d28887be83e4508	d0f149864f508050
 full match away, zinger and timing	11400	d67d42858e77e320	f09bebf909de72a9	3ef2c8f61ab64273
 full match away, zinger and timing	12000	6b78c07ed42906fc	aab1328629d1c3c9	093f148a0637a18a
-last innings, what a run is worth	600	e690db4f05bbaf0a	107a4a538ec5df96	432d0aff60c8d75b
-last innings, what a run is worth	1200	2e37591c289ab307	ff144a552350f5d9	814a6404fe2d4a44
-last innings, what a run is worth	1800	53821968d816fd0d	ae8b4f07f0c007c9	0da3333acea2929e
-last innings, what a run is worth	2400	e856ecc41cfb2a2d	f8d028a9e9a64b3b	f2ca6d991b49616d
-last innings, what a run is worth	3000	3bfdadd8ec456a74	bdc3ef221b2d7ccc	5f080d2012334ec4
-last innings, what a run is worth	3600	9886c6670caabec0	1d64996785829982	a79d3ead4535de3f
-last innings, what a run is worth	4200	213c7fc3183fea0e	cce462baf310f118	095accd70f67e78e
-last innings, what a run is worth	4800	247add1310bfe564	42c8ef2e1b6a516c	1a48cf9ba5ffaf18
-last innings, what a run is worth	5400	bfe1eca31b66d8fd	242f4558892a8cc7	1b601364277ea2c2
-last innings, what a run is worth	6000	1356f2f698340a58	185166ec56f8edd7	d61b4d130e949ad7
-last innings, what a run is worth	6600	fbf37b30a81eee97	a1a2f7d51b947c8b	9e09d5c418db8a0a
-last innings, what a run is worth	7200	f488a124cd7a9d14	768463f873c82b83	4ef1cc9c58df99ef
-last innings, what a run is worth	7634	5390fd60583a891a	1d968c9af3dd38ba	9cac94daf48ecc8c
+last innings, what a run is worth	600	e690db4f05bbaf0a	2224f171673e4d30	398beb54b7cb4c82
+last innings, what a run is worth	1200	b50b54ce68098215	16e8b4ab6d13c7c7	1f99164dd9f78593
+last innings, what a run is worth	1800	9471ff52e22fa49e	4ee5e2bbc1b63638	1192ca4276f84f74
+last innings, what a run is worth	2400	763e756a2315b90a	92f4e6374d626042	e4411894d2362cb7
+last innings, what a run is worth	3000	c0ef2c6c9ce62e0a	7d97c97b42faf58b	2f4d60a368981495
+last innings, what a run is worth	3600	2659e2d4ab91cd37	1c30ba04554832e1	44bbcbd63fed97b7
+last innings, what a run is worth	4200	5d2c5069990c1d09	660907d16cdfced4	0204e3477036e494
+last innings, what a run is worth	4800	bae7f50530ad93c1	799d6bf127c087e0	6d8991f4fcd7c098
+last innings, what a run is worth	5400	5b72aec42f620e5f	39218f2a3e9972f5	cfe533c3baaa909e
+last innings, what a run is worth	6000	e615d807b8ee9cf2	5d20545ec4bdb68c	d4c26a7818376f71
+last innings, what a run is worth	6600	a73603ef51415098	deaaf56bb5cfd8a2	035bde6a9dec32d6
+last innings, what a run is worth	7200	1c3eaa84375a452e	8985422e512179b4	5e6df696255bc3dd
+last innings, what a run is worth	7800	84a1af9c2e54c65d	6b92c6a45dd4b06b	df2907629f87c1be
+last innings, what a run is worth	8400	b5af9830aaa1dd23	2d97159f160be01d	dfbcdabda86c8fcb
+last innings, what a run is worth	9000	6adbc31f412100c2	a45c975efcd05422	432887fdeb09bdf1
+last innings, what a run is worth	9600	5979fdf441b00a51	f3b2140c3db8774c	d688100e887a9661
+last innings, what a run is worth	10200	9b12be151895f23d	14124217932bde9c	561d4dd7eec2a38d
+last innings, what a run is worth	10800	d2343660c2275a8a	bdedc4a28552cd57	17b847445a56ff81
+last innings, what a run is worth	11400	be32ef9df6cd6dc3	a48b28043953ba68	44e1fefde86d7561
+last innings, what a run is worth	12000	2269a4f698d99985	ef146e1478ff8644	4c1b2ca7ce9d395c
 arcade, what a run is worth	600	7a578ec75b8ad855	34ed2fa58d347193	8fdadd810276c43c
 arcade, what a run is worth	1200	baaa6ad0f6527e72	e005ee19e6b65c1a	b28a54d854e2104c
-arcade, what a run is worth	1800	6ebe5bafd1a49c1d	daf263c90e355741	24d8876cbe5f9497
-arcade, what a run is worth	2400	a1c202a070f9e467	7546eab2f192b800	f7071853bb1ad0ce
-arcade, what a run is worth	3000	d8840674f574f19e	e0cb8861385e58c8	28772f9d84616014
-arcade, what a run is worth	3600	b344a9e078a0e516	d3b9a77d95dedace	c26bd8d8f7b18997
-arcade, what a run is worth	4200	e4441cc9cf41fd31	9687b5181b30748a	2abc21f38d91fdee
-arcade, what a run is worth	4800	d5d074d754f7e726	9bce64cfb74ef579	aa5a85645317263e
-arcade, what a run is worth	5400	6472fc2864c9506d	95910faa4e549261	481dba26a67024b8
-arcade, what a run is worth	5505	0978d60ac27660df	1672c3637d62caef	5f9e7569d0c2a407
+arcade, what a run is worth	1800	6ebe5bafd1a49c1d	daf263c90e355741	f6cd60d58c2010df
+arcade, what a run is worth	2400	a1c202a070f9e467	7546eab2f192b800	d3ad79fdec162d7b
+arcade, what a run is worth	3000	d8840674f574f19e	e0cb8861385e58c8	b6a58b6b594b1451
+arcade, what a run is worth	3600	b344a9e078a0e516	d3b9a77d95dedace	abd06ef50d399cf9
+arcade, what a run is worth	4200	e4441cc9cf41fd31	9687b5181b30748a	292d1417b92b7ec3
+arcade, what a run is worth	4800	d5d074d754f7e726	9bce64cfb74ef579	633aad781633d10a
+arcade, what a run is worth	5400	6472fc2864c9506d	95910faa4e549261	df189153c14c343a
+arcade, what a run is worth	5505	0978d60ac27660df	1672c3637d62caef	41e8dd9341a87950
 full match at home, what a run is worth	600	7a3225a604e42c65	8826c7d8aa82e75c	c8bf2278528825ef
-full match at home, what a run is worth	1200	7c94a38c04fe1d4a	c76888f786bf409f	666fee56ab131d04
-full match at home, what a run is worth	1800	128d5ca80dfd014d	98d1cbb34ec6a6d6	3e09fa5947182fa9
-full match at home, what a run is worth	2400	6171ec2e756e0cba	c86e4bb0fdf5cb9c	0c237e5b59f703b8
-full match at home, what a run is worth	3000	cbe1f746f7908bc4	29cf476d21c25f7b	b5e359ab8fb7ba66
-full match at home, what a run is worth	3048	f20c4a329dc71b11	c36f1a897d87c849	40af96456f5e5b16
-full match away, what a run is worth	600	75ae0374d838a60a	db49f411af0c1ca7	23926be9abd7726c
-full match away, what a run is worth	1200	afe72550f8c2bd04	9c91da6701e5b381	eeb661e3aeb11433
-full match away, what a run is worth	1800	66bc17eebbbf3e27	c911c2dca6ec8639	aad97fcd689cc4b8
-full match away, what a run is worth	2400	7c94ad36700e9295	c8fbe303bfa0e38c	ff889f9c9361fcb4
-full match away, what a run is worth	3000	71e2ea98906f12c5	d9aca6fac4bd52ad	2385b202aaf400e7
-full match away, what a run is worth	3600	5ecfb1a67cff5722	62ec7878a78de4e2	8d2cb3e5053a23d3
-full match away, what a run is worth	4200	529a0a5cdf3c55f2	1b6d12fcf25c0c84	2b2aa2503d8a5d71
-full match away, what a run is worth	4800	bdf4e9709c7558d5	45a659157c92c627	c2c91433ea41bb41
-full match away, what a run is worth	5400	73e4bc51fe14fda8	5d35a96d79a41116	a0e6efbdad0763ae
-full match away, what a run is worth	5764	56468f60193fb41e	b90b0b3f09f81065	3ecf7480c60835fe
+full match at home, what a run is worth	1200	96807ec16d02f846	da32fa59b8e18304	b718b4c446ea7178
+full match at home, what a run is worth	1800	4713979f90bca4ee	416075bd105176b7	4b44fa57888402e4
+full match at home, what a run is worth	2400	2370a3db210e398f	883ea342294bc401	df63c4c58c465d3d
+full match at home, what a run is worth	3000	ebf93dc4b1006a5e	cdad01d0e7c3e7a6	f112369e78a0fb0e
+full match at home, what a run is worth	3600	ea7814211904e0cf	d9d0482cf618b8a9	d27bb6ffbff0e8f1
+full match at home, what a run is worth	4200	130e2893112bed21	d0ae990dbce59f97	98fadf8f23320ffa
+full match at home, what a run is worth	4800	31c3497e828b0d55	454c2b05f9b9b0d5	6101d4661a3f5736
+full match at home, what a run is worth	5400	43fe844881e336ee	ca6706b485abfd94	9c7b3a0931e7b3b3
+full match at home, what a run is worth	6000	ccdf2920d0a50d73	1954cbc410d30e9e	51d4dd0bcf7d2a88
+full match at home, what a run is worth	6600	443c0a7d96e0cce1	a2539ead55bf4dca	525022c2f9da7af9
+full match at home, what a run is worth	7200	874bd4112b6af74e	1c28dd88802d8b7d	b169bdd8fc29405f
+full match at home, what a run is worth	7800	da579b4e5be3cd53	095cbe7cf25749ab	c92563e56a55fb9c
+full match at home, what a run is worth	8400	62d6b38cbae401bb	b3443fea272c8557	be6730c30ee29795
+full match at home, what a run is worth	8412	03ff178d3f24ee3c	b3443fea272c8557	33195c6d23b17b04
+full match away, what a run is worth	600	75ae0374d838a60a	7005bab40f38d061	b114805f6dcebbb4
+full match away, what a run is worth	1200	1650cbf2850f96cb	a4bb375af217bd25	0e89efc967cfd605
+full match away, what a run is worth	1800	148bb5aacc7cef4e	5421fb869a29d505	213b505c5e6c817a
+full match away, what a run is worth	2400	aa4a0aa523208f02	acee74a60beed086	e134d69280c9e6cc
+full match away, what a run is worth	3000	12e3104c552b18b3	c2277d267e9de9d5	c3bd457d8df7a46d
+full match away, what a run is worth	3600	6126b2a52ae23449	499426872ec8fe39	b12a1076e0e33127
+full match away, what a run is worth	4200	880e30b278123e35	ad358fd16620b3a3	d6676d1b6774818c
+full match away, what a run is worth	4800	5161066760a0d7b1	d15f8ca26e3540f2	a09399b91ad91bad
+full match away, what a run is worth	5033	1e709cf23035e57f	812159bc03f262f6	6fb57dc8596fa5d8
 last innings, steals and turbo	600	0f38a3f90f27c608	3c81ea4ddcee3784	8c0039f12e3c59d9
 last innings, steals and turbo	1200	e536dfacd1173dcb	6ed7a99c93eb9163	3677b0861c011f3a
 last innings, steals and turbo	1800	f9bf7a5f68509ec6	d54d267669c2b56d	6f1ccaff0bb694be
 last innings, steals and turbo	2400	069d9f8648a5a77a	d22db83dec43e6ea	204e498f1577f720
-last innings, steals and turbo	3000	586467ab35a71c6e	843f9e651e70ff22	9a12799a4b761eae
-last innings, steals and turbo	3600	df0f9645489449f7	675833ae5415f477	0ad0ca29438de9b6
-last innings, steals and turbo	4200	e6752725724a40e5	e015dc3ac4a2987e	cc575ad2d3a32bd1
-last innings, steals and turbo	4800	e4648ec5ab62d1a1	9bf16cbf0792aadd	afd0599419513486
-last innings, steals and turbo	5400	cd622d760e827a37	4128e4e79125778f	d1bd7380618655b5
-last innings, steals and turbo	6000	5c173a670c86e0aa	472ceb012bb4f545	0b7183e908b9abb8
-last innings, steals and turbo	6600	8fd8ccde723da53a	5e156f891d324b47	ea8f119851418f43
-last innings, steals and turbo	7200	c926c98560d154bd	a2dd2df20c946cdd	d35a802b4b56aa4b
-last innings, steals and turbo	7800	04587d2ff22c1498	d35077d96701ab34	2a8d1ab2ee2e2f30
-last innings, steals and turbo	8400	8f080a5dcf44b78c	e3700ce621d94719	fdad035ab3b6a785
-last innings, steals and turbo	9000	230656604c8b7d68	d962bd34a4e20625	2a48e96d4e277384
-last innings, steals and turbo	9600	d13e80367b74ea2c	11e247c2db746178	b38478d80a9257e5
-last innings, steals and turbo	10200	2b8440336a67759c	7e3b30be86d223ba	2bfa56c14a0e9b7c
-last innings, steals and turbo	10800	4e80faf25c95abf7	532adcdd5d2362a1	3b2d227df15cc465
-last innings, steals and turbo	11400	65b5fc793434d169	11251b9113b9b292	58e9c711b59d8197
-last innings, steals and turbo	12000	a8bb1f6269bb9180	dc651318a09d0ac2	4dda54f1bb0b97f7
-arcade, steals and turbo	600	ac6477052ce5913b	2c11650574b914cb	1343b494a8612c74
-arcade, steals and turbo	1200	fa752b32d966419f	c1ed1454a432d497	e5de3055c534b927
-arcade, steals and turbo	1800	68bd7f502430a354	68aa31d6355398ec	8112dcc7d687af34
-arcade, steals and turbo	2400	44958b7d5532e6b5	db09b2d6f7eeedbb	b802ee40611ce4b8
-arcade, steals and turbo	3000	88512afbe028f073	14db6e98127c3b3c	1edab6586073b731
-arcade, steals and turbo	3600	bcb3e3d4d5083575	9830f1edc4fd44fc	aa47f7062c37cb35
-arcade, steals and turbo	4200	50118fd8b6d94726	689041c16625c69c	c83d1a6a327cfcb4
-arcade, steals and turbo	4219	8064a84762c940e5	2efa3d3b3baab344	16284b7e069bb0e7
+last innings, steals and turbo	3000	586467ab35a71c6e	be30cad0af726fb0	9ca103e278be0665
+last innings, steals and turbo	3600	66b1bb92fbf190bc	ffc4b912b6e89820	a2c80b1eeb16a0c5
+last innings, steals and turbo	4200	e7db2c2a0f13a04c	6b0571603a9886f1	2ebb27a8c18d416d
+last innings, steals and turbo	4800	59bc2c5148e143ef	1fdca0e67a33eba5	43d7b1933e05eb70
+last innings, steals and turbo	5400	eb769eac33251f18	e846803ac9e1e5d9	0bad35068410924c
+last innings, steals and turbo	6000	2f049251d57efc72	b8d0f30d9c9ef7d2	f93ccef97b882794
+last innings, steals and turbo	6600	314875a834db7d94	c39a12bb790f44fe	26ca80e4709b0542
+last innings, steals and turbo	7200	7d7492c2923d010d	1a85fa459f78838a	63052ac6858fc065
+last innings, steals and turbo	7800	f754d10057179430	8595fce1691659c1	4a5d237859b96bb7
+last innings, steals and turbo	8400	af16fd66ecea565b	6d5b1045a82fc14e	4395805020213ff8
+last innings, steals and turbo	9000	de1be4fa3d2d679d	3d76ee36aa2ac4e7	e364239701955319
+last innings, steals and turbo	9600	fbcbf77c53a9aec3	05078e8752a95b9c	e12f421ea00b5e4d
+last innings, steals and turbo	10200	7cbd7644333227c7	17ff95e45a142c59	f889c958306ad2db
+last innings, steals and turbo	10800	5fc4973515feac58	3784046948073fef	f893f571b64129bb
+last innings, steals and turbo	11400	0535e10b32552fe9	dd092b0af5f5abc0	fc6608351d2db004
+last innings, steals and turbo	12000	7cf984543825b218	d5abed76425f3736	976bf9416ac8acc1
+arcade, steals and turbo	600	ac6477052ce5913b	2c11650574b914cb	57f3cba2d730929e
+arcade, steals and turbo	1200	fa752b32d966419f	c1ed1454a432d497	684b0a31b36b687a
+arcade, steals and turbo	1800	68bd7f502430a354	68aa31d6355398ec	11e4a9c51467657d
+arcade, steals and turbo	2400	44958b7d5532e6b5	db09b2d6f7eeedbb	1ae0185a7ac27320
+arcade, steals and turbo	3000	88512afbe028f073	14db6e98127c3b3c	a16ad573e097c69a
+arcade, steals and turbo	3600	bcb3e3d4d5083575	9830f1edc4fd44fc	d1a61c57460a7d1c
+arcade, steals and turbo	4200	50118fd8b6d94726	689041c16625c69c	89edd41b90d23b01
+arcade, steals and turbo	4219	8064a84762c940e5	2efa3d3b3baab344	e27907379f119322
 full match at home, steals and turbo	600	7cb4bfc44af8c7e6	a6be90ba1148e443	3bfe998a30eab6b4
-full match at home, steals and turbo	1200	8c013bd707e39ce2	710b8f19b2e99142	3b83061b715dd5a0
-full match at home, steals and turbo	1800	ef882942e6bcb9ab	70dd5baf31a1c700	4c3a23112e03ddd9
-full match at home, steals and turbo	2400	9be3917904420927	1bd2315c4c0ec076	eed311ebf2fa6d96
-full match at home, steals and turbo	3000	32c471216e40f295	c9cba0e93af44411	a053c61eb47ebf30
-full match at home, steals and turbo	3600	e957098d46cbee5d	81590ea76c336fe4	935966e060d98923
-full match at home, steals and turbo	4200	6ffc6c8b25e9dd8e	4e9a7c990c9a229f	ef213f7f6de2fd2e
-full match at home, steals and turbo	4800	a0697e8df395c487	3b29387a13f10820	357af1b796e7129f
-full match at home, steals and turbo	5400	8744be90389de4a1	fc6b98fb0a2f17f3	f56c598b800c51da
-full match at home, steals and turbo	6000	b9d3fde9553dc494	948bbc5675db8bf1	cb9d1535e1b82eb0
-full match at home, steals and turbo	6600	503c27de13a6b288	d901885e72c5d4f5	0a9da14a1239d75a
-full match at home, steals and turbo	7200	55afa5b77abaa1b7	ee2d5b4b5126408d	07286f18d33b5dd1
-full match at home, steals and turbo	7800	89bc374044945fe9	9e9f9ba45c94c7f9	9c4e3834f725192c
-full match at home, steals and turbo	8400	3a017f2492f7e3f4	6b2bea3be404ee6b	d4a9dd5fb16dc50e
-full match at home, steals and turbo	9000	3b1deb9e763aee55	2f1f4403684844e3	23a12ef3d7d6f316
-full match at home, steals and turbo	9600	ec930406e70d12e4	7448860ec933fb40	cd1d850c41e69643
-full match at home, steals and turbo	9919	9d3d866e933f831d	481c49b4e201ce85	b1e314880e85c5af
-full match away, steals and turbo	600	6e6ad897ca76deb1	a51f0c9d39afccac	c25ed1614f04e55f
-full match away, steals and turbo	1200	9269e51d7aeb35df	1d5a363d59ea8c2a	f59651ec1095a171
-full match away, steals and turbo	1800	308942d8b412694d	6666a08431739c79	94d8b3ab2ea27043
-full match away, steals and turbo	2400	9cb0e83f8c5cc7cd	db2da56f2a5ebc3e	fd712e42d6b216bf
-full match away, steals and turbo	3000	410df39a7bd3a88b	7e4f8bb63bd5fb37	21b6e9eab6abd289
-full match away, steals and turbo	3600	98a20322c04a679e	351d1d8f306f6a2e	7fbc43314a78974e
-full match away, steals and turbo	4200	a53c6c522c367ac0	5cb959dc5e5c37c7	7ebd7a3a7ecbc425
-full match away, steals and turbo	4800	df1d1ad97b0f0180	3a89ef3f8cca25ae	d68c6f0ea57da8f5
-full match away, steals and turbo	5400	8abd9378efda3702	742443d0bed0521a	85f5d7e73e2eab15
-full match away, steals and turbo	6000	9f3489ff36fcdc64	dc39c30e55084cb8	3d2c71e3980c3511
-full match away, steals and turbo	6600	11009b0d3853b1b2	c651a76584d49aac	452bbde692dd0875
-full match away, steals and turbo	7200	71e4696e1c1ab2a9	3824d940a32b793a	6deb7a7f53ed56a1
-full match away, steals and turbo	7800	b5b0781f0d20550e	f014f8ea73fdcdcb	ac46b74166349942
-full match away, steals and turbo	8400	d1c7d3e797eb0d86	3f19539c4e8596e6	ddbf71a56ad6ec0f
-full match away, steals and turbo	9000	2f5d96a1ccec23ea	b8ec33f22864d89c	81f43fb5dd9334e7
-full match away, steals and turbo	9600	54aa160e42b6e482	c95fbadd7d7d95b0	563470a225effaf1
-full match away, steals and turbo	10200	2f1c77d09eb6e513	429efbbf49b1e6cf	571691e4c118fb24
-full match away, steals and turbo	10800	09fa04d376a1b37e	13aef9180c962bcc	6ffb6bf7901dabd9
-full match away, steals and turbo	11400	d75e6c9cebe30ca9	44c1dc3c937dede3	9bcc2dce1d6804c2
-full match away, steals and turbo	12000	85e98f3a6012d88e	8cb8d5f7ab3e5fd8	65fb2f2612cf7338
+full match at home, steals and turbo	1200	7377f5b2b5c3009a	5c79cad2713824b1	3c9899289f9db924
+full match at home, steals and turbo	1800	fddfbf0788372ddd	52a6cfe85d14acdb	318eccc645f13260
+full match at home, steals and turbo	2400	4b6c9be7837204eb	4469ed02fb094102	a85203f5fd681850
+full match at home, steals and turbo	3000	a9baaa270a1438c2	76ee133215ecb013	212d7729bf5918b6
+full match at home, steals and turbo	3600	53d5581cdcbba755	1816beb9a5a383ec	e13e249a3e25e40b
+full match at home, steals and turbo	4200	a7cfac4f3bafcbf2	37544241acb3e2de	50379cdd81d6bdba
+full match at home, steals and turbo	4800	6941702b331d7631	cbc14e56310aacf3	611005eaf492c65e
+full match at home, steals and turbo	5400	e69691b4416f8e2b	095210d08704e4cb	2315e70b0b178330
+full match at home, steals and turbo	6000	337de2dc40e5de57	5d8ab2ca0845e477	d5ba49988be85614
+full match at home, steals and turbo	6600	f8d38b2b171a09ad	76addb63490e5c1f	ee5f3a0a46d10c39
+full match at home, steals and turbo	7200	a4cb4e464b7c2c0d	dc2927b9adb79494	660679b5a8158f50
+full match at home, steals and turbo	7800	00c37644f721434e	4407845d0864d3fc	165e616f5cd10bbe
+full match at home, steals and turbo	8400	329a7dc9c3e0508c	9805712d46436397	df99914902e9e5bc
+full match at home, steals and turbo	9000	e9039efa10dccf39	9e477c48fd09ecc4	471cc028b41e65c0
+full match at home, steals and turbo	9600	61649e36cb4f5a69	d5007367c8254b9e	336e9bf7df6afd8d
+full match at home, steals and turbo	10200	79ab3f8766f17e80	366834779b8ee208	8f17dbc8de846e9f
+full match at home, steals and turbo	10800	58e8694f89a575c8	e7e23010ff58a410	1c64af7a41080159
+full match at home, steals and turbo	11138	9f39d939a2559604	513f6d1c42abc9a2	150585bc6cfe57a6
+full match away, steals and turbo	600	9b4493d1e30479bd	25870894562ef003	f089558f9ff338aa
+full match away, steals and turbo	1200	77c3c4dfdc1e95c4	c5d3c2af567711ed	5b317f51e7ab88f2
+full match away, steals and turbo	1800	2dee2a02a6875a6a	dcd491580a9afb1d	cbb5074ff50a12be
+full match away, steals and turbo	2400	fd1f777e66c850be	de93b06b297723fc	8a133639427458a0
+full match away, steals and turbo	3000	10b2b409185b73dc	73c76eb0286bad77	9e9a5f83f7a46e4f
+full match away, steals and turbo	3600	60b1be9aebf12605	7ecb53d92541f10e	26c709623076ef19
+full match away, steals and turbo	4200	df3b77fd31c784ee	fce2fb713c3b246a	2bcc8f273825c18c
+full match away, steals and turbo	4800	6c6fcd0cecd179ef	afc52e709c77ce96	9f090e4507d0473a
+full match away, steals and turbo	5400	8d77e7556e11fb00	65bbf585fa8106ac	81b599efa1635620
+full match away, steals and turbo	6000	0b51b8939e47dc2f	4a4309ef87e6f62f	c038475310a8388f
+full match away, steals and turbo	6600	1c8b136a431f1be1	10c5e4c77b0fa1f8	de7bfccabf2de998
+full match away, steals and turbo	7200	c98617373a37bbd7	b3a8b4afc4fcd5cf	10729d30755bdb25
+full match away, steals and turbo	7800	c2786ad540d5bd48	b3976d44e7739247	c888f60d2d75fa07
+full match away, steals and turbo	8400	232bf86bc1d74023	87b9d19275cf26cc	1d21f1e60dba54aa
+full match away, steals and turbo	9000	2bd6b8325424a9fc	1880e64a8fabcf13	55d94a39479c4063
+full match away, steals and turbo	9600	fb8d72b7cfb3b2ef	9c430be4af6dea6c	4569e9f805b1b09a
+full match away, steals and turbo	10200	c76201d1d7663e40	5d48fb29be60c105	9c7ccfbc304b197a
+full match away, steals and turbo	10800	593c0f248aa51ec2	10fc23286c373a41	7d9bdb956e342eef
+full match away, steals and turbo	11400	6277667e4721a189	521364072115914c	312465049f1c094f
+full match away, steals and turbo	12000	715af1acd00acb66	099a4dfcd90aaa40	0634f76e6cfe94b0
 last innings, pinball and lone pitcher	600	15f034779bdd85e8	6cd6f5ddef70f265	3502ca951d96430f
-last innings, pinball and lone pitcher	1200	7a2f94e94642d3a9	62b9688ff80cedd5	4c09d216d5924a64
-last innings, pinball and lone pitcher	1800	e30fea5b53cec839	ffe157b60daef130	2a95cd788e008ee1
-last innings, pinball and lone pitcher	2400	20866fbdb06013ed	790469655a74a7e1	c4c040573398d95c
-last innings, pinball and lone pitcher	3000	707b864ab4a7edd2	663f313d9eac5b18	c9373e532dc3f525
-last innings, pinball and lone pitcher	3600	7908d1d74798b832	fe40289cc0cd7e8a	b7e505f39965a931
-last innings, pinball and lone pitcher	4200	cf4f58f862590b7d	1a5b0b1b6c62fd07	83fc48c74d9259b6
-last innings, pinball and lone pitcher	4800	41fc5ce6437d2d07	eb465fcfdade84c5	80c7cbe629822e16
-last innings, pinball and lone pitcher	5400	62f0db21fbc3c62d	cbe2f306a7a31008	69b0f6493e18124f
-last innings, pinball and lone pitcher	6000	0935ac88105a1813	4b78e22a84ad0fbf	facf81b2c9bb404a
-last innings, pinball and lone pitcher	6600	6baa7a37b0f329ef	15cc5d6fdfbda8f6	716bba6af3cd48c1
-last innings, pinball and lone pitcher	7200	8775b3152c921f54	c56be3bac0334280	5c15a0a2a8f4877d
-last innings, pinball and lone pitcher	7800	409597d6c7c5fac5	9928ad623e8627c5	f9012c32ff71fbe4
-last innings, pinball and lone pitcher	8400	f753769794003b33	386dfe060c69aab1	d140035a109b04a0
-last innings, pinball and lone pitcher	9000	9db6b058887bd5f1	6481bf470ec56ec3	0a3b8f46e8c21665
-last innings, pinball and lone pitcher	9600	75351084bffac79b	7e6528c5f47debb8	a3786c1f7a16c8af
-last innings, pinball and lone pitcher	10200	a025f158f690bb0e	6e53eb15ebd4842c	5b56b6538d7d3b31
-last innings, pinball and lone pitcher	10800	f81e7875d57aa70e	6f241381eba20797	bb68abedfcf4e2a7
-last innings, pinball and lone pitcher	11400	c0bb58709bbc8775	87efe9314ece7d19	3006a17aabc11c59
-last innings, pinball and lone pitcher	12000	0b2435a65abbc04c	2e70b475fb5f3e38	370cec1b36e258f8
-arcade, pinball and lone pitcher	600	0627e09f7135c921	511716fc147b15d1	4b67e30d5c3a831f
-arcade, pinball and lone pitcher	1200	0d1c3804ea009709	749126a10a998d4c	d4316f0bcc0d5f59
-arcade, pinball and lone pitcher	1800	fcd2f46b91e661c8	f4b444cf845330c2	0ffaae36f0a02c63
-arcade, pinball and lone pitcher	2400	30fec310d6494c80	b6ab6c91097376ec	cc8e2f2503bba87d
-arcade, pinball and lone pitcher	3000	5f435ee6894f261d	e119917159ff9705	ab96998be1fe943f
-arcade, pinball and lone pitcher	3600	8d47000eb9524fb0	4afdd00fc3ea833a	7de482b35ae02a5a
-arcade, pinball and lone pitcher	4200	c609eeb67f509db5	d6516f89d5ae1be5	1bbe9654b86e6f4f
-arcade, pinball and lone pitcher	4800	69bfff359ab2afcc	d95437fe9da667d3	96f21099f2b3bf3c
-arcade, pinball and lone pitcher	5400	40c5c33c608f8bb9	a6da0d842289b6fb	2307b54cee58dae8
-arcade, pinball and lone pitcher	6000	2357e5ec2a5d721b	a3633df7c6a2caf2	6a80173ea9fe5672
+last innings, pinball and lone pitcher	1200	74ed71a5e02e5be6	a9304beb360b9dea	e2de9e46a9b8218b
+last innings, pinball and lone pitcher	1800	16dbf196f6d85401	f8b9078b2f381b2e	cc4fa63c99d6a6c0
+last innings, pinball and lone pitcher	2400	82df9886dd3361d7	1474537ce9fde430	4066793d3a7a5d3d
+last innings, pinball and lone pitcher	3000	0c2076eb260a2a2b	1e8ca362fd2dfb69	c229d2c5ae4c77eb
+last innings, pinball and lone pitcher	3600	59ce43ac28f01c68	6b569f15bd8c74d5	be3492213d6dedd5
+last innings, pinball and lone pitcher	4200	95282fbabd758a72	4a1510457b02df48	5ecc9443cb0ce705
+last innings, pinball and lone pitcher	4800	d49e55dbc307bf61	259f38c5cce7295a	f876440e198b6aa6
+last innings, pinball and lone pitcher	5400	2d6fb85f86210254	b897eaaae899ceb1	3333b50dabeef1eb
+last innings, pinball and lone pitcher	6000	7d8657f9a18e4a7d	b9d2a89cd864ae14	63f7ce5224d31a34
+last innings, pinball and lone pitcher	6600	de9f22de4b5989bd	cf5fcd252f0c6f6c	4b8dc707a3537ce4
+last innings, pinball and lone pitcher	7200	94a78a3fdffcd3ae	511bc5c69430d34e	f67769151c8b078e
+last innings, pinball and lone pitcher	7800	a395a181d838f8cd	f594579f93de2181	6a842ff2c8b83318
+last innings, pinball and lone pitcher	8400	7c1008da2a74d9f5	9beda04a24e1e2bc	868c26b1351e76e6
+last innings, pinball and lone pitcher	9000	a3f5c7db81175050	80f07e4d7aeb13aa	ad8d88c8bdab7297
+last innings, pinball and lone pitcher	9600	973bcb7efdafb7de	a9c07ac9a7426825	fccbdffc33f084b1
+last innings, pinball and lone pitcher	10200	b6e6b12e8aa37bd1	9ca61b28d3066fd6	2b44f5f5f2f7ce58
+last innings, pinball and lone pitcher	10800	9bf65d5f980f0759	bf1ef38b06f44fc4	0c8eeb5d588d9f46
+last innings, pinball and lone pitcher	11400	2e556a6bfe1fa57a	3571a52f897c8f5d	d1d508970daa2cab
+last innings, pinball and lone pitcher	12000	4c01dbbc2688c01d	a8d15d5e0da9f99e	955fa3789a0eaa9e
+arcade, pinball and lone pitcher	600	9a850c4877aa4522	79990c9192c07e1c	165480ef9c6f701c
+arcade, pinball and lone pitcher	1200	947282cbedd5bc9d	84e648c1aeb7db72	1379bcae2f942300
+arcade, pinball and lone pitcher	1800	6f5111ecc9303e7d	d8549e3e9e45316c	c543cc2a2a4fcc99
+arcade, pinball and lone pitcher	2400	4db9bbe594ae793d	a49d0784e44574b4	2961dca90d733ed2
+arcade, pinball and lone pitcher	3000	d6692545ef8fd3bc	fea73b0df4858de4	f8d9b6ab2a56c4ee
+arcade, pinball and lone pitcher	3600	121f4b91cb9865dd	5853c4e3330c96a2	5538c7e675c6078d
+arcade, pinball and lone pitcher	4200	32399ea376b92d00	deeddacec012b9a0	93e06463e318f3f9
+arcade, pinball and lone pitcher	4800	edfcd653a63be92a	5411c45e4373176b	539ebaf167b2c00d
+arcade, pinball and lone pitcher	5400	6ce8133e52c9012c	5092d948ac0f3e43	de6bb746747020a1
+arcade, pinball and lone pitcher	6000	c479355f59c8b0d4	4339b36f19965a36	2738be21267264c4
 full match at home, pinball and lone pitcher	600	97d6f4d8774fb67a	c01c25536155b934	b79cd228668021df
-full match at home, pinball and lone pitcher	1200	fdf3c41db93ae818	cc095585327836e5	4a71dbd6bf9ccc63
-full match at home, pinball and lone pitcher	1800	086718486f680908	fbaf87abd7a902dc	78298d263794a1ae
-full match at home, pinball and lone pitcher	2400	48f8c8f5ddb5f3d4	a1e76f7e1486b835	8681d32ecb475d9d
-full match at home, pinball and lone pitcher	3000	c1d4e6e5dd5cc542	c4f34b627e204aea	456fcfd8fd0d1643
-full match at home, pinball and lone pitcher	3600	8c96a6c9e247b1a7	a3ca9d5b313f5f5b	6673dc6f56ac2716
-full match at home, pinball and lone pitcher	4200	b192c497579911dc	8333ce95f823a05e	8a26d41cbd53e76b
-full match at home, pinball and lone pitcher	4800	6c1e2a137441cff2	2287cf6cb97e8548	373fe13e72a642b7
-full match at home, pinball and lone pitcher	5400	68ab9579d9007afb	8404c67cc2c28100	951d4ae902208f5e
-full match at home, pinball and lone pitcher	6000	81df451dc2b0cbd6	823f4c366cd1d0ce	0cb517a08b618796
-full match at home, pinball and lone pitcher	6600	088393e10ef681c4	53fe7944328a2b01	c79caef94d596a4b
-full match at home, pinball and lone pitcher	7200	8d6ca8acc3498ce0	668a3b79d25aff9a	221714cb7110f88a
-full match at home, pinball and lone pitcher	7800	dc4d8cdc130f537e	bd2b16db008a6575	392a1327fb7686c4
-full match at home, pinball and lone pitcher	8400	97b6ed340b25e309	9ba42af5393baac3	066a8e0f6906c96b
-full match at home, pinball and lone pitcher	9000	fed153e7b6494887	0cb56b9c3b7d26e2	6e9d5c79e67e401a
-full match at home, pinball and lone pitcher	9600	cfe7bbd61f114b01	0351603c90f18c31	21bdb7c74ce192d4
-full match at home, pinball and lone pitcher	10200	090715aaf94fdfb3	6d80468f73067d00	7006336e9bedb4da
-full match at home, pinball and lone pitcher	10800	156e59c99d043363	80baca64497e05ce	f41ad2a2d8f9721e
-full match at home, pinball and lone pitcher	11391	d6d17a82d8d59b50	39860c06b94ff40f	5190f42d5b0a4d77
-full match away, pinball and lone pitcher	600	b8309443b6451d24	9c71492740925178	25c7dcc1738fac17
-full match away, pinball and lone pitcher	1200	1bd651df1a5afb6a	ece4c32a331942c2	45b08f46b742010d
-full match away, pinball and lone pitcher	1800	cecc204649199b01	643276c288bc3831	5e4cd607550e4e3f
-full match away, pinball and lone pitcher	2400	5dc6391df34b4a37	9b420fbc49d47bbe	86d1ef471d4e1914
-full match away, pinball and lone pitcher	3000	6b9b1da6346b1d69	1baca1ab3e92e4bf	0294309d33f9ec85
-full match away, pinball and lone pitcher	3600	f742670b82c5e62a	b2889a41948c0d1a	5eacd319a46d9925
-full match away, pinball and lone pitcher	4200	18e3f93894358cd4	ee6f51abcdff4e0b	01dda41deeb4d9c8
-full match away, pinball and lone pitcher	4800	8a7226ce10319294	f8f35c7882967df4	fdaa7fd71420e157
-full match away, pinball and lone pitcher	5400	96ec717df7d54022	94c06131e31df739	3e6dd09fc8cdb9e9
-full match away, pinball and lone pitcher	6000	1a23181dce0a8177	87e9d6d0d5fc1290	c99d4984ff34ddde
-full match away, pinball and lone pitcher	6600	2daebe31805df81a	d9185ca49980689a	6a4b1ee12d7932b9
-full match away, pinball and lone pitcher	7200	77080a4e32bbfb47	2d891bb8161f9bae	089d3c4be1fed44a
-full match away, pinball and lone pitcher	7800	4c29c0fcea06d4ee	189d6daa34d70edc	cdab377bdcc01296
-full match away, pinball and lone pitcher	8400	43ab43144ea8ea48	a226373e34426f1b	9b5541c4481c8455
-full match away, pinball and lone pitcher	9000	fee4e6858b726c46	056f48d83bfa61e8	9b7215fa324a8e93
-full match away, pinball and lone pitcher	9600	90a132764d59644d	ab96b2d3f3998bb3	29ebab0c14878671
-full match away, pinball and lone pitcher	10200	dd031957593fc3da	6893bccc9d24f5d6	4f649d15904e35f9
-full match away, pinball and lone pitcher	10800	20b8e1064c05bd08	b211c6d7f2ab0547	138e0ad029d4c932
-full match away, pinball and lone pitcher	11400	7dcdff008039cb34	0942737c08b82e49	46178edbe06efc84
-full match away, pinball and lone pitcher	12000	ac29705b7aad1941	461d3c8b8c3b17a1	56e386ee453d346e
-last innings, bullet time at night	600	5b1b92f10aca2ac4	9b68ff47fd02b532	9cea1da4797de3a7
-last innings, bullet time at night	1200	ab4a9290baa28025	c776077d06d3319f	d4362675b6d90283
-last innings, bullet time at night	1800	6722914cbe54a687	dd33abeb58396034	605b1084f9f88ee8
-last innings, bullet time at night	2400	264d10235f1f734b	6dd70d2d154c5389	6e5482df319f47fe
-last innings, bullet time at night	3000	05d6c275b267084b	67f0d021b3a7642e	f9441918a105f734
-last innings, bullet time at night	3600	b49d02e3ea1a2f24	0df72501e2b75156	6dbe518ed3d96756
-last innings, bullet time at night	4200	b3c4ae2a06d6542e	cda191959006b57b	388c222e4d9ebb50
-last innings, bullet time at night	4800	7cac3c269910cd0b	bcbf8be46a36583d	6cbf307b22a6c43b
-last innings, bullet time at night	5400	1715904077a8d593	b9b635287cc57a56	ae0aaf03de4a3322
-last innings, bullet time at night	6000	45d0408ea6da4ec7	e56264a4459f6567	22767c1c22b4cd4e
-last innings, bullet time at night	6600	780f33fe8b9c50f3	c788e06d997a0b12	584f0899c8ebe0ef
-last innings, bullet time at night	7200	e43537cf726050e2	27c50796a5b33ba0	cfe9142558d2a980
-last innings, bullet time at night	7800	afd14db0cb451160	bc7c5c4e542f47aa	bc13420409d51148
-last innings, bullet time at night	8400	90ef7677c16fddba	7a6a8b7834f15e0a	0480e73cbf4619e4
-last innings, bullet time at night	9000	6e75fb71f11174bb	36cfe183b25285f3	2029b400ed2efae3
-last innings, bullet time at night	9600	25edfea0224f84bf	678b03b2e84a08af	108a045e1dc646c6
-last innings, bullet time at night	10200	e5dd19a86b4929b4	2f90ab8d79d7471c	e8b1e57b0c7ee482
-last innings, bullet time at night	10432	cc61d8dea6836b93	f631fa9d8016196d	0484b0239af69582
+full match at home, pinball and lone pitcher	1200	98496ab878c3190f	60619525dcbd95f9	1c7c39041efebb53
+full match at home, pinball and lone pitcher	1800	c5400eca8ef0d721	bd28777575f8e6e7	7765882e9eb5bd6c
+full match at home, pinball and lone pitcher	2400	a552f2d1eaf3c846	47429410c635ffa4	3497d49267edbf0a
+full match at home, pinball and lone pitcher	3000	ac59b0f5bf6bfe93	43fdb14d4816fa6c	5eb949e7bd123bf1
+full match at home, pinball and lone pitcher	3600	21cdce402aea5863	013d8f3a6f3f92b7	a30fe70c9364d13c
+full match at home, pinball and lone pitcher	4200	4b297cfba36672fc	594f2fea6aae979f	8ea40807a8247d66
+full match at home, pinball and lone pitcher	4800	eb1a358632195e52	d3e1ae97e7dc7f39	0a4dde4e35de32d5
+full match at home, pinball and lone pitcher	5400	8a6b62b7ca3dbd0f	5f1da4b77474d7c8	2baa4b35867ae947
+full match at home, pinball and lone pitcher	6000	bbcf01dcab49a7d7	05149beb38d6fa75	451815d80d5dc83b
+full match at home, pinball and lone pitcher	6600	489ad7a392d6999e	71eb39df92f6b5f5	2d46d7265ceaf356
+full match at home, pinball and lone pitcher	7200	71a62248b62e1a8e	75ff2aff1fa50f96	26c4e236d33f62c5
+full match at home, pinball and lone pitcher	7800	58e71b3d931a1cd0	5ce625820e50e31e	6ece58bf0056462d
+full match at home, pinball and lone pitcher	8400	36503dd21e1a6566	30b9c63bad629a32	45c286168b7bcc09
+full match at home, pinball and lone pitcher	9000	abf3992d93270bba	e7e58dd38eb6450c	741d234a87edf8f1
+full match at home, pinball and lone pitcher	9600	d9376de022746d4b	d38f10777e2b0d6f	0a1cec5ba6b1a066
+full match at home, pinball and lone pitcher	10026	5c41fc142486af35	ca2fe61c8a61c5ee	cf919805fba7a71f
+full match away, pinball and lone pitcher	600	31b28fab063f0941	08a113f6f9f35758	e1a1f34879498030
+full match away, pinball and lone pitcher	1200	0620a4f75e957a83	4b3d34b707639d1f	d50d618a7daa0d85
+full match away, pinball and lone pitcher	1800	4a4f1594e9d3c20c	8b429b55cf988704	9dd68516a8d8804d
+full match away, pinball and lone pitcher	2400	d2190a2e158e8bec	2ea3069f2a3c0521	effaa9e8dfa27557
+full match away, pinball and lone pitcher	3000	676904af46f6a33b	fcdc4cf495017c31	e339f3d1f0ccb866
+full match away, pinball and lone pitcher	3600	5006b7ae2269a23b	56a1e60d14f8c417	683523175f52b2aa
+full match away, pinball and lone pitcher	4200	86bed99ad58b2705	177ec8a9e9e60995	090913b039559065
+full match away, pinball and lone pitcher	4800	01a826633dacb333	d468ba59d3332a17	9d7dac62234e2eda
+full match away, pinball and lone pitcher	5400	5eaa81a04ec23ecc	7719952af9c928cb	922e7b8baf8c7dc4
+full match away, pinball and lone pitcher	6000	eba5ebd9f8b021cd	4f76af8e97fee65d	396d2735cf42854c
+full match away, pinball and lone pitcher	6600	ecb783988566b3a8	32fe7732b2af1a79	3c69e7b737479958
+full match away, pinball and lone pitcher	7200	0dce8a32fb680d24	67ea943550f0b5d5	c60195c457478dc2
+full match away, pinball and lone pitcher	7800	9f79d9d0335ce6ad	3c6c09626c16d45b	98945425cb7723a2
+full match away, pinball and lone pitcher	8400	5349793c62ee8053	0e7ccb50da77f78d	fc056cfd1f4d91a8
+full match away, pinball and lone pitcher	9000	cf927ca1b2621256	8e63e1e3147a1014	568c92cf77740b95
+full match away, pinball and lone pitcher	9600	f1627094541fb28a	47f1d4ae7a2c1924	9bcdb23d9ee45696
+full match away, pinball and lone pitcher	10200	6e7619d007259cd3	db0533dfcf0a11e7	42f22aee7980a156
+full match away, pinball and lone pitcher	10800	f0c99ce38ef87b9b	35df242cca4008bf	d6fa9c8e84f920c2
+full match away, pinball and lone pitcher	11400	2203a69c7075da60	5097e45f2ad50fd1	8f3c58180d70f6d7
+full match away, pinball and lone pitcher	12000	208fd0925923c8ca	3943c834a146c328	a80db94c1dd8926c
+last innings, bullet time at night	600	c7a4ab70528a87a4	c7268e0496db15e3	b7d8ea87b94af01f
+last innings, bullet time at night	1200	3b13cab6172593ec	9540390fb1636402	53e2e80e5d20fa27
+last innings, bullet time at night	1800	043fea11f325a422	a4dd6f3bfda4e7bc	e9d8870ec55abc0f
+last innings, bullet time at night	2400	c16a7c054cfe6839	9488be9ecb8971d5	6612c203c89e98e4
+last innings, bullet time at night	3000	a74b90573f5b6268	f5f23a7c8e2628f4	fd7cb216f64346f7
+last innings, bullet time at night	3600	670094696e984cf0	5f029459edc4596e	f5bc852728877cf1
+last innings, bullet time at night	4200	a9f04419249c6880	accb9fca20a0ebf3	720938be43dec4a4
+last innings, bullet time at night	4800	1c8e23a8e10a31aa	9e9d9171f2890fc6	79b451421b90f5d6
+last innings, bullet time at night	5400	96871956e9658f06	3f3fa088a789eb5e	3654ad847fb46584
+last innings, bullet time at night	6000	8c1b862cbac11dc9	c2bb7c4e988a6f37	5e8b9822fd928947
+last innings, bullet time at night	6600	8a07ba53565a7a7f	eaa4717c26300e3f	3cd4858d0fa91635
+last innings, bullet time at night	7200	65f2588f93997e29	622e3eec98e62791	0c4ea126be77c2bb
+last innings, bullet time at night	7800	c27475cd13449f60	8c08e9178d0fe80a	b698c83f9f5c3144
+last innings, bullet time at night	8400	bceeb232d114a1b7	aef9be5b30c192ab	dcc554752fbacaf2
+last innings, bullet time at night	9000	d17fcfd0f76aca65	4a354212803b51e5	3d4ec4f5c04ac956
+last innings, bullet time at night	9600	71752627c34e30af	232668e544290418	70ea0e98bf9f77ab
+last innings, bullet time at night	10200	ef5c7988e5f4392b	7b96e3fee48901f9	cf86c406d782ceaf
+last innings, bullet time at night	10800	e3b571e589ee70b2	c6e37afd61e5fb14	4864e825167dd9a8
+last innings, bullet time at night	11390	21325794a4309735	ff9201283f39878a	4124478cf7834675
 arcade, bullet time at night	600	e2bc88e6e3c21e89	4c86bb61ce15939d	783922137ec7729b
-arcade, bullet time at night	1200	bc2910a8394db44d	9b431bc953363c52	d20a07c9f6b2ae19
-arcade, bullet time at night	1800	c1b47b295c27a063	3fed860205c0185b	4463316aa172ba13
-arcade, bullet time at night	2400	c74f11b7bdd7d193	f56569df5faace75	4c4b5a0fb74afe5f
-arcade, bullet time at night	3000	124052954585c4c9	be187fbb775cd7b8	335aec8c169e41c6
-arcade, bullet time at night	3600	24222258e415d744	bc1ed69ddd36de5c	d08741789f9e5c6f
-arcade, bullet time at night	4200	71c454e877c3f9ba	5c97f79b398cd87e	f294325e56d7bba0
-arcade, bullet time at night	4800	40063f17f82ca2c6	33fbb5451c7c3906	7934048a58dac605
-arcade, bullet time at night	4825	00f2fadf6b0840df	bc2b03b9a3e65c61	bd4deba25b9ed77b
+arcade, bullet time at night	1200	bc2910a8394db44d	9b431bc953363c52	cab2d74be19dcfe0
+arcade, bullet time at night	1800	c1b47b295c27a063	3fed860205c0185b	ce94630b6f642b03
+arcade, bullet time at night	2400	c74f11b7bdd7d193	f56569df5faace75	5eef9d3a609919f0
+arcade, bullet time at night	3000	56a244ca2f29f0b4	2aa09c18653b7155	e42fc13bf888e8e9
+arcade, bullet time at night	3600	3e83fc7f2fbf73e1	1a947a306c811927	88a87bcc4f5dd76a
+arcade, bullet time at night	4200	5a7e766c09efa3c2	e50ac80e4d2ae235	bf9ecbec58af52aa
+arcade, bullet time at night	4785	210ff4a1510e0693	37d0167dbb27d817	e970a4a0f2d6d0a2
 full match at home, bullet time at night	600	799e4abde6cd702e	1e6b28b687ea969d	d91ecc5825b09d96
-full match at home, bullet time at night	1200	8f9b7e5321dc9890	3bb55b7daf6cea69	c90034c660a1d200
-full match at home, bullet time at night	1800	b8b8c3cb325f341a	76ca1453ba66b7f9	9182c53c83ff0cb0
-full match at home, bullet time at night	2400	0346864458c3b4f1	9b2027fbb4296b7e	90c84c94065ef0ff
-full match at home, bullet time at night	3000	afe90dd26bbfac96	b60e857658a57c04	67ce30bc94ddba91
-full match at home, bullet time at night	3600	c95933d53e75df13	412db8e45c1da437	7ee552a8b8ffbd7d
-full match at home, bullet time at night	4200	7d9fb370507014d2	3c290710bd671565	7812431b2a302cc3
-full match at home, bullet time at night	4800	688932dc2f43a17a	1e0ab38b56688dbb	454554ccd4ba1a8a
-full match at home, bullet time at night	5400	51e2e4d0be4ee9c1	8e11d8883e89f31b	b09d544b5cc05d82
-full match at home, bullet time at night	6000	dbf342212bf10242	f9764390894fb4d6	a95773e141981842
-full match at home, bullet time at night	6600	add00b8e117ba855	f813e3694e89e8c8	11313cf25cf917b6
-full match at home, bullet time at night	6969	cb8a6c3dbd64e9a0	bc9e610c08e9fdf3	5a1906653e362a70
-full match away, bullet time at night	600	2f7818d669230041	9c66c6f7c29773e5	c8d962ba4ed7d4da
-full match away, bullet time at night	1200	ab7b186f43e41156	06579fb35e8a6645	95e562b5fea6063b
-full match away, bullet time at night	1800	050a6f6865ded941	593ce3c3cca185bb	4bb191abc08d35eb
-full match away, bullet time at night	2400	7fff198fb167d002	079bbcca8f80083c	757d3f70935fd214
-full match away, bullet time at night	3000	6d2bbb81f9428b04	d5de816febd4cf96	53f9ff981e8150b6
-full match away, bullet time at night	3600	07c177f21978b174	bbbc8d30c9ff6820	469abea3e94fa2c3
-full match away, bullet time at night	4200	c45bf24f3b385c19	2cc3baf5ceb98659	b1defb2f5e200e69
-full match away, bullet time at night	4800	792a997e93fd2b12	3e33df96421a6ae0	38db801be7522615
-full match away, bullet time at night	5400	4a9ddcb185a36f38	73c8ecbd227b9d97	e1571240a572c27a
-full match away, bullet time at night	6000	c5ccc10497177811	41ddc1027fc70790	a3f48d0566b83eee
-full match away, bullet time at night	6600	41c47b56523419f8	035f4795b2e75137	037da416c33ab121
-full match away, bullet time at night	7200	a7bae0af6d2faf63	50152a996d9a23df	be222549bc7d9e05
-full match away, bullet time at night	7800	ae0aac284c8c2ee1	711b03d203f41da5	4b9f71c5fd21ade5
-full match away, bullet time at night	8400	99dcda2a9dcb9b14	29b8389182f65941	58b7420e6a6951be
-full match away, bullet time at night	9000	ff2f343387b57839	02249b5ba08bf300	165b8769921a041c
-full match away, bullet time at night	9600	3548682beb748b58	341d331dc9637107	8a3269d521ffcd1d
-full match away, bullet time at night	10200	2652352b9fcfca6b	e89c50c28b911e2e	3a6c2636f5e25662
-full match away, bullet time at night	10800	54e10aef29ec0127	11b3fffdb4be1c90	4443dc2e8bcfebec
-full match away, bullet time at night	11400	a6b0f52b1192afa3	66668d5f228ed65a	b77ba7548b71dbef
-full match away, bullet time at night	12000	c4002e8fc556a67d	17e03f531dff2129	72fc1e3feaaac8d4
-last innings, what shapes the pitch	600	42f78bcfe7fb1681	f8a63f4dc93d89ad	7b89dcb1cca910b2
-last innings, what shapes the pitch	1200	cab1d7605a70a301	4f16a343b67261c0	55d6c2324b67ace2
-last innings, what shapes the pitch	1800	e5ceb3bb56d848be	cd731dc3c9bb2efe	5e161095e48a4e0f
-last innings, what shapes the pitch	2400	50efa8fad7b003ab	1019717cc4f87399	f629beb679150adb
-last innings, what shapes the pitch	3000	4f1e568d87c29f5f	e0d9930f1d19e9c2	a69c05f0068ef073
-last innings, what shapes the pitch	3600	e84c87b7b1b19966	f7886d981671b47e	db1317b46c53154b
-last innings, what shapes the pitch	4200	050655ecfba68ace	cc8bab967ca8c35f	c5ca377b8ac15dd7
-last innings, what shapes the pitch	4800	b1c6cef73f07d19d	28892dc33e7eaf30	e70dd2b419b6b152
-last innings, what shapes the pitch	5400	e51395aade0c0e97	92f4227d0ee2149f	14f2e8f28af43959
-last innings, what shapes the pitch	6000	d48bc2cd906a3260	bd0cec67a2d61589	e9fa6605175f89d0
-last innings, what shapes the pitch	6266	df1df7014ffb2fa8	5264193c6fb0dd9a	99a2eeccf8fa1a7a
+full match at home, bullet time at night	1200	8f9b7e5321dc9890	3bb55b7daf6cea69	79f5b141d5c8fb94
+full match at home, bullet time at night	1800	57466afd3ace71bc	06f5f12f134aa4d9	f73cc5aee7bf865a
+full match at home, bullet time at night	2400	b30a51fd3cb6d01b	9dc74623caa26bb9	0c549d2ef76c3328
+full match at home, bullet time at night	3000	0f0072ae3fcc11db	8ed7d8cc9cd1bb8c	9e0347fe30084f14
+full match at home, bullet time at night	3600	268040bf8e3be14c	bd6d786c0b1d33a1	f2c058af76531c5e
+full match at home, bullet time at night	4200	53011abe8e1b9f96	768751b04088737f	266f930c0184da68
+full match at home, bullet time at night	4800	9f977d412c50df62	5ae0ba12f9270fb5	d78c301eeb264530
+full match at home, bullet time at night	5400	339fa06a97dcd5d5	1ed650fc688b5fca	e64f4f7f21c8e33c
+full match at home, bullet time at night	6000	dc55fde5095c1207	712038b8e3b93b9f	c530ce65e4b129b2
+full match at home, bullet time at night	6600	c577ca7ddd645662	a48814e9215907fc	f108c901aaed0b0b
+full match at home, bullet time at night	7200	3632a566bcaa0587	61e4a8dc3769a0d8	a783599fa20e8e69
+full match at home, bullet time at night	7800	482d57c800f7453c	e31347350c13b23e	acb36850d16c43a6
+full match at home, bullet time at night	8400	eb11302850da3a49	bc5d14be66176141	edfbef51382f9d98
+full match at home, bullet time at night	9000	4b3a7cb17b5b692b	5069b5c174263c5b	0cd881a38e6958ce
+full match at home, bullet time at night	9600	951190eb01338a7d	4689ae9ecc3e0bca	693ad026c7bb257d
+full match at home, bullet time at night	10200	58d1ba05bc1927e0	4d6b37ea12182675	612b6a9d4628df2f
+full match at home, bullet time at night	10800	30ec5530fdcf023f	50c53af1f90aa69a	f787fb133b19def2
+full match at home, bullet time at night	11400	0c871469befb121a	ab179965a3ee1dfe	66571bd7c682f436
+full match at home, bullet time at night	12000	8d54d8f4d71fefbd	d3c462eb98d56c6b	2666adcec9394d25
+full match away, bullet time at night	600	d8ef76f5331117aa	75189ffc0e871dd2	e91cfbe361987d33
+full match away, bullet time at night	1200	ad589b9b6ee0d747	51107aae378dc791	156c5be36ace3c36
+full match away, bullet time at night	1800	ca6606e987e8ba97	e640fa7158bbaea1	c4f3922c67baa624
+full match away, bullet time at night	2400	0d15922153f9e443	082b5b27eb5f6f14	39c8795415bae114
+full match away, bullet time at night	3000	02b1439b708bd16e	2cafc09a10028bf8	51925594498a64dd
+full match away, bullet time at night	3600	6c5c4065a1a6918f	d76afeefce9fdfc7	98e213279c709332
+full match away, bullet time at night	4200	b466c969a04a5d96	6f5ccdf50d8edbe6	1a649ef06fd0b4c1
+full match away, bullet time at night	4800	5d38ccdcad53deb6	15377807519a54c9	a70df1609b9542c5
+full match away, bullet time at night	5400	67f376e04e326018	3b84134e18648607	1fbfc4d9653068be
+full match away, bullet time at night	6000	11b1ccd7a58d193d	d0babb647d6c7846	2f6098f4b008a0f0
+full match away, bullet time at night	6499	40c8074ca0b3c62f	19dbe7c8cbca54e2	45e1dc3a0c9c27e6
+last innings, what shapes the pitch	600	38ed0adf65294107	bb061dc35ba15792	1c5c63b2d041f837
+last innings, what shapes the pitch	1200	b9b071a17c299856	dabb5f0ee27414a3	309bfde913bff9d2
+last innings, what shapes the pitch	1800	81a89699f71c0165	6e8c72c16d8bce34	6f27b3b36ec02401
+last innings, what shapes the pitch	2400	cf99a69beb91bd72	c297481ba6d9253d	096cc9eceeae5fea
+last innings, what shapes the pitch	3000	2561121803bda89b	2b0f5f88ebb329c1	277e264a23556ffc
+last innings, what shapes the pitch	3600	6405e7d02d5020b3	427fae8c5390b9dc	35ed57ec5fc1b9e4
+last innings, what shapes the pitch	3904	eef5fe239c1fec91	4320428f25cc862a	dc30e1c9e4d308ed
 arcade, what shapes the pitch	600	b5700f67b90a8f35	b071d5923989565a	cb500d865a17afe3
-arcade, what shapes the pitch	1200	ac617068e4560a9b	a00aac8afc63274c	b2c55abef2fda469
-arcade, what shapes the pitch	1800	7f48caf9dea84cdb	6071e98b8f678772	fe059a6b7ca44e23
-arcade, what shapes the pitch	2400	d13f1093b87d5476	0407b92b26e7a7fc	e8fc8a25954dd0fc
-arcade, what shapes the pitch	3000	0c76bdc48fbb90b4	3bbd8e21d8e0f8bc	ebe98a5c7a040526
-arcade, what shapes the pitch	3600	d765b74504e994fc	46e3497ebacc131b	9a64ad96ee06ecea
-arcade, what shapes the pitch	4200	68a5de491098efb8	c7a49532850cd878	48c69b3538c71ec0
-arcade, what shapes the pitch	4800	01c0317371f15af7	5f6c8622ec63f862	f71927bdaa457471
-arcade, what shapes the pitch	5400	54cc944077d4338f	7a24781a8510c7a9	32f8aa2ed9b8fd76
-arcade, what shapes the pitch	6000	9aee7ae15cf3d97c	cb5a996aef5a535f	453b7ad90cc185eb
+arcade, what shapes the pitch	1200	ac617068e4560a9b	a00aac8afc63274c	133104713efc9d1f
+arcade, what shapes the pitch	1800	7f48caf9dea84cdb	6071e98b8f678772	2851ecb35de952c9
+arcade, what shapes the pitch	2400	d13f1093b87d5476	0407b92b26e7a7fc	ea3f2dd99dcafbe7
+arcade, what shapes the pitch	3000	0c76bdc48fbb90b4	3bbd8e21d8e0f8bc	26e45bd168698efe
+arcade, what shapes the pitch	3600	d765b74504e994fc	46e3497ebacc131b	c35d404daae424ed
+arcade, what shapes the pitch	4200	68a5de491098efb8	c7a49532850cd878	60b1ee112402c425
+arcade, what shapes the pitch	4800	01c0317371f15af7	5f6c8622ec63f862	7ec50fdd2c60e6d1
+arcade, what shapes the pitch	5400	54cc944077d4338f	7a24781a8510c7a9	e936deac9514a602
+arcade, what shapes the pitch	6000	9aee7ae15cf3d97c	cb5a996aef5a535f	708461ac6c8d5b24
 full match at home, what shapes the pitch	600	22ad155f240aca37	c6c8e4e8adb8a40b	521c85e5c461dbb4
-full match at home, what shapes the pitch	1200	2cabbfc82a4ef9b9	3fc6c8f06122c44b	130cb62dcce89ff3
-full match at home, what shapes the pitch	1800	64d5ca338b9b01c8	73c85aa5604f79af	3a08a37e54c39beb
-full match at home, what shapes the pitch	2400	5f4f729ec4c5f66e	1ed8e5d624683ba6	b4039deda50d2732
-full match at home, what shapes the pitch	3000	39af3a2d02d24253	0e1e33c6f92e130e	de1d788e389a6216
-full match at home, what shapes the pitch	3600	fe3ab90a1cdb93ab	ae5c4851a6a2ad3f	163a10c9827a9dbe
-full match at home, what shapes the pitch	4200	f60141aeeab3f4e7	e6708d55e1635c51	4fb512c6fb57693e
-full match at home, what shapes the pitch	4800	43c846f9177dca81	54269622a46c5a55	909e53199711e04f
-full match at home, what shapes the pitch	5400	6e3b768bd7f377b7	e372635d893f44d2	77c42e8ce2ce8347
-full match at home, what shapes the pitch	6000	f6a6e9c1e88d89bf	05796824c92169f3	5f8d6c215c19728e
-full match at home, what shapes the pitch	6600	f5e0d49f57fd7c41	f3acaa29547ba541	9045fdb535febf9b
-full match at home, what shapes the pitch	7200	fbfe4eb7bed85cb2	e3aa7775c211bcc0	3222bb35deb221dd
-full match at home, what shapes the pitch	7784	9278d42a07696353	4b7b4dcc50aa6726	ac13be9c17db9e5c
+full match at home, what shapes the pitch	1200	6e272f09fc8ceac7	124514d1fb6a56b4	c9aade6b98b63086
+full match at home, what shapes the pitch	1800	6fdb844c1842bf86	99626bd8332578e9	3eac04b7c18bf76b
+full match at home, what shapes the pitch	2400	037fa4f4ec43993f	a252dbf5c70860f6	9c25ea3e28407ff0
+full match at home, what shapes the pitch	3000	a1dc28f569d2be54	cb66d582166be4c6	bb12acae479e53a4
+full match at home, what shapes the pitch	3600	991525be06191295	46a3401af2495cc7	3e7f993aaad5ac76
+full match at home, what shapes the pitch	4200	69d32723faa70517	c26c4996a955aa55	b606904f21cc4ac0
+full match at home, what shapes the pitch	4800	07c86698c213ec5f	688310666802037f	7ad5406e1f57b0f6
+full match at home, what shapes the pitch	5400	c81d7e8c50f3f40d	738f25d363fc581e	a9f84b54a07fa438
+full match at home, what shapes the pitch	6000	1dbc7cf3d8e64ed3	22d1bd08e9667c48	7aa17cf4f24bdc14
+full match at home, what shapes the pitch	6600	39f3fb5f3f118c78	793c03e616372870	8c8201aa0d1c4d1e
+full match at home, what shapes the pitch	6881	f62cd8813a1c3c37	540d5c1aac4a4923	9e703fa576ecb74a
 full match away, what shapes the pitch	600	63dac094f5337814	d3bed6cd39dde9ae	6624ef851acd8eb2
 full match away, what shapes the pitch	1200	f540a456a12ae50f	b3b1b31029e08349	aac46f9d584a6fc2
-full match away, what shapes the pitch	1800	14f0434cd5679578	7e9a53c1062c9eb2	acd2799964c55be9
-full match away, what shapes the pitch	2400	a382c08cf7937708	db10670d3139febb	1739d6785facf0d7
-full match away, what shapes the pitch	3000	41e874ca9698d226	c07991a82422fb3c	ced3d290e3b5b902
-full match away, what shapes the pitch	3600	9a97c3822005f58a	76c159831b9a0b2a	5928475e9796f696
-full match away, what shapes the pitch	4200	cba5ee2a98a2c362	cf7d943182638bcc	2e4fe1b902245647
-full match away, what shapes the pitch	4800	3107c4df6fa6d6e7	bfa4de9ff03729a4	5526f8aeafad23a1
-full match away, what shapes the pitch	5400	06befe5dd8e03a98	eaa33df69ba917f8	e502472d347fcddb
-full match away, what shapes the pitch	5527	1e0b0592a97eab43	755bbab0d51a8d68	c0c7144cbfea880a
+full match away, what shapes the pitch	1800	14f0434cd5679578	7e9a53c1062c9eb2	5a632aa3fc4040b3
+full match away, what shapes the pitch	2400	7cbce259620c78f7	b9f02ff1115780b3	f63d58a0099cb096
+full match away, what shapes the pitch	3000	4d5987bb98e582ab	003894c7dae1f4f1	9d2e60404c015480
+full match away, what shapes the pitch	3600	857571a4835e8106	803185ff53318a22	8e4e054c4d4b2311
+full match away, what shapes the pitch	4200	d106fc4f922a15a4	dcd699dcab881ec6	6be5e6006d555fcd
+full match away, what shapes the pitch	4800	4e016a47102c245f	b0842a6b1a9b98fa	ebe03c71f2004438
+full match away, what shapes the pitch	5400	d76828ea4e96733e	b526995b3ca06e31	c0cb32ba62b076ba
+full match away, what shapes the pitch	5869	bfe41ad539716908	0473163b0773ad9f	c09650f2401167ed
 last innings, every mod	600	d3c50fa474d74e32	35d01fff63656007	73641958462eec1c
 last innings, every mod	1200	7116c63d8fd3cc06	96c608b5666aed2e	c6d7945f4373e1d7
 last innings, every mod	1800	49dd44f179173f65	ee476cf18527d8d2	996d9394713c80db
