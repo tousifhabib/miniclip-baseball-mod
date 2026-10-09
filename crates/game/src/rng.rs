@@ -76,7 +76,15 @@ impl Rng {
 
     /// A number from `low` up to, but not reaching, `high`.
     pub fn between(&mut self, low: f32, high: f32) -> f32 {
-        low + (high - low) * self.unit()
+        let drawn = low + (high - low) * self.unit();
+        // What is worked out is rounded to the nearest number a float can
+        // hold, and now and then that is `high` itself. The number just
+        // under it is as near as can be got without reaching it.
+        if low < high && drawn >= high {
+            high.next_down()
+        } else {
+            drawn
+        }
     }
 
     /// A whole number from 0 up to, but not reaching, `count`. Zero if
@@ -177,10 +185,14 @@ mod tests {
                 prop_assert!((0.0..1.0).contains(&unit), "{}", unit);
                 prop_assert!(rng.below(count) < count);
                 prop_assert_eq!(rng.below(0), 0);
-                // No lower than the one and no higher than the other. The
-                // higher itself is not ruled out: see the next test.
+                // No lower than the one, and short of the other, unless
+                // the two are the same and there is nothing between them.
                 let between = rng.between(low, high);
-                prop_assert!((low..=high).contains(&between), "{}", between);
+                if low < high {
+                    prop_assert!((low..high).contains(&between), "{}", between);
+                } else {
+                    prop_assert_eq!(between, low);
+                }
                 prop_assert!(!rng.chance(0.0));
                 prop_assert!(rng.chance(1.0));
             }
@@ -209,17 +221,20 @@ mod tests {
     }
 
     #[test]
-    fn a_number_between_two_far_from_nought_can_be_the_higher_of_them_as_things_stand() {
-        // An oddity, written down so that a change to it is noticed.
-        // `between` says it never reaches `high`, and with numbers of the
-        // size the game asks for it all but never does. But what it works
-        // out is rounded to the nearest number a float can hold, and this
-        // far from nought those are two apart: anything over half way from
-        // `low` is rounded up to `high` itself.
+    fn a_number_between_two_is_never_the_higher_of_them_however_far_from_nought() {
+        // This far from nought the numbers a float can hold are two apart,
+        // so anything worked out over half way from `low` is rounded up to
+        // `high` itself, and once was handed back as that.
         let (low, high) = (16_777_216.0, 16_777_218.0);
         let mut rng = Rng::new(1);
         let drawn: Vec<f32> = (0..100).map(|_| rng.between(low, high)).collect();
-        assert!(drawn.contains(&high), "{drawn:?}");
-        assert!(drawn.iter().all(|&number| number == low || number == high));
+        assert!(drawn.iter().all(|&number| number == low), "{drawn:?}");
+        // And at the size the game asks for, the very top of what can be
+        // drawn stops short too.
+        let mut rng = Rng::new(1);
+        for _ in 0..100_000 {
+            let number = rng.between(150.0, 400.0);
+            assert!((150.0..400.0).contains(&number), "{number}");
+        }
     }
 }
