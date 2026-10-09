@@ -64,6 +64,31 @@ open "target/app/Baseball Mod.app"
 The app is called Baseball Mod and keeps its scores apart from the vanilla
 game's, so both can be installed side by side.
 
+## How far a hit goes
+
+How far a hit goes is settled by the swing: how it was timed, and how far
+above or below the ball the ring was held. Which way it is sent settles only
+where it comes down. A swing that would put the ball on the wall in left
+field puts it on the wall in centre and in right.
+
+That is not how the original had it. The field is drawn at a slant, with
+right field across more of the screen than left, and the original counted
+the ball's flight in pixels of the screen. A ball went up the screen at one
+pace whichever way it was sent, which carried one sent to either side
+further over the ground, and was then held back by how much of the screen it
+had crossed, which to right field took away more than had been given. With
+the ring level with the ball, a swing reached the wall down either line that
+fell short of it in the middle. With the ring a little above or below, the
+same swing came down as much as ninety feet shorter in right field than in
+left.
+
+Here the flight is counted as the distance to the wall always was, which
+allows for the slant. A hit that goes straight flies as it did. The numbers
+are `pace` and the three that begin `drag` under `[field]` in
+`data/rules.toml`, and
+`docs/decisions/0009-a-hit-goes-as-far-whichever-way.md` says how they were
+come by.
+
 ## Full match
 
 The menu's first page has a Full Match row, under Bottom of the Ninth. Where
@@ -120,8 +145,8 @@ played out by under `[full_match.their_batting]`.
 The menu's first page has a Mods row. It leads to a list of the mods, each
 with a box to tick. The list has pages of its own, turned by the arrows under
 it. What is ticked is kept from one run to the next, beside
-the scores. Every mod starts off, so the game plays as it did until one is
-switched on.
+the scores. Every mod starts off, so until one is switched on the game
+plays as it did, but for how far a hit goes.
 
 | Mod | Name for `--mod` | What it does |
 |---|---|---|

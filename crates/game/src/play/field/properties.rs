@@ -39,6 +39,40 @@ proptest! {
     }
 
     #[test]
+    fn any_swing_covers_the_field_as_fast_towards_any_part_of_it(
+        // Any timing and any height of the ring, sent anywhere between the
+        // foul lines.
+        power in 9.0f32..=30.0,
+        under in -60.0f32..=60.0,
+        across in 0.0f32..=1.0,
+    ) {
+        let (rules, ground) = (Rules::default(), Ground::default());
+        let (home, straight) = (ground.home, (303.8, ground.mark_y));
+        let mark = ground.foul.0 + across * (ground.foul.1 - ground.foul.0);
+        let swing = |aside: f32| Contact { power, under, aside };
+        let sent = swing((mark - straight.0) * rules.field.aim_share);
+        let hit = |contact: &Contact| Ball::hit(home, straight, contact, &rules.hit, &rules.field);
+        let (mut up_the_middle, mut ball) = (hit(&swing(0.0)), hit(&sent));
+        for frame in 0..900 {
+            // Until either comes down or comes to the wall, which the
+            // last place of a sum may put a frame apart.
+            let happened = [
+                up_the_middle.step(home, sent.miss(), &rules.field),
+                ball.step(home, sent.miss(), &rules.field),
+            ];
+            if happened != [Happened::Nothing; 2] {
+                break;
+            }
+            let (far, as_far) = (covered(home, ball.at), covered(home, up_the_middle.at));
+            prop_assert!((far - as_far).abs() < 0.5, "frame {}: {} and {}", frame, far, as_far);
+            prop_assert!((ball.height - up_the_middle.height).abs() < 0.001);
+        }
+        // And it went the way it was sent.
+        let is_across = ground.across(ball.at);
+        prop_assert!((is_across - across).abs() < 0.001, "{} across", is_across);
+    }
+
+    #[test]
     fn any_point_of_the_ground_is_as_far_across_and_as_far_off_as_was_asked_for(
         across in 0.0f32..=1.0,
         far in 50.0f32..1200.0,

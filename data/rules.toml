@@ -188,7 +188,10 @@ bounce = 0.8
 [field]
 # Where the field sits on screen once the view has changed.
 x = 40.0
-# The ball's speed is the way to its mark divided by power * pace.
+# A hit that goes straight is at its mark after power * pace frames. A hit
+# sent to one side covers as much of the field in that time: more of the
+# screen where the field is drawn larger, as right field is, and no more of
+# the ground.
 pace = 8.0
 # Sideways aim carries over to the field at 1 / aim_share.
 aim_share = 1.3
@@ -196,10 +199,15 @@ aim_share = 1.3
 lift_share = 0.1286
 gravity = 0.03
 # Drag: each frame the ball loses this share of its speed for every 40
-# pixels the ring was off in height, times distance squared over 1500.
+# pixels the ring was off in height, times how far it has gone from home,
+# squared, over 21056. How far it has gone is counted as the distance to
+# the wall is, and not in pixels of the screen, so that a ball is held back
+# alike whichever way it goes. The original counted pixels and divided by
+# 1500, which is the same thing for a hit that goes straight, and held a
+# ball back the more the larger its part of the field is drawn.
 drag = 0.002
 drag_aim = 40.0
-drag_reach = 1500.0
+drag_reach = 21056.0
 # What a bounce leaves: of its speed along the ground, and of its speed up
 # (which is also capped).
 bounce_run = 0.5
