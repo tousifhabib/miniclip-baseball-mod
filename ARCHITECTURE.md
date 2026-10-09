@@ -39,6 +39,13 @@ The engine has a middle that needs no machine, and three ends that do.
 | `audio` | Playing sounds |
 | `window` | The window, its events and the inspector |
 
+The larger parts are folders with a file for each job: `display` has the
+tree, the playing of a timeline, what things cover, the list of what to
+draw and the list of what is there; `gpu` has the plan of a frame, the
+sending of it to the card, the pipelines and the shader; `tess` has a file
+for each kind of art; `window` has its layout, its keys and its redrawing.
+What every part's tests are built from is in `testing.rs`.
+
 Nothing above the line of `gpu` touches a graphics card, a sound device, a
 window or the clock. That is what lets the real game be played with no
 window, by written steps, in the tests and from the command line

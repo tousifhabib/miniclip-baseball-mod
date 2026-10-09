@@ -15,6 +15,11 @@
 #
 # The pictures are not kept in the repository: one graphics card does not
 # draw quite as another does.
+#
+# One of them is not steady even on one machine. The match's setup page
+# comes out one of two ways from the same program, a few times in a dozen,
+# eleven pixels apart by one step of one colour. If match-setup.png alone
+# is not the same, draw it again before believing it.
 
 set -euo pipefail
 
@@ -37,7 +42,7 @@ if [[ ${1:-} == --same ]]; then
 fi
 
 if [[ $# -ne 1 ]]; then
-    sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '2,21p' "$0" | sed 's/^# \{0,1\}//'
     exit 2
 fi
 
