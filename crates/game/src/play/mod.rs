@@ -23,7 +23,6 @@ mod set_up;
 pub mod shift;
 pub mod sign;
 mod snapshot;
-pub mod southpaw;
 mod steal;
 pub mod timing;
 pub mod zinger;
@@ -43,7 +42,7 @@ use crate::rules::{FieldRules, HitRules, PitchRules};
 use book::{End, ORDER, Thrown};
 use field::{Ball, Contact, Ground, Happened, reach};
 use mode::Mode;
-use mods::ModsInPlay;
+use mods::{ModsInPlay, southpaw};
 use overlay::Notices;
 use pitch::{Kind, Mound, Pitch, Point, Quality};
 use snapshot::{ModsSeen, PitchSeen, Score, Snapshot, Standing};
@@ -328,8 +327,6 @@ pub struct Match {
     slow_beat: u32,
     pub(crate) slowed: bool,
     late_press: Option<Point>,
-    /// The batter bats left-handed, by the southpaw mod.
-    southpaw: bool,
     /// With the hit the sign mod on: the innings a sign was last lit for
     /// and which it was, what the next is drawn by, the sign a ball has
     /// just struck and the runs that was worth, until that has been told,
@@ -471,7 +468,6 @@ impl Match {
             slow_beat: 0,
             slowed: false,
             late_press: None,
-            southpaw: false,
             sign: None,
             sign_rng: Rng::new(seed ^ SIGN_SEED),
             sign_news: None,
@@ -1404,7 +1400,7 @@ impl Match {
             if left == 0 {
                 at_bat.run_in = None;
                 stage.goto_label(&parts.hitter, "run", true, library);
-                if self.southpaw {
+                if self.mods.southpaw.is_some() {
                     southpaw::run(parts, stage, library);
                 }
                 let last = stage
@@ -1508,7 +1504,7 @@ impl Match {
             hits_in_a_row: self.mods.hits_in_a_row(),
             rally: self.mods.in_a_row(),
             clutch: self.mods.clutch_this_pitch(),
-            southpaw: self.southpaw,
+            southpaw: self.mods.batting_left_handed(),
             bullet_time: self.bullet.map(|left| (left, self.slowed)),
             sign_lit: self.sign.map(|(_, lit)| lit),
             sign_struck: self.sign_struck.or(self.sign_news),

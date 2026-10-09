@@ -11,13 +11,13 @@ use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 
 use super::book::ORDER;
-use super::mods::{GoldenBall, Line, TiredArm};
+use super::mods::{GoldenBall, Line, TiredArm, southpaw};
 use super::overlay::{Notices, Says};
 use super::pitch::{Choice, Kind, Mound, Pitch, Point};
 use super::zinger::Zinger;
 use super::{
     AtBat, Corner, MYSTERY_TOP, Match, Outcome, Parts, Phase, Place, Runner, at, bullet, full,
-    shift, show, sign, southpaw, steal, timing,
+    shift, show, sign, steal, timing,
 };
 use crate::look;
 use crate::menu::Game;
@@ -75,7 +75,7 @@ impl Match {
         let mut parts = Match::parts(stage, library)?;
         self.cues.clear();
         self.put_away.clear();
-        self.stand_the_batter(&mut parts, game, stage);
+        self.stand_the_batter(&mut parts, stage);
         if let Some(outcome) = self.outcome() {
             self.phase = Phase::Over;
             return Some(self.close_half(outcome));
@@ -164,11 +164,10 @@ impl Match {
 
     /// With the southpaw mod on the batter stands on the other side of the
     /// plate, turned round. The number on his shirt is not.
-    fn stand_the_batter(&mut self, parts: &mut Parts, game: &Game, stage: &mut Stage) {
-        self.southpaw = game.mods.is_on(Mod::Southpaw);
-        stage.upright_text = self.southpaw;
-        if self.southpaw {
-            southpaw::stand(parts, stage);
+    fn stand_the_batter(&mut self, parts: &mut Parts, stage: &mut Stage) {
+        stage.upright_text = self.mods.southpaw.is_some();
+        if let Some(southpaw) = &mut self.mods.southpaw {
+            southpaw.stand(parts, stage);
         }
     }
 
@@ -484,7 +483,7 @@ impl Match {
             .as_ref()
             .map(|mystery| mystery.pick(table, release, &mut self.rng));
         let mut choice = Choice::pick(table, &rules.throw, &mut self.rng);
-        if self.southpaw {
+        if self.mods.southpaw.is_some() {
             // A left-hander is pitched to as a right-hander was.
             southpaw::turn(&mut choice, coming.parts.centre_x);
         }

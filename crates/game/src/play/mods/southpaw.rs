@@ -11,8 +11,28 @@ use bb_engine::library::Library;
 use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
 
-use super::pitch::Choice;
-use super::{Parts, frame_of};
+use crate::play::pitch::Choice;
+use crate::play::{Parts, frame_of};
+
+/// The mod, in play: that the batter bats left-handed.
+#[derive(Default)]
+pub(crate) struct Southpaw {
+    /// Whether he has taken his stand yet. He does so when the first view
+    /// is got ready, and nothing is said of him before.
+    stood: bool,
+}
+
+impl Southpaw {
+    pub fn has_stood(&self) -> bool {
+        self.stood
+    }
+
+    /// Stands the batter on the other side of the plate, turned round.
+    pub fn stand(&mut self, parts: &mut Parts, stage: &mut Stage) {
+        self.stood = true;
+        stand(parts, stage);
+    }
+}
 
 /// The art has one way of running to first, which is to the right, as a
 /// right-hander goes after turning round from his swing. A left-hander is
@@ -34,7 +54,7 @@ fn over(line: f32) -> Matrix {
 /// Stands the batter on the other side of the plate, in a view that has
 /// just been built, with the aiming ring on the side away from him and the
 /// box it is kept to as much to his side as it was to a right-hander's.
-pub(crate) fn stand(parts: &mut Parts, stage: &mut Stage) {
+fn stand(parts: &mut Parts, stage: &mut Stage) {
     let centre = parts.centre_x;
     let Some(hitter) = stage.child_mut(&parts.hitter) else {
         return;

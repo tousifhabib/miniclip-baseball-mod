@@ -16,6 +16,7 @@ mod knuckleball;
 mod lone_pitcher;
 mod mystery_pitch;
 mod rally;
+pub(crate) mod southpaw;
 mod sudden_death;
 mod tired_arm;
 mod turbo_runners;
@@ -29,6 +30,7 @@ use knuckleball::Knuckleball;
 use lone_pitcher::LonePitcher;
 use mystery_pitch::MysteryPitch;
 use rally::Rally;
+use southpaw::Southpaw;
 use sudden_death::SuddenDeath;
 pub(crate) use tired_arm::TiredArm;
 use turbo_runners::TurboRunners;
@@ -71,6 +73,9 @@ pub(crate) struct ModsInPlay {
     lone_pitcher: Option<LonePitcher>,
     pub(in crate::play) mystery_pitch: Option<MysteryPitch>,
     rally: Option<Rally>,
+    /// The left-handed batter, whom the game stands at the plate and
+    /// pitches to in steps of its own.
+    pub(in crate::play) southpaw: Option<Southpaw>,
     sudden_death: Option<SuddenDeath>,
     /// The pitcher's arm, which the game gets ready before each pitch in
     /// several steps of its own.
@@ -98,6 +103,7 @@ impl ModsInPlay {
             lone_pitcher: on(Mod::LonePitcher).then_some(LonePitcher),
             mystery_pitch: on(Mod::MysteryPitch).then(|| MysteryPitch::new(&rules.mystery)),
             rally: (on(Mod::Rally) && !arcade).then(|| Rally::new(&rules.rally)),
+            southpaw: on(Mod::Southpaw).then(Southpaw::default),
             sudden_death: on(Mod::SuddenDeath).then(|| SuddenDeath::new(&rules.sudden_death)),
             tired_arm: (on(Mod::TiredArm) && !arcade).then(|| TiredArm::new(&rules.tired_arm)),
             turbo_runners: on(Mod::TurboRunners)
@@ -220,6 +226,12 @@ impl ModsInPlay {
     /// this frame.
     pub fn hurry_the_runners(&mut self) -> u16 {
         self.turbo_runners.as_mut().map_or(0, TurboRunners::hurry)
+    }
+
+    /// Whether the batter is batting left-handed, once he has taken his
+    /// stand.
+    pub fn batting_left_handed(&self) -> bool {
+        self.southpaw.as_ref().is_some_and(Southpaw::has_stood)
     }
 
     /// The ball has left the pitcher's hand.
