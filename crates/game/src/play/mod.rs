@@ -7,8 +7,6 @@
 
 mod arcade;
 pub mod book;
-pub mod bullet;
-mod called;
 pub mod field;
 mod fielding;
 pub mod full;
@@ -16,14 +14,9 @@ mod mode;
 mod mods;
 pub(crate) mod overlay;
 pub mod paper;
-mod pinball;
 pub mod pitch;
 mod set_up;
-pub mod sign;
 mod snapshot;
-mod steal;
-pub mod timing;
-pub mod zinger;
 
 use bb_engine::display::{ButtonEvent, Content, Event, Path, child_bounds};
 use bb_engine::library::Library;
@@ -40,7 +33,11 @@ use crate::rules::{FieldRules, HitRules, PitchRules};
 use book::{End, ORDER, Thrown};
 use field::{Ball, Contact, Ground, Happened, reach};
 use mode::Mode;
-use mods::{ModsInPlay, night_game, southpaw};
+pub(crate) use mods::bullet_time as bullet;
+use mods::{
+    ModsInPlay, called_shot as called, hit_the_sign as sign, night_game, pinball_park as pinball,
+    southpaw, stolen_bases as steal, timing_indicator as timing, zinger_hit as zinger,
+};
 use overlay::Notices;
 use pitch::{Kind, Mound, Pitch, Point, Quality};
 use snapshot::{ModsSeen, PitchSeen, Score, Snapshot, Standing};

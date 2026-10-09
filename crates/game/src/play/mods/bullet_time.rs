@@ -13,13 +13,13 @@ use bb_engine::library::Library;
 use bb_engine::math::{ColorTransform, Matrix};
 use bb_engine::stage::Stage;
 
-use super::overlay::{self, DARK, Words};
-use super::pitch::Point;
-use super::{AtBat, Match, Parts};
 use crate::art;
 use crate::look::{self, Rgb};
 use crate::menu::Game;
 use crate::mods::Mod;
+use crate::play::overlay::{self, DARK, Words};
+use crate::play::pitch::Point;
+use crate::play::{AtBat, Match, Parts};
 use crate::rules::BulletTimeRules;
 
 /// The key that is held.

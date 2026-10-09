@@ -8,9 +8,9 @@
 //! bounced never goes over the wall however high it hops, and the foul
 //! lines are cushions too once the ball has been down.
 
-use super::Parts;
-use super::field::{Ball, Happened, reach};
-use super::pitch::Point;
+use crate::play::Parts;
+use crate::play::field::{Ball, Happened, reach};
+use crate::play::pitch::Point;
 use crate::rules::FieldRules;
 
 /// The fixed points of the field that the ball is kept in by.

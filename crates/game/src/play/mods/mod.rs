@@ -7,21 +7,28 @@
 //! below that names the mods with a say in it, in the order they have it.
 //! A mod that is off is not here at all, and so has nothing to say.
 
+pub(crate) mod bullet_time;
 mod butterfingers;
+pub(crate) mod called_shot;
 mod clutch;
 mod golden_ball;
 mod heat_check;
+pub(crate) mod hit_the_sign;
 mod hot_bat;
 mod knuckleball;
 mod lone_pitcher;
 mod mystery_pitch;
 pub(crate) mod night_game;
+pub(crate) mod pinball_park;
 mod rally;
 pub(crate) mod southpaw;
+pub(crate) mod stolen_bases;
 mod sudden_death;
 pub(crate) mod the_shift;
+pub(crate) mod timing_indicator;
 mod tired_arm;
 mod turbo_runners;
+pub(crate) mod zinger_hit;
 
 use butterfingers::Butterfingers;
 use clutch::Clutch;
@@ -44,7 +51,6 @@ use bb_engine::math::ColorTransform;
 use crate::look::Rgb;
 use crate::menu::Game;
 use crate::mods::Mod;
-use crate::play::bullet;
 use crate::play::snapshot::ArmSeen;
 use crate::rng::Rng;
 use crate::rules::PitchRules;
@@ -259,7 +265,7 @@ impl ModsInPlay {
             None => night_game::DAY,
         };
         Some(if cooled == Some(true) {
-            bullet::cool(lighting)
+            bullet_time::cool(lighting)
         } else {
             lighting
         })
