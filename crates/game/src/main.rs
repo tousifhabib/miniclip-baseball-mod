@@ -95,8 +95,8 @@ fn alert(message: &str) {
 fn run() -> Result<()> {
     let args = Args::parse();
     let library = Library::load(&locate::find(args.dir.as_deref())?)?;
-    let stage = Stage::new(None, &library);
     let mut logic = Box::new(Baseball::new(&library));
+    let stage = Stage::new(None, library);
     if let Some(seed) = args.seed {
         logic.seed(seed);
     }
@@ -142,7 +142,7 @@ fn run() -> Result<()> {
     }
 
     if let Some(steps) = &args.run {
-        let mut script = Script::new(Runner::new(library, stage, logic, None))?;
+        let mut script = Script::new(Runner::new(stage, logic, None))?;
         script.scale = args.scale;
         for line in script.run(steps)? {
             println!("{line}");
@@ -161,7 +161,7 @@ fn run() -> Result<()> {
             .inspect_err(|error| eprintln!("Playing without sound: {error:#}"))
             .ok()
     };
-    let runner = Runner::new(library, stage, logic, audio);
+    let runner = Runner::new(stage, logic, audio);
     let summary = window::run(
         runner,
         Options {

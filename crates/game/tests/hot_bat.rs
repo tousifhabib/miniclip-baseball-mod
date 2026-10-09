@@ -5,15 +5,11 @@ mod common;
 
 use bb_game::mods::Mod;
 use bb_game::script::Script;
-use common::{long_match, next, number, pitch_seen, said, state};
+use common::{game_modded, long_match, next, number, pitch_seen, said, state, timing_bar_and};
 
 /// A match long enough for any run of hits, with the timing bar up.
 fn game(hot_bat: bool) -> Option<Script> {
-    let mut mods = vec![Mod::TimingIndicator];
-    if hot_bat {
-        mods.push(Mod::HotBat);
-    }
-    long_match(1, &mods)
+    long_match(1, &timing_bar_and(Mod::HotBat, hot_bat))
 }
 
 /// Swings at a pitch `late` steps after the first the bar calls best, and
@@ -93,5 +89,23 @@ fn without_the_mod_hits_in_a_row_widen_nothing() {
     assert!(swing(&mut script, 0));
     assert!(swing(&mut script, 0));
     assert_eq!(in_a_row(&mut script), 0);
+    assert!(!swing(&mut script, TOO_EARLY));
+}
+
+#[test]
+fn in_the_arcade_game_a_pitch_that_goes_by_takes_the_run_of_hits_back_too() {
+    let mods = [Mod::TimingIndicator, Mod::HotBat];
+    let Some(mut script) = game_modded("arcade", 1, &mods) else {
+        return;
+    };
+    // The arcade game says nothing of a run of hits when asked how it
+    // stands, so the corner of the view is read for it.
+    assert!(swing(&mut script, 0));
+    assert!(swing(&mut script, 0));
+    assert_eq!(said(&script, "hotBat"), ["HOT BAT 2"]);
+    // The arcade game keeps no count, but a miss is a miss.
+    assert!(!swing(&mut script, -9));
+    assert!(said(&script, "hotBat").is_empty());
+    // And the window is as it was: a swing a frame too early misses.
     assert!(!swing(&mut script, TOO_EARLY));
 }

@@ -6,15 +6,13 @@ mod common;
 use bb_game::mods::Mod;
 use bb_game::script::Script;
 use common::{
-    game_levelled, game_modded, next, number, pitch, pitch_seen, playing, said, sounds, state,
+    ON, game_levelled, game_modded, next, number, pitch, pitch_seen, playing, said, sounds, state,
 };
 
 /// The highest level the mod can be set to, at which a fielder lets go of
 /// the ball every time, and the lowest.
 const ALWAYS: u8 = 5;
 const SELDOM: u8 = 1;
-/// The ring on the ball.
-const ON: (f32, f32) = (0.0, 0.0);
 /// Games whose first pitch can be hit for a fly ball that is caught as the
 /// game was, each with where to hold the ring for it.
 const FLIES: [(u64, (f32, f32)); 3] = [(1, (0.0, 35.0)), (2, (0.0, 20.0)), (3, (0.0, 20.0))];

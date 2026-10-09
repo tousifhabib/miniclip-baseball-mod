@@ -5,27 +5,15 @@ mod common;
 
 use bb_game::art::{self, all_named};
 use bb_game::mods::Mod;
-use bb_game::rules::Rules;
 use bb_game::script::Script;
 use bb_game::settings::Ground;
-use common::{full_match, game, next, number, pitch, said, state, written};
+use common::{full_match, game, match_to_order, next, number, pitch, said, state, text, written};
 
 /// The arrows that turn the pages, and the button on the board between
 /// innings.
 const PAGE_ON: &str = "click 362 323";
 const PAGE_BACK: &str = "click 228 323";
 const NEXT_INNINGS: &str = "click 542 357";
-
-/// A match of this many innings in which the other side makes `their` runs
-/// every time it bats.
-fn rules(innings: u32, their: usize) -> Rules {
-    let chances = format!("[{}1]", "0, ".repeat(their));
-    let text = format!(
-        "[full_match]\ninnings = {innings}\n[full_match.runs]\n\
-         easy = {chances}\nmedium = {chances}\nhard = {chances}\n"
-    );
-    Rules::layered(&[("a full match to order", &text)]).expect("rules that read")
-}
 
 /// Plays a match to its end and waits for its pages. Every pitch is swung
 /// at on the best step for it, or none is.
@@ -67,16 +55,6 @@ fn turn_to(script: &mut Script, page: usize) -> usize {
     panic!("there is no page {page}: {}", state(script));
 }
 
-/// What one of the art's own text fields says.
-fn text(script: &Script, name: &str) -> String {
-    script
-        .runner
-        .stage
-        .text(name)
-        .unwrap_or_default()
-        .to_owned()
-}
-
 /// Whether the figures the art puts on the board are to be seen.
 fn arts_figures_seen(script: &Script) -> bool {
     let stage = &script.runner.stage;
@@ -89,7 +67,7 @@ fn arts_figures_seen(script: &Script) -> bool {
 
 #[test]
 fn with_nobody_swinging_the_book_is_all_strikeouts() {
-    let Some(mut script) = full_match(1, Ground::Away, &[], Some(rules(2, 1))) else {
+    let Some(mut script) = full_match(1, Ground::Away, &[], Some(match_to_order(2, 1))) else {
         return;
     };
     let over = played(&mut script, false);
@@ -196,7 +174,7 @@ fn hits_are_written_up_with_where_they_went_and_how_they_were_timed() {
     // With every hit a home run, the four that win it are the whole of the
     // player's batting.
     let mods = [Mod::TimingIndicator, Mod::ZingerHit];
-    let Some(mut script) = full_match(1, Ground::Home, &mods, Some(rules(1, 1))) else {
+    let Some(mut script) = full_match(1, Ground::Home, &mods, Some(match_to_order(1, 1))) else {
         return;
     };
     let over = played(&mut script, true);

@@ -6,34 +6,16 @@ mod common;
 use bb_engine::math::Matrix;
 use bb_game::mods::Mod;
 use bb_game::script::Script;
-use common::{game_modded, game_ruled, long_match, next, number, pitch, pitch_seen, state};
+use common::{
+    LEAVE, MISS, ON, game_modded, game_ruled, long_match, next, number, pitch, pitch_seen, ready,
+    state, timing_bar_and,
+};
 
 /// The middle of the plate, across the batting view.
 const PLATE: f32 = 295.0;
-/// The ring on the ball, a swing that misses, and one that never comes.
-const ON: (f32, f32) = (0.0, 0.0);
-const MISS: i32 = -6;
-const LEAVE: i32 = 1000;
 
 fn game(southpaw: bool) -> Option<Script> {
-    let mut mods = vec![Mod::TimingIndicator];
-    if southpaw {
-        mods.push(Mod::Southpaw);
-    }
-    long_match(1, &mods)
-}
-
-/// Waits for the pitcher to stand ready for the next pitch, and returns how
-/// things stand then.
-fn ready(script: &mut Script) -> String {
-    for _ in 0..600 {
-        let now = state(script);
-        if now.contains("Settling") {
-            return now;
-        }
-        script.run("wait 1").unwrap();
-    }
-    panic!("the next pitch never came: {}", state(script));
+    long_match(1, &timing_bar_and(Mod::Southpaw, southpaw))
 }
 
 /// How something in the batting view is put there, by the names that lead

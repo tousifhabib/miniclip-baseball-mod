@@ -1,0 +1,9 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 455e858e97f3c9c2e5ac772690c91809eaa112e3a4d93df2dfdb033ef1c56a91 # shrinks to named = ([None, None, None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, Some(-0.125), None])
+cc fbe26e2606da3676ed63f821efb9043c64729f83ce8370182fa2085a15ae6505 # shrinks to named = ([None, None, None, None, Some(50), None, None, None, None, None], [None, None, None, None, None, None, None, None, None])
+cc b656bfdaf7ca5176cf2523c5b836730e2a5de8a92c9e07d54fef7970d5143c10 # shrinks to first = ([None, None, None, None, Some(50), None, None, None, None, None], [None, None, None, None, None, None, None, None, None]), second = ([None, None, None, None, None, None, None, None, None, None], [None, None, None, None, None, None, None, None, None])

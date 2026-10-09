@@ -6,34 +6,17 @@ mod common;
 use bb_engine::input::Key;
 use bb_game::mods::Mod;
 use bb_game::script::Script;
-use common::{game_modded, long_match, long_match_ruled, next, number, pitch_seen, said, state};
+use common::{
+    LEAVE, ON, game_modded, long_match, long_match_ruled, next, number, pitch_seen, ready, said,
+    timing_bar_and,
+};
 
-/// The ring on the ball, and where to hold it for a ball topped along the
-/// ground that gets the batter to first, on the second pitch of the first
-/// game. And a swing that never comes.
-const ON: (f32, f32) = (0.0, 0.0);
+/// Where to hold the ring for a ball topped along the ground that gets the
+/// batter to first, on the second pitch of the first game.
 const TOPPED: (f32, f32) = (0.0, -30.0);
-const LEAVE: i32 = 1000;
 
 fn game(bullet_time: bool) -> Option<Script> {
-    let mut mods = vec![Mod::TimingIndicator];
-    if bullet_time {
-        mods.push(Mod::BulletTime);
-    }
-    long_match(1, &mods)
-}
-
-/// Waits for the pitcher to stand ready for the next pitch, and returns how
-/// things stand then.
-fn ready(script: &mut Script) -> String {
-    for _ in 0..600 {
-        let now = state(script);
-        if now.contains("Settling") {
-            return now;
-        }
-        script.run("wait 1").unwrap();
-    }
-    panic!("the next pitch never came: {}", state(script));
+    long_match(1, &timing_bar_and(Mod::BulletTime, bullet_time))
 }
 
 /// What is left in the meter.

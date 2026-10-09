@@ -1,0 +1,4 @@
+# How `cargo fmt` lays the code out: as it comes, for this edition. Said here
+# so that rustfmt run on a file by hand, or by an editor, does the same.
+edition = "2024"
+style_edition = "2024"

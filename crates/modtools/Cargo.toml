@@ -12,7 +12,7 @@ path = "src/clip_sheet.rs"
 
 [[bin]]
 name = "extracted-check"
-path = "src/extracted_check.rs"
+path = "src/extracted_check/main.rs"
 
 [[bin]]
 name = "svg-png"
@@ -27,3 +27,6 @@ image = { version = "0.25", default-features = false, features = ["png"] }
 resvg = "0.48"
 serde.workspace = true
 serde_json.workspace = true
+
+[lints]
+workspace = true

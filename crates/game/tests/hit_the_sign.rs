@@ -9,8 +9,8 @@ use bb_game::rules::Rules;
 use bb_game::script::Script;
 use bb_game::settings::Ground;
 use common::{
-    full_match, game_modded, long_match, long_match_ruled, next, number, pitch, pitch_seen, said,
-    state, written,
+    LEAVE, full_match, game_modded, long_match, long_match_ruled, next, number, pitch, pitch_seen,
+    ready, said, state, written,
 };
 
 /// The middle of the batting view, which a hit straight up the field goes
@@ -20,20 +20,6 @@ const MIDDLE: f32 = 295.0;
 /// none clears it, with five signs that between them cover all of it.
 const NEAR: &str = "[field]\nwall = 300.0\nclear = 1000.0\n\
                     [sign]\nfirst = 0.1\nlast = 0.9\nwidth = 0.2\nhigh = 1000.0\n";
-const LEAVE: i32 = 1000;
-
-/// Waits for the pitcher to stand ready for the next pitch, and returns how
-/// things stand then.
-fn ready(script: &mut Script) -> String {
-    for _ in 0..600 {
-        let now = state(script);
-        if now.contains("Settling") {
-            return now;
-        }
-        script.run("wait 1").unwrap();
-    }
-    panic!("the next pitch never came: {}", state(script));
-}
 
 /// Hits the next pitch at the middle of a sign, counting from 1, with the
 /// signs as [`NEAR`] has them. Returns how things stand when the play is

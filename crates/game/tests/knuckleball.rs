@@ -5,15 +5,15 @@ mod common;
 
 use bb_game::mods::Mod;
 use bb_game::script::Script;
-use common::{game_modded, number, pitch_seen, state};
+use common::{game_modded, number, pitch_seen, state, timing_bar_and};
 
 /// A match with the timing bar up, and the knuckleball or not.
 fn game(seed: u64, knuckleball: bool) -> Option<Script> {
-    let mut mods = vec![Mod::TimingIndicator];
-    if knuckleball {
-        mods.push(Mod::Knuckleball);
-    }
-    game_modded("match", seed, &mods)
+    game_modded(
+        "match",
+        seed,
+        &timing_bar_and(Mod::Knuckleball, knuckleball),
+    )
 }
 
 /// Where something in the batting view is.

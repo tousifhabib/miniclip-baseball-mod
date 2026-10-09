@@ -31,3 +31,9 @@ serde_json.workspace = true
 usvg = "0.48"
 wgpu = "30"
 winit = "0.30"
+
+[dev-dependencies]
+proptest.workspace = true
+
+[lints]
+workspace = true

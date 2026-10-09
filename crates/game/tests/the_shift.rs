@@ -8,7 +8,7 @@ use bb_game::mods::Mod;
 use bb_game::play::field::Ground;
 use bb_game::rules::Rules;
 use bb_game::script::Script;
-use common::{long_match, next, number, pitch, said, state};
+use common::{long_match, next, number, pitch, ready, said, timing_bar_and};
 
 /// The middle of the batting view, which a hit straight up the field goes
 /// to.
@@ -24,24 +24,7 @@ const STAY: [&str; 2] = ["fielder3", "fielder6"];
 
 /// A match long enough for any number of hits, with the timing bar up.
 fn game(shift: bool) -> Option<Script> {
-    let mut mods = vec![Mod::TimingIndicator];
-    if shift {
-        mods.push(Mod::TheShift);
-    }
-    long_match(1, &mods)
-}
-
-/// Waits for the pitcher to stand ready for the next pitch, and returns how
-/// things stand then.
-fn ready(script: &mut Script) -> String {
-    for _ in 0..600 {
-        let now = state(script);
-        if now.contains("Settling") {
-            return now;
-        }
-        script.run("wait 1").unwrap();
-    }
-    panic!("the next pitch never came: {}", state(script));
+    long_match(1, &timing_bar_and(Mod::TheShift, shift))
 }
 
 /// Hits the next pitch `aside` pixels to the side of straight, and asks
@@ -88,7 +71,7 @@ struct Drawn {
 }
 
 fn drawn(script: &Script, path: &[u16]) -> Drawn {
-    let (stage, library) = (&script.runner.stage, &script.runner.library);
+    let (stage, library) = (&script.runner.stage, script.runner.library());
     let (depth, view) = path.split_last().unwrap();
     let within = stage.to_stage(view).unwrap();
     let [left, top, right, bottom] =

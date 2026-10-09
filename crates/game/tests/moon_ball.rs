@@ -4,10 +4,8 @@ mod common;
 
 use bb_game::mods::Mod;
 use bb_game::script::Script;
-use common::{game_levelled, game_modded, pitch, pitch_seen, sounds};
+use common::{ON, game_levelled, game_modded, pitch, pitch_seen, sounds};
 
-/// The ring on the ball.
-const ON: (f32, f32) = (0.0, 0.0);
 /// How to swing at the first pitch of the first game for a ball that comes
 /// down in the outfield before anyone can get under it, as the game was.
 const DROPS_IN: (i32, (f32, f32)) = (2, (0.0, 8.0));

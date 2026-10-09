@@ -12,6 +12,71 @@ publish = false
 anyhow = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+thiserror = "2"
+# For the tests only: tries a statement against cases made up by the
+# hundred, and cuts one that fails down to the least that still does.
+proptest = { version = "1", default-features = false, features = ["std"] }
+
+# What the compiler and clippy are asked to hold the code to, in every crate.
+# `cargo clippy --all-targets -- -D warnings` must come back clean.
+[workspace.lints.rust]
+unsafe_code = "forbid"
+rust_2018_idioms = { level = "warn", priority = -1 }
+trivial_numeric_casts = "warn"
+unused_qualifications = "warn"
+
+[workspace.lints.rustdoc]
+broken_intra_doc_links = "deny"
+
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+dbg_macro = "deny"
+todo = "deny"
+allow_attributes_without_reason = "warn"
+# How long, how deeply nested and how tangled a function may be. The limits
+# are in clippy.toml, and come down as the long functions are broken up.
+excessive_nesting = "warn"
+cognitive_complexity = "warn"
+
+# Off, because the fix would change what the game does: the two ways of
+# halving a sum round differently, and a pitch must cross where it crossed.
+manual_midpoint = "allow"
+
+# Off, because they ask for something this code does on purpose.
+# Pixels, frames and counts are turned into one another all the time.
+cast_possible_truncation = "allow"
+cast_precision_loss = "allow"
+cast_sign_loss = "allow"
+cast_possible_wrap = "allow"
+# Exact values are meant: a size of 1.0 is the art's own size, and a test
+# asks for the very number.
+float_cmp = "allow"
+# A list of cases reads best with a case to a line, even where two come to
+# the same thing, and two arms are as plain as an `if let` with an `else`.
+match_same_arms = "allow"
+single_match_else = "allow"
+# A matrix is a, b, c, d, and x and y have their usual meanings.
+many_single_char_names = "allow"
+similar_names = "allow"
+# A constant sits beside the line that uses it.
+items_after_statements = "allow"
+# The bins' switches, and a struct of pages may have a field called pages.
+struct_excessive_bools = "allow"
+struct_field_names = "allow"
+# A closure that names what it is calling on is plainer than a path to the
+# method.
+redundant_closure_for_method_calls = "allow"
+# An assignment is plainer than `clone_from`, and nothing here is hot enough
+# for the difference to matter.
+assigning_clones = "allow"
+# A test that says a list is empty says what it means.
+assert_is_empty = "allow"
+# Nothing here is a library for strangers: what a function returns is used
+# or the compiler says so, and how it fails is in its name and its words.
+must_use_candidate = "allow"
+return_self_not_must_use = "allow"
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
 
 [profile.dev.package."*"]
 opt-level = 2
@@ -23,3 +88,21 @@ inherits = "release"
 lto = "fat"
 codegen-units = 1
 strip = true
+
+# The tests play the real game through millions of frames, which takes
+# minutes when the game itself is not optimised at all. A little goes a long
+# way: at this level they run about seven times as fast, and overflow checks
+# and assertions stay on.
+[profile.test]
+opt-level = 1
+
+# The tool the tests make numbers up with has a check of its own that is
+# wrong. Asked for a number between two, it now and then lands a hair under
+# the lower one and brings it back up, which is as it means to do, but first
+# it checks how far under by a sum whose sign it has the wrong way round for
+# a span that reaches further above nought than below. About once in fifty
+# million numbers that stops a test that had nothing wrong with it. The
+# check is only made when a program is built to check itself, so this one
+# tool is built not to. Its numbers are the same either way.
+[profile.test.package.proptest]
+debug-assertions = false

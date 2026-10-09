@@ -6,11 +6,10 @@ mod common;
 use bb_game::art::all_named;
 use bb_game::mods::Mod;
 use bb_game::script::Script;
-use common::{game_levelled, game_modded, pitch_seen};
+use common::{ON, game_levelled, game_modded, pitch_seen};
 
-/// The ring on the ball, and where to hold it for a ball along the ground
-/// that gets the batter to first, in the first game.
-const ON: (f32, f32) = (0.0, 0.0);
+/// Where to hold the ring for a ball along the ground that gets the batter
+/// to first, in the first game.
 const GROUNDER: (f32, f32) = (0.0, -18.0);
 
 fn game(turbo: Option<u8>) -> Option<Script> {

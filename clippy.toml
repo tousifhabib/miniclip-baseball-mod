@@ -1,0 +1,18 @@
+# The limits clippy holds the code to, beyond its own.
+#
+# The first three are only as loose as the worst function needs today. The
+# longest is the page of a full match that shows how the swings were timed,
+# at 98 lines; nothing in the engine is over 80. The most tangled is a test that
+# reads a whole match's pages, at 42, and after it the check that a half
+# played on paper adds up, at 40. Nothing is nested more than six deep.
+# They come down as those are broken up, and are never to go up.
+too-many-lines-threshold = 100
+excessive-nesting-threshold = 6
+cognitive-complexity-threshold = 45
+
+# A test may say what it expects and fall over if it is wrong.
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
+
+# Names that are proper nouns, not code to be put in backticks.
+doc-valid-idents = ["ActionScript", "SplitMix64", ".."]

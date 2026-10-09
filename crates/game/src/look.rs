@@ -16,6 +16,13 @@ use resvg::{tiny_skia, usvg};
 /// A colour: red, green and blue.
 pub type Rgb = [u8; 3];
 
+/// The colours the menu's pages and the boards are written in, which are
+/// the art's own: white, the cream of the boards' lettering, and the dark
+/// blue of the panels' words.
+pub const WHITE: Rgb = [0xff, 0xff, 0xff];
+pub const CREAM: Rgb = [0xfd, 0xf6, 0xc0];
+pub const NAVY: Rgb = [0x0b, 0x3a, 0x5e];
+
 /// Reads a colour written as `#rrggbb`.
 pub fn rgb(text: &str) -> Option<Rgb> {
     let hex = text.strip_prefix('#')?;
@@ -51,7 +58,7 @@ pub fn tint(colour: Rgb) -> ColorTransform {
 /// Dresses everything at or below the clip at `from`. The art makes new
 /// batters and runners all the time, each with these parts in it, so this is
 /// done every frame.
-pub fn dress(stage: &mut Stage, from: &[u16], look: &Look, library: &Library) {
+pub fn dress(stage: &mut Stage, from: &[u16], look: &Look) {
     let mut tints: Vec<(Path, Rgb)> = Vec::new();
     let mut logos: Vec<Path> = Vec::new();
     let mut to_search = vec![from.to_vec()];
@@ -96,7 +103,7 @@ pub fn dress(stage: &mut Stage, from: &[u16], look: &Look, library: &Library) {
         // The logo is either this clip or one called `logo` inside it.
         let inner = stage.find(&path, &["logo"]);
         for clip in [Some(path), inner].into_iter().flatten() {
-            if stage.goto_label(&clip, logo, false, library) {
+            if stage.goto_label(&clip, logo, false) {
                 break;
             }
         }

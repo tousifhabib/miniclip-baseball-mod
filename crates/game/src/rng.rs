@@ -7,6 +7,26 @@
 
 use std::time::{SystemTime, UNIX_EPOCH};
 
+/// What a game's seed is mixed with by each thing that draws numbers of
+/// its own, so that none of them draws the numbers another does. The
+/// pitches are drawn from the seed itself, and so come the same whichever
+/// of these are in play. They are kept in one place so that it can be
+/// seen, and is checked, that no two are the same.
+pub(crate) mod mixed_with {
+    /// The other side's innings in a full match: the same pitches come
+    /// whichever side bats first.
+    pub const THEIR_INNINGS: u64 = 0x6a09_e667_f3bc_c908;
+    /// Which sign on the wall is lit: the same pitches come whether the
+    /// hit the sign mod is on or not.
+    pub const THE_SIGNS: u64 = 0xa54f_f53a_5f1d_36f1;
+    /// The playing out of each of their innings on paper, many times over
+    /// by the number of the innings, so that each comes out differently
+    /// from the last.
+    pub const THEIR_INNINGS_ON_PAPER: u64 = 0x3c6e_f372_fe94_f82b;
+    /// The toss of the coin for where a full match is played.
+    pub const THE_COIN: u64 = 0xbb67_ae85_84ca_a73b;
+}
+
 #[derive(Clone, Debug)]
 pub struct Rng {
     state: [u64; 4],
@@ -56,7 +76,15 @@ impl Rng {
 
     /// A number from `low` up to, but not reaching, `high`.
     pub fn between(&mut self, low: f32, high: f32) -> f32 {
-        low + (high - low) * self.unit()
+        let drawn = low + (high - low) * self.unit();
+        // What is worked out is rounded to the nearest number a float can
+        // hold, and now and then that is `high` itself. The number just
+        // under it is as near as can be got without reaching it.
+        if low < high && drawn >= high {
+            high.next_down()
+        } else {
+            drawn
+        }
     }
 
     /// A whole number from 0 up to, but not reaching, `count`. Zero if
@@ -75,6 +103,10 @@ impl Rng {
 
 #[cfg(test)]
 mod tests {
+    // By name, because all of what proptest offers includes a generator of
+    // its own called `Rng`.
+    use proptest::prelude::{prop_assert, prop_assert_eq, proptest};
+
     use super::*;
 
     #[test]
@@ -136,5 +168,73 @@ mod tests {
         assert!((0..1000).all(|_| rng.chance(1.0)));
         let hits = (0..20_000).filter(|_| rng.chance(0.25)).count();
         assert!((4_700..5_300).contains(&hits), "{hits}");
+    }
+
+    proptest! {
+        #[test]
+        fn whatever_the_seed_the_numbers_stay_inside_what_was_asked_for(
+            seed: u64,
+            count in 1u32..,
+            low in -1.0e6f32..1.0e6,
+            more in 0.0f32..1.0e6,
+        ) {
+            let high = low + more;
+            let mut rng = Rng::new(seed);
+            for _ in 0..32 {
+                let unit = rng.unit();
+                prop_assert!((0.0..1.0).contains(&unit), "{}", unit);
+                prop_assert!(rng.below(count) < count);
+                prop_assert_eq!(rng.below(0), 0);
+                // No lower than the one, and short of the other, unless
+                // the two are the same and there is nothing between them.
+                let between = rng.between(low, high);
+                if low < high {
+                    prop_assert!((low..high).contains(&between), "{}", between);
+                } else {
+                    prop_assert_eq!(between, low);
+                }
+                prop_assert!(!rng.chance(0.0));
+                prop_assert!(rng.chance(1.0));
+            }
+        }
+    }
+
+    #[test]
+    fn no_two_things_that_draw_numbers_of_their_own_mix_the_seed_with_the_same() {
+        let all = [
+            mixed_with::THEIR_INNINGS,
+            mixed_with::THE_SIGNS,
+            mixed_with::THEIR_INNINGS_ON_PAPER,
+            mixed_with::THE_COIN,
+        ];
+        for (index, one) in all.iter().enumerate() {
+            assert!(!all[index + 1..].contains(one), "{one:#x} is there twice");
+        }
+        // And so the first number each draws for a game is its own.
+        let firsts: Vec<u32> = all
+            .iter()
+            .map(|with| Rng::new(7 ^ with).below(1_000_000))
+            .collect();
+        for (index, first) in firsts.iter().enumerate() {
+            assert!(!firsts[index + 1..].contains(first), "{firsts:?}");
+        }
+    }
+
+    #[test]
+    fn a_number_between_two_is_never_the_higher_of_them_however_far_from_nought() {
+        // This far from nought the numbers a float can hold are two apart,
+        // so anything worked out over half way from `low` is rounded up to
+        // `high` itself, and once was handed back as that.
+        let (low, high) = (16_777_216.0, 16_777_218.0);
+        let mut rng = Rng::new(1);
+        let drawn: Vec<f32> = (0..100).map(|_| rng.between(low, high)).collect();
+        assert!(drawn.iter().all(|&number| number == low), "{drawn:?}");
+        // And at the size the game asks for, the very top of what can be
+        // drawn stops short too.
+        let mut rng = Rng::new(1);
+        for _ in 0..100_000 {
+            let number = rng.between(150.0, 400.0);
+            assert!((150.0..400.0).contains(&number), "{number}");
+        }
     }
 }

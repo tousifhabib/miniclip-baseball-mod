@@ -5,28 +5,13 @@ mod common;
 
 use bb_game::mods::Mod;
 use bb_game::script::Script;
-use common::{game_modded, long_match, long_match_ruled, next, number, pitch, said, state};
+use common::{
+    LEAVE, ON, game_modded, long_match, long_match_ruled, next, number, pitch, ready, said,
+};
 
-/// The ring on the ball, and a swing that never comes: the pitch is let go
-/// by.
-const ON: (f32, f32) = (0.0, 0.0);
-const LEAVE: i32 = 1000;
 /// A pitcher who tires from his third pitch, is spent by his seventh, and
 /// gives way after his eighth.
 const QUICK: &str = "[tired_arm]\nfresh = 2\nspent = 6\nrelief = 8\nslow = 1.5\nwild = 3.0\n";
-
-/// Waits for the pitcher to stand ready for the next pitch, and returns how
-/// things stand then.
-fn ready(script: &mut Script) -> String {
-    for _ in 0..600 {
-        let now = state(script);
-        if now.contains("Settling") {
-            return now;
-        }
-        script.run("wait 1").unwrap();
-    }
-    panic!("the next pitch never came: {}", state(script));
-}
 
 /// Lets the pitch that is coming go by, and asks for the next.
 fn leave(script: &mut Script) {

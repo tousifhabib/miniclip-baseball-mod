@@ -5,54 +5,15 @@ mod common;
 
 use bb_game::mods::Mod;
 use bb_game::script::Script;
-use common::{long_match_ruled, next, number, pitch, said, state};
+use common::{long_match_ruled, number, ready, said, strike_out, timing_bar_and, walk};
 
-/// The ring on the ball, a swing that misses, and one that never comes.
-const ON: (f32, f32) = (0.0, 0.0);
-const MISS: i32 = -6;
-const LEAVE: i32 = 1000;
 /// Every pitch is wide of the strike zone, and one ball walks the batter:
 /// a pitch let go by puts a man on first.
 const WALKS: &str = "[count]\nballs = 1\n[pitch.medium]\n\
                      target = { x = 420.0, y = 250.0, width = 2.0, height = 2.0 }\n";
 
 fn game(rally: bool) -> Option<Script> {
-    let mut mods = vec![Mod::TimingIndicator];
-    if rally {
-        mods.push(Mod::Rally);
-    }
-    long_match_ruled(1, &mods, WALKS)
-}
-
-/// Waits for the pitcher to stand ready for the next pitch, and returns how
-/// things stand then.
-fn ready(script: &mut Script) -> String {
-    for _ in 0..600 {
-        let now = state(script);
-        if now.contains("Settling") {
-            return now;
-        }
-        script.run("wait 1").unwrap();
-    }
-    panic!("the next pitch never came: {}", state(script));
-}
-
-/// Lets the next pitch go by, which walks the batter. Returns the score
-/// when he is on first.
-fn walk(script: &mut Script) -> f32 {
-    ready(script);
-    let after = pitch(script, LEAVE, ON);
-    next(script);
-    number(&after, "score ").unwrap()
-}
-
-/// Swings at and misses three pitches: the batter is out.
-fn strike_out(script: &mut Script) {
-    for _ in 0..3 {
-        ready(script);
-        pitch(script, MISS, ON);
-        next(script);
-    }
+    long_match_ruled(1, &timing_bar_and(Mod::Rally, rally), WALKS)
 }
 
 #[test]
