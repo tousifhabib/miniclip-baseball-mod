@@ -2,6 +2,12 @@
 //!
 //! The art only knows how to play its animations. Moving between screens is
 //! decided here, by jumping the art's clips to their labelled frames.
+//!
+//! What the game keeps from screen to screen is here, with what the engine
+//! asks of it each frame. The screens are named in `screen`, going from one
+//! to another is in `screens`, a game in progress in `playing`, what a game
+//! leaves behind it in `after`, the player's choices in `choices`, and the
+//! table of scores in `scores`.
 
 mod after;
 mod choices;

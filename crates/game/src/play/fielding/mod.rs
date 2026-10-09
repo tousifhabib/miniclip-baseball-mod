@@ -1,5 +1,13 @@
 //! The overhead view: the ball in play, the fielder going after it, the
 //! throws to the bases, and the runners.
+//!
+//! One frame of a play is here, and whose job each part of it is. What kind
+//! of play it is and how it stands is in `play`. After that there is a file
+//! for each thing that goes on in one: the change of view in `view`, the
+//! ball while nobody has hold of it in `loose_ball`, the fielder going
+//! after it in `chase`, the throws in `throw`, the runners in `running`,
+//! the end of the play in `ending`, and what the mods are told of it in
+//! `news`.
 
 mod chase;
 mod ending;

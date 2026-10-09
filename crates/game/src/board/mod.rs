@@ -1,6 +1,11 @@
 //! What a full match writes on the art's boards: between innings, what the
 //! other side has just done and how both sides stand, and when the match is
 //! over, pages of what the book has to say of it.
+//!
+//! The board between innings is here, with the colours and the measures
+//! the pages share. The pages and the turning of them are in `pages`, and
+//! each kind of page has a file: `batting`, `figures`, `spray`, `timing`
+//! and `turns`.
 
 mod batting;
 mod figures;

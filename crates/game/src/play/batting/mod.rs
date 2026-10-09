@@ -2,8 +2,10 @@
 //! waiting to the bat meeting the ball or the umpire's call.
 //!
 //! What lasts from pitch to pitch is the match's. What happens on each
-//! frame of one pitch is here, a function for each part of it: the wait, the
-//! wind-up, the ball's flight, the call, and watching a hit go.
+//! frame of one pitch is here, a file for each part of it: the wait and the
+//! wind-up in `wind_up`, where the player is pointing in `aim`, the ball's
+//! flight and the swing at it in `swing`, the umpire's call in `call`, and
+//! watching a hit go in `watch`.
 
 mod aim;
 mod call;

@@ -6,6 +6,10 @@
 //! the lines in the corner of the view from the top down, numbers by chance
 //! are drawn in the order the steps come, and one step's sums are done on
 //! what the step before left.
+//!
+//! The order is here. The steps are in `side`, for the side at bat, in
+//! `mods`, for what each mod does and puts up, and in `pitch`, for the
+//! deciding of the pitch.
 
 mod mods;
 mod pitch;

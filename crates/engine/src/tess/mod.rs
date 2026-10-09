@@ -1,7 +1,8 @@
 //! Turns vector art into triangles: SVG shapes, text and morph shapes.
 //!
-//! What a mesh is made of is here, with the builder that fills one. Each
-//! kind of art is cut up in a file of its own: `svg`, `text` and `morph`.
+//! What a mesh is made of is here, and the builder that fills one is in
+//! `builder`. Each kind of art is cut up in a file of its own: `svg`,
+//! `text` and `morph`.
 //! They share `outline`, for the lines round a shape, and `ramp`, for the
 //! colours along a gradient.
 

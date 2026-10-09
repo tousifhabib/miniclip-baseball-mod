@@ -11,9 +11,10 @@
 //! A frame is drawn in three goes. Its commands are sorted into layers of
 //! draws, in `plan`. What those need is handed to the graphics card, in
 //! `upload`, onto textures kept in `targets`. Then the layers are drawn,
-//! here. What the card is set up with to begin with is in `pipelines`,
-//! finding and opening it is in `device`, and drawing to a picture in
-//! memory is in `capture`.
+//! in `passes`. What the card is set up with to begin with is in
+//! `pipelines`, finding and opening it is in `device`, and drawing to a
+//! picture in memory is in `capture`. The renderer that holds all of it
+//! is here.
 
 mod capture;
 mod device;

@@ -5,9 +5,10 @@
 //! Every other key goes to the game. If the game has no use for it, Space
 //! pauses, the right arrow steps one frame while paused, and Escape quits.
 //!
-//! What the window is made of is in `view`, how the stage sits in it in
-//! `layout`, which of its keys are which of the game's in `keys`, and the
-//! drawing of a frame in `redraw`.
+//! What the window keeps while it runs is in `app`, and what it does
+//! about each thing the system tells it in `events`. What it is made of is
+//! in `view`, how the stage sits in it in `layout`, which of its keys are
+//! which of the game's in `keys`, and the drawing of a frame in `redraw`.
 
 mod app;
 mod events;

@@ -1,4 +1,9 @@
 //! What each mod in play keeps, and the questions the game asks of them.
+//!
+//! Which mods are in play is settled here, once, as a game begins. The
+//! questions are in files by what they are about: the score in `scoring`,
+//! the pitch in `pitching`, the swing in `batting`, the slowing of the ball
+//! in `slowing`, the field in `fielding` and the runners in `running`.
 
 mod batting;
 mod fielding;

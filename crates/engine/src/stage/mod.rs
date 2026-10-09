@@ -1,8 +1,9 @@
 //! A running movie: the display tree, the pointer, what the text fields say,
 //! and a record of what has happened for the caller to act on.
 //!
-//! The sounds the rules ask for are in `sound`, and the keys and typing
-//! into a text field are in `typing`.
+//! Finding a thing on the stage is in `find`, and what the rules do to
+//! one in `steer`. The sounds the rules ask for are in `sound`, and the
+//! keys and typing into a text field are in `typing`.
 
 mod find;
 mod sound;

@@ -4,6 +4,12 @@
 //! `data/rules.toml` holds every number and is built into the program. A mod
 //! supplies a file of the same shape holding only what it changes, and the
 //! files are laid over one another in order: the last to name a number wins.
+//!
+//! The whole set is here. The numbers are in a file for what they are
+//! numbers of: the game's in `game`, the ball's in `ball`, and the mods' in
+//! `plate_mods` and `field_mods`. The shapes a number comes in are in
+//! `shapes`, the laying of files over one another in `layers`, and the
+//! check that a set can be played by in `faults`.
 
 mod ball;
 mod faults;

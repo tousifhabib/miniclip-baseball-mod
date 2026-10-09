@@ -470,31 +470,38 @@ cargo run --release -p bb-modtools --bin clip-sheet -- extracted --clip 688 --ev
 
 ### The rules
 
-The rules are in `crates/game/src`. `baseball.rs` decides which screen is
-showing, `menu.rs` is the menu, `game.rs` is what every screen works from,
-`play/` is a game in progress, `board.rs` is what a full match writes on
-the boards, `sheet.rs` is how words and drawings are put on a panel,
-`look.rs` dresses the batting side, `scores.rs` keeps the high scores,
-`mods.rs` is the list of mods and their page of the menu, and `art.rs`
-describes how the art is put together: which clip is which, and what each
-button is.
+The rules are in `crates/game/src`. A part with one job is a file, and a
+part with several is a folder with a file for each. `baseball/` decides
+which screen is showing, `menu/` is the menu, `game.rs` is what every
+screen works from, `play/` is a game in progress, `board/` is what a full
+match writes on the boards, `sheet.rs` is how words and drawings are put on
+a panel, `look.rs` dresses the batting side, `scores.rs` keeps the high
+scores, `mods/` is the list of mods and their page of the menu, `rules/`
+is the shape of `data/rules.toml`, and `art/` describes how the art is put
+together: which clip is which, and what each button is.
 
 Inside `play/`:
 
-| File | What is in it |
+| Part | What is in it |
 |---|---|
 | `mod.rs` | The match: what lasts from pitch to pitch, and what happens each frame |
-| `set_up.rs` | Getting the batting view ready for a pitch, a step at a time |
-| `batting.rs` | The frames of a pitch: the wait, the wind-up, the ball's flight, the call |
-| `fielding.rs` | The ball in the field: the fielders, the throws and the runners |
-| `pitch.rs`, `field.rs` | How a pitch flies and what a swing does to it; how a hit ball flies and bounces |
-| `runners.rs` | The batters of the half and where each has got to, and the count on the one at the plate |
+| `phase.rs`, `at_bat.rs` | How far a pitch has got, and what lasts for one pitch only |
+| `standing.rs`, `scoreboard.rs`, `describe.rs` | What a run is worth and whether the match is over; what it writes on the art's boards; its account of itself |
+| `set_up/` | Getting the batting view ready for a pitch, a step at a time |
+| `batting/` | The frames of a pitch: the wind-up, the aim, the swing, the call, the watching of a hit |
+| `fielding/` | The ball in the field: the loose ball, the fielder going after it, the throws, the runners, the end of the play |
+| `pitch/`, `field/` | How a pitch flies and what a swing does to it; how a hit ball flies and bounces |
+| `runners/` | The batters of the half and where each has got to, and the count on the one at the plate |
 | `mode.rs` | Which of the three games it is: the last innings, the arcade game or a full match |
-| `arcade.rs`, `full.rs` | What only the arcade game keeps, and a full match's innings |
-| `book.rs`, `paper.rs` | A full match's scorebook, and the other side's innings played on paper |
-| `snapshot.rs` | How a game stands, as facts, and the one line they are printed as |
+| `arcade/`, `full/` | What only the arcade game keeps, and a full match's innings |
+| `book/`, `paper/` | A full match's scorebook, and the other side's innings played on paper |
+| `snapshot/` | How a game stands, as facts, and the one line they are printed as |
 | `view/` | Where the parts of the view are, the small things done to them, and the words and notices laid over them |
-| `mods/` | The mods: one file each, named as the mod is |
+| `mods/` | The mods: a file or a folder each, named as the mod is, and what the game asks of them |
+
+No file is over three hundred lines, and most are far shorter. Tests are at
+the foot of the file they test, or beside it in `tests.rs` when there are
+many.
 
 The art only knows how to play its animations. The rules are told about
 every button the pointer touches and every key pressed, can ask whether a
@@ -510,11 +517,13 @@ not change from one version to the next, and why.
 A mod is a change the player can switch on and off. Everything a mod does
 is in a file of its own in `crates/game/src/play/mods/`, named as the mod
 is: what it keeps from one pitch to the next, its rules, and what it draws.
-The play never asks whether a mod is switched on. It asks the mods in play
-a question that says what it wants to know, or tells them that something
-has happened, and `play/mods/mod.rs` has one short function for each that
-names the mods with a say in it, in the order they have it. A mod that is
-off is simply not among them.
+A mod with a good deal to it has a folder in place of the file, with what
+it works out apart from what it draws. The play never asks whether a mod
+is switched on. It asks the mods in play a question that says what it
+wants to know, or tells them that something has happened, and
+`play/mods/in_play/` has one short function for each that names the mods
+with a say in it, in the order they have it. A mod that is off is simply
+not among them.
 
 A mod does not act on the game itself. It answers, and says what to write,
 and the batting or the fielding does the rest where it does everything
@@ -524,7 +533,7 @@ grows a function of the match.
 
 To add one:
 
-1. Give it a name in `Mod` in `crates/game/src/mods.rs` and add it to
+1. Give it a name in `Mod` in `crates/game/src/mods/mod.rs` and add it to
    `Mod::ALL`. The menu lists whatever is there.
 2. Give it a file in `play/mods/`. At the top goes `ABOUT`: the key it is
    saved under, what the menu calls it and what the menu says it does.
@@ -532,13 +541,15 @@ To add one:
    ask for. Then a type for what it keeps, and the rules it goes by as
    functions that touch nothing on the stage, so that they can be tested
    without a game.
-3. Give `ModsInPlay` in `play/mods/mod.rs` a field for it, and fill the
-   field in `for_game` when the mod is on. If it has no place in the
-   arcade game, which has no runs, outs, runners or fielders, say so there.
+3. Give `ModsInPlay` in `play/mods/in_play/mod.rs` a field for it, and
+   fill the field in `for_game` when the mod is on. If it has no place in
+   the arcade game, which has no runs, outs, runners or fielders, say so
+   there.
 4. Have it answer the questions and hear the happenings it has a say in:
-   a line in each of those functions. If the play does not yet ask what the
-   mod needs to answer, add a question, named for what the play wants to
-   know and not for the mod.
+   a line in each of those functions, which are beside `ModsInPlay` in
+   files by what they are about. If the play does not yet ask what the mod
+   needs to answer, add a question, named for what the play wants to know
+   and not for the mod.
 
 The heat check, in `play/mods/heat_check.rs`, is one to copy from: it keeps
 a number, changes the pitch as the view is got ready, writes a line in the
@@ -549,12 +560,12 @@ The order things are done in matters more than it looks. Lines in the
 corner of the batting view are taken from the top down as each mod asks for
 one, a notice takes the next free place on the stage, and numbers by chance
 are drawn in the order they are asked for. A mod added in the middle of
-`set_up.rs` moves what comes after it, which the record of whole games
-will show.
+the steps in `play/set_up/mod.rs` moves what comes after it, which the
+record of whole games will show.
 
 A mod that draws something can build it from the art's `BLOCK`, a plain
 white square to stretch and tint, `LABEL_FIELD`, a text field, and `HOLDER`,
-an empty clip to keep its parts in. All three are described in `art.rs`. A
+an empty clip to keep its parts in. All three are described in `art/`. A
 line in the corner of the view is a `Line`, and news put up for a while is
 a `Says::news`.
 
@@ -572,9 +583,10 @@ from.
 scripts/check.sh
 ```
 
-That lays nothing out afresh but checks that `cargo fmt` would not, runs
-clippy with anything it says counted as a failure, runs the tests, builds
-the docs and checks the art. Its parts have short names of their own:
+That lays nothing out afresh but checks that `cargo fmt` would not, that
+no file of code has grown past three hundred lines, runs clippy with
+anything it says counted as a failure, runs the tests, builds the docs and
+checks the art. Its parts have short names of their own:
 `cargo tidy` lays the code out, `cargo lint` is clippy, and `cargo
 art-check` checks the art. What clippy holds the code to, and why each
 thing it is not held to is left off, is in the root `Cargo.toml` and
