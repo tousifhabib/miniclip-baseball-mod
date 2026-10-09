@@ -253,7 +253,7 @@ impl App {
         // A click made while it was stopped was not meant for the game as
         // it goes on. One made for a single step still is.
         if !self.paused {
-            self.runner.stage.pointer.went_down = None;
+            self.runner.stage.forget_click();
         }
     }
 
@@ -280,7 +280,7 @@ impl App {
             }
         }
         for note in self.runner.take_notes() {
-            self.inspector.note(note);
+            self.inspector.note(note.to_string());
         }
 
         let Some((width, height)) = self.size() else {

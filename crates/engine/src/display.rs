@@ -272,7 +272,7 @@ impl ClipState {
         let mark = events.len();
         if target > self.frame {
             for frame in self.frame + 1..=target {
-                for op in &timeline.frames[usize::from(frame) - 1].ops {
+                for op in &timeline.frame(frame).ops {
                     apply(&mut self.children, op, frame, library, events, path);
                 }
             }
@@ -282,7 +282,7 @@ impl ClipState {
         self.frame = target;
         // Only the frame the playhead lands on is heard, not the ones it
         // passed over on the way.
-        let landed = &timeline.frames[usize::from(target) - 1];
+        let landed = timeline.frame(target);
         events.extend(landed.sounds.iter().cloned().map(Event::Sound));
         if landed.has_script {
             let event = Event::Frame {
@@ -313,7 +313,7 @@ impl ClipState {
         // until it is known which of them are really new.
         let mut pending: BTreeMap<u16, Vec<Event>> = BTreeMap::new();
         for frame in 1..=target {
-            for op in &timeline.frames[usize::from(frame) - 1].ops {
+            for op in &timeline.frame(frame).ops {
                 let mut made = Vec::new();
                 apply(&mut self.children, op, frame, library, &mut made, path);
                 match op {

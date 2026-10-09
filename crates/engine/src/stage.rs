@@ -282,8 +282,7 @@ impl Stage {
         let pressed = down && !self.pointer.down;
         self.pointer.update(
             &mut self.root,
-            x,
-            y,
+            (x, y),
             down,
             library,
             geometry,
@@ -305,6 +304,12 @@ impl Stage {
     /// What a text field showing `variable` says now.
     pub fn text(&self, variable: &str) -> Option<&str> {
         self.texts.get(text_key(variable)).map(String::as_str)
+    }
+
+    /// Forgets a click that was being kept for the next frame to act on:
+    /// it has been acted on, or was never meant for the game.
+    pub fn forget_click(&mut self) {
+        self.pointer.went_down = None;
     }
 
     /// Whether the player is holding this key down.

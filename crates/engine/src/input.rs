@@ -106,23 +106,19 @@ impl Pointer {
     }
 
     /// Takes in the pointer's new position and button state, and works out
-    /// what that does to the buttons in `root`. The position is in `root`'s
-    /// coordinates.
-    #[allow(
-        clippy::too_many_arguments,
-        reason = "it takes each thing it needs on its own, until they are gathered up"
-    )]
+    /// what that does to the buttons in `root`. The position, `at`, is in
+    /// `root`'s coordinates.
     pub fn update(
         &mut self,
         root: &mut ClipState,
-        x: f32,
-        y: f32,
+        at: (f32, f32),
         down: bool,
         library: &Library,
         geometry: &mut dyn Geometry,
         events: &mut Vec<Event>,
     ) {
         let was_down = self.down;
+        let (x, y) = at;
         (self.x, self.y, self.down) = (x, y, down);
         let hit = button_at(&root.children, x, y, library, geometry, &mut Path::new());
         let mut change = |target: &Target, event: ButtonEvent, mode: ButtonMode| {
@@ -389,7 +385,7 @@ mod tests {
         down: bool,
     ) -> Vec<ButtonEvent> {
         let mut events = Vec::new();
-        pointer.update(root, x, 25.0, down, library, &mut Squares, &mut events);
+        pointer.update(root, (x, 25.0), down, library, &mut Squares, &mut events);
         events
             .into_iter()
             .filter_map(|event| match event {
@@ -415,7 +411,7 @@ mod tests {
         let mut pointer = Pointer::default();
         let mut events = Vec::new();
         let (x, y, down) = (pointer.x, pointer.y, pointer.down);
-        pointer.update(&mut root, x, y, down, &library, &mut Squares, &mut events);
+        pointer.update(&mut root, (x, y), down, &library, &mut Squares, &mut events);
         assert!(events.is_empty());
         assert_eq!(mode(&root), ButtonMode::Up);
     }
@@ -536,8 +532,7 @@ mod tests {
         let mut events = Vec::new();
         pointer.update(
             &mut root,
-            25.0,
-            25.0,
+            (25.0, 25.0),
             true,
             &library,
             &mut Squares,

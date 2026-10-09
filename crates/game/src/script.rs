@@ -2,7 +2,7 @@
 //! rules are checked without a mouse, by hand or from a test.
 
 use anyhow::{Context, Result, bail};
-use bb_engine::app::Runner;
+use bb_engine::app::{Note, Runner};
 use bb_engine::display::describe_tree;
 use bb_engine::gpu::Renderer;
 use bb_engine::input::{Geometry, Key};
@@ -175,7 +175,7 @@ impl Script {
                     runner
                         .take_notes()
                         .into_iter()
-                        .filter(|note| !note.contains(": frame "))
+                        .filter(|note| !matches!(note, Note::Frame { .. }))
                         .map(|note| format!("  {note}")),
                 );
             }

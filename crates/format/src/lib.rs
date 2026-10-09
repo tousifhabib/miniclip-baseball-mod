@@ -199,6 +199,15 @@ pub struct Clip {
     pub frames: Vec<Frame>,
 }
 
+impl Clip {
+    /// The frame with this number. Frames are counted from 1, as the
+    /// timeline counts them, and the timeline never asks for one it does
+    /// not have.
+    pub fn frame(&self, number: u16) -> &Frame {
+        &self.frames[usize::from(number) - 1]
+    }
+}
+
 /// What changes on the display list when the playhead enters this frame.
 /// Frames hold changes, not full snapshots, exactly as Flash stores them.
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]

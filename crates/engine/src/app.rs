@@ -7,10 +7,10 @@
 
 use std::sync::Arc;
 
-use bb_format::{EnvelopePoint, SoundEvent, SoundStart};
+use bb_format::{EnvelopePoint, SoundEvent, SoundStart, SymbolId};
 
 use crate::audio::Audio;
-use crate::display::Event;
+use crate::display::{ButtonEvent, Event, Path};
 use crate::input::{Geometry, Key};
 use crate::library::Library;
 use crate::stage::Stage;
@@ -43,6 +43,53 @@ pub trait Logic {
     }
 }
 
+/// Something the runner saw happen, kept for an inspector, a script or a
+/// test to read back. Each prints as a line that says what it was.
+#[derive(Clone, Debug, PartialEq)]
+pub enum Note {
+    /// The player pressed a key.
+    Key(Key),
+    /// A sound was asked for, by a timeline, a button or the rules.
+    Sound(SymbolId),
+    /// The pointer did something to a button.
+    Button {
+        symbol: SymbolId,
+        path: Path,
+        event: ButtonEvent,
+    },
+    /// A clip landed on a frame where the original had a script. `symbol`
+    /// is `None` for the main timeline.
+    Frame {
+        symbol: Option<SymbolId>,
+        path: Path,
+        frame: u16,
+    },
+}
+
+impl std::fmt::Display for Note {
+    fn fmt(&self, out: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Note::Key(key) => write!(out, "key {key:?}"),
+            Note::Sound(sound) => write!(out, "sound {sound}"),
+            Note::Button {
+                symbol,
+                path,
+                event,
+            } => write!(out, "button {symbol} at {path:?}: {event:?}"),
+            Note::Frame {
+                symbol: Some(clip),
+                path,
+                frame,
+            } => write!(out, "clip {clip} at {path:?}: frame {frame}"),
+            Note::Frame {
+                symbol: None,
+                path,
+                frame,
+            } => write!(out, "main timeline at {path:?}: frame {frame}"),
+        }
+    }
+}
+
 /// Rules that do nothing: the timelines just play.
 pub struct NoLogic;
 
@@ -60,7 +107,7 @@ pub struct Runner {
     pub sounds_asked: u32,
     /// A line for each event since the last call to [`Runner::take_notes`],
     /// for an inspector to show.
-    notes: Vec<String>,
+    notes: Vec<Note>,
     started: bool,
 }
 
@@ -90,7 +137,7 @@ impl Runner {
         self.logic.tick(&mut self.stage, &self.library);
         self.react();
         // The frame has been told of any click made before it.
-        self.stage.pointer.went_down = None;
+        self.stage.forget_click();
     }
 
     /// Tells the stage where the pointer is, in stage coordinates, and
@@ -109,7 +156,7 @@ impl Runner {
         self.ensure_started();
         let used = self.stage.key(&key, &self.library)
             || self.logic.key(&key, &mut self.stage, &self.library);
-        self.notes.push(format!("key {key:?}"));
+        self.notes.push(Note::Key(key));
         self.react();
         used
     }
@@ -133,7 +180,8 @@ impl Runner {
         self.logic.describe()
     }
 
-    pub fn take_notes(&mut self) -> Vec<String> {
+    /// What has happened since this was last asked, in the order it did.
+    pub fn take_notes(&mut self) -> Vec<Note> {
         std::mem::take(&mut self.notes)
     }
 
@@ -160,25 +208,26 @@ impl Runner {
                         if let Some(audio) = &mut self.audio {
                             audio.play(&self.library, start);
                         }
-                        self.notes.push(format!("sound {}", start.sound));
+                        self.notes.push(Note::Sound(start.sound));
                     }
                     Event::Button {
                         symbol,
                         path,
                         event,
-                    } => self
-                        .notes
-                        .push(format!("button {symbol} at {path:?}: {event:?}")),
+                    } => self.notes.push(Note::Button {
+                        symbol: *symbol,
+                        path: path.clone(),
+                        event: *event,
+                    }),
                     Event::Frame {
                         symbol,
                         path,
                         frame,
-                    } => {
-                        let clip =
-                            symbol.map_or("main timeline".to_owned(), |id| format!("clip {id}"));
-                        self.notes
-                            .push(format!("{clip} at {path:?}: frame {frame}"));
-                    }
+                    } => self.notes.push(Note::Frame {
+                        symbol: *symbol,
+                        path: path.clone(),
+                        frame: *frame,
+                    }),
                 }
                 self.logic.event(event, &mut self.stage, &self.library);
             }
@@ -286,5 +335,42 @@ mod tests {
         runner.tick(&mut Empty);
         let told = [None, Some((30.0, 40.0)), None, Some((50.0, 60.0)), None];
         assert_eq!(*seen.borrow(), told);
+    }
+
+    #[test]
+    fn a_note_prints_as_the_line_it_always_was() {
+        // Scripts and tests read these lines, so they are kept to the letter.
+        let lines = [
+            (Note::Key(Key::Char('a')), "key Char('a')"),
+            (Note::Key(Key::Enter), "key Enter"),
+            (Note::Sound(84), "sound 84"),
+            (
+                Note::Button {
+                    symbol: 1618,
+                    path: vec![3, 16384],
+                    event: ButtonEvent::Release,
+                },
+                "button 1618 at [3, 16384]: Release",
+            ),
+            (
+                Note::Frame {
+                    symbol: Some(2027),
+                    path: vec![1],
+                    frame: 91,
+                },
+                "clip 2027 at [1]: frame 91",
+            ),
+            (
+                Note::Frame {
+                    symbol: None,
+                    path: vec![],
+                    frame: 2,
+                },
+                "main timeline at []: frame 2",
+            ),
+        ];
+        for (note, line) in lines {
+            assert_eq!(note.to_string(), line);
+        }
     }
 }

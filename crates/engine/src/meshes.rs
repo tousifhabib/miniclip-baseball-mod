@@ -124,7 +124,10 @@ impl Meshes {
                 self.tessellator
                     .svg(&library.dir.join(&symbol.file), origin)
             }
-            MeshKey::Morph(id, ratio) => self.tessellator.morph(&library.morphs[&id], ratio),
+            MeshKey::Morph(id, ratio) => match library.morphs.get(&id) {
+                Some(morph) => self.tessellator.morph(morph, ratio),
+                None => Ok(Mesh::default()),
+            },
             MeshKey::Text(id) => match (library.texts.get(&id), library.edit_texts.get(&id)) {
                 (Some(text), _) => self.tessellator.text(text, library),
                 (None, Some(field)) => self.tessellator.edit_text(field, None, library),
