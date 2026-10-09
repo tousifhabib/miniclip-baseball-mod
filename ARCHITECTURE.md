@@ -81,7 +81,11 @@ sounds, and in which free place on the stage a new thing takes.
 `baseball.rs` is the top: which screen is showing, and what each button
 does. It owns the menu (`menu.rs`), the match being played (`play/`), the
 scores and the choice of mods. Each frame it does a short list of named
-steps.
+steps. What every screen works from, the rules, the player's choices and
+the mods that are on, is the `Game` in `game.rs`. Whatever writes words or
+puts the art's things on a panel, the menu, the list of mods, the table of
+scores and the boards of a full match, does it with the one `Sheet` in
+`sheet.rs`.
 
 ### A match
 
@@ -99,7 +103,15 @@ ball's flight, to the fielding and the next pitch being asked for.
 - `batting.rs`: the frames of a pitch at the plate, a function for each
   part of it: the wait, the wind-up, the flight, the call.
 - `fielding.rs`: the ball in the field, the fielders, the throws and the
-  runners.
+  runners. A play is one of four kinds, a walk, a foul, a steal or a fair
+  ball, and says how it stands; a fielder has one job at a time, and a
+  function for each.
+- `runners.rs`: the batters of the half and where each has got to, and the
+  count. They answer what the play asks of them, who is up, who has to go,
+  which base may be stolen, without looking at the stage.
+- `view/`: where the parts of the view are and how they are found, the few
+  things done to them over and over, how the batting view lies against the
+  field, and the words and notices laid over both.
 - `pitch.rs`, `field.rs`, `book.rs`, `paper.rs`, and the innings of a full
   match in `full.rs`, touch nothing on the stage. They are sums, and are
   tested as sums.
@@ -130,6 +142,11 @@ small thing, a `Line` for the corner, a colour, a changed table of numbers,
 which the caller puts on the stage there and then. So the rules can be
 tested without a game, and the stage is still touched in the order it
 always was.
+
+A mod never acts on the match. No mod's file has a function of the match
+in it, and a test reads the files to keep it so. What a mod is known by on
+the menu, its key, its name and its setting, is at the top of its own file
+too, so the whole of a mod is in one place.
 
 ## What has to stay as it is
 
@@ -174,6 +191,8 @@ are meant only to come down.
 | To add | Go to |
 |---|---|
 | A mod | `play/mods/`, and the README's "A mod" |
+| Something to ask of the runners or the count | `play/runners.rs`, with a test that needs no game |
+| Words or a drawing on a panel | A `Sheet`, from `sheet.rs` |
 | A number the game is played by | `data/rules.toml`, and its field in `rules.rs` |
 | Something for a match to say of itself | A field of `Snapshot`, and its place in the line |
 | A step in getting the view ready | `set_up.rs`, at the place in the order it belongs |
@@ -183,13 +202,36 @@ are meant only to come down.
 
 ## What is not finished
 
-The fielding (`fielding.rs`) is in four named parts, but a fielder's job is
-still one function with an arm for each thing he may be doing, and what
-kind of play it is, and how it stands, is a handful of flags that would
-read better as one thing that says how the play began and how it ended.
-Every mod keeps its own state, but stolen bases and the zinger hit still
-reach into the play through functions of the match that live in their
-files, where the others only answer questions. The menu, the mods' page and the boards of a full
-match each have their own few lines for writing words on a panel, where
-one would do. Each of these is a change of the same kind as the ones
-already made, with the same nets under it.
+Everything the plan for this shape set out to do is done. What is left is
+smaller, and of the same kind as what has been done already.
+
+The limits in `clippy.toml` are at a hundred lines and six deep, and could
+come down further: the pages of a full match's boards are the longest
+functions left, and the test that reads those pages is the most tangled.
+The record of whole games is kept for one kind of machine, and on any
+other it only checks that a game plays the same twice. The workflow in
+`.github/` has never been run.
+
+## Left as it was found
+
+Reshaping the code turned up things that look like slips. Each was left as
+it is, so that the game stayed the game, and is for whoever owns the game
+to decide on. Putting one right changes how seeded games go, and so is a
+change to make by itself, with the record written down afresh for it.
+
+- In the arcade game a hot bat's run of hits is never brought back to
+  nought.
+- A steal that is settled as a play ends is told on the play after.
+- Every game started in one run with a seed plays from the same numbers.
+- The seed the coin is tossed by and the seed the signs are lit by are the
+  same number.
+- The innings a pitcher has pitched are worked out as if there were always
+  three outs to an innings, whatever the rules say.
+- A mod's setting can be put to a level higher than it has.
+- A colour in the art's files may be written with a plus sign in it, and
+  a number asked for between two others can be the higher of them. A test
+  holds each of these as it is.
+- The key that bullet time is held by asks the mods chosen on the menu,
+  where everything else asks the mods of the game being played.
+- The notes a runner keeps of what happened grow for as long as nobody
+  takes them.

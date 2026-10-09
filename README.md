@@ -469,11 +469,13 @@ cargo run --release -p bb-modtools --bin clip-sheet -- extracted --clip 688 --ev
 ### The rules
 
 The rules are in `crates/game/src`. `baseball.rs` decides which screen is
-showing, `menu.rs` is the menu, `play/` is a game in progress, `board.rs`
-is what a full match writes on the boards, `look.rs` dresses the batting
-side, `scores.rs` keeps the high scores, `mods.rs` is the list of mods and
-their page of the menu, and `art.rs` describes how the art is put together:
-which clip is which, and what each button is.
+showing, `menu.rs` is the menu, `game.rs` is what every screen works from,
+`play/` is a game in progress, `board.rs` is what a full match writes on
+the boards, `sheet.rs` is how words and drawings are put on a panel,
+`look.rs` dresses the batting side, `scores.rs` keeps the high scores,
+`mods.rs` is the list of mods and their page of the menu, and `art.rs`
+describes how the art is put together: which clip is which, and what each
+button is.
 
 Inside `play/`:
 
@@ -484,11 +486,12 @@ Inside `play/`:
 | `batting.rs` | The frames of a pitch: the wait, the wind-up, the ball's flight, the call |
 | `fielding.rs` | The ball in the field: the fielders, the throws and the runners |
 | `pitch.rs`, `field.rs` | How a pitch flies and what a swing does to it; how a hit ball flies and bounces |
+| `runners.rs` | The batters of the half and where each has got to, and the count on the one at the plate |
 | `mode.rs` | Which of the three games it is: the last innings, the arcade game or a full match |
 | `arcade.rs`, `full.rs` | What only the arcade game keeps, and a full match's innings |
 | `book.rs`, `paper.rs` | A full match's scorebook, and the other side's innings played on paper |
 | `snapshot.rs` | How a game stands, as facts, and the one line they are printed as |
-| `overlay.rs` | Words and notices laid over the view |
+| `view/` | Where the parts of the view are, the small things done to them, and the words and notices laid over them |
 | `mods/` | The mods: one file each, named as the mod is |
 
 The art only knows how to play its animations. The rules are told about
@@ -511,19 +514,22 @@ has happened, and `play/mods/mod.rs` has one short function for each that
 names the mods with a say in it, in the order they have it. A mod that is
 off is simply not among them.
 
-Some of the mods that were written first, stolen bases and the zinger hit
-most of all, reach further into the play than the rest: the play has
-functions of its own for a steal and for a zinger, in those mods' files.
-What each keeps is its own all the same.
+A mod does not act on the game itself. It answers, and says what to write,
+and the batting or the fielding does the rest where it does everything
+else of that kind: stolen bases says which runner a click sends, and the
+batting sends him. A test reads the mods' files and fails if one of them
+grows a function of the match.
 
 To add one:
 
-1. Give it a name in `Mod` in `crates/game/src/mods.rs`, add it to
-   `Mod::ALL`, and say in `Mod::info` what the menu calls it. The menu
-   lists whatever is there.
-2. Give it a file in `play/mods/` with a type for what it keeps, and the
-   rules it goes by as functions that touch nothing on the stage, so that
-   they can be tested without a game.
+1. Give it a name in `Mod` in `crates/game/src/mods.rs` and add it to
+   `Mod::ALL`. The menu lists whatever is there.
+2. Give it a file in `play/mods/`. At the top goes `ABOUT`: the key it is
+   saved under, what the menu calls it and what the menu says it does.
+   Name the file in `about` in `play/mods/mod.rs`, which the compiler will
+   ask for. Then a type for what it keeps, and the rules it goes by as
+   functions that touch nothing on the stage, so that they can be tested
+   without a game.
 3. Give `ModsInPlay` in `play/mods/mod.rs` a field for it, and fill the
    field in `for_game` when the mod is on. If it has no place in the
    arcade game, which has no runs, outs, runners or fielders, say so there.
@@ -551,10 +557,12 @@ line in the corner of the view is a `Line`, and news put up for a while is
 a `Says::news`.
 
 A mod can have a setting as well as being on or off: a level, counted from
-1. Give it a name in `Mod::info`, say how many levels it has and what
-each comes to in `Mod::levels` and `Mod::level_words`, and the Mods page
-puts a row of boxes under the mod to set it by. The mod takes its level
-when the game starts, in `for_game`. Butterfingers is the one to copy from.
+1. Its `ABOUT` says what the setting is called, the level it starts at, how
+many levels the rules give it and what a level comes to in words, and the
+Mods page puts a row of boxes under the mod to set it by. The numbers for
+the levels are a `Levels` in the rules, the lowest first. The mod takes its
+level when the game starts, in `for_game`. Butterfingers is the one to copy
+from.
 
 ## Checking a change
 
