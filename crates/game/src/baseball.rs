@@ -7,7 +7,6 @@ use bb_engine::app::Logic;
 use bb_engine::display::{ButtonEvent, Event, Path};
 use bb_engine::input::Key;
 use bb_engine::library::Library;
-use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
 use bb_format::SymbolId;
 
@@ -23,6 +22,7 @@ use crate::rng::Rng;
 use crate::rules::Rules;
 use crate::scores::Scores;
 use crate::settings::{Difficulty, Ground};
+use crate::sheet::Sheet;
 
 /// What the player is looking at. Each is a labelled frame of the shell.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -269,11 +269,6 @@ impl Baseball {
                 child.set_visible(false);
             }
         }
-        let Some(field) = library.edit_texts.get(&art::TABLE_FIELD) else {
-            return;
-        };
-        // The field centres what it says, so a line is placed by its middle.
-        let middle = ((field.bounds.x_min + field.bounds.x_max) / 2.0) as f32;
         // What to write, where its middle goes, and in what colour: dark
         // on the panel's white, and white for the heading on its bar. The
         // heading was drawn in one piece with the notice, so it is written
@@ -291,24 +286,10 @@ impl Baseball {
             lines.push((entry.points.to_string(), 125.0, down, DARK));
         }
         const SIZE: f32 = 0.8;
-        for (index, (text, across, down, colour)) in lines.into_iter().enumerate() {
-            let depth = Stage::RULES_DEPTH + 200 + index as u16;
-            let Some(path) = stage.attach(&panel, art::TABLE_FIELD, depth, "scoreLine", library)
-            else {
-                continue;
-            };
-            if let Some(child) = stage.child_mut(&path) {
-                child.said = Some(text);
-                child.set_matrix(Matrix {
-                    a: SIZE,
-                    d: SIZE,
-                    tx: across - middle * SIZE,
-                    ty: down,
-                    ..Matrix::IDENTITY
-                });
-                child.set_color(look::tint(colour));
-            }
-            self.table.push(path);
+        let mut sheet = Sheet::on(panel, Stage::RULES_DEPTH + 200, library);
+        for (text, across, down, colour) in lines {
+            let line = sheet.write_plain(stage, "scoreLine", &text, (across, down), SIZE, colour);
+            self.table.extend(line);
         }
     }
 

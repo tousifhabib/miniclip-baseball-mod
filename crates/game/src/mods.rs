@@ -7,15 +7,14 @@ use std::path::{Path as FilePath, PathBuf};
 use anyhow::Result;
 use bb_engine::display::Path;
 use bb_engine::library::Library;
-use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
-use bb_format::SymbolId;
 use serde::{Deserialize, Serialize};
 
 use crate::art;
 use crate::kept;
 use crate::look::{self, Rgb};
 use crate::rules::Rules;
+use crate::sheet::Sheet;
 
 /// One change to the game. To add a mod, add it here and to [`Mod::ALL`],
 /// and give it a file in `play/mods/`: the menu lists whatever is in `ALL`,
@@ -343,13 +342,15 @@ pub struct ModsPage {
     /// goes when the page is turned.
     lines: Vec<Line>,
     drawn: Vec<Path>,
-    /// The depth the last thing was put on the panel at.
+    /// The depth the next thing put on the panel goes at.
     depth: u16,
 }
 
 const DARK: Rgb = look::NAVY;
 const SOFT: Rgb = [0x4a, 0x6f, 0x8c];
 const WHITE: Rgb = look::WHITE;
+/// What every line of words on the panel is named.
+const WORDS: &str = "modsWords";
 
 impl ModsPage {
     /// Where the first line's box goes on the panel, and how far down each
@@ -544,18 +545,13 @@ impl ModsPage {
             library,
         );
         self.pages = ModsPage::pages(rules).len();
-        let mut on = Panel {
-            path: panel.clone(),
-            depth: Stage::RULES_DEPTH + 300,
-            library,
-            added: Vec::new(),
-        };
-        self.heading = on.write(stage, "MODS", (-166.0, -123.0), 0.8, WHITE);
+        let mut on = Sheet::on(panel.clone(), Stage::RULES_DEPTH + 301, library);
+        self.heading = on.label(stage, WORDS, "MODS", (-166.0, -123.0), 0.8, WHITE);
         if self.pages > 1 {
             let down = ModsPage::PAGER_DOWN;
             let [back, words, forward] = ModsPage::PAGER_ACROSS;
             let size = ModsPage::ABOUT_SIZE;
-            let back = on.add(stage, art::PAGE_TURN, "modsBack", (back, down), 1.0);
+            let back = on.add(stage, art::PAGE_TURN, "modsBack", (back, down), (1.0, 1.0));
             // The art's arrow points on. The one back is the same, turned
             // round.
             if let Some(arrow) = back.as_ref().and_then(|path| stage.child_mut(path)) {
@@ -563,8 +559,8 @@ impl ModsPage {
                 turned.a = -turned.a;
                 arrow.set_matrix(turned);
             }
-            let forward = on.add(stage, art::PAGE_TURN, "modsOn", (forward, down), 1.0);
-            let words = on.write(stage, "", (words, down + 1.0), size, SOFT);
+            let forward = on.add(stage, art::PAGE_TURN, "modsOn", (forward, down), (1.0, 1.0));
+            let words = on.label(stage, WORDS, "", (words, down + 1.0), size, SOFT);
             if let (Some(back), Some(forward), Some(words)) = (back, forward, words) {
                 self.pager = Some(Pager {
                     back,
@@ -583,23 +579,25 @@ impl ModsPage {
             .into_iter()
             .nth(self.page)
             .unwrap_or_default();
-        let mut panel = Panel {
-            path: panel.clone(),
-            depth: self.depth,
-            library,
-            added: Vec::new(),
-        };
+        let mut panel = Sheet::on(panel.clone(), self.depth, library);
         let (left, mut down) = ModsPage::FIRST;
         for which in listed {
             let words = left + 24.0;
             let size = ModsPage::NAME_SIZE;
-            panel.write(stage, which.name(), (words, down - 5.0), size, DARK);
+            panel.label(stage, WORDS, which.name(), (words, down - 5.0), size, DARK);
             let size = ModsPage::ABOUT_SIZE;
-            panel.write(stage, which.about(), (words, down + 11.0), size, SOFT);
+            panel.label(
+                stage,
+                WORDS,
+                which.about(),
+                (words, down + 11.0),
+                size,
+                SOFT,
+            );
             // The box goes on after the words, so that its band lights the
             // whole line, and anywhere on the line ticks it.
-            let button = panel.add(stage, art::MOD_BOX, "modBox", (left, down), 1.0);
-            let tick = panel.add(stage, art::MOD_TICK, "modTick", (left, down), 1.0);
+            let button = panel.add(stage, art::MOD_BOX, "modBox", (left, down), (1.0, 1.0));
+            let tick = panel.add(stage, art::MOD_TICK, "modTick", (left, down), (1.0, 1.0));
             let (Some(button), Some(tick)) = (button, tick) else {
                 continue;
             };
@@ -615,15 +613,15 @@ impl ModsPage {
             let levels = which.levels(rules);
             if let (Some(setting), true) = (which.setting(), levels > 0) {
                 let row = down + ModsPage::SETTING_DOWN;
-                panel.write(stage, setting, (words, row), size, SOFT);
+                panel.label(stage, WORDS, setting, (words, row), size, SOFT);
                 let along =
                     |pip: u8| words + ModsPage::PIPS_ALONG + f32::from(pip) * ModsPage::PIP_PITCH;
                 for pip in 0..levels {
                     let at = (along(pip), row + 1.0);
                     let inside = (at.0 + ModsPage::FILL_IN, at.1 + ModsPage::FILL_IN);
-                    let small = panel.add(stage, art::MOD_PIP, "modPip", at, 1.0);
-                    let fill =
-                        panel.add(stage, art::BLOCK, "modPipFill", inside, ModsPage::FILL_SIZE);
+                    let small = panel.add(stage, art::MOD_PIP, "modPip", at, (1.0, 1.0));
+                    let fill = (ModsPage::FILL_SIZE, ModsPage::FILL_SIZE);
+                    let fill = panel.add(stage, art::BLOCK, "modPipFill", inside, fill);
                     if let (Some(small), Some(fill)) = (small, fill) {
                         if let Some(fill) = stage.child_mut(&fill) {
                             fill.set_color(look::tint(DARK));
@@ -632,63 +630,13 @@ impl ModsPage {
                     }
                 }
                 let after = (along(levels) + 4.0, row);
-                line.level_words = panel.write(stage, "", after, size, DARK);
+                line.level_words = panel.label(stage, WORDS, "", after, size, DARK);
             }
             down += ModsPage::room_for(which, rules);
             self.lines.push(line);
         }
+        self.drawn = panel.put_since(self.depth);
         self.depth = panel.depth;
-        self.drawn = panel.added;
-    }
-}
-
-/// The panel while things are being put on it.
-struct Panel<'a> {
-    path: Path,
-    /// The depth the last thing was put at.
-    depth: u16,
-    library: &'a Library,
-    /// Everything that has been put on it.
-    added: Vec<Path>,
-}
-
-impl Panel<'_> {
-    /// Puts a symbol on the panel at a point, at a size, its own being 1.
-    fn add(
-        &mut self,
-        stage: &mut Stage,
-        symbol: SymbolId,
-        name: &str,
-        at: (f32, f32),
-        size: f32,
-    ) -> Option<Path> {
-        self.depth += 1;
-        let path = stage.attach(&self.path, symbol, self.depth, name, self.library)?;
-        stage.child_mut(&path)?.set_matrix(Matrix {
-            a: size,
-            d: size,
-            tx: at.0,
-            ty: at.1,
-            ..Matrix::IDENTITY
-        });
-        self.added.push(path.clone());
-        Some(path)
-    }
-
-    /// Writes a line of words on the panel, starting from a point.
-    fn write(
-        &mut self,
-        stage: &mut Stage,
-        text: &str,
-        at: (f32, f32),
-        size: f32,
-        colour: Rgb,
-    ) -> Option<Path> {
-        let path = self.add(stage, art::LABEL_FIELD, "modsWords", at, size)?;
-        let field = stage.child_mut(&path)?;
-        field.said = Some(text.to_owned());
-        field.set_color(look::tint(colour));
-        Some(path)
     }
 }
 

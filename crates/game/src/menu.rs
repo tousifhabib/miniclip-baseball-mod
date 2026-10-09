@@ -2,17 +2,15 @@
 
 use bb_engine::display::{ClipState, Path};
 use bb_engine::library::Library;
-use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
-use bb_format::SymbolId;
 
 use crate::art;
 use crate::look::{self, Rgb};
 use crate::mods::Mods;
-use crate::play::overlay::Words;
 use crate::rng::Rng;
 use crate::rules::Rules;
 use crate::settings::{Difficulty, Ground, Settings};
+use crate::sheet::Sheet;
 
 /// Where the player is in the menu. Each is a section of the menu clip that
 /// plays in and then waits.
@@ -258,55 +256,6 @@ impl Menu {
         }
     }
 
-    /// Puts something of the art's into a clip of the full match's, at a
-    /// point.
-    #[allow(
-        clippy::too_many_arguments,
-        reason = "it takes each thing it needs on its own, until they are gathered up"
-    )]
-    fn add(
-        holder: &[u16],
-        symbol: SymbolId,
-        depth: u16,
-        name: &str,
-        at: (f32, f32),
-        size: f32,
-        stage: &mut Stage,
-        library: &Library,
-    ) -> Option<Path> {
-        let path = stage.attach(holder, symbol, depth, name, library)?;
-        stage.child_mut(&path)?.set_matrix(Matrix {
-            a: size,
-            d: size,
-            tx: at.0,
-            ty: at.1,
-            ..Matrix::IDENTITY
-        });
-        Some(path)
-    }
-
-    /// Writes a line in the menu's own lettering.
-    #[allow(
-        clippy::too_many_arguments,
-        reason = "it takes each thing it needs on its own, until they are gathered up"
-    )]
-    fn write(
-        holder: &[u16],
-        depth: u16,
-        name: &str,
-        text: &str,
-        top: (f32, f32),
-        size: f32,
-        stage: &mut Stage,
-        library: &Library,
-    ) {
-        let field = art::MENU_FIELD;
-        if let Some(words) = Words::in_field(field, holder, depth, name, top, size, stage, library)
-        {
-            words.say(text, WHITE, stage);
-        }
-    }
-
     /// On the full match's setup page, puts the choice of ground under the
     /// skill levels once the page is there, and keeps the box of the one
     /// chosen filled.
@@ -328,57 +277,30 @@ impl Menu {
             let Some(holder) = stage.attach(&menu, art::HOLDER, depth, "grounds", library) else {
                 return;
             };
-            let heading = GROUND_HEADING;
-            let name = "groundHeading";
-            Menu::write(
-                &holder,
-                1,
-                name,
+            let mut sheet = Sheet::on(holder.clone(), 1, library).lettered(art::MENU_FIELD);
+            let (heading, size) = (GROUND_HEADING, WORDS_SIZE);
+            sheet.write(
+                stage,
+                "groundHeading",
                 "Home or Away:",
                 heading,
-                WORDS_SIZE,
-                stage,
-                library,
+                size,
+                WHITE,
             );
             let mut boxes = Vec::new();
             for (index, ground) in Ground::ALL.into_iter().enumerate() {
-                let depth = 10 + index as u16 * 10;
+                // Each ground's things have ten depths to themselves.
+                sheet.depth = 10 + index as u16 * 10;
                 let at = (GROUND_FIRST.0 + GROUND_PITCH * index as f32, GROUND_FIRST.1);
                 let word = (at.0 + GROUND_WORD.0, at.1 + GROUND_WORD.1);
                 let size = CHOICE_SIZE;
-                Menu::write(
-                    &holder,
-                    depth,
-                    "groundWord",
-                    ground.word(),
-                    word,
-                    size,
-                    stage,
-                    library,
-                );
+                sheet.write(stage, "groundWord", ground.word(), word, size, WHITE);
                 // The box goes on after its word, so that a click on the
                 // word is a click on the box.
-                let button = Menu::add(
-                    &holder,
-                    art::CHOICE,
-                    depth + 2,
-                    "ground",
-                    at,
-                    1.0,
-                    stage,
-                    library,
-                );
+                let button = sheet.add(stage, art::CHOICE, "ground", at, (1.0, 1.0));
                 let inside = (at.0 + FILL_IN, at.1 + FILL_IN);
-                let fill = Menu::add(
-                    &holder,
-                    art::BLOCK,
-                    depth + 3,
-                    "groundFill",
-                    inside,
-                    FILL_SIZE,
-                    stage,
-                    library,
-                );
+                let size = (FILL_SIZE, FILL_SIZE);
+                let fill = sheet.add(stage, art::BLOCK, "groundFill", inside, size);
                 if let (Some(button), Some(fill)) = (button, fill) {
                     if let Some(fill) = stage.child_mut(&fill) {
                         fill.set_color(look::tint(FILL_COLOUR));
@@ -488,43 +410,25 @@ impl Menu {
         let Some(holder) = stage.attach(&menu, art::HOLDER, depth, "fullSummary", library) else {
             return;
         };
+        let mut sheet = Sheet::on(holder.clone(), 1, library).lettered(art::MENU_FIELD);
         let badge = SUMMARY_BADGE;
-        for (index, symbol) in art::BADGE.into_iter().enumerate() {
-            Menu::add(
-                &holder,
-                symbol,
-                1 + index as u16,
-                "badge",
-                badge,
-                1.0,
-                stage,
-                library,
-            );
+        for symbol in art::BADGE {
+            sheet.add(stage, symbol, "badge", badge, (1.0, 1.0));
         }
         let nine = (
             badge.0 + art::NINE_FROM_BADGE.0,
             badge.1 + art::NINE_FROM_BADGE.1,
         );
-        Menu::add(&holder, art::NINE, 3, "nine", nine, 1.0, stage, library);
-        let size = HEADING_SIZE;
-        Menu::write(
-            &holder,
-            4,
-            "fullHeading",
-            "FULL MATCH",
-            SUMMARY_HEADING,
-            size,
-            stage,
-            library,
-        );
+        sheet.add(stage, art::NINE, "nine", nine, (1.0, 1.0));
+        let (heading, size) = (SUMMARY_HEADING, HEADING_SIZE);
+        sheet.write(stage, "fullHeading", "FULL MATCH", heading, size, WHITE);
         let home = self.at_home(&game.settings);
         let lines = Menu::summary_lines(game, home);
-        for (index, (line, down)) in lines.iter().zip(SUMMARY_DOWN).enumerate() {
-            let depth = 10 + index as u16 * 2;
+        // The lines go on over all of that, from a depth of their own.
+        sheet.depth = 10;
+        for (line, down) in lines.iter().zip(SUMMARY_DOWN) {
             let top = (SUMMARY_MIDDLE, down);
-            Menu::write(
-                &holder, depth, "fullLine", line, top, WORDS_SIZE, stage, library,
-            );
+            sheet.write(stage, "fullLine", line, top, WORDS_SIZE, WHITE);
         }
         self.summary = Some(holder);
     }

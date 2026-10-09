@@ -44,6 +44,14 @@ pub(crate) fn free_below(clip: &ClipState, depth: u16) -> Option<u16> {
         .find(|depth| !clip.children.contains_key(depth))
 }
 
+/// The lettering words are written in: which of the art's text fields, and
+/// at what size, its own being 1.
+#[derive(Clone, Copy)]
+pub(crate) struct Lettering {
+    pub field: SymbolId,
+    pub size: f32,
+}
+
 /// A line of words in the game's display lettering. It is written twice,
 /// with a dark copy a little down and to the right of the one that is read,
 /// so that it stands out from the ground behind it.
@@ -63,34 +71,28 @@ impl Words {
         stage: &mut Stage,
         library: &Library,
     ) -> Option<Words> {
-        Words::in_field(
-            art::TABLE_FIELD,
-            holder,
-            depth,
-            name,
-            top,
+        let lettering = Lettering {
+            field: art::TABLE_FIELD,
             size,
-            stage,
-            library,
-        )
+        };
+        Words::in_field(lettering, holder, depth, name, top, stage, library)
     }
 
     /// The same in the lettering of another of the art's text fields, which
     /// has to be one that centres what it says.
-    #[allow(
-        clippy::too_many_arguments,
-        reason = "it takes each thing it needs on its own, until they are gathered up"
-    )]
     pub fn in_field(
-        symbol: SymbolId,
+        lettering: Lettering,
         holder: &[u16],
         depth: u16,
         name: &str,
         top: Point,
-        size: f32,
         stage: &mut Stage,
         library: &Library,
     ) -> Option<Words> {
+        let Lettering {
+            field: symbol,
+            size,
+        } = lettering;
         let field = library.edit_texts.get(&symbol)?;
         // The field centres what it says, so it is placed by its middle.
         let middle = ((field.bounds.x_min + field.bounds.x_max) / 2.0) as f32;
@@ -129,8 +131,11 @@ impl Words {
         // The field is placed by its middle, and starts what it says from
         // its left edge.
         let top = (left.0 + (to - from) / 2.0 * size, left.1);
-        let field = art::LABEL_FIELD;
-        Words::in_field(field, holder, depth, name, top, size, stage, library)
+        let lettering = Lettering {
+            field: art::LABEL_FIELD,
+            size,
+        };
+        Words::in_field(lettering, holder, depth, name, top, stage, library)
     }
 
     /// Takes the words out of sight.

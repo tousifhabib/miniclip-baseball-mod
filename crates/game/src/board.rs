@@ -4,9 +4,7 @@
 
 use bb_engine::display::Path;
 use bb_engine::library::Library;
-use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
-use bb_format::SymbolId;
 
 use crate::art;
 use crate::look::{self, Rgb};
@@ -14,6 +12,7 @@ use crate::play::book::{End, ORDER, Side, Turn, average, percent, tenths};
 use crate::play::full::{Cell, FullMatch, hits_words, ordinal, runs_words};
 use crate::play::overlay::Words;
 use crate::play::pitch::Quality;
+use crate::sheet::Sheet;
 
 /// The colours of the board's lettering: as the art has it, for the side
 /// that is the player's, and for headings. The rest are for what is drawn.
@@ -80,99 +79,6 @@ const FIELD_SEEN: [f32; 4] = [-46.0, -35.0, 678.0, 460.0];
 /// frames. Swings further off than that are counted with the furthest.
 const TIMING_REACH: i32 = 8;
 
-/// A clip that is being written and drawn on.
-struct Sheet<'a> {
-    holder: Path,
-    depth: u16,
-    library: &'a Library,
-}
-
-impl Sheet<'_> {
-    /// A line of words, centred on the middle of its top edge.
-    fn write(
-        &mut self,
-        stage: &mut Stage,
-        name: &str,
-        text: &str,
-        top: (f32, f32),
-        size: f32,
-        colour: Rgb,
-    ) {
-        let words = Words::new(
-            &self.holder,
-            self.depth,
-            name,
-            top,
-            size,
-            stage,
-            self.library,
-        );
-        if let Some(words) = words {
-            words.say(text, colour, stage);
-        }
-        // Words are written twice, the second their shadow.
-        self.depth += 2;
-    }
-
-    /// A line of words that starts from the left end of its top edge.
-    fn write_left(
-        &mut self,
-        stage: &mut Stage,
-        name: &str,
-        text: &str,
-        left: (f32, f32),
-        size: f32,
-        colour: Rgb,
-    ) {
-        let (holder, depth) = (&self.holder, self.depth);
-        let words = Words::from_left(holder, depth, name, left, size, stage, self.library);
-        if let Some(words) = words {
-            words.say(text, colour, stage);
-        }
-        self.depth += 2;
-    }
-
-    /// Something of the art's, at a point and a size, its own being 1.
-    fn add(
-        &mut self,
-        stage: &mut Stage,
-        symbol: SymbolId,
-        name: &str,
-        at: (f32, f32),
-        size: (f32, f32),
-    ) -> Option<Path> {
-        let path = stage.attach(&self.holder, symbol, self.depth, name, self.library)?;
-        self.depth += 1;
-        stage.child_mut(&path)?.set_matrix(Matrix {
-            a: size.0,
-            d: size.1,
-            tx: at.0,
-            ty: at.1,
-            ..Matrix::IDENTITY
-        });
-        Some(path)
-    }
-
-    /// A plain block of colour: its left, top, width and height.
-    fn block(&mut self, stage: &mut Stage, name: &str, at: [f32; 4], colour: Rgb, alpha: f32) {
-        let [left, top, wide, high] = at;
-        let size = (wide / art::BLOCK_SIDE, high / art::BLOCK_SIDE);
-        let path = self.add(stage, art::BLOCK, name, (left, top), size);
-        if let Some(block) = path.and_then(|path| stage.child_mut(&path)) {
-            block.set_color(look::tint(colour));
-            block.set_alpha(alpha);
-        }
-    }
-
-    /// A dot of colour, centred on a point.
-    fn dot(&mut self, stage: &mut Stage, name: &str, at: (f32, f32), size: f32, colour: Rgb) {
-        let path = self.add(stage, art::DOT, name, at, (size, size));
-        if let Some(dot) = path.and_then(|path| stage.child_mut(&path)) {
-            dot.set_color(look::tint(colour));
-        }
-    }
-}
-
 /// Writes what both sides made in each innings: the numbers of the innings,
 /// then a row for each side, with its runs, hits and errors in all at the
 /// end. `middle` is the middle of the rows across and `top` the top of the
@@ -236,11 +142,7 @@ pub fn interval(
 ) -> Option<Path> {
     let at = Stage::RULES_DEPTH + 1;
     let holder = stage.attach(board, art::HOLDER, at, "intervalBoard", library)?;
-    let mut sheet = Sheet {
-        holder: holder.clone(),
-        depth: 1,
-        library,
-    };
+    let mut sheet = Sheet::on(holder.clone(), 1, library);
     let report = full.report();
     let (down, size) = HEADING;
     sheet.write(
@@ -331,11 +233,7 @@ impl Pages {
                 pages.push(Page::Innings { innings, part });
             }
         }
-        let mut sheet = Sheet {
-            holder: holder.to_vec(),
-            depth: 500,
-            library,
-        };
+        let mut sheet = Sheet::on(holder.to_vec(), 500, library);
         // The art's arrow points on. The one back is the same, turned
         // round.
         let down = PAGER_TOP;
@@ -416,11 +314,7 @@ impl Pages {
             return;
         };
         self.sheet = Some(holder.clone());
-        let mut sheet = Sheet {
-            holder,
-            depth: 1,
-            library,
-        };
+        let mut sheet = Sheet::on(holder, 1, library);
         let full = &self.full;
         let page = self.pages[self.page];
         if page == Page::Score {
