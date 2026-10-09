@@ -5,6 +5,8 @@
 
 mod facing;
 mod ground;
+#[cfg(test)]
+mod properties;
 
 use crate::play::pitch::Point;
 use crate::rules::{FieldRules, HitRules};
