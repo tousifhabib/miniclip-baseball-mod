@@ -264,6 +264,7 @@ dependencies = [
  "kira",
  "lyon",
  "pollster",
+ "proptest",
  "serde",
  "serde_json",
  "usvg",
