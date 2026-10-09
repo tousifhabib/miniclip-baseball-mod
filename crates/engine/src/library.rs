@@ -90,6 +90,29 @@ impl Library {
     }
 }
 
+impl Library {
+    /// The colour behind everything, as the renderer takes it: red, green,
+    /// blue and how solid, each from 0 to 1. Black where the art names none.
+    pub fn background(&self) -> [f64; 4] {
+        self.manifest
+            .stage
+            .background
+            .map_or([0.0, 0.0, 0.0, 1.0], |c| {
+                [c.r, c.g, c.b, c.a].map(|channel| f64::from(channel) / 255.0)
+            })
+    }
+
+    /// How big a picture of the whole stage is, in pixels, at `scale`
+    /// picture pixels to each of the stage's.
+    pub fn picture_size(&self, scale: f32) -> (u32, u32) {
+        let stage = &self.manifest.stage;
+        (
+            (stage.width as f32 * scale).round().max(1.0) as u32,
+            (stage.height as f32 * scale).round().max(1.0) as u32,
+        )
+    }
+}
+
 fn read_json<T: DeserializeOwned>(path: &Path) -> Result<T> {
     let text = fs::read_to_string(path).with_context(|| format!("reading {}", path.display()))?;
     serde_json::from_str(&text).with_context(|| format!("parsing {}", path.display()))

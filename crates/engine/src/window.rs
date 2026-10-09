@@ -311,13 +311,7 @@ impl App {
         // it on.
         let library = &self.runner.library;
         let commands = self.runner.stage.commands(base, library);
-        let background = library
-            .manifest
-            .stage
-            .background
-            .map_or([0.0, 0.0, 0.0, 1.0], |c| {
-                [c.r, c.g, c.b, c.a].map(|channel| f64::from(channel) / 255.0)
-            });
+        let background = library.background();
         let target = texture
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());

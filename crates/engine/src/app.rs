@@ -5,6 +5,8 @@
 //! click, is the job of a [`Logic`]. A [`Runner`] plays the stage frame by
 //! frame and hands the logic everything that happens.
 
+use std::sync::Arc;
+
 use bb_format::{EnvelopePoint, SoundEvent, SoundStart};
 
 use crate::audio::Audio;
@@ -47,7 +49,9 @@ pub struct NoLogic;
 impl Logic for NoLogic {}
 
 pub struct Runner {
-    pub library: Library,
+    /// The art, which nothing changes once it is loaded, so that several
+    /// games may be played from one copy of it.
+    pub library: Arc<Library>,
     pub stage: Stage,
     logic: Box<dyn Logic>,
     /// `None` to play in silence.
@@ -62,13 +66,13 @@ pub struct Runner {
 
 impl Runner {
     pub fn new(
-        library: Library,
+        library: impl Into<Arc<Library>>,
         stage: Stage,
         logic: Box<dyn Logic>,
         audio: Option<Audio>,
     ) -> Runner {
         Runner {
-            library,
+            library: library.into(),
             stage,
             logic,
             audio,

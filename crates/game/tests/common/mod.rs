@@ -10,6 +10,7 @@
 )]
 
 use std::path::{Path, PathBuf};
+use std::sync::{Arc, LazyLock};
 
 use bb_engine::app::Runner;
 use bb_engine::library::Library;
@@ -26,6 +27,13 @@ fn extracted() -> Option<PathBuf> {
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../extracted");
     dir.join("manifest.json").exists().then_some(dir)
 }
+
+/// The art, read once for all the tests of a file and played from by each.
+/// `None` when there is none to read.
+static ART: LazyLock<Option<Arc<Library>>> = LazyLock::new(|| {
+    let library = Library::load(&extracted()?).expect("loading the extracted art");
+    Some(Arc::new(library))
+});
 
 /// The game, opened on the screen with this label. `None` when there is no
 /// extracted art to play.
@@ -101,11 +109,10 @@ fn game_made(
     level: Option<(Mod, u8)>,
     ground: Option<Ground>,
 ) -> Option<Script> {
-    let Some(dir) = extracted() else {
+    let Some(library) = ART.clone() else {
         eprintln!("skipped: there is no extracted art to play");
         return None;
     };
-    let library = Library::load(&dir).expect("loading the extracted art");
     let stage = Stage::new(None, &library);
     let mut logic = Box::new(Baseball::new(&library));
     logic.start_on(Screen::from_label(screen).expect("a screen with that label"));

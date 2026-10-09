@@ -67,11 +67,7 @@ fn main() -> Result<()> {
     let args = Args::parse();
     let mut library = Library::load(&args.dir)?;
     library.obey_stops = !args.ignore_stops;
-    let stage_size = &library.manifest.stage;
-    let size = (
-        (stage_size.width as f32 * args.scale).round().max(1.0) as u32,
-        (stage_size.height as f32 * args.scale).round().max(1.0) as u32,
-    );
+    let size = library.picture_size(args.scale);
 
     let mut renderer = Renderer::headless()?;
     renderer.min_stroke = args.scale.max(1.0);
@@ -109,9 +105,7 @@ fn main() -> Result<()> {
         Some(_) => Matrix::translate(size.0 as f32 / 2.0, size.1 as f32 / 2.0).then_inner(scale),
         None => scale,
     };
-    let background = stage_size.background.map_or([0.0, 0.0, 0.0, 1.0], |c| {
-        [c.r, c.g, c.b, c.a].map(|channel| f64::from(channel) / 255.0)
-    });
+    let background = library.background();
 
     let list = stage.commands(base, &library);
     let image = renderer.capture(&library, &list, size, background)?;

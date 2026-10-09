@@ -189,14 +189,8 @@ impl Script {
                     .get(1)
                     .with_context(|| format!("`{step}` needs a file name"))?;
                 let scale = self.scale;
-                let stage = &runner.library.manifest.stage;
-                let size = (
-                    (stage.width as f32 * scale).round().max(1.0) as u32,
-                    (stage.height as f32 * scale).round().max(1.0) as u32,
-                );
-                let background = stage.background.map_or([0.0, 0.0, 0.0, 1.0], |c| {
-                    [c.r, c.g, c.b, c.a].map(|channel| f64::from(channel) / 255.0)
-                });
+                let size = runner.library.picture_size(scale);
+                let background = runner.library.background();
                 let commands = runner
                     .stage
                     .commands(Matrix::scale(scale, scale), &runner.library);
