@@ -23,3 +23,10 @@ inherits = "release"
 lto = "fat"
 codegen-units = 1
 strip = true
+
+# The tests play the real game through millions of frames, which takes
+# minutes when the game itself is not optimised at all. A little goes a long
+# way: at this level they run about seven times as fast, and overflow checks
+# and assertions stay on.
+[profile.test]
+opt-level = 1
