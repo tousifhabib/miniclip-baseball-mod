@@ -1,0 +1,33 @@
+# Runs scripts/check.sh on every push and pull request: the layout, clippy,
+# the tests, the docs and the art.
+#
+# It runs on a Mac with Apple's own processor, which is the kind of machine
+# the record of whole games was written down on. On any other kind the
+# record's tests only check that each game goes the same way twice.
+
+name: check
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: The toolchain the code is written for
+        run: |
+          rustup toolchain install 1.99 --profile minimal --component rustfmt,clippy
+          rustup default 1.99
+      - uses: Swatinem/rust-cache@v2
+      - name: The art is here
+        run: test -f extracted/manifest.json
+      - name: Everything a change has to pass
+        run: scripts/check.sh
+        env:
+          CI: "1"

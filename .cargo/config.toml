@@ -1,0 +1,12 @@
+# Short names for what is run on a change before it is handed over.
+# `scripts/check.sh` runs the lot.
+[alias]
+# Clippy, with anything it says counted as a failure.
+lint = "clippy --all-targets -- -D warnings"
+# Lays the code out.
+tidy = "fmt --all"
+# Checks that every file of the art still reads and every reference in it
+# still leads somewhere.
+art-check = "run --release -p bb-modtools --bin extracted-check -- extracted"
+# Builds the docs of everything, what is private included.
+docs = "doc --no-deps --document-private-items"
