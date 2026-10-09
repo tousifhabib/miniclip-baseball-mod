@@ -3,6 +3,7 @@
 //! over them.
 
 mod cues;
+mod lie;
 pub(crate) mod overlay;
 mod parts;
 
@@ -11,6 +12,7 @@ use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
 
 pub(crate) use cues::Cue;
+pub(crate) use lie::Lie;
 pub(crate) use parts::Parts;
 
 use super::pitch::Point;

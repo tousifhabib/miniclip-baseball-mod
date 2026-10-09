@@ -18,7 +18,7 @@ pub mod pitch;
 pub(crate) mod runners;
 mod set_up;
 mod snapshot;
-mod view;
+pub(crate) mod view;
 
 use bb_engine::display::{ButtonEvent, Content, Event, Path, child_bounds};
 use bb_engine::library::Library;

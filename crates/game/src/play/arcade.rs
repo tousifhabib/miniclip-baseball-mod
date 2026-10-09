@@ -6,11 +6,11 @@
 //! target it comes down in.
 
 use bb_engine::library::Library;
-use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
 
 use super::field::{Happened, distance, seen_size};
 use super::pitch::Point;
+use super::view::Lie;
 use super::{AtBat, Match, Parts, at, play_from, put, show, zinger};
 use crate::menu::Game;
 use crate::rules::ArcadeRules;
@@ -103,37 +103,19 @@ impl Match {
         let target = arcade.target;
         let left = arcade.left;
 
-        if let Some(mark) = stage.find(&parts.field, &["landMarker"]) {
-            let y = at(stage, &mark);
-            let _ = y;
-            if let Some(child) = stage.child_mut(&mark) {
-                child.move_to(target.0, target.1);
-                child.set_visible(target_shown);
-            }
+        if let Some(mark) = stage.find(&parts.field, &["landMarker"])
+            && let Some(child) = stage.child_mut(&mark)
+        {
+            child.move_to(target.0, target.1);
+            child.set_visible(target_shown);
         }
         // The batting view has a copy of the target lying on the outfield,
         // drawn smaller and flatter the further up the field it is.
-        let in_field = |name: &str| {
-            stage
-                .find(&parts.field, &[name])
-                .map(|path| at(stage, &path))
-        };
-        let centre = in_field("centreMarker").map_or(301.45, |at| at.0);
-        let back = in_field("bMarker").map_or(108.45, |at| at.1);
-        let horizon = stage
-            .find(&parts.main, &["hMarker"])
-            .map_or(176.1, |path| at(stage, &path).1);
-        let (across, depth) = (target.0 - centre, target.1 - back);
+        let lie = Lie::read(parts, stage);
         if let Some(copy) = stage.find(&parts.main, &["landMarker"])
             && let Some(child) = stage.child_mut(&copy)
         {
-            child.set_matrix(Matrix {
-                a: (50.0 + depth) / 100.0,
-                d: (10.0 + depth / 5.0) / 100.0,
-                tx: parts.centre_x + 1.3 * across,
-                ty: horizon + 0.3 * depth,
-                ..Matrix::IDENTITY
-            });
+            child.set_matrix(lie.in_view(target, 1.0));
             child.set_visible(target_shown);
         }
         // One ball lit for every pitch still to come, this one included.
