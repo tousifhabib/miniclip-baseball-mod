@@ -210,28 +210,31 @@ come down further: the pages of a full match's boards are the longest
 functions left, and the test that reads those pages is the most tangled.
 The record of whole games is kept for one kind of machine, and on any
 other it only checks that a game plays the same twice. The workflow in
-`.github/` has never been run.
+`.github/` runs everything on each push, on one of GitHub's Macs, whose
+sums have agreed with the record every time so far.
 
-## Left as it was found
+## Found on the way
 
-Reshaping the code turned up things that look like slips. Each was left as
-it is, so that the game stayed the game, and is for whoever owns the game
-to decide on. Putting one right changes how seeded games go, and so is a
-change to make by itself, with the record written down afresh for it.
+Reshaping the code turned up things that looked like slips. They were left
+alone while the code was being reshaped, so that the game stayed the game,
+and put right afterwards, each in a commit of its own that says what it
+was. Three of them changed how seeded games go, and the record was written
+down afresh for those: a miss now cools a hot bat in the arcade game, a
+steal is told when its play ends, and the lit sign no longer draws the
+numbers the coin does.
 
-- In the arcade game a hot bat's run of hits is never brought back to
-  nought.
-- A steal that is settled as a play ends is told on the play after.
-- Every game started in one run with a seed plays from the same numbers.
-- The seed the coin is tossed by and the seed the signs are lit by are the
-  same number.
-- The innings a pitcher has pitched are worked out as if there were always
-  three outs to an innings, whatever the rules say.
-- A mod's setting can be put to a level higher than it has.
-- A colour in the art's files may be written with a plus sign in it, and
-  a number asked for between two others can be the higher of them. A test
-  holds each of these as it is.
-- The key that bullet time is held by asks the mods chosen on the menu,
-  where everything else asks the mods of the game being played.
-- The notes a runner keeps of what happened grow for as long as nobody
-  takes them.
+Three things that looked like slips are as they are meant to be.
+
+- **Every game started in one run with a seed is the same game.** That is
+  what `--seed` is for. Without it each game has a seed of its own from
+  the clock.
+- **The other side has three outs, three strikes and four balls, whatever
+  the rules say.** Its innings are played on paper by the game's own old
+  rules, and only the player's side is played by the numbers in
+  `data/rules.toml`.
+- **A picture is drawn several times before it is kept.** A graphics card
+  just put to work draws a pixel here and there on a gradient a step of
+  one colour out for its first few draws, and then settles. Nothing sent
+  to it differs. `Renderer::capture` draws until the frame has come out
+  the same six times running. In the window the same thing happens in the
+  first hundredth of a second, where nobody could see it.

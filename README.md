@@ -34,7 +34,8 @@ edit.
 
 ## Playing
 
-Needs a current stable Rust toolchain.
+Needs Rust, by way of `rustup`. `rust-toolchain.toml` names the version the
+code is written for, and `rustup` fetches it the first time it is wanted.
 
 ```bash
 cargo run --release -p bb-game
@@ -255,7 +256,8 @@ under `[called_shot]` in `data/rules.toml`.
 With the hot bat, every swing in a row that meets the ball adds a frame to
 each end of the timing window for the next, up to three, each as good as the
 frame that was the end. A strike that is not a foul takes the window back to
-what it was. How hot the bat is is written in the corner of the batting
+what it was, and so does a pitch that goes by unhit in the arcade game,
+which keeps no count. How hot the bat is is written in the corner of the batting
 view, and the mark on the bat glows, redder the hotter. The number is under
 `[hot_bat]` in `data/rules.toml`.
 
