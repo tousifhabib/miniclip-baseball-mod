@@ -5,7 +5,7 @@
 //! day. This does, by reading them.
 
 /// The files that are sums and nothing else, with what each holds.
-const SUMS: [(&str, &str); 24] = [
+const SUMS: [(&str, &str); 25] = [
     ("rng.rs", include_str!("../src/rng.rs")),
     ("rules.rs", include_str!("../src/rules.rs")),
     ("settings.rs", include_str!("../src/settings.rs")),
@@ -41,6 +41,10 @@ const SUMS: [(&str, &str); 24] = [
     (
         "play/mods/lone_pitcher.rs",
         include_str!("../src/play/mods/lone_pitcher.rs"),
+    ),
+    (
+        "play/mods/moon_ball.rs",
+        include_str!("../src/play/mods/moon_ball.rs"),
     ),
     (
         "play/mods/mystery_pitch.rs",

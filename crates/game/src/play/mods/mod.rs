@@ -62,7 +62,7 @@ use crate::mods::{About, Mod};
 use crate::play::pitch::Point;
 use crate::play::snapshot::ArmSeen;
 use crate::rng::Rng;
-use crate::rules::PitchRules;
+use crate::rules::{FieldRules, PitchRules};
 
 /// What the menu and the files know a mod by. Each mod says its own, in
 /// its file.
@@ -92,6 +92,23 @@ pub(crate) fn about(which: Mod) -> &'static About {
         Mod::TurboRunners => &turbo_runners::ABOUT,
         Mod::ZingerHit => &zinger_hit::ABOUT,
     }
+}
+
+/// The numbers the ball flies by over the field in a match of this game:
+/// the game's own, with what the mods that are on change of them laid
+/// over, a pinball park first and the moon after. The arcade game does not
+/// ask, since these mods leave it as it is.
+pub(crate) fn field_in_a_match(game: &Game) -> FieldRules {
+    let mut field = game.rules.field.clone();
+    if game.mods.is_on(Mod::PinballPark) {
+        let level = game.mods.level(Mod::PinballPark);
+        field = pinball_park::bouncy(&game.rules.pinball, level, &field);
+    }
+    if game.mods.is_on(Mod::MoonBall) {
+        let level = game.mods.level(Mod::MoonBall);
+        field = moon_ball::floated(&game.rules.moon, level, &field);
+    }
+    field
 }
 
 /// The colour of something this hot, from warm to as hot as it gets: a bat

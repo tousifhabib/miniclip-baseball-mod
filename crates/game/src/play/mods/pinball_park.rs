@@ -12,7 +12,7 @@ use crate::mods::{About, Setting};
 use crate::play::Parts;
 use crate::play::field::{Ball, Happened, reach};
 use crate::play::pitch::Point;
-use crate::rules::FieldRules;
+use crate::rules::{FieldRules, PinballRules};
 
 /// What the menu and the files know this mod by.
 pub(crate) const ABOUT: About = About {
@@ -35,6 +35,19 @@ pub(crate) const ABOUT: About = About {
 /// The mod, in play. It keeps nothing: how bouncy the park is is settled in
 /// the rules the game is played by, when it starts.
 pub(crate) struct PinballPark;
+
+/// The numbers the ball flies by in a pinball park at this level, counting
+/// from 1, given the ones it flies by as the game was.
+pub(crate) fn bouncy(rules: &PinballRules, level: u8, field: &FieldRules) -> FieldRules {
+    let keeps = rules.keeps.at(level).unwrap_or(field.bounce_run);
+    FieldRules {
+        bounce_run: keeps,
+        bounce_lift: keeps,
+        wall_bounce: keeps,
+        bounce_cap: rules.hop,
+        ..field.clone()
+    }
+}
 
 /// The fixed points of the field that the ball is kept in by.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -156,6 +169,26 @@ mod tests {
     use crate::rules::Rules;
 
     const HOME: Point = (240.8, 336.85);
+
+    #[test]
+    fn a_pinball_park_changes_how_the_ball_bounces_and_nothing_else() {
+        let rules = Rules::default();
+        let park = bouncy(&rules.pinball, 5, &rules.field);
+        assert_eq!(
+            (park.bounce_run, park.wall_bounce, park.bounce_lift),
+            (0.9, 0.9, 0.9)
+        );
+        assert_eq!(park.bounce_cap, 1.5);
+        assert_eq!(bouncy(&rules.pinball, 1, &rules.field).wall_bounce, 0.6);
+        let back = FieldRules {
+            bounce_run: rules.field.bounce_run,
+            bounce_lift: rules.field.bounce_lift,
+            wall_bounce: rules.field.wall_bounce,
+            bounce_cap: rules.field.bounce_cap,
+            ..park
+        };
+        assert_eq!(back, rules.field);
+    }
 
     fn rolling(at: Point, speed: Point) -> Ball {
         Ball {

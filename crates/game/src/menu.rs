@@ -8,7 +8,7 @@ use bb_format::SymbolId;
 
 use crate::art;
 use crate::look::{self, Rgb};
-use crate::mods::{Mod, Mods};
+use crate::mods::Mods;
 use crate::play::overlay::Words;
 use crate::rng::Rng;
 use crate::rules::Rules;
@@ -82,16 +82,8 @@ impl Game {
     /// how the ball flies over the field leave alone.
     pub fn as_played(&self, a_match: bool) -> Game {
         let mut played = self.clone();
-        if !a_match {
-            return played;
-        }
-        if self.mods.is_on(Mod::PinballPark) {
-            let level = self.mods.level(Mod::PinballPark);
-            played.rules.field = self.rules.pinball.park(level, &played.rules.field);
-        }
-        if self.mods.is_on(Mod::MoonBall) {
-            let level = self.mods.level(Mod::MoonBall);
-            played.rules.field = self.rules.moon.float(level, &played.rules.field);
+        if a_match {
+            played.rules.field = crate::play::mods::field_in_a_match(self);
         }
         played
     }
