@@ -612,119 +612,140 @@ impl Match {
         );
         // A walk has no ball in the field, and a foul's is left where it is.
         let nothing_to_move = matches!(state.play, Play::Walk | Play::Foul { .. });
-        // Where across the field it has come to the wall, and how high, if
-        // it has on this frame.
-        let mut at_wall = None;
-        if let (Some(ball), true, false) = (&mut at_bat.ball, loose, nothing_to_move) {
-            let before = *ball;
-            let was_down = before.bounced;
-            let pinball = self.mods.the_park_is_a_pinball_table();
-            // In a pinball park the air takes nothing from a ball that has
-            // been down, however it was hit.
-            let miss = if pinball && was_down { 0.0 } else { miss };
-            let mut happened = if state.is_home_run() {
-                Happened::Nothing
-            } else {
-                ball.step(parts.home, miss, rules)
-            };
-            let over_the_wall = matches!(state.play, Play::Fair(Fair::Gone | Fair::HomeRun { .. }));
-            if pinball && !over_the_wall {
-                // In a pinball park the wall and the foul lines send it
-                // back, and whoever is nearest takes up the chase.
-                let park = pinball::Park::of(parts);
-                happened = pinball::rebound(ball, before, happened, &park, rules);
-                if happened == Happened::HitWall {
-                    at_bat.rebounds += 1;
-                    if state.play.is_live() && !self.mods.the_pitcher_fields_alone() {
-                        let far =
-                            |index: usize| distance(at(stage, &parts.fielders[index]), ball.at);
-                        let nearest = (0..5.min(parts.fielders.len()))
-                            .min_by(|&a, &b| far(a).total_cmp(&far(b)))
-                            .unwrap_or(state.fielder);
-                        if nearest != state.fielder {
-                            let was = parts.fielders[state.fielder].clone();
-                            stage.goto_label(&was, "waiting", false, library);
-                            state.fielder = nearest;
-                        }
-                    }
+        let (Some(mut ball), true, false) = (at_bat.ball, loose, nothing_to_move) else {
+            return;
+        };
+        let before = ball;
+        let was_down = before.bounced;
+        let pinball = self.mods.the_park_is_a_pinball_table();
+        // In a pinball park the air takes nothing from a ball that has
+        // been down, however it was hit.
+        let miss = if pinball && was_down { 0.0 } else { miss };
+        let mut happened = if state.is_home_run() {
+            Happened::Nothing
+        } else {
+            ball.step(parts.home, miss, rules)
+        };
+        let over_the_wall = matches!(state.play, Play::Fair(Fair::Gone | Fair::HomeRun { .. }));
+        if pinball && !over_the_wall {
+            // In a pinball park the wall and the foul lines send it
+            // back, and whoever is nearest takes up the chase.
+            let park = pinball::Park::of(parts);
+            happened = pinball::rebound(&mut ball, before, happened, &park, rules);
+            if happened == Happened::HitWall {
+                at_bat.rebounds += 1;
+                if state.play.is_live() && !self.mods.the_pitcher_fields_alone() {
+                    Match::the_nearest_takes_up_the_chase(state, ball.at, parts, stage, library);
                 }
-            }
-            if matches!(happened, Happened::Cleared | Happened::HitWall) {
-                at_wall = Some((parts.ground(rules).across(ball.at), ball.height));
-            }
-            // A ball that went over the wall before the view changed has
-            // gone over it as far as this view knows now.
-            if std::mem::take(&mut at_bat.over_wall) && happened == Happened::Nothing {
-                happened = Happened::Cleared;
-            }
-            put(
-                stage,
-                &parts.field_ball,
-                ball.at,
-                seen_size(parts.home, ball.at),
-            );
-            if let Some(inner) = stage.child_mut(&parts.field_ball_inner) {
-                inner.move_to(inner.matrix.tx, -ball.height);
-            }
-            if let (Some(shown), false) = (&mut at_bat.zinger_show, ball.bounced) {
-                shown.follow(ball, parts, stage);
-            }
-            // The first time it comes down, a shot that was called for
-            // there comes off.
-            if happened == Happened::Landed && !was_down && self.mods.shots_are_called() {
-                at_bat.came_down = Some(ball.at);
-                if let Some(called) = &mut at_bat.called {
-                    let runs = called.landed(ball.at, &game.rules, stage, library);
-                    if runs > 0 {
-                        self.score += runs;
-                        self.show_numbers(stage);
-                        Match::sound(stage, library, "crowd_bigClap");
-                        Match::sound(stage, library, "baseball_organ_FX");
-                        at_bat.notices.put(
-                            Says::news(
-                                "calledIt",
-                                &format!("CALLED IT! +{runs}"),
-                                CALLED_COLOUR,
-                                game.rules.called_shot.told_time,
-                            )
-                            .at((parts.centre_x, CALLED_TOP))
-                            .sized(1.2),
-                            parts,
-                            stage,
-                            library,
-                        );
-                    }
-                }
-            }
-            match happened {
-                // A zinger is followed on to where it comes down before
-                // anything is called.
-                Happened::Cleared if state.play.is_live() && at_bat.zinger_show.is_some() => {
-                    state.play = Play::Fair(Fair::Gone);
-                    state.job = Job::Rest;
-                    let fielder = parts.fielders[state.fielder].clone();
-                    stage.goto_label(&fielder, "waiting", false, library);
-                }
-                Happened::Cleared if state.play.is_live() => {
-                    // Where it would come down, beyond the wall.
-                    state.land = ball.landing(parts.home, miss, rules);
-                    self.home_run(state, parts, stage, library);
-                }
-                // Back off the wall: somebody has to go and get it.
-                Happened::HitWall if state.play.is_live() => state.job = Job::Chase,
-                Happened::Landed if state.play == Play::Fair(Fair::Gone) => {
-                    state.land = ball.at;
-                    self.home_run(state, parts, stage, library);
-                    if let Some(shown) = &mut at_bat.zinger_show {
-                        self.zinger_down(shown, stage, library);
-                    }
-                }
-                _ => {}
             }
         }
+        // Where across the field it has come to the wall, and how high, if
+        // it has on this frame.
+        let at_wall = matches!(happened, Happened::Cleared | Happened::HitWall)
+            .then(|| (parts.ground(rules).across(ball.at), ball.height));
+        // A ball that went over the wall before the view changed has
+        // gone over it as far as this view knows now.
+        if std::mem::take(&mut at_bat.over_wall) && happened == Happened::Nothing {
+            happened = Happened::Cleared;
+        }
+        put(
+            stage,
+            &parts.field_ball,
+            ball.at,
+            seen_size(parts.home, ball.at),
+        );
+        if let Some(inner) = stage.child_mut(&parts.field_ball_inner) {
+            inner.move_to(inner.matrix.tx, -ball.height);
+        }
+        if let (Some(shown), false) = (&mut at_bat.zinger_show, ball.bounced) {
+            shown.follow(&ball, parts, stage);
+        }
+        // The first time it comes down, a shot that was called for
+        // there comes off.
+        if happened == Happened::Landed && !was_down && self.mods.shots_are_called() {
+            self.a_called_shot_comes_down(at_bat, ball.at, parts, game, stage, library);
+        }
+        match happened {
+            // A zinger is followed on to where it comes down before
+            // anything is called.
+            Happened::Cleared if state.play.is_live() && at_bat.zinger_show.is_some() => {
+                state.play = Play::Fair(Fair::Gone);
+                state.job = Job::Rest;
+                let fielder = parts.fielders[state.fielder].clone();
+                stage.goto_label(&fielder, "waiting", false, library);
+            }
+            Happened::Cleared if state.play.is_live() => {
+                // Where it would come down, beyond the wall.
+                state.land = ball.landing(parts.home, miss, rules);
+                self.home_run(state, parts, stage, library);
+            }
+            // Back off the wall: somebody has to go and get it.
+            Happened::HitWall if state.play.is_live() => state.job = Job::Chase,
+            Happened::Landed if state.play == Play::Fair(Fair::Gone) => {
+                state.land = ball.at;
+                self.home_run(state, parts, stage, library);
+                if let Some(shown) = &mut at_bat.zinger_show {
+                    self.zinger_down(shown, stage, library);
+                }
+            }
+            _ => {}
+        }
+        at_bat.ball = Some(ball);
         if let Some((across, height)) = at_wall {
             self.strike_sign(at_bat, across, height, &game.rules.sign);
         }
+    }
+
+    /// In a pinball park, a ball that comes back off the wall is chased by
+    /// whichever of the fielders who chase is nearest it now.
+    fn the_nearest_takes_up_the_chase(
+        state: &mut Fielding,
+        ball_at: Point,
+        parts: &Parts,
+        stage: &mut Stage,
+        library: &Library,
+    ) {
+        let far = |index: usize| distance(at(stage, &parts.fielders[index]), ball_at);
+        let nearest = (0..5.min(parts.fielders.len()))
+            .min_by(|&a, &b| far(a).total_cmp(&far(b)))
+            .unwrap_or(state.fielder);
+        if nearest != state.fielder {
+            let was = parts.fielders[state.fielder].clone();
+            stage.goto_label(&was, "waiting", false, library);
+            state.fielder = nearest;
+        }
+    }
+
+    /// A hit has come down for the first time, at `place`. With shots
+    /// being called, where it did is kept, and a shot that was called for
+    /// there comes off: its runs are the batter's side's, and it is told.
+    fn a_called_shot_comes_down(
+        &mut self,
+        at_bat: &mut AtBat,
+        place: Point,
+        parts: &Parts,
+        game: &Game,
+        stage: &mut Stage,
+        library: &Library,
+    ) {
+        at_bat.came_down = Some(place);
+        let Some(called) = &mut at_bat.called else {
+            return;
+        };
+        let runs = called.landed(place, &game.rules, stage, library);
+        if runs == 0 {
+            return;
+        }
+        self.score += runs;
+        self.show_numbers(stage);
+        Match::sound(stage, library, "crowd_bigClap");
+        Match::sound(stage, library, "baseball_organ_FX");
+        let words = format!("CALLED IT! +{runs}");
+        let frames = game.rules.called_shot.told_time;
+        let says = Says::news("calledIt", &words, CALLED_COLOUR, frames)
+            .at((parts.centre_x, CALLED_TOP))
+            .sized(1.2);
+        at_bat.notices.put(says, parts, stage, library);
     }
 
     /// Has the fielder whose ball it is do what he is doing for a frame:

@@ -8,7 +8,7 @@ use bb_engine::stage::Stage;
 
 use crate::art;
 use crate::look::{self, Rgb};
-use crate::play::book::{End, ORDER, Side, Turn, average, percent, tenths};
+use crate::play::book::{End, Figures, ORDER, Side, Turn, average, percent, tenths};
 use crate::play::full::{Cell, FullMatch, hits_words, ordinal, runs_words};
 use crate::play::overlay::Words;
 use crate::play::pitch::Quality;
@@ -433,15 +433,47 @@ fn batting(side: &Side, fielding: &Side, ours: bool, sheet: &mut Sheet<'_>, stag
     sheet.write(stage, "pitcherLine", &pitcher, (MIDDLE, 292.0), 0.6, PALE);
 }
 
+/// A line of the page of figures: what it is of, and what each side has
+/// of it, the player's first.
+type Row = (&'static str, String, String);
+
 /// The page of the two sides' figures, side by side.
 fn figures(ours: &Side, theirs: &Side, sheet: &mut Sheet<'_>, stage: &mut Stage) {
     const SIZE: f32 = 0.68;
     const TOP: f32 = 90.0;
     const PITCH: f32 = 16.2;
     let (us, them) = (ours.figures(), theirs.figures());
+    let (hitting, pitches) = (hitting_rows(&us, &them), pitching_rows(&us, &them));
+    // Each half of the page: where its words begin, and the middles of the
+    // two sides' columns.
+    for (rows, left, columns) in [
+        (hitting, 38.0, [208.0, 258.0]),
+        (pitches, 300.0, [478.0, 530.0]),
+    ] {
+        for (across, side, colour) in [(columns[0], "YOU", GOLD), (columns[1], "THEM", CREAM)] {
+            sheet.write(stage, "figuresHead", side, (across, TOP), SIZE, colour);
+        }
+        for (row, (name, us, them)) in rows.into_iter().enumerate() {
+            let down = TOP + PITCH * (row + 1) as f32;
+            sheet.write_left(stage, "figuresName", name, (left, down), SIZE, PALE);
+            sheet.write(stage, "figuresOurs", &us, (columns[0], down), SIZE, GOLD);
+            sheet.write(
+                stage,
+                "figuresTheirs",
+                &them,
+                (columns[1], down),
+                SIZE,
+                CREAM,
+            );
+        }
+    }
+}
+
+/// What the page of figures says of each side's hitting.
+fn hitting_rows(us: &Figures, them: &Figures) -> Vec<Row> {
     let feet = |feet: u32| format!("{feet} FT");
     let whole = |value: Option<f32>| value.map_or("-".to_owned(), |value| format!("{value:.0} FT"));
-    let mut hitting: Vec<(&str, String, String)> = vec![
+    let mut hitting: Vec<Row> = vec![
         ("AVERAGE", average(us.average()), average(them.average())),
         ("ON BASE", average(us.on_base()), average(them.on_base())),
         ("SLUGGING", average(us.slugging()), average(them.slugging())),
@@ -488,7 +520,12 @@ fn figures(ours: &Side, theirs: &Side, sheet: &mut Sheet<'_>, stage: &mut Stage)
     if us.stolen + us.caught + them.stolen + them.caught > 0 {
         hitting.push(("BASES STOLEN", us.stolen_of(), them.stolen_of()));
     }
-    let pitches: Vec<(&str, String, String)> = vec![
+    hitting
+}
+
+/// What it says of the pitches each side was thrown.
+fn pitching_rows(us: &Figures, them: &Figures) -> Vec<Row> {
+    vec![
         (
             "PITCHES SEEN",
             us.pitches.to_string(),
@@ -541,30 +578,7 @@ fn figures(ours: &Side, theirs: &Side, sheet: &mut Sheet<'_>, stage: &mut Stage)
             percent(them.strikeout_rate()),
         ),
         ("WALKED", percent(us.walk_rate()), percent(them.walk_rate())),
-    ];
-    // Each half of the page: where its words begin, and the middles of the
-    // two sides' columns.
-    for (rows, left, columns) in [
-        (hitting, 38.0, [208.0, 258.0]),
-        (pitches, 300.0, [478.0, 530.0]),
-    ] {
-        for (across, side, colour) in [(columns[0], "YOU", GOLD), (columns[1], "THEM", CREAM)] {
-            sheet.write(stage, "figuresHead", side, (across, TOP), SIZE, colour);
-        }
-        for (row, (name, us, them)) in rows.into_iter().enumerate() {
-            let down = TOP + PITCH * (row + 1) as f32;
-            sheet.write_left(stage, "figuresName", name, (left, down), SIZE, PALE);
-            sheet.write(stage, "figuresOurs", &us, (columns[0], down), SIZE, GOLD);
-            sheet.write(
-                stage,
-                "figuresTheirs",
-                &them,
-                (columns[1], down),
-                SIZE,
-                CREAM,
-            );
-        }
-    }
+    ]
 }
 
 /// The colour a ball in play is marked in, by what came of it.
