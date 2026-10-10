@@ -6,13 +6,15 @@
 //! running at all.
 //!
 //! The shapes a tournament comes in are in `format`, its sides and the
-//! drawing of them in `sides`, who is to meet whom in `schedule`, and what
-//! each thing that draws numbers draws them from in `seeds`.
+//! drawing of them in `sides`, who is to meet whom in `schedule`, what
+//! each thing that draws numbers draws them from in `seeds`, and what a
+//! side's strength does to its runs in `strength`.
 
 pub mod format;
 pub mod schedule;
 pub mod seeds;
 pub mod sides;
+pub mod strength;
 
 pub use format::{Format, Round};
 pub use sides::Entrant;
