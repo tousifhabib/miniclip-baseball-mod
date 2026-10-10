@@ -6,8 +6,7 @@ mod summary;
 use bb_engine::display::Path;
 use bb_engine::stage::Stage;
 
-// The game was this file's once, and is still found here.
-use super::{Menu, MenuPage};
+use super::{CHOICE_SIZE, Menu, MenuPage, WHITE, WORDS_SIZE};
 use crate::art;
 use crate::choice::{Choice, Row};
 use crate::look::{self, Rgb};
@@ -26,19 +25,13 @@ const GROUND_FIRST: (f32, f32) = (357.0, 309.0);
 const GROUND_PITCH: f32 = 66.0;
 const GROUND_WORD: (f32, f32) = (37.0, -5.0);
 
-/// The lettering the full match's pages are written in is drawn 18 high.
-/// These are the sizes of its lines, that being 1.
-const HEADING_SIZE: f32 = 17.0 / 18.0;
-const WORDS_SIZE: f32 = 14.0 / 18.0;
-const CHOICE_SIZE: f32 = 12.5 / 18.0;
-const WHITE: Rgb = look::WHITE;
-
 /// The row of boxes the ground is chosen by.
 const GROUNDS: Row = Row {
     first: GROUND_FIRST,
     pitch: GROUND_PITCH,
     word: GROUND_WORD,
     begins: false,
+    a_letter: 0.0,
     size: CHOICE_SIZE,
     colour: WHITE,
     fill: FILL_COLOUR,
@@ -82,7 +75,8 @@ impl Menu {
         home
     }
 
-    /// Takes down what a full match has put on the menu's pages.
+    /// Takes down what a full match or a tournament has put on the menu's
+    /// pages.
     pub(super) fn clear_full(&mut self, stage: &mut Stage) {
         if let Some(grounds) = self.grounds.take() {
             stage.remove(&grounds.holder);
@@ -90,6 +84,7 @@ impl Menu {
         if let Some(holder) = self.summary.take() {
             stage.remove(&holder);
         }
+        self.clear_tournament(stage);
     }
 
     /// On the full match's setup page, puts the choice of ground under the
@@ -133,7 +128,8 @@ impl Menu {
     }
 
     /// Takes in a click on the button at `path`, which may be one of the
-    /// choices of ground on the full match's setup page.
+    /// choices of ground on the full match's setup page, or one of the
+    /// boxes a tournament has put on its pages.
     pub fn chose(&mut self, path: &[u16], settings: &mut Settings) {
         let chosen = self
             .grounds
@@ -142,5 +138,6 @@ impl Menu {
         if let Some(ground) = chosen {
             settings.ground = ground;
         }
+        self.chose_of_a_tournament(path, settings);
     }
 }

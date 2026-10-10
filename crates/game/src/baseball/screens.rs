@@ -51,6 +51,7 @@ impl Baseball {
         // The tables are of a tournament, which is drawn if there is none.
         if screen == Screen::Tournament && self.tournament.is_none() {
             self.draw_tournament(stage);
+            self.tell_the_menu();
         }
         let seed = self.seed.unwrap_or_else(Rng::seed_from_clock);
         self.play = match screen {
@@ -91,6 +92,8 @@ impl Baseball {
             Leave::Match => Screen::Match,
             Leave::Arcade => Screen::Arcade,
             Leave::FullMatch => Screen::FullMatch,
+            Leave::Tables => Screen::Tournament,
+            Leave::Draw | Leave::GiveUp => return self.about_the_tournament(leave, stage),
         };
         self.show(screen, stage);
     }
@@ -127,8 +130,11 @@ impl Baseball {
                 }
             }
             Screen::Tournament => {
+                // On from the tables is the menu's page of what is next.
                 if art::CONTINUE_BUTTONS.contains(&button) {
                     self.show(Screen::Menu, stage);
+                    self.menu
+                        .open(MenuPage::TournamentSummary, &self.game, stage);
                 }
             }
             Screen::Instructions => self.instructions_clicked(label, stage),

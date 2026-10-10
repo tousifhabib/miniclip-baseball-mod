@@ -50,6 +50,7 @@ const BOXES: Row = Row {
     pitch: 104.0,
     word: (19.0, -2.0),
     begins: true,
+    a_letter: 0.0,
     size: 0.62,
     colour: CREAM,
     fill: GOLD,

@@ -1,6 +1,7 @@
 //! A tournament: its tables on the board, and the pages they are read
 //! through.
 
+mod menu;
 mod sections;
 
 #[path = "../common/mod.rs"]

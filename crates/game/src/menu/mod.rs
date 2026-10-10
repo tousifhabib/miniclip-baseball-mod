@@ -3,6 +3,8 @@
 
 mod full_match;
 mod page;
+mod summary;
+mod tournament;
 
 use bb_engine::display::{ClipState, Path};
 use bb_engine::stage::Stage;
@@ -12,8 +14,18 @@ use full_match::Grounds;
 pub use page::{Leave, MenuPage};
 // The game was this file's once, and is still found here.
 pub use crate::game::Game;
+use crate::look::{self, Rgb};
 use crate::rng::{Rng, mixed_with};
 use crate::settings::{Difficulty, Settings};
+use crate::tournament::Brief;
+pub use tournament::innings_chosen;
+
+/// The lettering the pages a full match and a tournament add are written
+/// in is drawn 18 high. These are the sizes of its lines, that being 1.
+const HEADING_SIZE: f32 = 17.0 / 18.0;
+const WORDS_SIZE: f32 = 14.0 / 18.0;
+const CHOICE_SIZE: f32 = 12.5 / 18.0;
+const WHITE: Rgb = look::WHITE;
 
 pub struct Menu {
     page: MenuPage,
@@ -26,8 +38,15 @@ pub struct Menu {
     home: Option<bool>,
     /// What a full match has put on its setup page.
     grounds: Option<Grounds>,
-    /// What a full match has written on its summary page.
+    /// What a full match or a tournament has written on its summary page.
     summary: Option<Path>,
+    /// The tournament in hand as the game has told the menu of it, if
+    /// there is one, and what it has put on its setup page and its summary.
+    told: Option<Brief>,
+    choices: Option<tournament::Choices>,
+    boxes: Option<tournament::Boxes>,
+    /// Something a box on one of those pages has asked for.
+    asked: Option<Leave>,
 }
 
 impl Default for Menu {
@@ -39,6 +58,10 @@ impl Default for Menu {
             home: None,
             grounds: None,
             summary: None,
+            told: None,
+            choices: None,
+            boxes: None,
+            asked: None,
         }
     }
 }
@@ -85,7 +108,7 @@ impl Menu {
             self.arriving = true;
             match page {
                 // What the summary says fades away with it.
-                MenuPage::ToFull => {}
+                MenuPage::ToFull | MenuPage::ToTournament => {}
                 // The summary says where the side is to play.
                 MenuPage::FullSummary => {
                     self.clear_full(stage);
@@ -114,7 +137,7 @@ impl Menu {
     pub fn clicked(&mut self, label: &str, game: &mut Game, stage: &mut Stage) -> Option<Leave> {
         use MenuPage::{
             ArcadeSetup, ArcadeSummary, FullSetup, FullSummary, HighScores, Main, MatchSetup,
-            MatchSummary, Mods, ToArcade, ToFull, ToMatch,
+            MatchSummary, Mods, ToArcade, ToFull, ToMatch, TournamentSetup, TournamentSummary,
         };
         // A page that is still arriving cannot be used yet.
         if Menu::clip(stage).is_none_or(|menu| menu.playing) {
@@ -123,21 +146,34 @@ impl Menu {
         let page = match (self.page, label) {
             (Main, "BOTTOM OF THE NINTH") => MatchSetup,
             (Main, "FULL MATCH") => FullSetup,
+            // A tournament that has a result in it is gone on with, and
+            // one that has none can still be set up.
+            (Main, "TOURNAMENT") if self.underway() => TournamentSummary,
+            (Main, "TOURNAMENT") => TournamentSetup,
             (Main, "ARCADE") => ArcadeSetup,
             (Main, "INSTRUCTIONS") => return Some(Leave::Instructions),
             (Main, label) if label.starts_with("HIGH SCORES") => HighScores,
             (Main, "MODS") => Mods,
-            (MatchSetup | ArcadeSetup | FullSetup | HighScores | Mods, "BACK") => Main,
+            (MatchSetup | ArcadeSetup | FullSetup | TournamentSetup, "BACK") => Main,
+            (HighScores | Mods, "BACK") => Main,
+            (TournamentSummary, "BACK") if self.underway() => Main,
+            (TournamentSummary, "BACK") => TournamentSetup,
             (MatchSummary, "BACK") => MatchSetup,
             (ArcadeSummary, "BACK") => ArcadeSetup,
             (FullSummary, "BACK") => FullSetup,
             (MatchSetup, "NEXT") => MatchSummary,
             (ArcadeSetup, "NEXT") => ArcadeSummary,
             (FullSetup, "NEXT") => FullSummary,
+            (TournamentSetup, "NEXT") => return Some(Leave::Draw),
             (MatchSummary, "PLAY BALL") => ToMatch,
             (ArcadeSummary, "PLAY BALL") => ToArcade,
             (FullSummary, "PLAY BALL") => ToFull,
-            (MatchSetup | ArcadeSetup | FullSetup, "EASY" | "MEDIUM" | "HARD") => {
+            // When it is over, there is another to be set up.
+            (TournamentSummary, "PLAY BALL") if self.over() => TournamentSetup,
+            (
+                MatchSetup | ArcadeSetup | FullSetup | TournamentSetup,
+                "EASY" | "MEDIUM" | "HARD",
+            ) => {
                 game.settings.difficulty = match label {
                     "EASY" => Difficulty::Easy,
                     "MEDIUM" => Difficulty::Medium,
@@ -169,6 +205,11 @@ impl Menu {
         }
         self.show_grounds(&game.settings, stage);
         self.show_summary(game, stage);
+        self.show_choices(game, stage);
+        self.show_told(stage);
+        if let Some(asked) = self.asked.take() {
+            return Some(asked);
+        }
         match self.page {
             MenuPage::Opening if !playing => self.page = MenuPage::Main,
             MenuPage::ToMatch if frame >= last => return Some(Leave::Match),

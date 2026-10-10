@@ -4,6 +4,7 @@
 use super::Baseball;
 use super::screen::Screen;
 use crate::board;
+use crate::menu::{MenuPage, innings_chosen};
 use crate::tournament::Tournament;
 
 impl Baseball {
@@ -28,8 +29,22 @@ impl Baseball {
                 } else {
                     format!(", with {}", mods.join(" and "))
                 };
+                // The pages of a tournament say what is chosen for one, or
+                // how far the one in hand has got.
+                let tournament = match self.menu.page() {
+                    MenuPage::TournamentSetup => {
+                        let (format, innings) =
+                            (self.game.settings.format, innings_chosen(&self.game));
+                        format!(": {}, {innings} innings", format.key())
+                    }
+                    MenuPage::TournamentSummary | MenuPage::ToTournament => {
+                        let told = self.tournament.as_ref().map(Tournament::describe);
+                        format!(": {}", told.unwrap_or_default())
+                    }
+                    _ => String::new(),
+                };
                 format!(
-                    "Menu, {:?}, {:?}{mods}",
+                    "Menu, {:?}, {:?}{mods}{tournament}",
                     self.menu.page(),
                     self.game.settings.difficulty
                 )

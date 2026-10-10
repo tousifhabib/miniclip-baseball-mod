@@ -3,21 +3,18 @@
 
 use bb_engine::stage::Stage;
 
-// The game was this file's once, and is still found here.
-use super::{HEADING_SIZE, WHITE, WORDS_SIZE};
 use super::{Menu, MenuPage};
 use crate::art;
 use crate::game::Game;
+use crate::menu::summary::{SUMMARY_DOWN, SUMMARY_MIDDLE};
+use crate::menu::{HEADING_SIZE, WHITE, WORDS_SIZE};
 use crate::settings::Ground;
 use crate::sheet::Sheet;
 
-/// On the summary page: where the badge at the start of the heading is, the
-/// middle of the top of the heading's words, the middle of the lines under
-/// it, and how far down each of those is.
+/// On the summary page: where the badge at the start of the heading is,
+/// and the middle of the top of the heading's words.
 const SUMMARY_BADGE: (f32, f32) = (333.0, 75.1);
 const SUMMARY_HEADING: (f32, f32) = (421.0, 75.0);
-const SUMMARY_MIDDLE: f32 = 400.0;
-const SUMMARY_DOWN: [f32; 5] = [136.0, 172.0, 191.0, 227.0, 246.0];
 
 impl Menu {
     /// The lines of the full match's summary page.
@@ -44,55 +41,10 @@ impl Menu {
     /// On the full match's summary page, takes the art's words about the
     /// last innings out of sight and writes what a full match is to be.
     pub(crate) fn show_summary(&mut self, game: &Game, stage: &mut Stage) {
-        if let Some(holder) = &self.summary
-            && stage.child(holder).is_none()
-        {
-            self.summary = None;
-        }
-        if !matches!(self.page, MenuPage::FullSummary | MenuPage::ToFull) {
-            return;
-        }
-        let Some(menu) = art::in_shell(stage, art::MENU) else {
+        let (shown, fading) = (MenuPage::FullSummary, MenuPage::ToFull);
+        let Some(menu) = self.ready_the_summary(shown, fading, stage) else {
             return;
         };
-        let Some(clip) = stage.clip(&menu) else {
-            return;
-        };
-        let (frame, last) = (clip.frame, clip.frame_count(stage.library()));
-        let theirs: Vec<u16> = clip
-            .children
-            .iter()
-            .filter(|(_, child)| art::SUMMARY_WORDS.contains(&child.symbol))
-            .map(|(&depth, _)| depth)
-            .collect();
-        for depth in theirs {
-            let mut path = menu.clone();
-            path.push(depth);
-            if let Some(child) = stage.child_mut(&path) {
-                child.set_visible(false);
-            }
-        }
-        if self.page == MenuPage::ToFull {
-            // The page fades away over the frames that are left, and what
-            // was written on it with it.
-            let labels = stage
-                .library()
-                .timeline(Some(art::MENU))
-                .map(|timeline| &timeline.labels);
-            let first = labels
-                .and_then(|labels| labels.get(MenuPage::ToFull.label()))
-                .copied()
-                .unwrap_or(frame);
-            let over = f32::from(last.saturating_sub(first).max(1));
-            let left = 1.0 - f32::from(frame.saturating_sub(first)) / over;
-            if let Some(holder) = self.summary.as_ref().and_then(|path| stage.child_mut(path)) {
-                holder.set_alpha(left.clamp(0.0, 1.0));
-            }
-            return;
-        }
-        if self.summary.is_some() || self.arriving {
-            return;
-        }
         let depth = Stage::RULES_DEPTH + 510;
         let Some(holder) = stage.attach(&menu, art::HOLDER, depth, "fullSummary") else {
             return;

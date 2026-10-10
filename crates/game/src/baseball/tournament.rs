@@ -8,6 +8,7 @@ use super::screen::Screen;
 use crate::art;
 use crate::board;
 use crate::look::Rgb;
+use crate::menu::{Leave, MenuPage, innings_chosen};
 use crate::mods::Mod;
 use crate::rng::Rng;
 use crate::tournament::{Entrant, Format, OnPaper, Setup, Tournament};
@@ -46,16 +47,9 @@ impl Baseball {
     /// team's name, if anything has.
     pub(super) fn draw_tournament(&mut self, stage: &Stage) {
         let (settings, rules) = (&self.game.settings, &self.game.rules);
-        // A length of match the rules do not give is the first they do.
-        let lengths = &rules.tournament.innings;
-        let innings = if lengths.contains(&settings.innings) {
-            settings.innings
-        } else {
-            lengths.first().copied().unwrap_or(settings.innings)
-        };
         let setup = Setup {
             format: settings.format,
-            innings,
+            innings: innings_chosen(&self.game),
             skill: settings.difficulty,
         };
         let typed = stage.text("teamName").unwrap_or_default();
@@ -69,6 +63,31 @@ impl Baseball {
             }
         }
         self.tournament = tournament;
+    }
+
+    /// Tells the menu of the tournament in hand, as it stands now.
+    pub(super) fn tell_the_menu(&mut self) {
+        let told = self.tournament.as_ref().map(Tournament::brief);
+        self.menu.tell(told);
+    }
+
+    /// Does what the menu has asked for about a tournament: draws one as
+    /// the setup page has it and goes on to its summary, or gives up the
+    /// one in hand and goes back to the menu's first page.
+    pub(super) fn about_the_tournament(&mut self, asked: Leave, stage: &mut Stage) {
+        let page = match asked {
+            Leave::Draw => {
+                self.draw_tournament(stage);
+                MenuPage::TournamentSummary
+            }
+            Leave::GiveUp => {
+                self.tournament = None;
+                MenuPage::Main
+            }
+            _ => return,
+        };
+        self.tell_the_menu();
+        self.menu.open(page, &self.game, stage);
     }
 
     /// While a tournament's tables are showing, keeps the art's own words

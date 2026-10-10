@@ -19,9 +19,11 @@
 //! stand is in `table`, the fixtures as far as they are known in
 //! `fixtures`, the playing of a tournament through in `progress`, and how
 //! one is kept from one run to the next in `kept`. What it has to say for
-//! itself, set out in rows for a page to write, is in `stats`, and in a
-//! line for a script to read, in `describe`.
+//! itself, set out in rows for a page to write, is in `stats`, in a few
+//! lines for the menu in `brief`, and in one for a script to read in
+//! `describe`.
 
+mod brief;
 pub mod card;
 mod describe;
 pub mod fixtures;
@@ -45,6 +47,7 @@ mod tests;
 use crate::rng::Rng;
 use crate::rules::TournamentRules;
 use crate::settings::Difficulty;
+pub use brief::Brief;
 pub use card::{Card, SideCard};
 pub use fixtures::Fixture;
 pub use format::{Format, Round};
