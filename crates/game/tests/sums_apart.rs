@@ -9,13 +9,14 @@ use std::path::{Path, PathBuf};
 
 /// The files that are sums and nothing else, as they are found under
 /// `src`. A folder is named for every file in it.
-const SUMS: [&str; 25] = [
+const SUMS: [&str; 26] = [
     "rng.rs",
     "rules",
     "settings.rs",
     "scores.rs",
     "kept.rs",
     "locate.rs",
+    "tournament",
     "play/pitch",
     "play/field",
     "play/book",

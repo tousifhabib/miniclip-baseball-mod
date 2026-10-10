@@ -22,3 +22,4 @@ pub mod scores;
 pub mod script;
 pub mod settings;
 mod sheet;
+pub mod tournament;
