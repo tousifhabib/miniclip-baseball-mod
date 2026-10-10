@@ -3,12 +3,13 @@
 //! over, pages of what the book has to say of it.
 //!
 //! The board between innings is here, with the colours and the measures
-//! the pages share. The pages and the turning of them are in `pages`, and
-//! each kind of page has a file: `batting`, `figures`, `spray`, `timing`
+//! the pages share. The pages are in `pages`, the arrows that turn them
+//! in `pager`, and each kind of page has a file: `batting`, `figures`, `spray`, `timing`
 //! and `turns`.
 
 mod batting;
 mod figures;
+mod pager;
 mod pages;
 mod spray;
 mod timing;

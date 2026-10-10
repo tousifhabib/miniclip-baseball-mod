@@ -9,15 +9,13 @@ use bb_engine::stage::Stage;
 // The game was this file's once, and is still found here.
 use super::{Menu, MenuPage};
 use crate::art;
+use crate::choice::{Choice, Row};
 use crate::look::{self, Rgb};
 use crate::rng::{Rng, mixed_with};
 use crate::settings::{Ground, Settings};
 use crate::sheet::Sheet;
 
-/// What fills the box of the ground chosen: how far into the box it sits,
-/// its size, the art's block being 1, and its colour.
-const FILL_IN: f32 = 2.0;
-const FILL_SIZE: f32 = 0.58;
+/// What fills the box of the ground chosen.
 const FILL_COLOUR: Rgb = look::NAVY;
 
 /// On the setup page, where the choice of ground is: the middle of the top
@@ -35,19 +33,22 @@ const WORDS_SIZE: f32 = 14.0 / 18.0;
 const CHOICE_SIZE: f32 = 12.5 / 18.0;
 const WHITE: Rgb = look::WHITE;
 
+/// The row of boxes the ground is chosen by.
+const GROUNDS: Row = Row {
+    first: GROUND_FIRST,
+    pitch: GROUND_PITCH,
+    word: GROUND_WORD,
+    size: CHOICE_SIZE,
+    colour: WHITE,
+    fill: FILL_COLOUR,
+    names: ["groundWord", "ground", "groundFill"],
+};
+
 /// The choice of ground on the full match's setup page: the clip it is all
-/// in, and each ground's box.
+/// in, and a box for each ground.
 pub(super) struct Grounds {
     holder: Path,
-    boxes: Vec<GroundBox>,
-}
-
-/// One ground to choose: its box, and what fills the box when it is the one
-/// chosen.
-struct GroundBox {
-    ground: Ground,
-    button: Path,
-    fill: Path,
+    boxes: Choice<Ground>,
 }
 
 impl Menu {
@@ -121,37 +122,12 @@ impl Menu {
                 size,
                 WHITE,
             );
-            let mut boxes = Vec::new();
-            for (index, ground) in Ground::ALL.into_iter().enumerate() {
-                // Each ground's things have ten depths to themselves.
-                sheet.depth = 10 + index as u16 * 10;
-                let at = (GROUND_FIRST.0 + GROUND_PITCH * index as f32, GROUND_FIRST.1);
-                let word = (at.0 + GROUND_WORD.0, at.1 + GROUND_WORD.1);
-                let size = CHOICE_SIZE;
-                sheet.write(stage, "groundWord", ground.word(), word, size, WHITE);
-                // The box goes on after its word, so that a click on the
-                // word is a click on the box.
-                let button = sheet.add(stage, art::CHOICE, "ground", at, (1.0, 1.0));
-                let inside = (at.0 + FILL_IN, at.1 + FILL_IN);
-                let size = (FILL_SIZE, FILL_SIZE);
-                let fill = sheet.add(stage, art::BLOCK, "groundFill", inside, size);
-                if let (Some(button), Some(fill)) = (button, fill) {
-                    if let Some(fill) = stage.child_mut(&fill) {
-                        fill.set_color(look::tint(FILL_COLOUR));
-                    }
-                    boxes.push(GroundBox {
-                        ground,
-                        button,
-                        fill,
-                    });
-                }
-            }
+            let all = Ground::ALL.map(|ground| (ground, ground.word()));
+            let boxes = Choice::put(&all, &GROUNDS, 10, &mut sheet, stage);
             self.grounds = Some(Grounds { holder, boxes });
         }
-        for each in self.grounds.iter().flat_map(|grounds| &grounds.boxes) {
-            if let Some(fill) = stage.child_mut(&each.fill) {
-                fill.set_visible(each.ground == settings.ground);
-            }
+        if let Some(grounds) = &self.grounds {
+            grounds.boxes.show(settings.ground, stage);
         }
     }
 
@@ -160,11 +136,10 @@ impl Menu {
     pub fn chose(&mut self, path: &[u16], settings: &mut Settings) {
         let chosen = self
             .grounds
-            .iter()
-            .flat_map(|grounds| &grounds.boxes)
-            .find(|each| each.button == path);
-        if let Some(chosen) = chosen {
-            settings.ground = chosen.ground;
+            .as_ref()
+            .and_then(|grounds| grounds.boxes.clicked(path));
+        if let Some(ground) = chosen {
+            settings.ground = ground;
         }
     }
 }

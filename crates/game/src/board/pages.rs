@@ -6,6 +6,7 @@ use bb_engine::stage::Stage;
 
 use super::batting::batting;
 use super::figures::figures;
+use super::pager::Pager;
 use super::spray::field;
 use super::timing::timing;
 use super::turns::turns;
@@ -14,16 +15,8 @@ use super::{
 };
 use crate::art;
 use crate::play::full::{FullMatch, ordinal};
-use crate::play::overlay::Words;
 use crate::play::paper;
 use crate::sheet::Sheet;
-
-/// The arrows that turn the pages, and the words between them: how far
-/// down, how far either side of the middle the arrows are, and the size of
-/// the words.
-const PAGER_TOP: f32 = 317.0;
-const PAGER_REACH: f32 = 62.0;
-const PAGER_SIZE: f32 = 0.7;
 
 /// The pages after the first have a backing of their own, under a heading:
 /// its left, top, width and height, and how solid it is.
@@ -66,9 +59,7 @@ pub struct Pages {
     page: usize,
     /// The clip the page that is up is written in.
     sheet: Option<Path>,
-    back: Path,
-    on: Path,
-    count: Words,
+    pager: Pager,
 }
 
 impl Pages {
@@ -102,27 +93,7 @@ impl Pages {
                 pages.push(Page::Innings { innings, part });
             }
         }
-        let mut sheet = Sheet::on(holder.to_vec(), 500);
-        // The art's arrow points on. The one back is the same, turned
-        // round.
-        let down = PAGER_TOP;
-        let back = sheet.add(
-            stage,
-            art::BOARD_TURN,
-            "pageBack",
-            (MIDDLE - PAGER_REACH, down),
-            (-1.0, 1.0),
-        )?;
-        let on = sheet.add(
-            stage,
-            art::BOARD_TURN,
-            "pageOn",
-            (MIDDLE + PAGER_REACH, down),
-            (1.0, 1.0),
-        )?;
-        let depth = sheet.depth;
-        let top = (MIDDLE, PAGER_TOP - 1.0);
-        let count = Words::new(holder, depth, "pageCount", top, PAGER_SIZE, stage)?;
+        let pager = Pager::put(holder, stage)?;
         let mut pages = Pages {
             holder: holder.to_vec(),
             full: full.clone(),
@@ -131,9 +102,7 @@ impl Pages {
             pages,
             page: 0,
             sheet: None,
-            back,
-            on,
-            count,
+            pager,
         };
         pages.draw(stage);
         Some(pages)
@@ -142,14 +111,11 @@ impl Pages {
     /// Takes in a click on the button at `path`, which may be one of the
     /// arrows. They go round: back from the first page is the last.
     pub fn clicked(&mut self, path: &[u16], stage: &mut Stage) {
-        let pages = self.pages.len();
-        if self.back == path {
-            self.page = (self.page + pages - 1) % pages;
-        } else if self.on == path {
-            self.page = (self.page + 1) % pages;
-        } else {
+        let turned = self.pager.turned(path, self.page, self.pages.len());
+        let Some(page) = turned else {
             return;
-        }
+        };
+        self.page = page;
         self.draw(stage);
     }
 
@@ -177,8 +143,7 @@ impl Pages {
         if let Some(old) = self.sheet.take() {
             stage.remove(&old);
         }
-        let says = format!("PAGE {} OF {}", self.page + 1, self.pages.len());
-        self.count.say(&says, CREAM, stage);
+        self.pager.say(self.page, self.pages.len(), stage);
         let Some(holder) = stage.attach(&self.holder, art::HOLDER, 10, "resultPage") else {
             return;
         };
