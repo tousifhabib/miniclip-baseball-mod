@@ -96,6 +96,7 @@ impl Baseball {
         let Some(holder) = stage.attach(&shell, art::HOLDER, depth, "tournamentTables") else {
             return;
         };
-        self.tables = board::Tables::new(tournament, &holder, stage);
+        let rules = &self.game.rules.tournament;
+        self.tables = board::Tables::new(tournament, rules, &holder, stage);
     }
 }

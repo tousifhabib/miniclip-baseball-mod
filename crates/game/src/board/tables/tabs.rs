@@ -14,16 +14,31 @@ pub(super) enum Section {
     Table,
     /// Every round's fixtures, and the matches that have been played.
     Matches,
+    /// Every side, and what each has done.
+    Sides,
+    /// The best of the batters and of the sides.
+    Leaders,
+    /// The records, and everything added up.
+    Records,
 }
 
 impl Section {
-    const ALL: [Section; 2] = [Section::Table, Section::Matches];
+    const ALL: [Section; 5] = [
+        Section::Table,
+        Section::Matches,
+        Section::Sides,
+        Section::Leaders,
+        Section::Records,
+    ];
 
     /// The word beside its box.
     pub fn word(self) -> &'static str {
         match self {
             Section::Table => "TABLE",
             Section::Matches => "MATCHES",
+            Section::Sides => "SIDES",
+            Section::Leaders => "LEADERS",
+            Section::Records => "RECORDS",
         }
     }
 }

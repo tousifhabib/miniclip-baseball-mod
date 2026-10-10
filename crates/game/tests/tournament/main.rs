@@ -1,6 +1,8 @@
 //! A tournament: its tables on the board, and the pages they are read
 //! through.
 
+mod sections;
+
 #[path = "../common/mod.rs"]
 mod common;
 
@@ -27,7 +29,7 @@ fn tables(format: Format, played: usize) -> Option<Script> {
 }
 
 /// The sections the tables are in, by the words beside their boxes.
-const SECTIONS: [&str; 2] = ["TABLE", "MATCHES"];
+const SECTIONS: [&str; 5] = ["TABLE", "MATCHES", "SIDES", "LEADERS", "RECORDS"];
 
 /// What comes after the tournament's own account of itself in the state:
 /// which section of the tables is up, what is open in it, and which page.

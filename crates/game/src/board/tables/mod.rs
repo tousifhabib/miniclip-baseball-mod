@@ -1,17 +1,23 @@
 //! The tables of a tournament, on the board the art has for an innings
-//! that was tied: how the sides stand, the knockout rounds, and every
-//! round's fixtures, any of which that has been played can be opened and
-//! read.
+//! that was tied: how the sides stand, the knockout rounds, every round's
+//! fixtures, the sides, the best of them and of their batters, and the
+//! records. A match that has been played and a side can each be opened
+//! from the page that lists it, and read.
 //!
 //! What there is to read is in sections, chosen by a row of boxes along
 //! the top, and a section has pages, turned by the arrows under them. The
-//! boxes are in `tabs`, and each kind of page has a file: `standings`,
-//! `bracket`, `rounds` and `one_match`. What every page says comes from
-//! the tournament as rows, and is only laid out here.
+//! boxes are in `tabs`, what the pages are in `page`, and each kind of
+//! page has a file: `standings`, `bracket`, `rounds`, `one_match`, `side`,
+//! `leaders` and `records`. What every page says comes from the
+//! tournament as rows, and is only laid out here.
 
 mod bracket;
+mod leaders;
 mod one_match;
+mod page;
+mod records;
 mod rounds;
+mod side;
 mod standings;
 mod tabs;
 
@@ -22,8 +28,10 @@ use super::pager::Pager;
 use super::{BACKING, CREAM, MIDDLE, PANEL, PANEL_ALPHA, WHITE};
 use crate::art;
 use crate::choice::Choice;
+use crate::rules::TournamentRules;
 use crate::sheet::Sheet;
-use crate::tournament::{Format, Tournament};
+use crate::tournament::Tournament;
+use page::{Opened, Page};
 use tabs::Section;
 
 /// How far down a page's heading is, between the boxes and the page, and
@@ -34,36 +42,15 @@ const HEADING: (f32, f32) = (69.0, 0.8);
 /// how far apart the two are, and their size.
 const BUTTON: (f32, f32, f32, f32) = (546.0, 344.0, 12.0, 0.62);
 
-/// Something that has been opened from the page that lists it.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum Opened {
-    /// The fixture with this number.
-    Match(usize),
-}
-
-/// What one of the pages is of.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum Page {
-    /// The table, or both groups' tables.
-    Standings,
-    /// The knockout rounds, side by side.
-    Knockout,
-    /// The fixtures of a round.
-    Round(usize),
-    /// A match that has been played: who won, and every innings.
-    Score(usize),
-    /// The two sides' figures in it, side by side.
-    Figures(usize),
-    /// What each batter of one of its sides did.
-    Batting { fixture: usize, home: bool },
-}
-
 /// The tables of a tournament on the board, with the boxes that choose a
 /// section and the arrows that turn its pages.
 pub struct Tables {
     /// The clip it is all in, which lies over the whole stage.
     holder: Path,
     tournament: Tournament,
+    /// The rules of a tournament, which say who has batted enough to be
+    /// listed among the best.
+    rules: TournamentRules,
     section: Section,
     /// What has been opened from a page of the section, if anything.
     opened: Option<Opened>,
@@ -79,7 +66,12 @@ pub struct Tables {
 
 impl Tables {
     /// Puts the tables up in the clip at `holder`, on their first page.
-    pub fn new(tournament: &Tournament, holder: &[u16], stage: &mut Stage) -> Option<Tables> {
+    pub fn new(
+        tournament: &Tournament,
+        rules: &TournamentRules,
+        holder: &[u16],
+        stage: &mut Stage,
+    ) -> Option<Tables> {
         let tabs = tabs::put(holder, stage);
         let pager = Pager::put(holder, stage)?;
         // What the board's button does here, written where the art has
@@ -92,6 +84,7 @@ impl Tables {
         let mut tables = Tables {
             holder: holder.to_vec(),
             tournament: tournament.clone(),
+            rules: rules.clone(),
             section: Section::Table,
             opened: None,
             page: 0,
@@ -113,26 +106,7 @@ impl Tables {
     /// opened, or of the section.
     fn pages(&self) -> Vec<Page> {
         let format = self.tournament.setup().format;
-        match (self.opened, self.section) {
-            (Some(Opened::Match(fixture)), _) => vec![
-                Page::Score(fixture),
-                Page::Figures(fixture),
-                Page::Batting {
-                    fixture,
-                    home: false,
-                },
-                Page::Batting {
-                    fixture,
-                    home: true,
-                },
-            ],
-            (None, Section::Table) => match format {
-                Format::League => vec![Page::Standings],
-                Format::Groups => vec![Page::Standings, Page::Knockout],
-                Format::Cup => vec![Page::Knockout],
-            },
-            (None, Section::Matches) => (0..format.rounds()).map(Page::Round).collect(),
-        }
+        page::pages(format, self.section, self.opened)
     }
 
     /// Takes in a click on the button at `path`, which may be one of the
@@ -172,6 +146,7 @@ impl Tables {
     pub fn describe(&self) -> String {
         let opened = match self.opened {
             Some(Opened::Match(fixture)) => format!(", match {}", fixture + 1),
+            Some(Opened::Side(side)) => format!(", {}", self.tournament.name_of(side)),
             None => String::new(),
         };
         format!(
@@ -201,33 +176,9 @@ impl Tables {
         self.sheet = Some(holder.clone());
         let mut sheet = Sheet::on(holder, 1);
         sheet.block(stage, "pagePanel", PANEL, BACKING, PANEL_ALPHA);
-        let tournament = &self.tournament;
-        let heading = match page {
-            Page::Standings => standings::heading(tournament),
-            Page::Knockout => "THE KNOCKOUT ROUNDS".to_owned(),
-            Page::Round(round) => tournament.setup().format.round(round).words(),
-            Page::Score(fixture) | Page::Figures(fixture) => {
-                one_match::heading(tournament, fixture)
-            }
-            Page::Batting { fixture, home } => {
-                one_match::batting_heading(tournament, fixture, home)
-            }
-        };
+        let heading = page.heading(&self.tournament);
         let (down, size) = HEADING;
         sheet.write(stage, "pageHeading", &heading, (MIDDLE, down), size, CREAM);
-        match page {
-            Page::Standings => standings::standings(tournament, &mut sheet, stage),
-            Page::Knockout => bracket::knockout(tournament, &mut sheet, stage),
-            Page::Round(round) => {
-                let opens = rounds::round(tournament, round, &mut sheet, stage);
-                let opened = |(arrow, fixture)| (arrow, Opened::Match(fixture));
-                self.opens = opens.into_iter().map(opened).collect();
-            }
-            Page::Score(fixture) => one_match::score(tournament, fixture, &mut sheet, stage),
-            Page::Figures(fixture) => one_match::figures(tournament, fixture, &mut sheet, stage),
-            Page::Batting { fixture, home } => {
-                one_match::batting(tournament, fixture, home, &mut sheet, stage);
-            }
-        }
+        self.opens = page.write(&self.tournament, &self.rules, &mut sheet, stage);
     }
 }
