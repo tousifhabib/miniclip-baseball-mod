@@ -15,6 +15,7 @@ use bb_game::mods::{Mod, Mods};
 use bb_game::scores::Scores;
 use bb_game::script::Script;
 use bb_game::settings::Ground;
+use bb_game::tournament::Format;
 use clap::Parser;
 
 #[derive(Parser)]
@@ -59,6 +60,17 @@ struct Args {
     /// once.
     #[arg(long = "mod", value_name = "NAME")]
     mods: Vec<String>,
+    /// The shape of the tournament `--screen tournament` opens on: groups,
+    /// league or cup.
+    #[arg(long, value_name = "SHAPE")]
+    format: Option<String>,
+    /// How many innings that tournament's matches have.
+    #[arg(long, value_name = "N")]
+    innings: Option<u32>,
+    /// Has this many of its fixtures played on paper before it opens, the
+    /// player's own among them. For testing.
+    #[arg(long, value_name = "N")]
+    played: Option<usize>,
     /// With `--run`: picture pixels per stage pixel.
     #[arg(long, default_value_t = 1.0)]
     scale: f32,
@@ -135,6 +147,15 @@ fn run() -> Result<()> {
             .with_context(|| format!("`{word}` is not home, away or toss"))?;
         logic.play_on(ground);
     }
+    let format = match &args.format {
+        Some(word) => Some(
+            Format::from_key(word)
+                .with_context(|| format!("`{word}` is not groups, league or cup"))?,
+        ),
+        None => None,
+    };
+    logic.choose_tournament(format, args.innings);
+    logic.play_on_paper(args.played.unwrap_or(0));
     if let Some(label) = &args.screen {
         let screen = Screen::from_label(label)
             .with_context(|| format!("there is no screen called `{label}`"))?;

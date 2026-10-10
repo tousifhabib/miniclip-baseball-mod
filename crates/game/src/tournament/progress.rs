@@ -98,11 +98,18 @@ impl Tournament {
         Ok(())
     }
 
-    /// Plays on paper every fixture there is before the player's next,
-    /// or to the end of the tournament if the player has none. `mods` is
-    /// what the mods that are on do to a match on paper, and `ground` the
-    /// field. Returns how many fixtures were played.
-    pub fn play_on(&mut self, rules: &Rules, mods: OnPaper, ground: &Ground) -> usize {
+    /// Plays the next fixture on paper, whoever is in it: the player's own
+    /// side too, as the middling side it is to the rules. That is for
+    /// trying a tournament out with nobody at the bat. `mods` is what the
+    /// mods that are on do to a match on paper, and `ground` the field.
+    /// Returns whether there was a fixture to play.
+    pub fn play_one_on_paper(&mut self, rules: &Rules, mods: OnPaper, ground: &Ground) -> bool {
+        let Some((fixture, (home, away))) = self
+            .next()
+            .and_then(|fixture| Some((fixture, fixture.sides()?)))
+        else {
+            return false;
+        };
         let by = Paper {
             rules,
             skill: self.setup.skill,
@@ -110,18 +117,23 @@ impl Tournament {
             mods,
             ground,
         };
+        let side = |side| (side, self.strength_of(side, rules));
+        let seed = seeds::of_a_fixture(self.seed, fixture.number, 0);
+        let card = on_paper::played(fixture.number, side(home), side(away), &by, seed);
+        self.played.push(card);
+        true
+    }
+
+    /// Plays on paper every fixture there is before the player's next,
+    /// or to the end of the tournament if the player has none. Returns
+    /// how many fixtures were played.
+    pub fn play_on(&mut self, rules: &Rules, mods: OnPaper, ground: &Ground) -> usize {
         let mut played = 0;
-        while let Some(fixture) = self.next() {
-            let Some((home, away)) = fixture.sides() else {
-                break;
-            };
-            if fixture.has(self.player) {
-                break;
-            }
-            let side = |side| (side, self.strength_of(side, rules));
-            let seed = seeds::of_a_fixture(self.seed, fixture.number, 0);
-            let card = on_paper::played(fixture.number, side(home), side(away), &by, seed);
-            self.played.push(card);
+        let others = |tournament: &Tournament| {
+            let next = tournament.next();
+            next.is_some_and(|fixture| !fixture.has(tournament.player))
+        };
+        while others(self) && self.play_one_on_paper(rules, mods, ground) {
             played += 1;
         }
         played

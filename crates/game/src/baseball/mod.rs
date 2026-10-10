@@ -7,8 +7,9 @@
 //! asks of it each frame. The screens are named in `screen`, going from one
 //! to another is in `screens`, a game in progress in `playing`, what a game
 //! leaves behind it in `after`, the player's choices in `choices`, the
-//! table of scores in `scores`, what is heard on each screen in `sound`,
-//! and the game's account of itself in `describe`.
+//! table of scores in `scores`, the tournament in hand in `tournament`,
+//! what is heard on each screen in `sound`, and the game's account of
+//! itself in `describe`.
 
 mod after;
 mod choices;
@@ -18,6 +19,7 @@ mod scores;
 mod screen;
 mod screens;
 mod sound;
+mod tournament;
 
 use bb_engine::app::Logic;
 use bb_engine::display::{ButtonEvent, Event, Path};
@@ -36,6 +38,7 @@ use crate::play::{Match, bullet};
 use crate::rules::Rules;
 use crate::scores::Scores;
 use crate::settings::Ground;
+use crate::tournament::Tournament;
 pub use screen::Screen;
 
 pub struct Baseball {
@@ -84,6 +87,13 @@ pub struct Baseball {
     /// The pages of the full match just finished, once they are up on its
     /// result screen.
     pages: Option<board::Pages>,
+    /// The tournament in hand, if there is one, and its tables while they
+    /// are up on the board.
+    tournament: Option<Tournament>,
+    tables: Option<board::Tables>,
+    /// How many fixtures of a tournament are played on paper as soon as
+    /// it is drawn, for trying one out.
+    on_paper: usize,
 }
 
 impl Baseball {
@@ -115,6 +125,9 @@ impl Baseball {
             finished: None,
             board: None,
             pages: None,
+            tournament: None,
+            tables: None,
+            on_paper: 0,
         }
     }
 
@@ -178,6 +191,7 @@ impl Logic for Baseball {
         self.stop_held_clips(stage);
         self.play_a_frame(stage);
         self.show_interval(stage);
+        self.show_tables(stage);
         self.show_result_lines(stage);
         self.name_the_skill_played(stage);
         if let Some(shell) = art::shell(stage) {

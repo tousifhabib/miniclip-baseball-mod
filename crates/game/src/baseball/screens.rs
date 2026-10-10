@@ -24,6 +24,9 @@ impl Baseball {
             stage.remove(&lines);
         }
         self.pages = None;
+        if let Some(tables) = self.tables.take() {
+            tables.take_down(stage);
+        }
         // What was written on the board went with the board.
         self.board = None;
         // A game with the southpaw mod on has the stage draw what is
@@ -45,6 +48,10 @@ impl Baseball {
             return;
         }
         self.finished = None;
+        // The tables are of a tournament, which is drawn if there is none.
+        if screen == Screen::Tournament && self.tournament.is_none() {
+            self.draw_tournament(stage);
+        }
         let seed = self.seed.unwrap_or_else(Rng::seed_from_clock);
         self.play = match screen {
             Screen::Match => {
@@ -117,6 +124,11 @@ impl Baseball {
             Screen::Interval => {
                 if art::CONTINUE_BUTTONS.contains(&button) {
                     self.bat_again(stage);
+                }
+            }
+            Screen::Tournament => {
+                if art::CONTINUE_BUTTONS.contains(&button) {
+                    self.show(Screen::Menu, stage);
                 }
             }
             Screen::Instructions => self.instructions_clicked(label, stage),

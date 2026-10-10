@@ -70,34 +70,28 @@ fn awaited(tournament: &Tournament, slot: Slot) -> String {
 /// The fixtures of a round, the first being nought, in the order of their
 /// numbers.
 pub fn round(tournament: &Tournament, round: usize) -> Vec<Listed> {
-    let ties = schedule::ties(tournament.setup().format);
-    let listed = |fixture: &Fixture| {
-        let named = |side: Option<usize>, slots: [Slot; 2]| match side {
-            Some(side) => Named {
-                name: tournament.name_of(side).to_owned(),
-                short: tournament.short_of(side).to_owned(),
-                side: Some(side),
-            },
-            // Not known yet: called by where it is to come from, the
-            // first-named of the tie first.
-            None => {
-                let [first, _] = slots;
-                let name = awaited(tournament, first);
-                Named {
-                    short: name.clone(),
-                    name,
-                    side: None,
-                }
+    let named = |side: Option<usize>, from: Slot| match side {
+        Some(side) => Named {
+            name: tournament.name_of(side).to_owned(),
+            short: tournament.short_of(side).to_owned(),
+            side: Some(side),
+        },
+        // Not known yet, and called by where it is to come from.
+        None => {
+            let name = awaited(tournament, from);
+            Named {
+                short: name.clone(),
+                name,
+                side: None,
             }
-        };
-        let tie = ties.get(fixture.number);
-        let slots = tie.map_or([Slot::Place(0); 2], |tie| [tie.first, tie.second]);
-        let [first, second] = slots;
+        }
+    };
+    let listed = |fixture: &Fixture| {
         let card = tournament.card(fixture.number);
         Listed {
             number: fixture.number,
-            home: named(fixture.home, [first, second]),
-            away: named(fixture.away, [second, first]),
+            home: named(fixture.home, fixture.home_from),
+            away: named(fixture.away, fixture.away_from),
             score: card.map(|card| (card.home.total(), card.away.total())),
             ours: fixture.has(tournament.player()),
         }

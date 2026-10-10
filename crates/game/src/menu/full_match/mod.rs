@@ -38,6 +38,7 @@ const GROUNDS: Row = Row {
     first: GROUND_FIRST,
     pitch: GROUND_PITCH,
     word: GROUND_WORD,
+    begins: false,
     size: CHOICE_SIZE,
     colour: WHITE,
     fill: FILL_COLOUR,

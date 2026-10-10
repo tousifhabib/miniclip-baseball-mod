@@ -1,6 +1,7 @@
 //! What the player chose before the game began.
 
 use crate::look::Rgb;
+use crate::tournament::Format;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Difficulty {
@@ -66,6 +67,10 @@ pub struct Settings {
     pub difficulty: Difficulty,
     /// Where the side plays a full match.
     pub ground: Ground,
+    /// The shape of the tournament to be drawn, and how many innings its
+    /// matches have.
+    pub format: Format,
+    pub innings: u32,
     /// The colour of the team's shirts and helmets, if one has been picked.
     pub clothes: Option<Rgb>,
     /// The arcade batter's skin, if one has been picked.
@@ -79,6 +84,8 @@ impl Default for Settings {
         Settings {
             difficulty: Difficulty::Medium,
             ground: Ground::Toss,
+            format: Format::Groups,
+            innings: 3,
             clothes: None,
             skin: None,
             logo: None,

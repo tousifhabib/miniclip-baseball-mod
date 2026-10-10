@@ -108,6 +108,10 @@ pub const BOARD: SymbolId = 1769;
 pub const BOARD_WORDS: [SymbolId; 5] = [1760, 1761, 1762, 1763, 1764];
 /// The frame of the board on which its words arrive.
 pub const BOARD_WORDS_FRAME: u16 = 38;
+/// The words on that board's button, NEXT INNINGS, as the clip they are
+/// in. A tournament's tables are on the board too, and write their own
+/// there.
+pub const NEXT_INNINGS_WORDS: SymbolId = 1766;
 /// The word over the score to beat on the game's scoreboards, as its two
 /// drawings. In a full match the other side's score is shown there.
 pub const TARGET_LABEL: [SymbolId; 2] = [505, 517];

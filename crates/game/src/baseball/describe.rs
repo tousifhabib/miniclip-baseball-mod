@@ -3,6 +3,8 @@
 
 use super::Baseball;
 use super::screen::Screen;
+use crate::board;
+use crate::tournament::Tournament;
 
 impl Baseball {
     /// Where the game is, in one line. The tests read it, and so does the
@@ -30,6 +32,18 @@ impl Baseball {
                     "Menu, {:?}, {:?}{mods}",
                     self.menu.page(),
                     self.game.settings.difficulty
+                )
+            }
+            Screen::Tournament => {
+                // A tournament says how far it has got, and its tables
+                // which of their pages is up.
+                let told = self.tournament.as_ref().map(Tournament::describe);
+                let tables = self.tables.as_ref().map(board::Tables::describe);
+                let tables = tables.map_or(String::new(), |tables| format!(", {tables}"));
+                format!(
+                    "Tournament, {:?}: {}{tables}",
+                    self.game.settings.difficulty,
+                    told.unwrap_or_default()
                 )
             }
             screen => {

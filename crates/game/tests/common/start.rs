@@ -13,6 +13,7 @@ use bb_game::mods::Mod;
 use bb_game::rules::Rules;
 use bb_game::script::Script;
 use bb_game::settings::Ground;
+use bb_game::tournament::Format;
 
 /// The folder that holds the art, if it is there.
 fn extracted() -> Option<PathBuf> {
@@ -139,6 +140,18 @@ pub fn game_levelled(screen: &str, seed: u64, which: Mod, level: u8) -> Option<S
     game_made(screen, start)
 }
 
+/// A tournament of this shape, with matches of this many innings, opened
+/// on its tables with this many of its fixtures played on paper already,
+/// the player's own among them.
+pub fn tournament(seed: u64, format: Format, innings: u32, played: usize) -> Option<Script> {
+    let start = Start {
+        seed: Some(seed),
+        tournament: Some((format, innings, played)),
+        ..Start::default()
+    };
+    game_made(Screen::TOURNAMENT, start)
+}
+
 /// What a game is started with, besides the screen it opens on. Whatever
 /// a test does not set is as the game has it.
 #[derive(Default)]
@@ -155,6 +168,9 @@ struct Start<'a> {
     level: Option<(Mod, u8)>,
     /// Where a full match is played.
     ground: Option<Ground>,
+    /// The shape of a tournament, how many innings its matches have, and
+    /// how many of its fixtures are played on paper as it is drawn.
+    tournament: Option<(Format, u32, usize)>,
 }
 
 fn game_made(screen: &str, start: Start<'_>) -> Option<Script> {
@@ -182,6 +198,10 @@ fn game_made(screen: &str, start: Start<'_>) -> Option<Script> {
     }
     if let Some(ground) = start.ground {
         logic.play_on(ground);
+    }
+    if let Some((format, innings, played)) = start.tournament {
+        logic.choose_tournament(Some(format), Some(innings));
+        logic.play_on_paper(played);
     }
     let runner = Runner::new(stage, logic, None);
     Some(Script::new(runner).expect("a renderer with no window"))

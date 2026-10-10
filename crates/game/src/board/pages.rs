@@ -11,17 +11,16 @@ use super::spray::field;
 use super::timing::timing;
 use super::turns::turns;
 use super::{
-    BACKING, CREAM, MIDDLE, RESULT_INNINGS, TURN_ROWS, VERDICT_SIZE, VERDICT_TOP, innings,
+    BACKING, CREAM, MIDDLE, PANEL, PANEL_ALPHA, RESULT_INNINGS, TURN_ROWS, VERDICT_SIZE,
+    VERDICT_TOP, innings,
 };
 use crate::art;
 use crate::play::full::{FullMatch, ordinal};
 use crate::play::paper;
 use crate::sheet::Sheet;
 
-/// The pages after the first have a backing of their own, under a heading:
-/// its left, top, width and height, and how solid it is.
-const PANEL: [f32; 4] = [28.0, 84.0, 534.0, 228.0];
-const PANEL_ALPHA: f32 = 0.55;
+/// How far down the heading of a page after the first is, over its
+/// backing, and its size.
 const PAGE_HEADING: (f32, f32) = (58.0, 1.35);
 
 /// How far down the line about zingers is on a full match's board.

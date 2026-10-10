@@ -18,9 +18,11 @@ pub(crate) struct Row {
     /// The corner of the first box, and how far apart the boxes are.
     pub first: (f32, f32),
     pub pitch: f32,
-    /// Where each box's word is from its box, the word's size, the
+    /// Where each box's word is from its box, whether that is where the
+    /// word begins and not where its middle is, the word's size, the
     /// lettering's own being 1, and its colour.
     pub word: (f32, f32),
+    pub begins: bool,
     pub size: f32,
     pub colour: Rgb,
     /// The colour the box of the one chosen is filled with.
@@ -59,7 +61,11 @@ impl<T: Copy + PartialEq> Choice<T> {
             sheet.depth = depth + index as u16 * 10;
             let at = (row.first.0 + row.pitch * index as f32, row.first.1);
             let beside = (at.0 + row.word.0, at.1 + row.word.1);
-            sheet.write(stage, word, says, beside, row.size, row.colour);
+            if row.begins {
+                sheet.write_left(stage, word, says, beside, row.size, row.colour);
+            } else {
+                sheet.write(stage, word, says, beside, row.size, row.colour);
+            }
             // The box goes on after its word, so that a click on the word
             // is a click on the box.
             let button = sheet.add(stage, art::CHOICE, button, at, (1.0, 1.0));

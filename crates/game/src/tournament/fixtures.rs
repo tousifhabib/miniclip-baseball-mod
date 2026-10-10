@@ -21,6 +21,10 @@ pub struct Fixture {
     /// The side at home and the side away, each by its place in the draw.
     pub home: Option<usize>,
     pub away: Option<usize>,
+    /// Where each of them comes from, which is all there is to call it by
+    /// until it is known who it is.
+    pub home_from: Slot,
+    pub away_from: Slot,
 }
 
 impl Fixture {
@@ -75,10 +79,10 @@ impl Tournament {
                 let second = self.settled(tie.second, &ties);
                 // The first-named is at home, unless a coin says not.
                 let swapped = tie.tossed && !seeds::first_named_is_at_home(self.seed, number);
-                let (home, away) = if swapped {
-                    (second, first)
+                let ((home, home_from), (away, away_from)) = if swapped {
+                    ((second, tie.second), (first, tie.first))
                 } else {
-                    (first, second)
+                    ((first, tie.first), (second, tie.second))
                 };
                 Fixture {
                     number,
@@ -87,6 +91,8 @@ impl Tournament {
                     group: tie.group,
                     home,
                     away,
+                    home_from,
+                    away_from,
                 }
             })
             .collect()

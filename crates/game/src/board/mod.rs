@@ -4,14 +4,17 @@
 //!
 //! The board between innings is here, with the colours and the measures
 //! the pages share. The pages are in `pages`, the arrows that turn them
-//! in `pager`, and each kind of page has a file: `batting`, `figures`, `spray`, `timing`
-//! and `turns`.
+//! in `pager`, and each kind of page has a file: `batting`, `figures`,
+//! `spray`, `timing` and `turns`. The tables of a tournament, which are
+//! written on a board of the same kind with the same tables of batting
+//! and of figures, are in `tables`.
 
 mod batting;
 mod figures;
 mod pager;
 mod pages;
 mod spray;
+mod tables;
 mod timing;
 mod turns;
 
@@ -23,6 +26,7 @@ use crate::look::{self, Rgb};
 use crate::play::full::{Cell, FullMatch, Line};
 use crate::sheet::Sheet;
 pub use pages::Pages;
+pub use tables::Tables;
 
 /// The colours of the board's lettering: as the art has it, for the side
 /// that is the player's, and for headings. The rest are for what is drawn.
@@ -62,6 +66,11 @@ const MIDDLE: f32 = 295.0;
 const VERDICT_TOP: f32 = 123.0;
 const RESULT_INNINGS: (f32, f32) = (243.0, 0.75);
 const VERDICT_SIZE: f32 = 0.8;
+
+/// The backing a page of figures has on a board, under its heading: its
+/// left, top, width and height, and how solid it is.
+const PANEL: [f32; 4] = [28.0, 84.0, 534.0, 228.0];
+const PANEL_ALPHA: f32 = 0.55;
 
 /// How many turns a column of an innings' page has room for.
 const TURN_ROWS: usize = 14;
