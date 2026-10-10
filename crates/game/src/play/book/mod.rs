@@ -9,6 +9,7 @@
 mod figures;
 #[cfg(test)]
 mod properties;
+mod sum;
 mod turn;
 
 pub use figures::{Figures, average, percent, tenths};
