@@ -15,7 +15,7 @@ use bb_game::mods::{Mod, Mods};
 use bb_game::scores::Scores;
 use bb_game::script::Script;
 use bb_game::settings::Ground;
-use bb_game::tournament::Format;
+use bb_game::tournament::{Format, Tournament};
 use clap::Parser;
 
 #[derive(Parser)]
@@ -112,14 +112,17 @@ fn run() -> Result<()> {
     if let Some(seed) = args.seed {
         logic.seed(seed);
     }
-    // A scripted run is a test, and leaves the player's own table and
-    // choice of mods alone.
+    // A scripted run is a test, and leaves the player's own table, choice
+    // of mods and tournament alone.
     if args.run.is_none() {
         if let Some(file) = Scores::usual_file() {
             logic.keep_scores_in(file);
         }
         if let Some(file) = Mods::usual_file() {
             logic.keep_mods_in(file);
+        }
+        if let Some(file) = Tournament::usual_file() {
+            logic.keep_tournament_in(file);
         }
     }
     for asked in &args.mods {

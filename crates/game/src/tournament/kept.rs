@@ -135,6 +135,11 @@ impl Tournament {
     pub fn save(&self, file: &Path) -> Result<()> {
         kept::write(file, &self.to_kept(), "the tournament")
     }
+
+    /// Takes away the tournament kept in `file`, if there is one.
+    pub fn forget(file: &Path) -> Result<()> {
+        kept::forget(file, "the tournament")
+    }
 }
 
 #[cfg(test)]
@@ -193,6 +198,8 @@ mod tests {
         assert_eq!(Tournament::load(&file), Some(tournament));
         std::fs::write(&file, "version = 1\nthis is = = not toml").expect("a file");
         assert_eq!(Tournament::load(&file), None);
+        Tournament::forget(&file).expect("a file that goes");
+        assert!(!file.exists());
         let _ = std::fs::remove_dir_all(folder);
     }
 

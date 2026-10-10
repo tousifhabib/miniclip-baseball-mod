@@ -22,9 +22,11 @@ impl Baseball {
                 .open(MenuPage::TournamentSummary, &self.game, stage);
             return;
         };
-        // Begun: given up half way, it is another game the next time.
+        // Begun: given up half way, it is another game the next time,
+        // which is kept so that it is in another run of the game too.
         tournament.begin();
         self.fixture = Some(to_play);
+        self.keep_the_tournament();
         self.show(Screen::FullMatch, stage);
     }
 
@@ -76,6 +78,7 @@ impl Baseball {
         let rules = &self.game.rules;
         tournament.play_on(rules, mods, &art::ground(stage.library(), rules));
         self.tell_the_menu();
+        self.keep_the_tournament();
     }
 
     /// On from the screen a game ended on: to the tournament's tables if

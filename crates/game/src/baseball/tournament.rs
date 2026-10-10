@@ -33,6 +33,29 @@ impl Baseball {
         self.on_paper = fixtures;
     }
 
+    /// Keeps the tournament in this file, starting from the one it holds
+    /// if it holds one.
+    pub fn keep_tournament_in(&mut self, file: std::path::PathBuf) {
+        self.tournament = Tournament::load(&file);
+        self.tournament_file = Some(file);
+        self.tell_the_menu();
+    }
+
+    /// Writes the tournament in hand to where it is kept, or takes away
+    /// what is kept there if there is none in hand.
+    pub(super) fn keep_the_tournament(&self) {
+        let Some(file) = &self.tournament_file else {
+            return;
+        };
+        let kept = match &self.tournament {
+            Some(tournament) => tournament.save(file),
+            None => Tournament::forget(file),
+        };
+        if let Err(error) = kept {
+            eprintln!("The tournament could not be kept: {error:#}");
+        }
+    }
+
     /// What the mods that are on do to a match played on paper.
     pub(super) fn mods_on_paper(&self) -> OnPaper {
         let on = |which| self.game.mods.is_on(which);
@@ -78,10 +101,12 @@ impl Baseball {
         let page = match asked {
             Leave::Draw => {
                 self.draw_tournament(stage);
+                self.keep_the_tournament();
                 MenuPage::TournamentSummary
             }
             Leave::GiveUp => {
                 self.tournament = None;
+                self.keep_the_tournament();
                 MenuPage::Main
             }
             _ => return,

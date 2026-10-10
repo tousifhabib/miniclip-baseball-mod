@@ -158,6 +158,17 @@ pub fn tournament(seed: u64, format: Format, innings: u32, played: usize) -> Opt
 /// a match is soon lost by a side that makes none and won by one that
 /// makes two.
 pub fn short_tournament(seed: u64, format: Format, mods: &[Mod]) -> Option<Script> {
+    short_tournament_kept(seed, format, mods, None)
+}
+
+/// The same, kept in `file` if one is given, and starting from the
+/// tournament that is there if there is one.
+pub fn short_tournament_kept(
+    seed: u64,
+    format: Format,
+    mods: &[Mod],
+    file: Option<&Path>,
+) -> Option<Script> {
     let one = "[0, 1]";
     let text = format!(
         "[tournament]\ninnings = [1]\n[full_match.runs]\neasy = {one}\nmedium = {one}\nhard = {one}\n"
@@ -168,6 +179,7 @@ pub fn short_tournament(seed: u64, format: Format, mods: &[Mod]) -> Option<Scrip
         rules: Some(rules),
         mods,
         tournament: Some((format, 1, 0)),
+        tournament_file: file,
         ..Start::default()
     };
     game_made(Screen::TOURNAMENT, start)
@@ -192,6 +204,8 @@ struct Start<'a> {
     /// The shape of a tournament, how many innings its matches have, and
     /// how many of its fixtures are played on paper as it is drawn.
     tournament: Option<(Format, u32, usize)>,
+    /// Where the tournament is kept.
+    tournament_file: Option<&'a Path>,
 }
 
 fn game_made(screen: &str, start: Start<'_>) -> Option<Script> {
@@ -219,6 +233,9 @@ fn game_made(screen: &str, start: Start<'_>) -> Option<Script> {
     }
     if let Some(ground) = start.ground {
         logic.play_on(ground);
+    }
+    if let Some(file) = start.tournament_file {
+        logic.keep_tournament_in(file.to_owned());
     }
     if let Some((format, innings, played)) = start.tournament {
         logic.choose_tournament(Some(format), Some(innings));

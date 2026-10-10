@@ -92,6 +92,8 @@ pub struct Baseball {
     /// The tournament in hand, if there is one, and its tables while they
     /// are up on the board.
     tournament: Option<Tournament>,
+    /// Where it is kept. `None` keeps it only for this run.
+    tournament_file: Option<std::path::PathBuf>,
     tables: Option<board::Tables>,
     /// The fixture of the tournament that the full match in hand, or the
     /// one just finished, is.
@@ -131,6 +133,7 @@ impl Baseball {
             board: None,
             pages: None,
             tournament: None,
+            tournament_file: None,
             tables: None,
             fixture: None,
             on_paper: 0,

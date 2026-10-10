@@ -22,13 +22,13 @@ const ON_FROM_THE_RESULT: &str = "click 545 355";
 
 /// From the tables, on to what the menu says is next. Returns how things
 /// stand there.
-fn to_the_summary(script: &mut Script) -> String {
+pub(super) fn to_the_summary(script: &mut Script) -> String {
     state_after(script, &format!("wait 120; {CARRY_ON}; wait 70; state"))
 }
 
 /// From the menu's summary into the fixture, as far as the pitcher
 /// standing ready for its first pitch. Returns how things stand then.
-fn to_the_first_pitch(script: &mut Script) -> String {
+pub(super) fn to_the_first_pitch(script: &mut Script) -> String {
     script.run(PLAY_BALL).unwrap();
     for _ in 0..400 {
         let now = state(script);
@@ -49,7 +49,7 @@ fn to_the_first_pitch(script: &mut Script) -> String {
 
 /// On from the screen a fixture ended on to the tables. Returns how
 /// things stand there.
-fn on_to_the_tables(script: &mut Script) -> String {
+pub(super) fn on_to_the_tables(script: &mut Script) -> String {
     state_after(script, &format!("{ON_FROM_THE_RESULT}; wait 130; state"))
 }
 

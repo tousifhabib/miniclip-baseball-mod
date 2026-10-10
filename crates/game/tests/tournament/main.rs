@@ -2,6 +2,7 @@
 //! through.
 
 mod fixtures;
+mod kept;
 mod menu;
 mod sections;
 
