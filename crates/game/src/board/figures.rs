@@ -19,8 +19,15 @@ pub(super) fn innings_pitched(outs: u32, an_innings: u32) -> String {
 /// of it, the player's first.
 type Row = (&'static str, String, String);
 
-/// The page of the two sides' figures, side by side.
-pub(super) fn figures(ours: &Side, theirs: &Side, sheet: &mut Sheet, stage: &mut Stage) {
+/// The page of the two sides' figures, side by side. `called` is what the
+/// other side goes by.
+pub(super) fn figures(
+    ours: &Side,
+    theirs: &Side,
+    called: &str,
+    sheet: &mut Sheet,
+    stage: &mut Stage,
+) {
     const SIZE: f32 = 0.68;
     const TOP: f32 = 90.0;
     const PITCH: f32 = 16.2;
@@ -32,7 +39,7 @@ pub(super) fn figures(ours: &Side, theirs: &Side, sheet: &mut Sheet, stage: &mut
         (hitting, 38.0, [208.0, 258.0]),
         (pitches, 300.0, [478.0, 530.0]),
     ] {
-        for (across, side, colour) in [(columns[0], "YOU", GOLD), (columns[1], "THEM", CREAM)] {
+        for (across, side, colour) in [(columns[0], "YOU", GOLD), (columns[1], called, CREAM)] {
             sheet.write(stage, "figuresHead", side, (across, TOP), SIZE, colour);
         }
         for (row, (name, us, them)) in rows.into_iter().enumerate() {

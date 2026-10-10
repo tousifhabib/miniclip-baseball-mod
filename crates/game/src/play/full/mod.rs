@@ -8,6 +8,7 @@
 pub(crate) mod ending;
 mod halves;
 mod line_score;
+mod names;
 #[cfg(test)]
 mod properties;
 mod them;
@@ -55,6 +56,8 @@ pub struct FullMatch {
     their_turn: usize,
     /// What the other side's runners steal bases by, with that mod on.
     steals: Option<StealRules>,
+    /// Who the other side is, if it has a name.
+    them: Option<names::Named>,
     /// Every pitch to every batter of both sides.
     pub book: Book,
 }
@@ -88,6 +91,7 @@ impl FullMatch {
             ground,
             their_turn: 0,
             steals,
+            them: None,
             book: Book::default(),
         };
         if home {

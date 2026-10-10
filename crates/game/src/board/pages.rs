@@ -211,13 +211,15 @@ impl Pages {
                 &full.book.theirs
             }
         };
+        // The other side goes by its name where it has one.
+        let their = full.their_name();
         let heading = match page {
             Page::Score => String::new(),
             Page::Batting { ours: true } => "YOUR BATTING".to_owned(),
-            Page::Batting { ours: false } => "THEIR BATTING".to_owned(),
+            Page::Batting { ours: false } => format!("{} BATTING", their.unwrap_or("THEIR")),
             Page::Figures => "THE FIGURES".to_owned(),
             Page::Field { ours: true } => "WHERE YOU HIT IT".to_owned(),
-            Page::Field { ours: false } => "WHERE THEY HIT IT".to_owned(),
+            Page::Field { ours: false } => format!("WHERE {} HIT IT", their.unwrap_or("THEY")),
             Page::Timing => "YOUR TIMING".to_owned(),
             Page::Innings { innings, part: 0 } => format!("THE {} INNINGS", ordinal(innings)),
             Page::Innings { innings, .. } => format!("THE {} INNINGS, GOING ON", ordinal(innings)),
@@ -232,7 +234,10 @@ impl Pages {
                 let outs = if ours { self.our_outs } else { paper::OUTS };
                 batting(side(ours), side(!ours), (ours, outs), &mut sheet, stage);
             }
-            Page::Figures => figures(&full.book.ours, &full.book.theirs, &mut sheet, stage),
+            Page::Figures => {
+                let (ours, theirs) = (&full.book.ours, &full.book.theirs);
+                figures(ours, theirs, full.them(), &mut sheet, stage);
+            }
             Page::Field { ours } => field(side(ours), &mut sheet, stage),
             Page::Timing => timing(&full.book.ours, &mut sheet, stage),
             Page::Innings { innings, part } => turns(full, innings, part, &mut sheet, stage),

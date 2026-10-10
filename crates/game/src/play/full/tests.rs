@@ -112,7 +112,10 @@ fn at_home_the_visitors_have_batted_before_the_first_ball() {
         ]
     );
     let [visitors, home] = full.lines();
-    assert_eq!((visitors.name, home.name), ("THEM", "YOU"));
+    assert_eq!(
+        (visitors.name.as_str(), home.name.as_str()),
+        ("THEM", "YOU")
+    );
     assert_eq!(visitors.cells[0], Cell::Runs(2));
     assert!(home.cells.iter().all(|cell| *cell == Cell::Blank));
 }

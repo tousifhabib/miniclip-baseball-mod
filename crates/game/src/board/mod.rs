@@ -96,7 +96,14 @@ fn innings(
     for (row, line) in full.lines().iter().enumerate() {
         let down = top + ROW_PITCH * size * (row + 1) as f32;
         let colour = if line.ours { GOLD } else { CREAM };
-        sheet.write(stage, "boardSide", line.name, (name_at, down), size, colour);
+        sheet.write(
+            stage,
+            "boardSide",
+            &line.name,
+            (name_at, down),
+            size,
+            colour,
+        );
         for (column, cell) in line.cells.iter().enumerate() {
             let says = match cell {
                 Cell::Blank => continue,

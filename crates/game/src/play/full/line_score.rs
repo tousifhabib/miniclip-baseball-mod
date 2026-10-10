@@ -24,7 +24,7 @@ pub struct Report {
 /// innings shown, and what it has made in all.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Line {
-    pub name: &'static str,
+    pub name: String,
     /// Whether it is the player's side.
     pub ours: bool,
     pub cells: Vec<Cell>,
@@ -99,7 +99,7 @@ impl FullMatch {
                 &self.book.theirs
             };
             Line {
-                name: if ours { "YOU" } else { "THEM" },
+                name: if ours { "YOU" } else { self.them() }.to_owned(),
                 ours,
                 cells,
                 runs: made.iter().sum(),
@@ -129,9 +129,12 @@ impl FullMatch {
             std::cmp::Ordering::Less => format!("YOU TRAIL {ours} - {theirs}"),
             std::cmp::Ordering::Equal => format!("IT IS LEVEL AT {ours} - {theirs}"),
         };
+        // A side with a name is told of by it, and one without by where it
+        // is playing.
+        let they = |unnamed: &str| self.their_name().unwrap_or(unnamed).to_owned();
         if self.home {
             let mut lines = vec![
-                format!("THE VISITORS MADE {made}"),
+                format!("{} MADE {made}", they("THE VISITORS")),
                 standing,
                 format!("YOU BAT IN THE BOTTOM OF THE {}", ordinal(innings)),
             ];
@@ -145,7 +148,7 @@ impl FullMatch {
             };
         }
         let mut lines = vec![
-            format!("THE HOME SIDE MADE {made}"),
+            format!("{} MADE {made}", they("THE HOME SIDE")),
             standing,
             format!("YOU BAT IN THE TOP OF THE {}", ordinal(innings)),
         ];
