@@ -40,19 +40,35 @@ pub fn game_with(screen: &str, seed: Option<u64>) -> Option<Script> {
 
 /// The same, played by `rules` instead of the ones built in.
 pub fn game_ruled(screen: &str, seed: Option<u64>, rules: Option<Rules>) -> Option<Script> {
-    game_made(screen, seed, rules, &[], None, None, None)
+    let start = Start {
+        seed,
+        rules,
+        ..Start::default()
+    };
+    game_made(screen, start)
 }
 
 /// The game opened on a screen, with these mods switched on.
 pub fn game_modded(screen: &str, seed: u64, mods: &[Mod]) -> Option<Script> {
-    game_made(screen, Some(seed), None, mods, None, None, None)
+    let start = Start {
+        seed: Some(seed),
+        mods,
+        ..Start::default()
+    };
+    game_made(screen, start)
 }
 
 /// A full match with these mods on, played at home or away, by `rules` if
 /// any are given.
 pub fn full_match(seed: u64, ground: Ground, mods: &[Mod], rules: Option<Rules>) -> Option<Script> {
-    let screen = Screen::FULL_MATCH;
-    game_made(screen, Some(seed), rules, mods, None, None, Some(ground))
+    let start = Start {
+        seed: Some(seed),
+        rules,
+        mods,
+        ground: Some(ground),
+        ..Start::default()
+    };
+    game_made(Screen::FULL_MATCH, start)
 }
 
 /// The rules of a full match of this many innings, in which the other side
@@ -89,39 +105,59 @@ pub fn long_match_ruled(seed: u64, mods: &[Mod], layer: &str) -> Option<Script> 
     let long = "[match]\nouts = 30\n[match.runs_down]\neasy = 40\nmedium = 40\nhard = 40\n";
     let rules = Rules::layered(&[("a long match", long), ("the test's own rules", layer)])
         .expect("rules that read");
-    game_made("match", Some(seed), Some(rules), mods, None, None, None)
+    let start = Start {
+        seed: Some(seed),
+        rules: Some(rules),
+        mods,
+        ..Start::default()
+    };
+    game_made("match", start)
 }
 
 /// The same, keeping its scores in `scores` and starting from what is
 /// there.
 pub fn game_keeping(screen: &str, seed: u64, mods: &[Mod], scores: &Path) -> Option<Script> {
-    game_made(screen, Some(seed), None, mods, Some(scores), None, None)
+    let start = Start {
+        seed: Some(seed),
+        mods,
+        scores: Some(scores),
+        ..Start::default()
+    };
+    game_made(screen, start)
 }
 
 /// The game opened on a screen with one mod switched on, its setting at
 /// `level`, and the timing bar, which says when to swing.
 pub fn game_levelled(screen: &str, seed: u64, which: Mod, level: u8) -> Option<Script> {
     let mods = [Mod::TimingIndicator, which];
-    game_made(
-        screen,
-        Some(seed),
-        None,
-        &mods,
-        None,
-        Some((which, level)),
-        None,
-    )
+    let start = Start {
+        seed: Some(seed),
+        mods: &mods,
+        level: Some((which, level)),
+        ..Start::default()
+    };
+    game_made(screen, start)
 }
 
-fn game_made(
-    screen: &str,
+/// What a game is started with, besides the screen it opens on. Whatever
+/// a test does not set is as the game has it.
+#[derive(Default)]
+struct Start<'a> {
+    /// What the game's chances are worked out from, if not the clock.
     seed: Option<u64>,
+    /// The rules it is played by, if not the ones built in.
     rules: Option<Rules>,
-    mods: &[Mod],
-    scores: Option<&Path>,
+    /// The mods that are switched on.
+    mods: &'a [Mod],
+    /// Where it keeps its scores.
+    scores: Option<&'a Path>,
+    /// A mod's setting, and the level it is at.
     level: Option<(Mod, u8)>,
+    /// Where a full match is played.
     ground: Option<Ground>,
-) -> Option<Script> {
+}
+
+fn game_made(screen: &str, start: Start<'_>) -> Option<Script> {
     let Some(library) = ART.clone() else {
         eprintln!("skipped: there is no extracted art to play");
         return None;
@@ -129,22 +165,22 @@ fn game_made(
     let mut logic = Box::new(Baseball::new(&library));
     let stage = Stage::new(None, library);
     logic.start_on(Screen::from_label(screen).expect("a screen with that label"));
-    if let Some(seed) = seed {
+    if let Some(seed) = start.seed {
         logic.seed(seed);
     }
-    if let Some(rules) = rules {
+    if let Some(rules) = start.rules {
         logic.play_by(rules);
     }
-    for &which in mods {
+    for &which in start.mods {
         logic.switch_mod(which, true);
     }
-    if let Some(scores) = scores {
+    if let Some(scores) = start.scores {
         logic.keep_scores_in(scores.to_owned());
     }
-    if let Some((which, level)) = level {
+    if let Some((which, level)) = start.level {
         logic.set_mod_level(which, level);
     }
-    if let Some(ground) = ground {
+    if let Some(ground) = start.ground {
         logic.play_on(ground);
     }
     let runner = Runner::new(stage, logic, None);
