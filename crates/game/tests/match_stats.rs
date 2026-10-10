@@ -7,39 +7,14 @@ use bb_game::art::{self, all_named};
 use bb_game::mods::Mod;
 use bb_game::script::Script;
 use bb_game::settings::Ground;
-use common::{full_match, game, match_to_order, next, number, pitch, said, state, text, written};
+use common::{
+    full_match, full_match_played as played, game, match_to_order, number, said, state, text,
+    written,
+};
 
-/// The arrows that turn the pages, and the button on the board between
-/// innings.
+/// The arrows that turn the pages.
 const PAGE_ON: &str = "click 362 323";
 const PAGE_BACK: &str = "click 228 323";
-const NEXT_INNINGS: &str = "click 542 357";
-
-/// Plays a match to its end and waits for its pages. Every pitch is swung
-/// at on the best step for it, or none is.
-fn played(script: &mut Script, swinging: bool) -> String {
-    // Far more turns than a match needs: one that never ends fails here.
-    for _ in 0..4000 {
-        let now = state(script);
-        if now.starts_with("Interval,") {
-            script
-                .run(&format!("wait 90; {NEXT_INNINGS}; wait 30"))
-                .unwrap();
-        } else if !now.starts_with("FullMatch,") && !now.starts_with("Loading") {
-            script.run("wait 340").unwrap();
-            return state(script);
-        } else if swinging {
-            if pitch(script, 0, (0.0, 0.0)).contains(": Ready") {
-                next(script);
-            }
-        } else if now.contains(": Ready") {
-            next(script);
-        } else {
-            script.run("wait 5").unwrap();
-        }
-    }
-    panic!("the match never ended: {}", state(script));
-}
 
 /// Turns to a page, counting from 1, and says how many there are.
 fn turn_to(script: &mut Script, page: usize) -> usize {

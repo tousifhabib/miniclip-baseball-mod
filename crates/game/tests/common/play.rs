@@ -135,3 +135,33 @@ pub fn strike_out(script: &mut Script) {
         next(script);
     }
 }
+
+/// The button on the board between innings.
+pub const NEXT_INNINGS: &str = "click 542 357";
+
+/// Plays a full match to its end and waits for its pages. Every pitch is
+/// swung at on the best step for it, which the timing bar has to be up to
+/// say, or none is. Returns how things stand when it is over.
+pub fn full_match_played(script: &mut Script, swinging: bool) -> String {
+    // Far more turns than a match needs: one that never ends fails here.
+    for _ in 0..4000 {
+        let now = state(script);
+        if now.starts_with("Interval,") {
+            script
+                .run(&format!("wait 90; {NEXT_INNINGS}; wait 30"))
+                .unwrap();
+        } else if !now.starts_with("FullMatch,") && !now.starts_with("Loading") {
+            script.run("wait 340").unwrap();
+            return state(script);
+        } else if swinging {
+            if pitch(script, 0, (0.0, 0.0)).contains(": Ready") {
+                next(script);
+            }
+        } else if now.contains(": Ready") {
+            next(script);
+        } else {
+            script.run("wait 5").unwrap();
+        }
+    }
+    panic!("the match never ended: {}", state(script));
+}

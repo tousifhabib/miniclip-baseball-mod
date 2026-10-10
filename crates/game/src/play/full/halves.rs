@@ -32,6 +32,14 @@ impl Match {
         played
     }
 
+    /// In a full match, says who the other side is: its name in full, and
+    /// in the few letters a scoreboard has room for.
+    pub fn call_them(&mut self, name: &str, short: &str) {
+        if let Some(full) = self.mode.full_mut() {
+            full.call_them(name, short);
+        }
+    }
+
     /// The full match being played, if that is the game.
     pub fn full(&self) -> Option<&FullMatch> {
         self.mode.full()

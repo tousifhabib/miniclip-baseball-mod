@@ -22,6 +22,8 @@ pub enum Screen {
     /// The board a full match shows between innings, which is the one the
     /// art has for an innings that was tied.
     Interval,
+    /// The tables of a tournament, which are on that board too.
+    Tournament,
 }
 
 impl Screen {
@@ -46,10 +48,17 @@ impl Screen {
     /// label, the art having none for it.
     pub const FULL_MATCH: &str = "fullMatch";
 
+    /// What a tournament's tables are called where a screen is asked for
+    /// by its label.
+    pub const TOURNAMENT: &str = "tournament";
+
     /// The screen the shell shows on the frame with this label.
     pub fn from_label(label: &str) -> Option<Screen> {
         if label == Screen::FULL_MATCH {
             return Some(Screen::FullMatch);
+        }
+        if label == Screen::TOURNAMENT {
+            return Some(Screen::Tournament);
         }
         Screen::ALL
             .into_iter()
@@ -66,7 +75,7 @@ impl Screen {
             Screen::Arcade => "arcade",
             Screen::MatchLost => "matchLost",
             Screen::MatchWon => "matchWon",
-            Screen::InningsTied | Screen::Interval => "inningsTied",
+            Screen::InningsTied | Screen::Interval | Screen::Tournament => "inningsTied",
             Screen::ArcadeFinish => "arcadeFinish",
             Screen::Instructions => "instructionsAll",
         })

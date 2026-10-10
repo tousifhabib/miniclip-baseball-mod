@@ -3,14 +3,18 @@
 //! over, pages of what the book has to say of it.
 //!
 //! The board between innings is here, with the colours and the measures
-//! the pages share. The pages and the turning of them are in `pages`, and
-//! each kind of page has a file: `batting`, `figures`, `spray`, `timing`
-//! and `turns`.
+//! the pages share. The pages are in `pages`, the arrows that turn them
+//! in `pager`, and each kind of page has a file: `batting`, `figures`,
+//! `spray`, `timing` and `turns`. The tables of a tournament, which are
+//! written on a board of the same kind with the same tables of batting
+//! and of figures, are in `tables`.
 
 mod batting;
 mod figures;
+mod pager;
 mod pages;
 mod spray;
+mod tables;
 mod timing;
 mod turns;
 
@@ -19,9 +23,10 @@ use bb_engine::stage::Stage;
 
 use crate::art;
 use crate::look::{self, Rgb};
-use crate::play::full::{Cell, FullMatch};
+use crate::play::full::{Cell, FullMatch, Line};
 use crate::sheet::Sheet;
 pub use pages::Pages;
+pub use tables::Tables;
 
 /// The colours of the board's lettering: as the art has it, for the side
 /// that is the player's, and for headings. The rest are for what is drawn.
@@ -62,22 +67,29 @@ const VERDICT_TOP: f32 = 123.0;
 const RESULT_INNINGS: (f32, f32) = (243.0, 0.75);
 const VERDICT_SIZE: f32 = 0.8;
 
+/// The backing a page of figures has on a board, under its heading: its
+/// left, top, width and height, and how solid it is.
+const PANEL: [f32; 4] = [28.0, 84.0, 534.0, 228.0];
+const PANEL_ALPHA: f32 = 0.55;
+
 /// How many turns a column of an innings' page has room for.
 const TURN_ROWS: usize = 14;
 
 /// Writes what both sides made in each innings: the numbers of the innings,
 /// then a row for each side, with its runs, hits and errors in all at the
-/// end. `middle` is the middle of the rows across and `top` the top of the
-/// first.
+/// end. `shown` is the first of the innings there is room for and how many
+/// there are, and `lines` the sides' lines, the visitors' first. `middle`
+/// is the middle of the rows across and `top` the top of the first.
 fn innings(
-    full: &FullMatch,
+    shown: (u32, u32),
+    lines: &[Line],
     sheet: &mut Sheet,
     middle: f32,
     top: f32,
     size: f32,
     stage: &mut Stage,
 ) {
-    let (first, count) = full.shown();
+    let (first, count) = shown;
     let wide = NAME_WIDTH + INNINGS_WIDTH * count as f32 + ALL_WIDTH * 3.0;
     let left = middle - wide * size / 2.0;
     let name_at = left + NAME_WIDTH * size / 2.0;
@@ -93,10 +105,17 @@ fn innings(
         let at = (all_at(column as f32), top);
         sheet.write(stage, "boardInnings", letter, at, size, PALE);
     }
-    for (row, line) in full.lines().iter().enumerate() {
+    for (row, line) in lines.iter().enumerate() {
         let down = top + ROW_PITCH * size * (row + 1) as f32;
         let colour = if line.ours { GOLD } else { CREAM };
-        sheet.write(stage, "boardSide", line.name, (name_at, down), size, colour);
+        sheet.write(
+            stage,
+            "boardSide",
+            &line.name,
+            (name_at, down),
+            size,
+            colour,
+        );
         for (column, cell) in line.cells.iter().enumerate() {
             let says = match cell {
                 Cell::Blank => continue,
@@ -139,7 +158,15 @@ pub fn interval(full: &FullMatch, board: &[u16], stage: &mut Stage) -> Option<Pa
         sheet.write(stage, "boardLine", line, (0.0, FIRST_LINE), 1.0, CREAM);
     }
     let (down, size) = INNINGS;
-    innings(full, &mut sheet, 0.0, down, size, stage);
+    innings(
+        full.shown(),
+        &full.lines(),
+        &mut sheet,
+        0.0,
+        down,
+        size,
+        stage,
+    );
     for (index, line) in lines.enumerate() {
         let top = (0.0, LATER_LINES + LINE_PITCH * index as f32);
         // The last line of more than two is the one not to miss.

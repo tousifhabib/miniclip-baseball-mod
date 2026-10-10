@@ -111,6 +111,11 @@ fn a_match_played_to_its_end_and_its_pages_go_as_they_did() {
 }
 
 #[test]
+fn a_tournament_goes_as_it_did() {
+    check("tournament", games::tournaments());
+}
+
+#[test]
 fn a_monkey_at_the_controls_gets_what_it_got() {
     check("monkeys", games::monkeys());
 }

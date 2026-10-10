@@ -53,6 +53,18 @@ pub fn write<T: Serialize>(file: &Path, what: &T, called: &str) -> Result<()> {
     moved
 }
 
+/// Takes away what was kept in `file`. A file that is not there is one
+/// with nothing kept in it already. `called` is what to call it if it
+/// cannot be taken away.
+pub fn forget(file: &Path, called: &str) -> Result<()> {
+    match std::fs::remove_file(file) {
+        Err(error) if error.kind() != std::io::ErrorKind::NotFound => {
+            Err(error).with_context(|| format!("taking away {called}, in {}", file.display()))
+        }
+        _ => Ok(()),
+    }
+}
+
 /// The file that `file` is first written as: the same name with `.new` on
 /// the end, in the same folder.
 fn beside(file: &Path) -> PathBuf {
@@ -109,6 +121,22 @@ mod tests {
         std::fs::create_dir_all(&folder).expect("a folder");
         std::fs::write(&file, "this is = = not toml").expect("a file");
         assert_eq!(read::<BTreeMap<String, i32>>(&file), None);
+        let _ = std::fs::remove_dir_all(folder);
+    }
+
+    #[test]
+    fn what_was_kept_can_be_taken_away_and_nothing_can_be_taken_away_twice() {
+        let folder = folder("forget");
+        let file = folder.join("numbers.toml");
+        write(
+            &file,
+            &BTreeMap::from([("one".to_owned(), 1)]),
+            "the numbers",
+        )
+        .expect("a file that writes");
+        forget(&file, "the numbers").expect("a file that goes");
+        assert_eq!(read::<BTreeMap<String, i32>>(&file), None);
+        forget(&file, "the numbers").expect("nothing there to go");
         let _ = std::fs::remove_dir_all(folder);
     }
 

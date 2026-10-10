@@ -25,6 +25,17 @@ pub(crate) mod mixed_with {
     pub const THEIR_INNINGS_ON_PAPER: u64 = 0x3c6e_f372_fe94_f82b;
     /// The toss of the coin for where a full match is played.
     pub const THE_COIN: u64 = 0xbb67_ae85_84ca_a73b;
+    /// The draw of a tournament: which sides are in it, and in what
+    /// order.
+    pub const THE_DRAW: u64 = 0x510e_527f_ade6_82d1;
+    /// A fixture of a tournament, many times over by its number, so that
+    /// each is played from numbers of its own. It is odd, so that no two
+    /// multiples of it are the same.
+    pub const A_FIXTURE: u64 = 0x9b05_688c_2b3e_6c1f;
+    /// The two sides of a fixture played on paper, each of which makes its
+    /// runs and plays its halves from numbers of its own.
+    pub const THE_VISITORS_ON_PAPER: u64 = 0x1f83_d9ab_fb41_bd6b;
+    pub const THE_HOME_SIDE_ON_PAPER: u64 = 0x5be0_cd19_137e_2179;
 }
 
 #[derive(Clone, Debug)]
@@ -206,6 +217,10 @@ mod tests {
             mixed_with::THE_SIGNS,
             mixed_with::THEIR_INNINGS_ON_PAPER,
             mixed_with::THE_COIN,
+            mixed_with::THE_DRAW,
+            mixed_with::A_FIXTURE,
+            mixed_with::THE_VISITORS_ON_PAPER,
+            mixed_with::THE_HOME_SIDE_ON_PAPER,
         ];
         for (index, one) in all.iter().enumerate() {
             assert!(!all[index + 1..].contains(one), "{one:#x} is there twice");

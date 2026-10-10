@@ -66,6 +66,86 @@ triple = 1
 home_run = 6
 
 # ---------------------------------------------------------------------------
+# A tournament: full matches, one after another, against sides with names.
+[tournament]
+# The numbers of innings a tournament's matches can be chosen to have.
+innings = [3, 5, 9]
+# A batter's averages are listed among the best once he has had a turn for
+# every this many innings his side has batted in: at 3, a turn for each
+# match of three innings, and three for each match of nine.
+innings_a_turn = 3
+
+# The sides there are to play against. A tournament draws the ones it needs
+# from them: seven for a cup or for two groups of four, five for a league.
+# Each has its name in capitals, the same in four letters at the most for a
+# scoreboard, its colour, and how strong it is.
+#
+# A side's strength leans the runs it is likely to make in an innings, which
+# are the full match's for the skill level. At 1 it makes what the other
+# side of a full match makes, above 1 more, and below it fewer. On medium a
+# side at 0.8 makes about one and a quarter runs an innings, and one at 1.25
+# about two and a half.
+[tournament.sides.rooks]
+name = "ASHCOMBE ROOKS"
+short = "ROOK"
+colour = "#8f94a8"
+strength = 1.25
+
+[tournament.sides.kites]
+name = "FENMOUTH KITES"
+short = "KITE"
+colour = "#e0603a"
+strength = 1.15
+
+[tournament.sides.newts]
+name = "TARNSIDE NEWTS"
+short = "NEWT"
+colour = "#e8a530"
+strength = 1.1
+
+[tournament.sides.terns]
+name = "QUAYSIDE TERNS"
+short = "TERN"
+colour = "#7fc4e8"
+strength = 1.05
+
+[tournament.sides.moths]
+name = "HOLLOWBECK MOTHS"
+short = "MOTH"
+colour = "#c9a6e0"
+strength = 1.0
+
+[tournament.sides.coots]
+name = "SALTMARSH COOTS"
+short = "COOT"
+colour = "#4fb3a5"
+strength = 1.0
+
+[tournament.sides.moles]
+name = "BRICKFIELD MOLES"
+short = "MOLE"
+colour = "#c98a4b"
+strength = 0.95
+
+[tournament.sides.voles]
+name = "LOWER WEIR VOLES"
+short = "VOLE"
+colour = "#9bbf5a"
+strength = 0.9
+
+[tournament.sides.hares]
+name = "THISTLEY HARES"
+short = "HARE"
+colour = "#d9c27a"
+strength = 0.85
+
+[tournament.sides.toads]
+name = "PUDDLEFORD TOADS"
+short = "TOAD"
+colour = "#6fae4f"
+strength = 0.8
+
+# ---------------------------------------------------------------------------
 # The pitch. One table for each skill level.
 #
 # speed    How long the pitch takes: the larger, the slower. A whole number

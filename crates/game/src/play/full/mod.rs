@@ -5,19 +5,25 @@
 //! is over and who has won it, and what the board between innings has to
 //! tell.
 
+pub(crate) mod ending;
 mod halves;
 mod line_score;
+mod names;
 #[cfg(test)]
 mod properties;
+mod sides;
 mod them;
 
-use super::book::{Book, Steal};
+use super::book::Book;
 use super::field::Ground;
 use super::paper;
-use crate::rng::{Rng, mixed_with};
+use crate::rng::Rng;
 use crate::rules::{FullMatchRules, StealRules};
 use crate::settings::Difficulty;
-pub use line_score::{COLUMNS, Cell, Line, Report, hits_words, ordinal, runs_words};
+pub use line_score::{
+    COLUMNS, Cell, Line, Report, cells_of, hits_words, ordinal, runs_words, shown_of,
+};
+pub use sides::Batted;
 pub(crate) use them::Them;
 
 /// How things stand when the player's side is out.
@@ -54,6 +60,8 @@ pub struct FullMatch {
     their_turn: usize,
     /// What the other side's runners steal bases by, with that mod on.
     steals: Option<StealRules>,
+    /// Who the other side is, if it has a name.
+    them: Option<names::Named>,
     /// Every pitch to every batter of both sides.
     pub book: Book,
 }
@@ -87,6 +95,7 @@ impl FullMatch {
             ground,
             their_turn: 0,
             steals,
+            them: None,
             book: Book::default(),
         };
         if home {
@@ -100,33 +109,20 @@ impl FullMatch {
     /// them the match, which ends the moment the last run is in. The half
     /// is played out on paper and goes in the book.
     fn their_half(&mut self, made: u32, winning: bool) {
-        let innings = self.theirs.len() as u32 + 1;
-        let each = mixed_with::THEIR_INNINGS_ON_PAPER.wrapping_mul(u64::from(innings));
-        let mut rng = Rng::new(self.seed ^ each);
-        let rules = &self.rules.their_batting;
         let wanted = paper::Wanted {
             made,
             winning,
-            innings,
+            innings: self.theirs.len() as u32 + 1,
             first_up: self.their_turn,
         };
-        let steals = self.steals.as_ref();
-        let half = paper::half(wanted, rules, steals, &self.ground, &mut rng);
-        self.their_turn = half.next;
-        let theirs = &mut self.book.theirs;
-        // A steal is told by how many of the side's turns were over.
-        let before = theirs.turns.len();
-        theirs
-            .steals
-            .extend(half.steals.into_iter().map(|steal| Steal {
-                at: steal.at + before,
-                ..steal
-            }));
-        theirs.turns.extend(half.turns);
-        theirs.left.push(half.left);
-        for (all, more) in theirs.runs.iter_mut().zip(half.runs) {
-            *all += more;
-        }
+        self.their_turn = paper::half_into(
+            &mut self.book.theirs,
+            wanted,
+            self.seed,
+            &self.rules.their_batting,
+            self.steals.as_ref(),
+            &self.ground,
+        );
         self.theirs.push(made);
     }
 
@@ -137,9 +133,7 @@ impl FullMatch {
 
     /// The runs the other side makes in an innings left to run its course.
     fn made(&mut self) -> u32 {
-        (0..self.worth)
-            .map(|_| self.rules.runs_for(self.difficulty, self.rng.unit()))
-            .sum()
+        paper::runs_wanted(&self.rules, self.difficulty, self.worth, &mut self.rng)
     }
 
     pub fn at_home(&self) -> bool {
@@ -195,14 +189,14 @@ impl FullMatch {
     /// visitors bat in the top of the next.
     fn after_the_bottom(&mut self, innings: u32, last: bool) -> Next {
         let (ours, theirs) = (self.ours(), self.theirs());
-        if last && ours != theirs {
+        if ending::decided(last, theirs, ours) {
             return if ours > theirs { Next::Won } else { Next::Lost };
         }
         let made = self.made();
         self.their_half(made, false);
         // Ahead with only the bottom of the last innings to come, the home
         // side has no need of it.
-        if self.last(innings + 1) && ours > self.theirs() {
+        if ending::home_has_no_need_to_bat(self.last(innings + 1), self.theirs(), ours) {
             self.unneeded = true;
             return Next::Won;
         }
@@ -213,21 +207,21 @@ impl FullMatch {
     /// it is the last and they are ahead already.
     fn after_the_top(&mut self, last: bool) -> Next {
         let ours = self.ours();
-        if last && self.theirs() > ours {
+        if ending::home_has_no_need_to_bat(last, ours, self.theirs()) {
             self.unneeded = true;
             return Next::Lost;
         }
-        let mut made = self.made();
-        if last {
-            // They stop as soon as they are ahead.
-            made = made.min(ours - self.theirs() + 1);
-        }
-        let winning = last && self.theirs() + made > ours;
+        // In the last innings they stop as soon as they are ahead.
+        let drawn = self.made();
+        let (made, winning) = ending::home_makes(last, ours, self.theirs(), drawn);
         self.their_half(made, winning);
-        match (last, self.theirs().cmp(&ours)) {
-            (false, _) | (true, std::cmp::Ordering::Equal) => Next::Bat,
-            (true, std::cmp::Ordering::Greater) => Next::Lost,
-            (true, std::cmp::Ordering::Less) => Next::Won,
+        if !ending::decided(last, ours, self.theirs()) {
+            return Next::Bat;
+        }
+        if self.theirs() > ours {
+            Next::Lost
+        } else {
+            Next::Won
         }
     }
 

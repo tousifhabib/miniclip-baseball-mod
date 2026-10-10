@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Draws a set of pictures of the game into a folder: seeded moments of play
-# with the mods that change how things look, the menu's pages, single clips
-# with blurs and masks in them, and a sheet of an animation.
+# with the mods that change how things look, the menu's pages, a
+# tournament's pages, single clips with blurs and masks in them, and a
+# sheet of an animation.
 #
 #     scripts/pictures.sh FOLDER
 #
@@ -89,6 +90,21 @@ play every-mod "wait 170" --screen match \
 play full-match "wait 200" --screen fullMatch --ground away
 play interval "wait 200" --screen fullMatch --ground home
 play twice-the-size "wait 150" --screen match --scale 2
+
+# A tournament: its two pages of the menu, and its tables for each shape,
+# with fixtures enough played on paper for there to be something in them.
+tables="wait 120"
+play tournament-setup "wait 60; click 200 240; wait 70; click 434 290; wait 5" --screen menu
+play tournament-summary "wait 60; click 200 240; wait 70; click 490 362; wait 70" --screen menu
+play tournament-league "$tables" --screen tournament --format league --played 9
+play tournament-groups "$tables" --screen tournament --format groups --played 13
+play tournament-cup "$tables" --screen tournament --format cup --played 5
+play tournament-match "$tables; click 151 63; wait 5; click 228 323; wait 5; click 52 122; wait 5" \
+    --screen tournament --format league --played 9
+play tournament-side "$tables; click 255 63; wait 5; click 52 120; wait 5; click 362 323; wait 5" \
+    --screen tournament --format league --played 9
+play tournament-leaders "$tables; click 359 63; wait 5" --screen tournament --format league --played 9
+play tournament-records "$tables; click 463 63; wait 5" --screen tournament --format league --played 9
 
 # Clips on their own: the ones with a blur in them, and the first frames of
 # the whole movie.

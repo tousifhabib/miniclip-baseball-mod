@@ -99,7 +99,7 @@ impl Match {
         let signs = self.put_up_the_signs(&coming, game, stage);
         self.mark_the_field(&coming, stage);
         let them = match self.mode.full() {
-            Some(_) => full::Them::put(&coming.parts, stage),
+            Some(full) => full::Them::put(&coming.parts, full.them(), stage),
             None => Vec::new(),
         };
         self.set_up_arcade(&coming.parts, game, stage);
