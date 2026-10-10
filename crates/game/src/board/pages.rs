@@ -166,7 +166,8 @@ impl Pages {
                 sheet.write(stage, "zingerLine", zingers, top, VERDICT_SIZE, CREAM);
             }
             let (down, size) = RESULT_INNINGS;
-            return innings(full, &mut sheet, MIDDLE, down, size, stage);
+            let (shown, lines) = (full.shown(), full.lines());
+            return innings(shown, &lines, &mut sheet, MIDDLE, down, size, stage);
         }
         sheet.block(stage, "pagePanel", PANEL, BACKING, PANEL_ALPHA);
         let side = |ours: bool| {

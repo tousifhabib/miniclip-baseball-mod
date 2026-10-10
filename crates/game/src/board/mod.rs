@@ -20,7 +20,7 @@ use bb_engine::stage::Stage;
 
 use crate::art;
 use crate::look::{self, Rgb};
-use crate::play::full::{Cell, FullMatch};
+use crate::play::full::{Cell, FullMatch, Line};
 use crate::sheet::Sheet;
 pub use pages::Pages;
 
@@ -68,17 +68,19 @@ const TURN_ROWS: usize = 14;
 
 /// Writes what both sides made in each innings: the numbers of the innings,
 /// then a row for each side, with its runs, hits and errors in all at the
-/// end. `middle` is the middle of the rows across and `top` the top of the
-/// first.
+/// end. `shown` is the first of the innings there is room for and how many
+/// there are, and `lines` the sides' lines, the visitors' first. `middle`
+/// is the middle of the rows across and `top` the top of the first.
 fn innings(
-    full: &FullMatch,
+    shown: (u32, u32),
+    lines: &[Line],
     sheet: &mut Sheet,
     middle: f32,
     top: f32,
     size: f32,
     stage: &mut Stage,
 ) {
-    let (first, count) = full.shown();
+    let (first, count) = shown;
     let wide = NAME_WIDTH + INNINGS_WIDTH * count as f32 + ALL_WIDTH * 3.0;
     let left = middle - wide * size / 2.0;
     let name_at = left + NAME_WIDTH * size / 2.0;
@@ -94,7 +96,7 @@ fn innings(
         let at = (all_at(column as f32), top);
         sheet.write(stage, "boardInnings", letter, at, size, PALE);
     }
-    for (row, line) in full.lines().iter().enumerate() {
+    for (row, line) in lines.iter().enumerate() {
         let down = top + ROW_PITCH * size * (row + 1) as f32;
         let colour = if line.ours { GOLD } else { CREAM };
         sheet.write(
@@ -147,7 +149,15 @@ pub fn interval(full: &FullMatch, board: &[u16], stage: &mut Stage) -> Option<Pa
         sheet.write(stage, "boardLine", line, (0.0, FIRST_LINE), 1.0, CREAM);
     }
     let (down, size) = INNINGS;
-    innings(full, &mut sheet, 0.0, down, size, stage);
+    innings(
+        full.shown(),
+        &full.lines(),
+        &mut sheet,
+        0.0,
+        down,
+        size,
+        stage,
+    );
     for (index, line) in lines.enumerate() {
         let top = (0.0, LATER_LINES + LINE_PITCH * index as f32);
         // The last line of more than two is the one not to miss.
