@@ -11,6 +11,7 @@ mod line_score;
 mod names;
 #[cfg(test)]
 mod properties;
+mod sides;
 mod them;
 
 use super::book::Book;
@@ -20,6 +21,7 @@ use crate::rng::Rng;
 use crate::rules::{FullMatchRules, StealRules};
 use crate::settings::Difficulty;
 pub use line_score::{COLUMNS, Cell, Line, Report, hits_words, ordinal, runs_words};
+pub use sides::Batted;
 pub(crate) use them::Them;
 
 /// How things stand when the player's side is out.

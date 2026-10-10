@@ -22,6 +22,16 @@ pub fn of_a_fixture(seed: u64, fixture: usize, begun: u32) -> u64 {
     seed ^ mixed_with::A_FIXTURE.wrapping_mul(which)
 }
 
+/// What one side of a fixture played on paper makes its runs and plays
+/// its halves from: the fixture's seed, and which side it is.
+pub(super) fn of_a_side_on_paper(fixture: u64, at_home: bool) -> u64 {
+    if at_home {
+        fixture ^ mixed_with::THE_HOME_SIDE_ON_PAPER
+    } else {
+        fixture ^ mixed_with::THE_VISITORS_ON_PAPER
+    }
+}
+
 /// Whether the first-named side of a tie that is tossed for is the one at
 /// home.
 pub fn first_named_is_at_home(seed: u64, fixture: usize) -> bool {
