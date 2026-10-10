@@ -69,7 +69,8 @@ impl Rules {
             self.zinger.shape_reach >= 0.0,
             "zinger.shape_reach",
             "cannot be less than nought",
-        )
+        )?;
+        self.tournament.can_be_played_by()
     }
 }
 
@@ -78,8 +79,8 @@ impl Rules {
 #[derive(Debug, thiserror::Error)]
 #[error("`{which}` {why}")]
 pub struct RulesFault {
-    which: String,
-    why: &'static str,
+    pub(super) which: String,
+    pub(super) why: &'static str,
 }
 
 /// Checks that every number in the table is a number: a file can say `nan`

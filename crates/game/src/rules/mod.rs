@@ -6,8 +6,8 @@
 //! files are laid over one another in order: the last to name a number wins.
 //!
 //! The whole set is here. The numbers are in a file for what they are
-//! numbers of: the game's in `game`, the ball's in `ball`, and the mods' in
-//! `plate_mods` and `field_mods`. The shapes a number comes in are in
+//! numbers of: the game's in `game`, a tournament's in `tournament`, the
+//! ball's in `ball`, and the mods' in `plate_mods` and `field_mods`. The shapes a number comes in are in
 //! `shapes`, the laying of files over one another in `layers`, and the
 //! check that a set can be played by in `faults`.
 
@@ -20,6 +20,7 @@ mod plate_mods;
 #[cfg(test)]
 mod properties;
 mod shapes;
+mod tournament;
 
 use std::sync::LazyLock;
 
@@ -39,6 +40,7 @@ pub use plate_mods::{
     MysteryRules, RallyRules, SuddenDeathRules, TiredArmRules,
 };
 pub use shapes::{Area, Band, BySkill, ByTiming, Curve, Levels, Ring, Shape, Span};
+pub use tournament::{SideRules, TournamentRules};
 
 /// The built-in rules, read the first time they are wanted and kept. They
 /// are asked for whenever a game or a test is set up, and the file does not
@@ -55,6 +57,9 @@ pub struct Rules {
     pub count: CountRules,
     /// The full match: every innings, against a side whose own are made up.
     pub full_match: FullMatchRules,
+    /// A tournament: full matches, one after another, against sides with
+    /// names.
+    pub tournament: TournamentRules,
     /// The pitch, for each skill level.
     pub pitch: BySkill<PitchRules>,
     /// What every pitch shares.
