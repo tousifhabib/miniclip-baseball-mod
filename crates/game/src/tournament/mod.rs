@@ -10,7 +10,8 @@
 //! each thing that draws numbers draws them from in `seeds`, and what a
 //! side's strength does to its runs in `strength`. What is kept of a
 //! fixture once it is over is its `card`, and a fixture the player has no
-//! part in is played `on_paper`.
+//! part in is played `on_paper`. How the sides of a group or a league
+//! stand is in `table`.
 
 pub mod card;
 pub mod format;
@@ -19,8 +20,12 @@ pub mod schedule;
 pub mod seeds;
 pub mod sides;
 pub mod strength;
+pub mod table;
+#[cfg(test)]
+mod testing;
 
 pub use card::{Card, SideCard};
 pub use format::{Format, Round};
 pub use on_paper::{OnPaper, Paper};
 pub use sides::Entrant;
+pub use table::Row;
