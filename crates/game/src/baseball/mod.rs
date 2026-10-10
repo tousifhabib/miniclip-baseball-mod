@@ -6,15 +6,18 @@
 //! What the game keeps from screen to screen is here, with what the engine
 //! asks of it each frame. The screens are named in `screen`, going from one
 //! to another is in `screens`, a game in progress in `playing`, what a game
-//! leaves behind it in `after`, the player's choices in `choices`, and the
-//! table of scores in `scores`.
+//! leaves behind it in `after`, the player's choices in `choices`, the
+//! table of scores in `scores`, what is heard on each screen in `sound`,
+//! and the game's account of itself in `describe`.
 
 mod after;
 mod choices;
+mod describe;
 mod playing;
 mod scores;
 mod screen;
 mod screens;
+mod sound;
 
 use bb_engine::app::Logic;
 use bb_engine::display::{ButtonEvent, Event, Path};
@@ -133,31 +136,6 @@ impl Baseball {
         self.mods_file = Some(file);
     }
 
-    /// Starts and stops the music and the crowd for the screen being shown.
-    /// The music belongs to the menu and the screens a game ends on. The
-    /// crowd is heard under a game.
-    fn sound_for(&mut self, screen: Screen, stage: &mut Stage) {
-        let sound = &self.game.rules.sound;
-        for (name, level) in &sound.levels {
-            stage.set_sound_level(name, *level);
-        }
-        let in_game = screen.is_game();
-        let wants_music = screen == Screen::Menu;
-        let stops_music = in_game || screen == Screen::Instructions;
-        if wants_music && !self.music_on {
-            self.music_on = stage.play_sound(&sound.music, 999);
-        } else if stops_music && self.music_on {
-            stage.stop_sound(&sound.music);
-            self.music_on = false;
-        }
-        if in_game && !self.crowd_on {
-            self.crowd_on = stage.play_sound(&sound.crowd, 999);
-        } else if screen == Screen::Menu && self.crowd_on {
-            stage.stop_sound(&sound.crowd);
-            self.crowd_on = false;
-        }
-    }
-
     /// Makes every game go the same way, for a test or for chasing a fault.
     pub fn seed(&mut self, seed: u64) {
         self.seed = Some(seed);
@@ -223,46 +201,6 @@ impl Logic for Baseball {
     }
 
     fn describe(&self) -> String {
-        match self.screen {
-            Screen::Menu => {
-                // The mods that are on are named, when any are, each with
-                // the level its setting is at if it has one.
-                let mods: Vec<String> = self
-                    .game
-                    .mods
-                    .all_on()
-                    .map(|which| match which.setting() {
-                        Some(_) => format!("{}={}", which.key(), self.game.mods.level(which)),
-                        None => which.key().to_owned(),
-                    })
-                    .collect();
-                let mods = if mods.is_empty() {
-                    String::new()
-                } else {
-                    format!(", with {}", mods.join(" and "))
-                };
-                format!(
-                    "Menu, {:?}, {:?}{mods}",
-                    self.menu.page(),
-                    self.game.settings.difficulty
-                )
-            }
-            screen => {
-                // A game says how it stands, and the screen a full match
-                // ended on says how it went.
-                let play = match (&self.play, &self.finished) {
-                    (Some(play), _) => format!(": {}", play.describe()),
-                    (None, Some(full)) => {
-                        let page = self.pages.as_ref().map_or(String::new(), |pages| {
-                            let (page, of) = pages.at();
-                            format!(", page {page} of {of}")
-                        });
-                        format!(": {}, {}{page}", full.verdict(), full.describe())
-                    }
-                    (None, None) => String::new(),
-                };
-                format!("{screen:?}, {:?}{play}", self.game.settings.difficulty)
-            }
-        }
+        self.in_words()
     }
 }
