@@ -48,6 +48,11 @@ impl Baseball {
             return;
         }
         self.finished = None;
+        // A fixture lasts from its first ball to the screen it ends on.
+        let of_a_match = [Screen::FullMatch, Screen::MatchWon, Screen::MatchLost];
+        if !of_a_match.contains(&screen) {
+            self.fixture = None;
+        }
         // The tables are of a tournament, which is drawn if there is none.
         if screen == Screen::Tournament && self.tournament.is_none() {
             self.draw_tournament(stage);
@@ -59,11 +64,7 @@ impl Baseball {
                 self.playing = self.game.as_played(true);
                 Some(Match::new(&self.playing, seed, stage.library()))
             }
-            Screen::FullMatch => {
-                self.playing = self.game.as_played(true);
-                let home = self.menu.take_home(&self.game.settings);
-                Some(Match::new_full(&self.playing, home, seed, stage.library()))
-            }
+            Screen::FullMatch => Some(self.a_full_match(seed, stage)),
             Screen::Arcade => {
                 self.playing = self.game.as_played(false);
                 Some(Match::new_arcade(&self.playing, seed, stage.library()))
@@ -93,6 +94,7 @@ impl Baseball {
             Leave::Arcade => Screen::Arcade,
             Leave::FullMatch => Screen::FullMatch,
             Leave::Tables => Screen::Tournament,
+            Leave::Fixture => return self.play_the_fixture(stage),
             Leave::Draw | Leave::GiveUp => return self.about_the_tournament(leave, stage),
         };
         self.show(screen, stage);
@@ -113,7 +115,7 @@ impl Baseball {
             Screen::Match | Screen::FullMatch | Screen::Arcade => match label {
                 "QUIT" => self.quit_prompt(true, stage),
                 "NO" => self.quit_prompt(false, stage),
-                "YES" => self.show(Screen::Menu, stage),
+                "YES" => self.give_the_game_up(stage),
                 _ => {}
             },
             Screen::MatchLost | Screen::MatchWon | Screen::InningsTied | Screen::ArcadeFinish => {
@@ -121,7 +123,7 @@ impl Baseball {
                     self.show(Screen::Menu, stage);
                     self.menu.open(MenuPage::HighScores, &self.game, stage);
                 } else if label == "MAIN MENU" || art::CONTINUE_BUTTONS.contains(&button) {
-                    self.show(Screen::Menu, stage);
+                    self.on_from_the_result(stage);
                 }
             }
             Screen::Interval => {

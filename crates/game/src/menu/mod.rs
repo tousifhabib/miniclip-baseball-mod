@@ -137,7 +137,8 @@ impl Menu {
     pub fn clicked(&mut self, label: &str, game: &mut Game, stage: &mut Stage) -> Option<Leave> {
         use MenuPage::{
             ArcadeSetup, ArcadeSummary, FullSetup, FullSummary, HighScores, Main, MatchSetup,
-            MatchSummary, Mods, ToArcade, ToFull, ToMatch, TournamentSetup, TournamentSummary,
+            MatchSummary, Mods, ToArcade, ToFull, ToMatch, ToTournament, TournamentSetup,
+            TournamentSummary,
         };
         // A page that is still arriving cannot be used yet.
         if Menu::clip(stage).is_none_or(|menu| menu.playing) {
@@ -170,6 +171,7 @@ impl Menu {
             (FullSummary, "PLAY BALL") => ToFull,
             // When it is over, there is another to be set up.
             (TournamentSummary, "PLAY BALL") if self.over() => TournamentSetup,
+            (TournamentSummary, "PLAY BALL") => ToTournament,
             (
                 MatchSetup | ArcadeSetup | FullSetup | TournamentSetup,
                 "EASY" | "MEDIUM" | "HARD",
@@ -214,6 +216,7 @@ impl Menu {
             MenuPage::Opening if !playing => self.page = MenuPage::Main,
             MenuPage::ToMatch if frame >= last => return Some(Leave::Match),
             MenuPage::ToFull if frame >= last => return Some(Leave::FullMatch),
+            MenuPage::ToTournament if frame >= last => return Some(Leave::Fixture),
             // The arcade's fade-out is followed directly by the match's, so
             // it has ended when that is about to begin.
             MenuPage::ToArcade if to_match.is_some_and(|next| frame + 1 >= next) => {

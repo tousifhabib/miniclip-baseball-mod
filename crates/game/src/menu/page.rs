@@ -59,6 +59,8 @@ pub enum Leave {
     Match,
     Arcade,
     FullMatch,
+    /// The next fixture of the tournament in hand.
+    Fixture,
     /// A tournament is to be drawn as the setup page has it.
     Draw,
     /// The tables of the tournament in hand are to be shown.

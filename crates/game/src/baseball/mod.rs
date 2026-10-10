@@ -7,13 +7,15 @@
 //! asks of it each frame. The screens are named in `screen`, going from one
 //! to another is in `screens`, a game in progress in `playing`, what a game
 //! leaves behind it in `after`, the player's choices in `choices`, the
-//! table of scores in `scores`, the tournament in hand in `tournament`,
+//! table of scores in `scores`, the tournament in hand in `tournament`
+//! and a fixture of it in `fixture`,
 //! what is heard on each screen in `sound`, and the game's account of
 //! itself in `describe`.
 
 mod after;
 mod choices;
 mod describe;
+mod fixture;
 mod playing;
 mod scores;
 mod screen;
@@ -38,7 +40,7 @@ use crate::play::{Match, bullet};
 use crate::rules::Rules;
 use crate::scores::Scores;
 use crate::settings::Ground;
-use crate::tournament::Tournament;
+use crate::tournament::{ToPlay, Tournament};
 pub use screen::Screen;
 
 pub struct Baseball {
@@ -91,6 +93,9 @@ pub struct Baseball {
     /// are up on the board.
     tournament: Option<Tournament>,
     tables: Option<board::Tables>,
+    /// The fixture of the tournament that the full match in hand, or the
+    /// one just finished, is.
+    fixture: Option<ToPlay>,
     /// How many fixtures of a tournament are played on paper as soon as
     /// it is drawn, for trying one out.
     on_paper: usize,
@@ -127,6 +132,7 @@ impl Baseball {
             pages: None,
             tournament: None,
             tables: None,
+            fixture: None,
             on_paper: 0,
         }
     }

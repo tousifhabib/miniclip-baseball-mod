@@ -152,6 +152,27 @@ pub fn tournament(seed: u64, format: Format, innings: u32, played: usize) -> Opt
     game_made(Screen::TOURNAMENT, start)
 }
 
+/// A tournament of this shape opened on its tables with nothing played,
+/// with these mods on. Its matches are of one innings, in which every
+/// other side makes one run for each innings' worth it is given, so that
+/// a match is soon lost by a side that makes none and won by one that
+/// makes two.
+pub fn short_tournament(seed: u64, format: Format, mods: &[Mod]) -> Option<Script> {
+    let one = "[0, 1]";
+    let text = format!(
+        "[tournament]\ninnings = [1]\n[full_match.runs]\neasy = {one}\nmedium = {one}\nhard = {one}\n"
+    );
+    let rules = Rules::layered(&[("a short tournament", &text)]).expect("rules that read");
+    let start = Start {
+        seed: Some(seed),
+        rules: Some(rules),
+        mods,
+        tournament: Some((format, 1, 0)),
+        ..Start::default()
+    };
+    game_made(Screen::TOURNAMENT, start)
+}
+
 /// What a game is started with, besides the screen it opens on. Whatever
 /// a test does not set is as the game has it.
 #[derive(Default)]
