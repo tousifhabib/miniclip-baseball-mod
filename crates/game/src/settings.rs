@@ -19,6 +19,13 @@ impl Difficulty {
             Difficulty::Hard => "hard",
         }
     }
+
+    /// The difficulty with this name.
+    pub fn from_label(label: &str) -> Option<Difficulty> {
+        [Difficulty::Easy, Difficulty::Medium, Difficulty::Hard]
+            .into_iter()
+            .find(|difficulty| difficulty.label() == label)
+    }
 }
 
 /// Where the player's side is to play a full match.
@@ -91,5 +98,13 @@ mod tests {
         assert_eq!(Ground::from_word("neutral"), None);
         // Left alone, it is the toss.
         assert_eq!(Settings::default().ground, Ground::Toss);
+    }
+
+    #[test]
+    fn a_difficulty_is_known_by_the_name_the_art_has_for_it() {
+        for difficulty in [Difficulty::Easy, Difficulty::Medium, Difficulty::Hard] {
+            assert_eq!(Difficulty::from_label(difficulty.label()), Some(difficulty));
+        }
+        assert_eq!(Difficulty::from_label("Medium"), None);
     }
 }

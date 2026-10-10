@@ -17,11 +17,13 @@
 //! fixture once it is over is its `card`, and a fixture the player has no
 //! part in is played `on_paper`. How the sides of a group or a league
 //! stand is in `table`, the fixtures as far as they are known in
-//! `fixtures`, and the playing of a tournament through in `progress`.
+//! `fixtures`, the playing of a tournament through in `progress`, and how
+//! one is kept from one run to the next in `kept`.
 
 pub mod card;
 pub mod fixtures;
 pub mod format;
+mod kept;
 pub mod on_paper;
 pub mod progress;
 #[cfg(test)]
