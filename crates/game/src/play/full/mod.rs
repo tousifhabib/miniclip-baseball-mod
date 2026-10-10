@@ -5,6 +5,7 @@
 //! is over and who has won it, and what the board between innings has to
 //! tell.
 
+pub(crate) mod ending;
 mod halves;
 mod line_score;
 #[cfg(test)]
@@ -180,14 +181,14 @@ impl FullMatch {
     /// visitors bat in the top of the next.
     fn after_the_bottom(&mut self, innings: u32, last: bool) -> Next {
         let (ours, theirs) = (self.ours(), self.theirs());
-        if last && ours != theirs {
+        if ending::decided(last, theirs, ours) {
             return if ours > theirs { Next::Won } else { Next::Lost };
         }
         let made = self.made();
         self.their_half(made, false);
         // Ahead with only the bottom of the last innings to come, the home
         // side has no need of it.
-        if self.last(innings + 1) && ours > self.theirs() {
+        if ending::home_has_no_need_to_bat(self.last(innings + 1), self.theirs(), ours) {
             self.unneeded = true;
             return Next::Won;
         }
@@ -198,21 +199,21 @@ impl FullMatch {
     /// it is the last and they are ahead already.
     fn after_the_top(&mut self, last: bool) -> Next {
         let ours = self.ours();
-        if last && self.theirs() > ours {
+        if ending::home_has_no_need_to_bat(last, ours, self.theirs()) {
             self.unneeded = true;
             return Next::Lost;
         }
-        let mut made = self.made();
-        if last {
-            // They stop as soon as they are ahead.
-            made = made.min(ours - self.theirs() + 1);
-        }
-        let winning = last && self.theirs() + made > ours;
+        // In the last innings they stop as soon as they are ahead.
+        let drawn = self.made();
+        let (made, winning) = ending::home_makes(last, ours, self.theirs(), drawn);
         self.their_half(made, winning);
-        match (last, self.theirs().cmp(&ours)) {
-            (false, _) | (true, std::cmp::Ordering::Equal) => Next::Bat,
-            (true, std::cmp::Ordering::Greater) => Next::Lost,
-            (true, std::cmp::Ordering::Less) => Next::Won,
+        if !ending::decided(last, ours, self.theirs()) {
+            return Next::Bat;
+        }
+        if self.theirs() > ours {
+            Next::Lost
+        } else {
+            Next::Won
         }
     }
 
