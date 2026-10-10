@@ -67,32 +67,44 @@ pub fn hits_words(hits: u32) -> String {
     }
 }
 
+/// The innings a board shows of a match that has gone to `played` of
+/// them and has `innings` at the least: the first it shows, and how many.
+pub fn shown_of(played: u32, innings: u32) -> (u32, u32) {
+    let all = played.max(innings).max(1);
+    let count = all.min(COLUMNS);
+    (all - count + 1, count)
+}
+
+/// What a board shows of a side for each of the innings `shown`, from the
+/// runs it made in each half it batted in. `unneeded` is whether it had
+/// won before a last half, which was never played.
+pub fn cells_of(made: &[u32], shown: (u32, u32), unneeded: bool) -> Vec<Cell> {
+    let (first, count) = shown;
+    (first..first + count)
+        .map(|innings| match made.get(innings as usize - 1) {
+            Some(&runs) => Cell::Runs(runs),
+            None if unneeded && innings as usize == made.len() + 1 => Cell::NotNeeded,
+            None => Cell::Blank,
+        })
+        .collect()
+}
+
 impl FullMatch {
     /// The innings the board shows: the first of them, and how many.
     pub fn shown(&self) -> (u32, u32) {
         let played = self.ours.len().max(self.theirs.len()) as u32;
-        let all = played.max(self.rules.innings).max(1);
-        let count = all.min(COLUMNS);
-        (all - count + 1, count)
+        shown_of(played, self.rules.innings)
     }
 
     /// The two sides' lines on the board, the visitors' first.
     pub fn lines(&self) -> [Line; 2] {
-        let (first, count) = self.shown();
+        let shown = self.shown();
         let line = |ours: bool| {
             let made = if ours { &self.ours } else { &self.theirs };
             // The side at home is the one that may not have needed its
             // last half.
             let at_home = ours == self.home;
-            let cells = (first..first + count)
-                .map(|innings| match made.get(innings as usize - 1) {
-                    Some(&runs) => Cell::Runs(runs),
-                    None if at_home && self.unneeded && innings as usize == made.len() + 1 => {
-                        Cell::NotNeeded
-                    }
-                    None => Cell::Blank,
-                })
-                .collect();
+            let cells = cells_of(made, shown, at_home && self.unneeded);
             let side = if ours {
                 &self.book.ours
             } else {

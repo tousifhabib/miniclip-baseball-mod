@@ -23,7 +23,11 @@ pub(super) fn batting(
         .map(|order| batting_cells((order + 1).to_string(), &side.figures_of(order)))
         .chain([batting_cells("ALL".to_owned(), &all)])
         .collect();
-    let whose = if ours { "THEIR" } else { "YOUR" };
+    let whose = if ours {
+        "THEIR PITCHER"
+    } else {
+        "YOUR PITCHER"
+    };
     let lines = [
         besides(&all, fielding.errors),
         pitcher(whose, side.outs(), outs_an_innings, &all),

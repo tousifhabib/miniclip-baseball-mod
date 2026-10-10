@@ -18,9 +18,12 @@
 //! part in is played `on_paper`. How the sides of a group or a league
 //! stand is in `table`, the fixtures as far as they are known in
 //! `fixtures`, the playing of a tournament through in `progress`, and how
-//! one is kept from one run to the next in `kept`.
+//! one is kept from one run to the next in `kept`. What it has to say for
+//! itself, set out in rows for a page to write, is in `stats`, and in a
+//! line for a script to read, in `describe`.
 
 pub mod card;
+mod describe;
 pub mod fixtures;
 pub mod format;
 mod kept;
@@ -31,6 +34,7 @@ mod properties;
 pub mod schedule;
 pub mod seeds;
 pub mod sides;
+pub mod stats;
 pub mod strength;
 pub mod table;
 #[cfg(test)]

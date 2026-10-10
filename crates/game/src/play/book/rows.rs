@@ -43,12 +43,12 @@ pub fn besides(all: &Figures, errors: u32) -> String {
     )
 }
 
-/// The line that tells of the pitcher who threw to a side: `whose` he is,
-/// how many of the side he put out, and how many outs it has in an
-/// innings. `all` are the figures of the side he threw to.
-pub fn pitcher(whose: &str, outs: u32, an_innings: u32, all: &Figures) -> String {
+/// The line that tells of the pitching to a side: `who` did it, how many
+/// of the side were put out, and how many outs it has in an innings.
+/// `all` are the figures of the side that was pitched to.
+pub fn pitcher(who: &str, outs: u32, an_innings: u32, all: &Figures) -> String {
     format!(
-        "{whose} PITCHER: {} INNINGS, {} PITCHES, {} STRIKES, {} STRIKEOUTS, {} WALKS",
+        "{who}: {} INNINGS, {} PITCHES, {} STRIKES, {} STRIKEOUTS, {} WALKS",
         innings_pitched(outs, an_innings),
         all.pitches,
         percent(all.strike_rate()),

@@ -20,7 +20,9 @@ use super::paper;
 use crate::rng::Rng;
 use crate::rules::{FullMatchRules, StealRules};
 use crate::settings::Difficulty;
-pub use line_score::{COLUMNS, Cell, Line, Report, hits_words, ordinal, runs_words};
+pub use line_score::{
+    COLUMNS, Cell, Line, Report, cells_of, hits_words, ordinal, runs_words, shown_of,
+};
 pub use sides::Batted;
 pub(crate) use them::Them;
 
