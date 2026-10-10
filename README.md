@@ -46,7 +46,8 @@ Escape quits. `--mute` turns the sound off, `--screen match` (or `menu`,
 `arcade`, `fullMatch` and so on) starts on a screen of your choice,
 `--seed N` makes every game go the same way, `--mod NAME` switches a mod on
 for that run, and `--ground home` (or `away`, or `toss`) says where a full
-match is played.
+match is played. `--screen tournament` opens on a tournament's tables: see
+Tournament, below.
 
 The game plays sixty frames a second. On a screen that redraws sixty times a
 second, or a whole number of times that, it plays a frame every so many
@@ -61,8 +62,9 @@ scripts/bundle-mac.sh
 open "target/app/Baseball Mod.app"
 ```
 
-The app is called Baseball Mod and keeps its scores apart from the vanilla
-game's, so both can be installed side by side.
+The app is called Baseball Mod and keeps its scores, its choice of mods and
+its tournament apart from the vanilla game's, so both can be installed side
+by side.
 
 ## How far a hit goes
 
@@ -139,6 +141,100 @@ With the zinger hit mod on, when every ball you hit is a home run, the other
 side makes about three times its usual runs. The numbers are under
 `[full_match]` in `data/rules.toml`, with the chances their innings are
 played out by under `[full_match.their_batting]`.
+
+## Tournament
+
+The menu's first page has a Tournament row, under Full Match. A tournament
+is a run of full matches against sides with names, until one of them has
+won it. It is kept from one run of the game to the next, so it need not be
+played at a sitting.
+
+The setup page has the team's name, its colours and the skill level, and
+under those two rows of boxes: the tournament's shape, and how many innings
+its matches have, 3, 5 or 9.
+
+| Shape | Sides | What it is |
+|---|---|---|
+| Groups | 8 | Two groups of four. Each side meets the other three of its group, and the first two of each go on to semi-finals and a final |
+| League | 6 | Each side meets the other five, and the table decides it |
+| Cup | 8 | Quarter-finals, semi-finals and a final. The loser of a tie goes out |
+
+Next draws it: which sides are in it, who meets whom, and where. Your side
+is called what was typed for the team's name, or YOU. The page after says
+what is next: the round, who you meet and whether at home or away, and how
+your side stands. It has a box that opens the tournament's tables, and one
+that gives the tournament up, which has to be clicked twice.
+
+Play ball starts your next fixture, which is a full match in every way.
+Only your own innings are played, the other side's are made up, the board
+comes up between innings, and when it is over there are the pages of what
+the book says. What is the tournament's is what the match is played by: its
+innings, the skill level the tournament was drawn at, and the other side,
+which goes by its name on the scoreboards and the boards. The mods are
+whichever are on when the fixture is played.
+
+The sides are not all as good as one another. Each has a strength, from the
+Ashcombe Rooks at 1.25 to the Puddleford Toads at 0.8, which leans the runs
+it is likely to make in an innings: a side at 1 makes what the other side
+of a full match makes at that skill level, a stronger side more and a
+weaker one fewer.
+
+The fixtures you have no part in are played on paper as soon as yours is
+over, both sides' innings made up as the other side's are in a full match.
+So whenever you come to play, every side has played as many matches as
+yours. Once your side is out of a cup, or has not come through its group,
+the rest is played that way to its winner. With the zinger hit on, a side
+on paper is given the extra runs the other side of a full match is, and
+with stolen bases on its runners steal, so that a side makes the same
+whoever it plays.
+
+On from the screen a fixture ends on are the tables, on the board that
+comes up between innings. They are in sections, chosen by the boxes along
+the top, and a section's pages are turned by the arrows under them:
+
+| Section | What is in it |
+|---|---|
+| Table | How the sides stand: a league's table, both groups' tables with the semi-finals and the final after them, or a cup's rounds side by side |
+| Matches | A page for each round. A fixture that has been played has an arrow beside it that opens it: who won and every innings, the two sides' figures side by side, and each side's batting |
+| Sides | Every side, with an arrow that opens it: its fixtures and how each came out, what each of its batters has done in all its matches, and its figures beside those of the sides against it |
+| Leaders | The best five batters by average, by on base and slugging together, by home runs, runs batted in and hits, and by the longest hit. Then the best sides, by runs a match, the fewest against, average, home runs, strikeouts thrown and matches won |
+| Records | The most there has been of each thing in one match, with who did it and in which round, and after them everything in all |
+
+A table is in order of matches won, there being no drawn matches. Sides
+level on that are parted by the matches won among themselves, then by how
+far their runs are ahead of the runs against them, then by their runs.
+There are no names of players, so a batter is his side and his place in
+its order, ROOK 4. He is listed by his averages once he has had a turn for
+every three innings his side has batted in.
+
+What is kept of a match is its card: each side's runs innings by innings,
+and the figures of each of its nine places in the order. Everything the
+tables say is added up from the cards, by the sums a full match's own
+pages are added up by, so the pages agree with one another. A card is not
+every pitch. Where each ball came down, how your swings were timed and the
+innings turn by turn are on the match's own pages when it ends, and
+nowhere after that.
+
+The figures of different sides are not all like for like. A side on paper
+has three outs, three strikes and four balls whatever the rules give
+yours, and makes no errors, and the mods that make a run worth more are
+your side's alone. A side's pitching is what the sides against it did, so
+its page of figures sets it beside them and does not call them a pitcher's.
+
+A fixture given up half way is not played: the way out of it leads to the
+page that says what is next, with the same side still to meet, and the
+next go at it is another game. The tournament is kept in `tournament.toml`,
+beside the scores and the choice of mods, and a finished one stays there
+to be read until another is drawn.
+
+`--screen tournament` opens on the tables, with a tournament drawn by the
+seed. `--format groups` (or `league`, or `cup`) and `--innings N` say what
+kind, and `--played N` has that many of its fixtures played on paper
+first, your own among them, which is for looking at the tables without
+batting. The numbers are under `[tournament]` in `data/rules.toml`: the
+lengths of match there are, how many turns a batter needs to be listed by
+his averages, and the ten sides, each with its name, its colour and its
+strength.
 
 ## Mods
 
@@ -461,8 +557,9 @@ has him too. The mod has no numbers.
 ### The numbers
 
 Pitch speeds, timing windows, how the ball flies, the count, how many
-innings a full match has and how the other side scores in them, the arcade
-target's rings and points, how far a zinger goes, sound levels, skin tones
+innings a full match has and how the other side scores in them, the sides
+of a tournament and how strong each is, the arcade target's rings and
+points, how far a zinger goes, sound levels, skin tones
 and bat logos are all in `data/rules.toml`, with a note on each. Change them
 there.
 
@@ -498,9 +595,10 @@ cargo run --release -p bb-modtools --bin clip-sheet -- extracted --clip 688 --ev
 The rules are in `crates/game/src`. A part with one job is a file, and a
 part with several is a folder with a file for each. `baseball/` decides
 which screen is showing, `menu/` is the menu, `game.rs` is what every
-screen works from, `play/` is a game in progress, `board/` is what a full
-match writes on the boards, `sheet.rs` is how words and drawings are put on
-a panel, `look.rs` dresses the batting side, `scores.rs` keeps the high
+screen works from, `play/` is a game in progress, `tournament/` is a
+tournament and everything it adds up, `board/` is what a full match and a
+tournament write on the boards, `sheet.rs` is how words and drawings are
+put on a panel, `choice.rs` is a row of boxes to choose one thing by, `look.rs` dresses the batting side, `scores.rs` keeps the high
 scores, `mods/` is the list of mods and their page of the menu, `rules/`
 is the shape of `data/rules.toml`, and `art/` describes how the art is put
 together: which clip is which, and what each button is.
@@ -620,7 +718,7 @@ thing it is not held to is left off, is in the root `Cargo.toml` and
 Among the tests is a record of whole games, in
 `crates/game/tests/as_it_was`. About two hundred seeded games are played by
 written steps, with every mod alone and the mods that meet one another, in
-each kind of game and round the menu. Every frame, sums are taken of what
+each kind of game, in a tournament of each shape and round the menu. Every frame, sums are taken of what
 the game says of itself, what is heard, and everything on the stage, and
 they are compared with the sums written down beside the test. A change that
 is meant to leave the game as it was has to leave them alone. `cargo test`
@@ -657,7 +755,8 @@ scripts/pictures.sh --same target/pictures/before target/pictures/after
 
 The tests in `crates/game/tests` play the real game with no window, by
 written steps: whole matches and arcade games with batters of different
-skill, the menus, the colour picker, the score table and the mods. The same
+skill, the menus, the colour picker, the score table, the mods, and
+tournaments from their first fixture to their last. The same
 steps drive the game from the command line:
 
 ```bash
