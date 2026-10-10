@@ -9,6 +9,8 @@
 mod in_play;
 mod pitches;
 mod play;
+#[cfg(test)]
+mod properties;
 
 use super::book::{End, Hit, ORDER, Pitch, Steal, Thrown, Turn};
 use super::field::Ground;
