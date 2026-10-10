@@ -1,5 +1,5 @@
 use super::*;
-use crate::play::book::ORDER;
+use crate::play::book::{ORDER, Steal};
 use crate::rules::Rules;
 
 /// A match in which the other side makes `their` runs in every innings.

@@ -11,10 +11,10 @@ mod line_score;
 mod properties;
 mod them;
 
-use super::book::{Book, Steal};
+use super::book::Book;
 use super::field::Ground;
 use super::paper;
-use crate::rng::{Rng, mixed_with};
+use crate::rng::Rng;
 use crate::rules::{FullMatchRules, StealRules};
 use crate::settings::Difficulty;
 pub use line_score::{COLUMNS, Cell, Line, Report, hits_words, ordinal, runs_words};
@@ -100,33 +100,20 @@ impl FullMatch {
     /// them the match, which ends the moment the last run is in. The half
     /// is played out on paper and goes in the book.
     fn their_half(&mut self, made: u32, winning: bool) {
-        let innings = self.theirs.len() as u32 + 1;
-        let each = mixed_with::THEIR_INNINGS_ON_PAPER.wrapping_mul(u64::from(innings));
-        let mut rng = Rng::new(self.seed ^ each);
-        let rules = &self.rules.their_batting;
         let wanted = paper::Wanted {
             made,
             winning,
-            innings,
+            innings: self.theirs.len() as u32 + 1,
             first_up: self.their_turn,
         };
-        let steals = self.steals.as_ref();
-        let half = paper::half(wanted, rules, steals, &self.ground, &mut rng);
-        self.their_turn = half.next;
-        let theirs = &mut self.book.theirs;
-        // A steal is told by how many of the side's turns were over.
-        let before = theirs.turns.len();
-        theirs
-            .steals
-            .extend(half.steals.into_iter().map(|steal| Steal {
-                at: steal.at + before,
-                ..steal
-            }));
-        theirs.turns.extend(half.turns);
-        theirs.left.push(half.left);
-        for (all, more) in theirs.runs.iter_mut().zip(half.runs) {
-            *all += more;
-        }
+        self.their_turn = paper::half_into(
+            &mut self.book.theirs,
+            wanted,
+            self.seed,
+            &self.rules.their_batting,
+            self.steals.as_ref(),
+            &self.ground,
+        );
         self.theirs.push(made);
     }
 
@@ -137,9 +124,7 @@ impl FullMatch {
 
     /// The runs the other side makes in an innings left to run its course.
     fn made(&mut self) -> u32 {
-        (0..self.worth)
-            .map(|_| self.rules.runs_for(self.difficulty, self.rng.unit()))
-            .sum()
+        paper::runs_wanted(&self.rules, self.difficulty, self.worth, &mut self.rng)
     }
 
     pub fn at_home(&self) -> bool {

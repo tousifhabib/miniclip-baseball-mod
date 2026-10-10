@@ -12,10 +12,11 @@ mod play;
 #[cfg(test)]
 mod properties;
 
-use super::book::{End, Hit, ORDER, Pitch, Steal, Thrown, Turn};
+use super::book::{End, Hit, ORDER, Pitch, Side, Steal, Thrown, Turn};
 use super::field::Ground;
-use crate::rng::Rng;
-use crate::rules::{StealRules, TheirBattingRules};
+use crate::rng::{Rng, mixed_with};
+use crate::rules::{FullMatchRules, StealRules, TheirBattingRules};
+use crate::settings::Difficulty;
 use pitches::Miss;
 use play::Play;
 
@@ -60,6 +61,50 @@ pub struct Wanted {
     pub innings: u32,
     /// Whose turn it is, by his place in the order.
     pub first_up: usize,
+}
+
+/// The runs a side on paper makes in an innings left to run its course:
+/// `worth` innings' worth of them, each as the skill level's chances have
+/// it.
+pub fn runs_wanted(
+    rules: &FullMatchRules,
+    difficulty: Difficulty,
+    worth: u32,
+    rng: &mut Rng,
+) -> u32 {
+    (0..worth)
+        .map(|_| rules.runs_for(difficulty, rng.unit()))
+        .sum()
+}
+
+/// Plays the half that is wanted and writes it into `side`'s part of the
+/// book. `seed` is what the side's innings are played out from, each from
+/// a number of its own by the number of the innings, so that each comes
+/// out differently from the last. Returns whose turn it is next.
+pub fn half_into(
+    side: &mut Side,
+    wanted: Wanted,
+    seed: u64,
+    rules: &TheirBattingRules,
+    steals: Option<&StealRules>,
+    ground: &Ground,
+) -> usize {
+    let each = mixed_with::THEIR_INNINGS_ON_PAPER.wrapping_mul(u64::from(wanted.innings));
+    let mut rng = Rng::new(seed ^ each);
+    let half = half(wanted, rules, steals, ground, &mut rng);
+    // A steal is told by how many of the side's turns were over.
+    let before = side.turns.len();
+    side.steals
+        .extend(half.steals.into_iter().map(|steal| Steal {
+            at: steal.at + before,
+            ..steal
+        }));
+    side.turns.extend(half.turns);
+    side.left.push(half.left);
+    for (all, more) in side.runs.iter_mut().zip(half.runs) {
+        *all += more;
+    }
+    half.next
 }
 
 /// Plays the half of an innings that is wanted. With `steals` their

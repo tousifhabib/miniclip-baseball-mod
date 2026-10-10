@@ -182,6 +182,50 @@ fn without_runners_who_steal_nobody_does() {
 }
 
 #[test]
+fn halves_played_into_a_book_follow_on_from_one_another() {
+    let rules = Rules::default();
+    let (batting, steals) = (&rules.full_match.their_batting, Some(&rules.steal));
+    let ground = Ground::default();
+    let mut side = Side::default();
+    let mut up = 4;
+    let mut turns = Vec::new();
+    for innings in 1..=6 {
+        let wanted = Wanted {
+            made: innings % 3,
+            winning: false,
+            innings,
+            first_up: up,
+        };
+        up = half_into(&mut side, wanted, 21, batting, steals, &ground);
+        turns.push(side.turns.len());
+    }
+    // Six halves' worth of runs, of runners left on and of outs, with
+    // the batters coming up in order from one half to the next.
+    assert_eq!(side.runs.iter().sum::<u32>(), 1 + 2 + 1 + 2);
+    assert_eq!((side.left.len(), side.outs()), (6, 18));
+    for (index, turn) in side.turns.iter().enumerate() {
+        assert_eq!(turn.order, (4 + index) % ORDER);
+    }
+    assert_eq!(up, (4 + side.turns.len()) % ORDER);
+    // A steal is told among the turns of the innings it was made in.
+    assert!(!side.steals.is_empty(), "nobody tried for a base");
+    for steal in &side.steals {
+        let from = turns.get(steal.innings as usize - 2).copied().unwrap_or(0);
+        let to = turns[steal.innings as usize - 1];
+        assert!((from..=to).contains(&steal.at), "{steal:?}");
+    }
+    // The chances a skill level gives are drawn once for each innings'
+    // worth of runs.
+    let (mut once, mut thrice) = (Rng::new(5), Rng::new(5));
+    let full = &rules.full_match;
+    let three: u32 = (0..3)
+        .map(|_| runs_wanted(full, Difficulty::Hard, 1, &mut once))
+        .sum();
+    assert_eq!(runs_wanted(full, Difficulty::Hard, 3, &mut thrice), three);
+    assert_eq!(runs_wanted(full, Difficulty::Hard, 0, &mut thrice), 0);
+}
+
+#[test]
 fn the_same_numbers_play_the_same_half() {
     assert_eq!(played(3, false, 2, 11), played(3, false, 2, 11));
     assert_ne!(played(3, false, 2, 11), played(3, false, 2, 12));
