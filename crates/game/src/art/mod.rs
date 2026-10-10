@@ -97,6 +97,9 @@ pub const CHOICE: SymbolId = 2052;
 pub const BADGE: [SymbolId; 2] = [69, 70];
 pub const NINE: SymbolId = 2048;
 pub const NINE_FROM_BADGE: (f32, f32) = (-16.7, -4.4);
+/// The cup that is the tournament's picture in the badge, which is drawn
+/// to lie on it as the nine is.
+pub const CUP: SymbolId = 2056;
 /// The heading and the words of the page that says what a match is to be,
 /// which a full match writes its own in place of.
 pub const SUMMARY_WORDS: [SymbolId; 2] = [481, 486];

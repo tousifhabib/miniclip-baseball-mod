@@ -226,7 +226,7 @@ pub fn levels() -> Vec<Game> {
 /// Where things are on the menu's pages, in stage pixels.
 const BOTTOM_OF_THE_NINTH: &str = "click 200 181";
 const FULL_MATCH: &str = "click 200 216";
-const ARCADE: &str = "click 200 252";
+const ARCADE: &str = "click 200 271";
 const MODS: &str = "click 330 360";
 const NEXT: &str = "click 490 362";
 const BACK: &str = "click 290 362";

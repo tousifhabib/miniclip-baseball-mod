@@ -3,7 +3,7 @@
 
 use bb_game::tournament::Format;
 
-use super::common::{said, state, state_after, written};
+use super::common::{game, said, state, state_after, written};
 use super::{CARRY_ON, tables};
 
 /// Where things are on those pages, in stage pixels.
@@ -134,4 +134,28 @@ fn when_it_is_over_the_menu_says_who_won_and_offers_another() {
     assert_eq!(written(&script, "boxWords"), ["See the tables"]);
     let another = state_after(&mut script, &format!("{PLAY_BALL}; wait 70; state"));
     assert_eq!(another, "Menu, TournamentSetup, Medium: cup, 3 innings");
+}
+
+/// The menu's first page, and its tournament row.
+const TOURNAMENT: &str = "click 200 240";
+
+#[test]
+fn the_row_on_the_first_page_leads_to_the_setup_until_there_is_a_result() {
+    let Some(mut script) = game("menu") else {
+        return;
+    };
+    let row = format!("wait 60; {TOURNAMENT}; wait 70; state");
+    let setup = "Menu, TournamentSetup, Medium: groups, 3 innings";
+    assert_eq!(state_after(&mut script, &row), setup);
+    // Drawn, it has no result in it yet, and the row is still the way
+    // to set one up.
+    let drawn = state_after(&mut script, &format!("{NEXT}; wait 70; state"));
+    let begins = "Menu, TournamentSummary, Medium: groups of 8, 3 innings, played 0 of 15, ";
+    assert!(drawn.starts_with(begins), "{drawn}");
+    assert_eq!(said(&script, "tournamentHeading"), ["TOURNAMENT"]);
+    script
+        .run(&format!("{BACK}; wait 70; {BACK}; wait 70"))
+        .unwrap();
+    assert_eq!(state(&mut script), "Menu, Main, Medium");
+    assert_eq!(state_after(&mut script, &row), setup);
 }

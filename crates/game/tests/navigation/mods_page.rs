@@ -207,7 +207,7 @@ fn the_high_score_page_is_itself_again_after_the_mods_page() {
     let Some(mut script) = game("menu") else {
         return;
     };
-    let steps = format!("wait 60; {MODS}; wait 90; {BACK}; wait 90; click 250 287; wait 90; state");
+    let steps = format!("wait 60; {MODS}; wait 90; {BACK}; wait 90; click 250 303; wait 90; state");
     assert_eq!(state_after(&mut script, &steps), "Menu, HighScores, Medium");
     let stage = &script.runner.stage;
     assert!(bb_game::art::all_named(stage, &[], "modsWords").is_empty());

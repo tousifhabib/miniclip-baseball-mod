@@ -11,10 +11,11 @@ use crate::menu::{CHOICE_SIZE, HEADING_SIZE, Leave, Menu, MenuPage, WHITE, WORDS
 use crate::play::overlay::{Lettering, Words};
 use crate::sheet::Sheet;
 
-/// On the summary page: the middle of the top of the heading, and under
-/// the lines the corners of the two boxes, with where each one's words
-/// are from it.
-const HEADING: (f32, f32) = (410.0, 75.0);
+/// On the summary page: where the badge at the start of the heading is,
+/// the middle of the top of the heading's words, and under the lines the
+/// corners of the two boxes, with where each one's words are from it.
+const BADGE: (f32, f32) = (316.0, 75.1);
+const HEADING: (f32, f32) = (421.0, 75.0);
 const TABLES: ((f32, f32), (f32, f32)) = ((298.0, 286.0), (70.0, -5.0));
 const GIVE_UP: ((f32, f32), (f32, f32)) = ((444.0, 286.0), (58.0, -5.0));
 
@@ -74,6 +75,14 @@ impl Menu {
             return;
         };
         let mut sheet = Sheet::on(holder.clone(), 1).lettered(art::MENU_FIELD);
+        for symbol in art::BADGE {
+            sheet.add(stage, symbol, "badge", BADGE, (1.0, 1.0));
+        }
+        let cup = (
+            BADGE.0 + art::NINE_FROM_BADGE.0,
+            BADGE.1 + art::NINE_FROM_BADGE.1,
+        );
+        sheet.add(stage, art::CUP, "cup", cup, (1.0, 1.0));
         let size = HEADING_SIZE;
         sheet.write(
             stage,

@@ -8,7 +8,16 @@ full match at home, no mods	3000	d7949273f84b9afe	ecafb2b5e45428ef	ca093e0c9fc4c
 full match at home, no mods	3600	6176be764e4e6bc6	ab9b4e211313771b	6fd2463edc6f7926
 full match at home, no mods	4200	9514f88f18b60269	a26db565c2cc4711	469405cdfaa5c731
 full match at home, no mods	4800	a4b66f6790868135	d5379383de9fc06e	61206dc7a5913f57
-full match at home, no mods	5357	84a6702bb7c7568b	797a9ac4fc546f88	8eea2828905ab03b
+full match at home, no mods	5400	5b65b8c596809be8	e82bd5dd8b23a36e	bba90089117167c1
+full match at home, no mods	6000	f7ee82b879e82d6c	ebb222282f96abb0	327612fe748c148e
+full match at home, no mods	6600	45e35d68445afa54	b2dfbff954e7a915	142cac7d754463c8
+full match at home, no mods	7200	1f5bb69b95a2edee	3efd02aa93f74d90	284ef51883436229
+full match at home, no mods	7800	de9cf83051878d11	dc2d360879eac32e	63018f0fef546452
+full match at home, no mods	8400	50aae68188c85125	6b6fcb0388fc43ee	18cc7e78aa3c28ca
+full match at home, no mods	9000	ede20147ee16a2f8	56b6cd75d417024d	cf5c2308f8a1e9ce
+full match at home, no mods	9600	48eb2c4c582d8681	df61e600f25a14c5	389d2a5a0495a949
+full match at home, no mods	10200	2faf0bbb46def7df	6649e84a99e1a9c3	41e3b7cb7861d352
+full match at home, no mods	10547	3298ad0d0e9edcd1	9fc40a06682f4955	34be229df1faed19
 full match at home, timing_indicator	600	76194ebb87e9a03d	475828ec444198b2	4d0285f4495d8ce8
 full match at home, timing_indicator	1200	847cc034bafd829f	b6ea5e9efaf0dacf	f124c05a02e4fcdb
 full match at home, timing_indicator	1800	6fceb8f2de6733e5	83422c6473a79c80	d2cbde97076190f0
@@ -21,7 +30,14 @@ full match at home, timing_indicator	5400	aef13c824e84dbfc	2446c2fae6987714	e615
 full match at home, timing_indicator	6000	2afda764acb9b924	704940851da898ee	a5fc947047c470e2
 full match at home, timing_indicator	6600	4992a5c6e73dcfa3	96e56b540b887c9f	1ed900b331931350
 full match at home, timing_indicator	7200	987d6ae8e8222776	0a67289864f1fe5f	88294619d2cd644f
-full match at home, timing_indicator	7686	542a4884f1b054fd	d0127c18bc000d2f	db6ab67a62090da7
+full match at home, timing_indicator	7800	1d78a15b466367d1	93c4cc87480ba23e	5f6a4236c341579e
+full match at home, timing_indicator	8400	84ef8bf4d778673f	e634e3d28fad65ab	a214b4dce35b8dcf
+full match at home, timing_indicator	9000	db08fd787f78edff	2a46689adb083e05	27e25ab9f6fe1de9
+full match at home, timing_indicator	9600	a006c99172d49101	2bf0b76178b65ddd	b59e5dd1cea71d4b
+full match at home, timing_indicator	10200	b6f3ce1932115cf5	28a73d166564b2c8	d0260d35efb2bec5
+full match at home, timing_indicator	10800	7e009649605c8d2e	6ab800effe33caa8	23761833c4cdbe5e
+full match at home, timing_indicator	11400	57708deefabdd18d	ed1568ad5f7ab20c	189193397c391595
+full match at home, timing_indicator	12000	9e7ae3cb9d4cdbf7	1c26539a8b3c9e8e	26f4264d27b5c3a2
 full match at home, lone_pitcher	600	a3c13727279e0df0	8826c7d8aa82e75c	a4b884bcd371f001
 full match at home, lone_pitcher	1200	81a8c6899b571ae1	27e4c20a4e7a580f	d66db89179970203
 full match at home, lone_pitcher	1800	9cd2e35b0441d7c9	027bf5e4b4a2d519	af51e3441b9c4183
@@ -37,8 +53,11 @@ full match at home, lone_pitcher	7200	1e5e4fb4fec4d0d0	95b300d71416b7cc	1a82d96f
 full match at home, lone_pitcher	7800	c6819f96db0c2288	4820ea98a538122f	264bd8cdf587f290
 full match at home, lone_pitcher	8400	ffa88660f02a7188	159d20354998e791	7662bcb8d218e70a
 full match at home, lone_pitcher	9000	42a25e98a977e735	8db93b8a81818bde	7b91074c0e54aceb
-full match at home, lone_pitcher	9600	137fc0badbcbfac6	d110d761053e4ae0	5c4872ed75998be7
-full match at home, lone_pitcher	9837	660770ad5ddf5a16	3ce65f677bf49b82	26de29a708d99441
+full match at home, lone_pitcher	9600	137fc0badbcbfac6	d110d761053e4ae0	b3c88d19b0786659
+full match at home, lone_pitcher	10200	bff0e7d959e8f529	28421f6e6cb7da70	138cfcdc7de63ab0
+full match at home, lone_pitcher	10800	52c04de9473833d1	2d84ea16bb0cabb7	48db4232c97d53cf
+full match at home, lone_pitcher	11400	c61f052edaf87125	58092e3890b59530	3ea4a22c749ccf3f
+full match at home, lone_pitcher	12000	486adeaf96a79079	96a3b4bb026af73f	5854800646897d17
 full match at home, zinger_hit	600	e51392ac7ca1417e	547000614036578f	e4070c6e2b773fcd
 full match at home, zinger_hit	1200	92335329b4c12a79	ab55968446df6a4e	31c10b8fdc5ac5d8
 full match at home, zinger_hit	1800	1029551d7f368a65	45165eb19d5d7f09	70623953bee84836
@@ -75,10 +94,10 @@ full match at home, butterfingers	7800	99a3d224601f3125	e8221b72c2d74b8d	a979a8b
 full match at home, butterfingers	8400	466d4a145a9341b7	b8146f69123adf73	0487b6987ab73264
 full match at home, butterfingers	9000	ed1bda44b6e72ce0	0c59cda414e16813	b526d884efdafd06
 full match at home, butterfingers	9600	a82fc7e9200925ac	d1ddb2d4e6c079d1	9afa8e566c0163fd
-full match at home, butterfingers	10200	cf1b081be40103c6	375321a50a0ab8f0	9cae28d95ed367d6
-full match at home, butterfingers	10800	2ea444d87315ae6c	a458cf141d5d349b	ceb7a316243b4fa4
-full match at home, butterfingers	11400	c2d7ff19c63aeaeb	a6ff29831b55ed64	50a54801a154862b
-full match at home, butterfingers	12000	ced2e27544272124	6543c2d58d4469eb	1b69201b61822ce5
+full match at home, butterfingers	10200	cf1b081be40103c6	d8b0858206889ef0	ca74500fab69c7fe
+full match at home, butterfingers	10800	2ea444d87315ae6c	cacdcaa6fe2ea7b2	8364a55fe7284f2d
+full match at home, butterfingers	11400	c2d7ff19c63aeaeb	375302ffa8515df7	86beaf388da914cf
+full match at home, butterfingers	12000	ced2e27544272124	02afc13460945f45	f86bd58eb4dde7d2
 full match at home, knuckleball	600	f98448dc1920740e	e3e9dc11c786d64f	cc16d91b06ebf3d4
 full match at home, knuckleball	1200	b53d3462e8f00e30	b4d65bfa16d6c8cb	84141db21e2043f3
 full match at home, knuckleball	1800	d6d03e6818b4faaa	2106a5ea99f3ec65	79f207e0a2a8b395
@@ -91,8 +110,8 @@ full match at home, knuckleball	5400	17b6288e1404e4d9	b1089a9f57f4f95b	7eac59542
 full match at home, knuckleball	6000	23ea532400930aef	752025b7f29671da	cc5ca2fc49a00cfa
 full match at home, knuckleball	6600	29b7131e03236f9c	ff22d9f08aa3aaed	f8c5090e71b34d1b
 full match at home, knuckleball	7200	4365eb0f0aebb671	8a979802e513172b	30be69931c2a6fc2
-full match at home, knuckleball	7800	5e73553bc8cd4519	676abedf5e77d0f9	4c2e16031c7cfdee
-full match at home, knuckleball	8053	3cdf6a0bac33bc74	dd9b2583f3a02b84	983e9dd7a38b060b
+full match at home, knuckleball	7800	5e73553bc8cd4519	676abedf5e77d0f9	df0e1d92b047be15
+full match at home, knuckleball	8053	65908228ee9035c7	8170d60df83c760d	fd73ad359fe49efb
 full match at home, heat_check	600	507d101b107ae230	f9100dd5f9f5611b	3cbd8f3bec431704
 full match at home, heat_check	1200	36331e109ac67a1f	bf48f0b826545244	8801958b60cb7093
 full match at home, heat_check	1800	67b7283e882f4281	add7cce99668c69c	f55df9f01edbcf21
@@ -102,7 +121,17 @@ full match at home, heat_check	3600	40b21bea9b4b5725	8f0a0d892d00e7a6	8c4bf3df07
 full match at home, heat_check	4200	c51e236df62c330c	90c0323e79906d8d	6186d6ef8138fb57
 full match at home, heat_check	4800	2a246a6b871639c7	616da3edf8d6fc9d	ab64e9d99b95c3fa
 full match at home, heat_check	5400	570fda8e9d8646e3	f88ae3686c9d6eb9	639d77ddf55a7043
-full match at home, heat_check	5775	34ce25b16f7cf370	7ced93a1a7e8c14e	ab196a8a61aeec70
+full match at home, heat_check	6000	c057d95443a47af8	0f7cd371d5739d62	37f0fe89a3485ae4
+full match at home, heat_check	6600	96cb148e4b4291c2	05d2ea5004e3b149	9eb59c18277fa2a5
+full match at home, heat_check	7200	412109f97700d052	1870abe62b01a48a	70171be596c196ef
+full match at home, heat_check	7800	73e32222986d4506	6dc3fd51f29bc228	4e8c72f607d5e763
+full match at home, heat_check	8400	b61cda201d4bcf2c	d4b65c88b3729d09	c23bd76ad45239f4
+full match at home, heat_check	9000	68a515174107a9cf	e0b5eefa5288ac2c	c734c3d4f035c3ba
+full match at home, heat_check	9600	c7d95ea2d4e14efb	12a8280583bef95e	7565e793266fb971
+full match at home, heat_check	10200	7fbef994360d6f0e	7dbc3e057601b018	cdb51bbf3d9b5290
+full match at home, heat_check	10800	d4264ccee4ffbaeb	4afc22a666d83949	2cb64a45df349bfb
+full match at home, heat_check	11400	f4f7470ad2b031bb	f443aa7f7dec3057	657f4114c79fd5af
+full match at home, heat_check	12000	f9ce731584b04761	781b4ee487597864	7ddae7d93e58d692
 full match at home, mystery_pitch	600	04e6a165c40cbe97	e785bb7cfc6e5507	4aedec5de6c50168
 full match at home, mystery_pitch	1200	3623aa48ad73615b	38fbd795d747816e	82fabb0aff4713cb
 full match at home, mystery_pitch	1800	5e79a4e99925edfe	117250fec0ce8b2f	1a43f057ecf09aab
@@ -116,7 +145,7 @@ full match at home, mystery_pitch	6000	b71644bb9c5454ad	711f04965b3747d1	dc94eb6
 full match at home, mystery_pitch	6600	d66acd39859e775c	5fd49f20f96494f3	bda6ccc3e9977606
 full match at home, mystery_pitch	7200	8e73c42837c0e446	b4d56a4859a9e6a4	06683e8b5f34900a
 full match at home, mystery_pitch	7800	f6e0caaed757c90b	c3821fb3e09bb69b	7bd4a9483f638c3e
-full match at home, mystery_pitch	8204	0c1edba7d223965a	0b6c0550dde70fb9	11f4a99080f3cdaf
+full match at home, mystery_pitch	8204	02d8c502bfe4b2f6	201074ff85fd889f	123b9efddb3dd077
 full match at home, called_shot	600	6a688389d6cd532c	50b5e5fb258ebe71	94b80092bfc95163
 full match at home, called_shot	1200	32dc272506eff773	44cc4519aacaefb2	3273e6250890104b
 full match at home, called_shot	1800	3249aeb74b9e53f3	9439cc2aab182693	f2ce8d79d22ef95b
@@ -128,7 +157,7 @@ full match at home, called_shot	4800	f7375e878b429d17	1a2fc6096796e037	1cd71808f
 full match at home, called_shot	5400	d0b51753d548ba77	a1f514eb43244bf5	2732d49a0e43564b
 full match at home, called_shot	6000	e1c064a614411ca3	068f8cdee2cf615f	14a9d0ef61769c73
 full match at home, called_shot	6600	2324147a520c8ca5	bf721f97e1dddaec	1951b89b38bc5e76
-full match at home, called_shot	7146	495f3387c0a0ca5c	e5ad406bf0363186	0a0ee1b96ac73256
+full match at home, called_shot	7146	55991e8a7f5d33e5	f4401ed1848bbbd5	273bbe476f585dd7
 full match at home, hot_bat	600	1fc01574704af2ed	226c0520578ecc52	ca007566d42ad739
 full match at home, hot_bat	1200	7092ce1b8dd6cb7d	2fdf5727f100120b	afb86501363c9659
 full match at home, hot_bat	1800	22d96fa600c371eb	fbb0bdff7e46bc9a	a2462171e0c1742c
@@ -139,15 +168,15 @@ full match at home, hot_bat	4200	af5fe49141f8398a	514b48f8f719690d	b019baed7d53b
 full match at home, hot_bat	4800	a61b26144f018715	aaed79401fa0fbfb	5b0c3798c31aefbf
 full match at home, hot_bat	5400	60ab0aa21d65de09	f0b2eb0b20e2d760	6514bde4f6355e22
 full match at home, hot_bat	6000	cf689adde54b3d03	53dff8e5135e2a0c	9261b69768f57a44
-full match at home, hot_bat	6600	c1ade8e0598b62de	af5f33fc1612e63f	57963020aa029d15
-full match at home, hot_bat	7200	9c1996ebc472de3e	5fe498f67f054be8	b025d51ac5dc183c
-full match at home, hot_bat	7800	90f0e41d0ea6715b	ce718c111ad8a9a6	96eb498a223fab1c
-full match at home, hot_bat	8400	8245b69253e19b67	613a534b070a2010	404ed287aad59d56
-full match at home, hot_bat	9000	b40d7ebd01e963e2	85b2762e9b43810d	97d3fabcfbc3b9a3
-full match at home, hot_bat	9600	075ba6522ce74d35	b15ac8aec7b05706	296254cac255f700
-full match at home, hot_bat	10200	d6f70110df9072b1	cdf28168c9eb24e5	3e56b4faaca1ef08
-full match at home, hot_bat	10800	2a7fc5dc1e863fb4	9e3450c60a875ed1	741b70500bd5925c
-full match at home, hot_bat	10998	4cda68c56dbfa99a	0b7afbedb957360f	a7b040a2b8b21122
+full match at home, hot_bat	6600	996467235d26348b	163012d35b679d27	bc57f7e6ae4749da
+full match at home, hot_bat	7200	9e0430bbbef381ec	6f615e78fc0f081e	9864578af192eb90
+full match at home, hot_bat	7800	1859f5e777b1b4b2	6ae222b7ffb066f3	0e4fbba1993ac4f8
+full match at home, hot_bat	8400	cf8c3123b108cd21	0874097fb390f0ba	572abe777654b934
+full match at home, hot_bat	9000	8abf335947650034	57171f19b0300790	c842213ba802db3b
+full match at home, hot_bat	9600	ab9677c8d8181a09	87511e21b770872b	81e1fe4916291780
+full match at home, hot_bat	10200	15722a57a4850a44	040add4e4bd51b3a	27ea82ff0d45a33a
+full match at home, hot_bat	10800	100eb781963a64ef	ce80ccf94a73c5d6	fa8ccb4a34edd3c8
+full match at home, hot_bat	10998	4d1a913b0dc5b36c	c90c056a200c3f95	dd02cb2f174e1ffe
 full match at home, sudden_death	600	f8bf7be71fc79062	fa534de9fa16886f	0869819b0c3d88c8
 full match at home, sudden_death	1200	ced42f1a22230c6a	67d688e6ac556cad	5b082a9206ccc61a
 full match at home, sudden_death	1800	446bf6eab4454c97	abe2db3bc462edbf	beb5c905178c73dc
@@ -155,8 +184,8 @@ full match at home, sudden_death	2400	c2769e0741c8499e	0266b751f055a624	e56ab2d7
 full match at home, sudden_death	3000	c839d4ab9badd50f	bd5572ea63db5d61	4d9f2f86845ba0f1
 full match at home, sudden_death	3600	fffb7019653ea85f	93d701e6e91281d7	bd0b1584c3c367b0
 full match at home, sudden_death	4200	0a5dc9e0e515fba6	0072f44d130a4fa3	3a2b4ff9d80a363d
-full match at home, sudden_death	4800	e60212e70f354265	c0835fcf479f943f	4a425b30281b228d
-full match at home, sudden_death	4929	aeb125d4fdd6cb4d	9415dd639e44a87c	f2e2123603a08307
+full match at home, sudden_death	4800	e60212e70f354265	497c63760be92f73	e69a7966b60dff4c
+full match at home, sudden_death	4929	6a96b2cba87c02e6	29a8da587df2bacd	e0c882d309722faa
 full match at home, golden_ball	600	b579273c65ddcd21	828dbe117c6b947a	482c17a1abbe02c8
 full match at home, golden_ball	1200	ddd47ad4457c017d	fe2bd1ad20d061ac	3ec8a5d4b4a887a6
 full match at home, golden_ball	1800	98ee4e4fd30509e7	7256de73042fabc2	08194b1b5755ae9e
@@ -167,8 +196,16 @@ full match at home, golden_ball	4200	d3521741eb83ae85	a641c91179e218a6	86f61103c
 full match at home, golden_ball	4800	ae83b24897b85667	e131a8f9d2eda6bf	6291c874c002cbf9
 full match at home, golden_ball	5400	781988440ef7af1f	a7e10ce4b5675a24	9561d39c4a237142
 full match at home, golden_ball	6000	bb1db0f34196ba2c	848560a6173588df	db54479699cceb85
-full match at home, golden_ball	6600	3fedf990d4173f19	11f220ba29a24eb1	f1adafc307841fd8
-full match at home, golden_ball	6818	c5c2b4b3f0c68154	e8a2a7e9266ae2a9	0fd93e0e54a1197c
+full match at home, golden_ball	6600	134ac8d1f63673d4	003568261d4c8fd9	6526c175993359b8
+full match at home, golden_ball	7200	edff69ac4d2f6161	13a7ec3c7ac6fa36	2510de0a7917ca6f
+full match at home, golden_ball	7800	7dea1b53e7582b71	fa75b417f280e8d5	66872ac4f97a6c75
+full match at home, golden_ball	8400	d83a67a9fcd5e1fc	28f65a5b89d2b41a	234bfe2f62fe48dc
+full match at home, golden_ball	9000	93c377ffd4cfe84e	8f5605c23b392826	586ee33876880a00
+full match at home, golden_ball	9600	1930490d4e530b4d	e354cd6392b81b22	188ef6ae37b421df
+full match at home, golden_ball	10200	e8ba21999afd2cbf	3ffe061ed1046213	3a2c4dbcaefd1e03
+full match at home, golden_ball	10800	4fd3194f7967823b	89ee81f5631b498c	af40914a49f8a9c3
+full match at home, golden_ball	11400	1a0a1d6539fd42af	5bff1017f7d0b2f5	e9fa13a7b5bfa7c1
+full match at home, golden_ball	12000	c7fa2629aff96d20	a441c22b5af734ac	4dab710829c89489
 full match at home, pinball_park	600	0497b2802726ab7a	f239e6b4b4261bf3	1f0ae574f6193063
 full match at home, pinball_park	1200	7293ce4e5e366474	44d2769c0c322e07	c0bb6cb9740c1507
 full match at home, pinball_park	1800	2b1c292c862f392d	12c354931b6b9e03	31afde844de3b9ee
@@ -182,8 +219,13 @@ full match at home, pinball_park	6000	dd9ef3d9b58928dc	4186dcd9c132e36f	cda42f9a
 full match at home, pinball_park	6600	73429e461c8c2d81	789251bedde92284	caefb42956f39094
 full match at home, pinball_park	7200	3b19de32d985f4de	ad1f0eeb87e0c653	2953519e89878689
 full match at home, pinball_park	7800	88f785d6a243dbe4	31340c88b38758ce	27606fe600167cd7
-full match at home, pinball_park	8400	90137ccd203ed180	4307294f2802fbc4	2e3196413419f263
-full match at home, pinball_park	8641	7931590317bb06be	d7854abff7af1952	4d9955501d3721af
+full match at home, pinball_park	8400	90137ccd203ed180	b66a145390d94ab7	5137947e841fbfc3
+full match at home, pinball_park	9000	6862bdad729c6496	fb0426bf3c64951b	7d65bc8ac0630da7
+full match at home, pinball_park	9600	705b31dff3581048	aa7284813f3da06e	8ccc08322ae5f74b
+full match at home, pinball_park	10200	13b47472930fb7a3	7acd15bd0539bb79	4867c3f3c711e80c
+full match at home, pinball_park	10800	912fabe48ec5e6b0	4a80684633e19da5	ea35e2dc91557ed9
+full match at home, pinball_park	11400	4f32758c580106f2	38f2efc9735e7970	03b88f4eebe00da4
+full match at home, pinball_park	12000	5ff2b834d4bc39ae	af9b1f7bd084cc74	6ca8f01037a36a2e
 full match at home, moon_ball	600	aef3f60a2f5a620b	3cd4b7cdb9bdc05e	5d75ca8237494492
 full match at home, moon_ball	1200	973274db968403dd	7b699866b08322a1	9cbfd7000a592401
 full match at home, moon_ball	1800	98ca9699f74b4dba	ee348d0f3129ce6c	05195ee6f5fa1dcc
@@ -197,8 +239,8 @@ full match at home, moon_ball	6000	4fa8099357bb01f9	13b64acd34c03417	8704d8d317e
 full match at home, moon_ball	6600	d47a5c62e081eb7b	96ef5d19ca8504a6	46698745574ffd27
 full match at home, moon_ball	7200	f92620f714dc421b	31593f1b2128877f	3678e60166cbad15
 full match at home, moon_ball	7800	3c61bff931e26870	84d7d484674ddf10	f69a6cf2d6b1c86b
-full match at home, moon_ball	8400	21ae1baa7d279495	dafbfb8ff59f1c33	fa5c9a290f5a82f8
-full match at home, moon_ball	8461	0c3b01a6b0d2bbb7	dd252162dbfc9d58	a26387c18987d4ba
+full match at home, moon_ball	8400	45003881923066f0	dd8a38d55b9a7930	e1eeb1f713d53957
+full match at home, moon_ball	8461	2360aaf497db304e	93714112097fef70	62a5340b2efbf3aa
 full match at home, turbo_runners	600	7647cdc0bc05f643	5f651fd9a0966e65	d640a204cf4a0465
 full match at home, turbo_runners	1200	3e6238b4196e7e3e	f07a960ae4fac4ad	db5be274e687d0ab
 full match at home, turbo_runners	1800	8fad458729c1002f	ec910a173fd4cdac	5f9e6e6ef069886f
@@ -207,7 +249,7 @@ full match at home, turbo_runners	3000	6f856116df7e5853	a9826cb9ad3fd555	4491c79
 full match at home, turbo_runners	3600	dc874312f9d8a85d	480531af585c6344	d42ba43bf66f9945
 full match at home, turbo_runners	4200	6c442bc798cb5f6d	c5cdb45fc8eaa6a0	a6b5e650701df62b
 full match at home, turbo_runners	4800	2446f5d8784e742c	ae6dc364b97a0d3c	c56e78a656a1a7e0
-full match at home, turbo_runners	5155	0f151087ab93841f	dfa9dc7adeb34c36	3a07906153267069
+full match at home, turbo_runners	5155	bf2ec4c038e9fab8	0c655cf1910263d8	8205d5633be10cec
 full match at home, night_game	600	1dfc92693d717eae	84bc557c09264d55	dae7c1d49c5989af
 full match at home, night_game	1200	ef89c8d89e5fee5f	2caff2106d815203	c8a59f3f2edde363
 full match at home, night_game	1800	85849d11c9de7a03	d941c45f4ed3978f	fcb78f32d514cbc9
@@ -219,7 +261,7 @@ full match at home, night_game	4800	97f21bcd3d691fec	cd3e9e919ea256ca	5e50aabad9
 full match at home, night_game	5400	30f8dc3c9b46cb0f	a040b3398391b9c9	a5a1b4e07a4517bd
 full match at home, night_game	6000	39fc1f25a4f261aa	4ad919cd922bf52f	5177b38fbfdc2378
 full match at home, night_game	6600	4552d80dfb5af9e8	f6eb7d0c5bd642d4	225d09ace66a71db
-full match at home, night_game	6936	f7df639e96f5e592	58e9d99ff73cda4e	0834814b4c8864d2
+full match at home, night_game	6936	8056ae89a321692f	e41753f2becffb5f	7d9893a16159e5da
 full match at home, the_shift	600	fc999caed12cc3ca	bef8b451f02b3751	ab67e81c816523c0
 full match at home, the_shift	1200	12df2ae747e8242d	e4ece0f06a57c234	4a2813473810641f
 full match at home, the_shift	1800	10ab588e73ed3c82	130e90edfef999dd	112100bbd89ad806
@@ -232,7 +274,14 @@ full match at home, the_shift	5400	5af71762216b0b33	ffa93f618b4d866c	7dc9992fea2
 full match at home, the_shift	6000	2867b024e0878d51	ad40f9043be141f8	c74027a187888dc0
 full match at home, the_shift	6600	a64ad1b926cc88e7	bfba5d2d29a94f3c	e4246a026e8a095a
 full match at home, the_shift	7200	1b7fddab3afe1c68	43160f0d6b98caa6	3b530293942baf3c
-full match at home, the_shift	7767	2c375ed94fd62ec1	e4536855f3d30a1f	3c2c51d04bcc5ead
+full match at home, the_shift	7800	360bd4ffb29386c4	6654baaf5cbae36c	fd950dd767a5f4be
+full match at home, the_shift	8400	44105534f798a28c	ce8d1f0aa32e7012	4a02dc9993dc06bc
+full match at home, the_shift	9000	4802fe61b0b47127	d40b69bb710ded1c	c6644afc15c1554f
+full match at home, the_shift	9600	6e6d23658e433928	0fd6daaf4cf1a29b	882a48585a894eda
+full match at home, the_shift	10200	16b6046bbdf1e33a	3e5624e27521a231	2e117f2fbc45eeb3
+full match at home, the_shift	10800	cb4a74c08b81a7a8	95640f879b4a2f57	5e3ad959a13a4483
+full match at home, the_shift	11400	9daccbdb1797c882	b5fe087c1142f735	50abd3c2cf5a72f4
+full match at home, the_shift	12000	435efccbc8ef6600	8071f72d4c1c19e8	f0f9c3968192302a
 full match at home, tired_arm	600	7ab5808a5ef7b40f	e798984ddb2d04fc	403a064c20fbea19
 full match at home, tired_arm	1200	004dae1950b3a59f	12122a73c92e9754	ebeaec83c00a1fb2
 full match at home, tired_arm	1800	ec4bcce70362f7c1	4251f3972eea102f	f0b9081afb236655
@@ -247,7 +296,12 @@ full match at home, tired_arm	6600	16df2b7f7a117815	cf6bf510d0eae173	e6160fb75d4
 full match at home, tired_arm	7200	7a39abe6a70e73b2	1b7767857c49e724	1795f5ba6469e0c5
 full match at home, tired_arm	7800	32ccd3ab861c1823	259cb5f203c184dd	fe8e1f98ff62f373
 full match at home, tired_arm	8400	8b4a1d2144d0bd47	fc2947319d657fb6	8246843f5c9ca30d
-full match at home, tired_arm	8769	2825a7f7453dd532	05d0d072c9548ffe	180901ce0d1297af
+full match at home, tired_arm	9000	7691fb50257ff065	613918b15b13e5fa	c2f2e551eed78cd3
+full match at home, tired_arm	9600	0a0fb50b597a956d	b5bc922e23bd08e2	5e959f5c5d9b7f59
+full match at home, tired_arm	10200	c3ac9ee958db23f2	7bd102e65bea3543	44a3e7e701befd78
+full match at home, tired_arm	10800	584208035fc40797	c22bc654319ddc66	c98c6460bbebf625
+full match at home, tired_arm	11400	d6353c8a90f960ee	c7cc0a5ca0d7df38	f403e8bec9a1e1dd
+full match at home, tired_arm	12000	46b5fe210de7efe1	5a2de54ec933fdb5	fedbcc39e60f89ad
 full match at home, stolen_bases	600	6eee2b961765b214	18636dfcb0498bf3	18bb0a68db166fb3
 full match at home, stolen_bases	1200	b2d56806bb6caf12	fcc9b5c36a8882bf	cd3b9d75bba78676
 full match at home, stolen_bases	1800	c68097f0f8de68db	90ef4cfc1d16a173	94768de82b72157c
@@ -260,8 +314,8 @@ full match at home, stolen_bases	5400	2ade1e4e662b10fc	14f5eb77c3a5a436	0ccf2c1c
 full match at home, stolen_bases	6000	cfc8777146ba6a76	b04e509e37c986b5	dc0af280982a9a22
 full match at home, stolen_bases	6600	ca5b056b0d6ceae6	f867ed18ae6922f6	138620c469fc5c38
 full match at home, stolen_bases	7200	43feb4b5faa50b3c	438cbb05b8dfdf70	7a7f340c2143848c
-full match at home, stolen_bases	7800	64727dbadb5075c4	65228127c9b2a7e5	41748b0a31424e51
-full match at home, stolen_bases	7840	fc84a9f0e419b3ad	50916d1baaddb67b	12900cd09a16bd6d
+full match at home, stolen_bases	7800	64727dbadb5075c4	e430e523d41fa609	7695dda818be8209
+full match at home, stolen_bases	7840	a1e15745025f2e01	2ef3e60f747c748c	bafa0235301c6409
 full match at home, hit_the_sign	600	d10d69f781afce2e	7587ad6adc480edb	2a2b0deda0572e14
 full match at home, hit_the_sign	1200	4ac7f49395b158cc	e70858db3badada2	1183fbec7829f868
 full match at home, hit_the_sign	1800	c923e7b3b9fa4f73	12dea66e7c7a54cb	d806854686a0912a
@@ -272,14 +326,14 @@ full match at home, hit_the_sign	4200	352c35d6a777a428	4af7c228678752d3	f0385d1a
 full match at home, hit_the_sign	4800	7464da2a2c53a371	05c2e7c995402bc2	dc42f246b149991b
 full match at home, hit_the_sign	5400	ca5893d49dbb1043	c70f1439dbd33141	87cec9771f69d5d4
 full match at home, hit_the_sign	6000	edc1c656465e890d	8bfec691de1b7406	6c3271e1fd2f4a7c
-full match at home, hit_the_sign	6600	a02dde17ea8bf4e6	d372afc868b18c6e	d89dc4f6636a0b2a
-full match at home, hit_the_sign	7200	ae3300ff27067a2d	49829f434417b8ee	f63b0c1fcb89e692
-full match at home, hit_the_sign	7800	b9528ebbad7e64c9	cfa3521071d3df6e	edc4fcd76cb4849a
-full match at home, hit_the_sign	8400	3963e75994d25c77	a452a52ebc8d738a	962e4491a3c35add
-full match at home, hit_the_sign	9000	da23f83bd7fa746c	20fdc05d988e6d2f	e9427a2f65ef0351
-full match at home, hit_the_sign	9600	98df0139ab9b3918	bc167a4a79a24019	375189af309cf19e
-full match at home, hit_the_sign	10200	15cc16cb2a15b2ef	3ce172f646ae0fd6	d26ac74104184306
-full match at home, hit_the_sign	10797	444dc99bc086018c	5312ecd5da6134b6	1c9e4d6dffa192b2
+full match at home, hit_the_sign	6600	a02dde17ea8bf4e6	02989b8f60e5dace	e3b3889eb5aa1d2e
+full match at home, hit_the_sign	7200	ae3300ff27067a2d	67c9df82be850ab7	d81ce6b47c3867bc
+full match at home, hit_the_sign	7800	b9528ebbad7e64c9	a49dca016b1c48ad	7bc844d420a59368
+full match at home, hit_the_sign	8400	3963e75994d25c77	89dc7c673b1f7a88	78250ced388b9bbf
+full match at home, hit_the_sign	9000	da23f83bd7fa746c	32bc94d56ec8215a	6c506162174a09f8
+full match at home, hit_the_sign	9600	98df0139ab9b3918	4ea6adcd7a5778b5	72395dd24a4cddb5
+full match at home, hit_the_sign	10200	15cc16cb2a15b2ef	e69a6bb3d5c07d94	46c73e6fa1b91abc
+full match at home, hit_the_sign	10797	444dc99bc086018c	aa95fa5e807a18c7	5eff3de3efec7016
 full match at home, rally	600	861a3cfebdf7cdfe	746672ed68961a9b	f1c6ca3f51e6c694
 full match at home, rally	1200	1ae7b539f9116534	3c302db36e732290	7768c6952874ec4b
 full match at home, rally	1800	461b1b727b6fb6c2	c50c8b5d09ac8de1	190ba5b585c180e7
@@ -291,8 +345,8 @@ full match at home, rally	4800	f8e0ddc2ecb0943c	15e99937d141a21d	5a85b5519078864
 full match at home, rally	5400	65576ca334a6d966	bfdd5059388acbcf	fc3d140da619ca29
 full match at home, rally	6000	d4167e0b83ef12b0	08d7e5d439462169	7fcbf77ef90f40b0
 full match at home, rally	6600	7960e56553f9b2e8	6ac72086aff537bd	bce0fd7bd299b107
-full match at home, rally	7200	bd84b2a4a178d144	3e8ccf64047114f7	4d51fc072d718fd1
-full match at home, rally	7359	fa5efd78da50967f	2d8f2489fbbdbd30	e72fd52505b5afb6
+full match at home, rally	7200	fd785b7e01800e02	9165c66e9f62572f	ca078cb1eb5f953b
+full match at home, rally	7359	61b903ba49041f99	74c35d3b4b713b43	afff07710dc8147b
 full match at home, clutch	600	51a9cf7b65f2ea44	2ccd3a9f57168efd	251a4e92a99a8028
 full match at home, clutch	1200	ad56a74f0d40a598	57484c962d091b31	11cf306e0f6aa957
 full match at home, clutch	1800	4f2c2bf4918a522f	6e8f45cb673b281c	b146b9a35d54d34e
@@ -303,8 +357,8 @@ full match at home, clutch	4200	11c866b4f19333f2	afe446f8a427dfe1	7da8d1db56dffe
 full match at home, clutch	4800	4a7feefc5cce6221	a4ae721e87bcd1f0	13bd540d0370345f
 full match at home, clutch	5400	dbda9101fa7889f3	e64d8900701b492f	4ea2d8dad92f45d7
 full match at home, clutch	6000	e32616fbf1f4e88e	de172c1f77a17f7d	07034e0fa5cbd5ac
-full match at home, clutch	6600	3d05ee77005348e4	8b076b69725d6b2c	0ae9af757b4a73d1
-full match at home, clutch	6836	4ec29a6a36dae149	0fe5166b2107adbd	c18cb23bcbd597ef
+full match at home, clutch	6600	3d05ee77005348e4	109f725a95afeb92	6f1d9434045fae9c
+full match at home, clutch	6836	d2afdc6d3323c4d5	580cb5324319d5e9	9a8ea7d723726b34
 full match at home, bullet_time	600	52587d0db64ab975	1c9232132fc34c8a	47f6b03064563013
 full match at home, bullet_time	1200	b2647817b506ab95	fcbad9486d98cbfd	046a53840b30e8aa
 full match at home, bullet_time	1800	961957ee10e47299	c8e9ec6a5bdeec65	41d9f607bdadad2a
@@ -338,4 +392,4 @@ full match at home, southpaw	6000	45e5a7aa304dc056	a493b1285ac895e8	2db66f3887c8
 full match at home, southpaw	6600	7f14074d837b2605	fc8eade87e1cfb9c	92d98a30c7892818
 full match at home, southpaw	7200	fb8ab271e3ef8c6b	072c9bcd1e50f6a9	e64af7d478940d84
 full match at home, southpaw	7800	4dc538e69722bba8	b744593535392b9e	c28781df08a0d66c
-full match at home, southpaw	8222	0405fdefcb537844	0a194f548c1f588d	b5119ce427e7485a
+full match at home, southpaw	8222	e32bc6b6b77ba8be	38744c6c96f92ecf	675fc45972e0ab19

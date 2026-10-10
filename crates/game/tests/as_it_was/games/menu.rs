@@ -4,14 +4,25 @@ use bb_game::mods::Mod;
 
 use super::{ARCADE, BACK, BOTTOM_OF_THE_NINTH, By, FULL_MATCH, Game, MODS, NEXT, PLAY_BALL};
 
-/// Round the menu by written steps: every page, and what can be done on
-/// each.
-pub fn the_menu() -> Vec<Game> {
-    let written = |name: &str, screen: &'static str, mods: &[Mod], steps: String| Game {
+/// A game of the record that is nothing but written steps.
+pub(super) fn written(name: &str, screen: &'static str, mods: &[Mod], steps: String) -> Game {
+    Game {
         by: By::Written(steps),
         most: 6_000,
         ..Game::new(format!("menu, {name}"), screen, 370, mods)
-    };
+    }
+}
+
+/// Round the menu by written steps: every page, and what can be done on
+/// each.
+pub fn the_menu() -> Vec<Game> {
+    let mut games = the_pages_there_were();
+    games.extend(super::tournament::on_the_menu());
+    games
+}
+
+/// The pages the menu had before it had a tournament's.
+fn the_pages_there_were() -> Vec<Game> {
     vec![
         written(
             "the intro left to play",
