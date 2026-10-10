@@ -1,6 +1,7 @@
 //! What a tournament has to say for itself, set out in rows for a page to
 //! write: its tables in `standing`, its rounds in `rounds`, one match in
-//! `a_match` and one side in `a_side`.
+//! `a_match`, one side in `a_side`, the best of its batters and its sides
+//! in `leaders`, its `records`, and its `totals`.
 //!
 //! All of it is added up from the cards, by the sums a full match's own
 //! pages are added up by, so that what is said of a side in one place
@@ -8,8 +9,11 @@
 
 pub mod a_match;
 pub mod a_side;
+pub mod leaders;
+pub mod records;
 pub mod rounds;
 pub mod standing;
+pub mod totals;
 
 use super::{Card, SideCard, Tournament};
 use crate::play::book::{Figures, ORDER};
