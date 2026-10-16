@@ -1,9 +1,10 @@
 //! What the game keeps from one run to the next: where its files are, and
 //! how they are read and written.
 //!
-//! The scores and the choice of mods are each a small file in the game's
-//! folder under Application Support. Neither is worth stopping anyone
-//! playing for, so a file that is missing or damaged reads as nothing kept.
+//! The scores, the choice of mods and the tournament are each a small file
+//! in the player's own folder for the game (see [`locate::own_folder`]).
+//! None is worth stopping anyone playing for, so a file that is missing or
+//! damaged reads as nothing kept.
 //! A file is written beside where it goes and then moved into place, so
 //! that a run cut short in the middle of writing leaves the old file whole.
 
@@ -13,18 +14,12 @@ use anyhow::{Context, Result};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 
-use crate::locate::APP_ID;
+use crate::locate;
 
-/// Where a file of this name is kept. `None` if there is no home folder to
-/// keep it under.
+/// Where a file of this name is kept. `None` if the machine does not say
+/// where the player's folders are.
 pub fn usual_file(name: &str) -> Option<PathBuf> {
-    let home = std::env::var_os("HOME")?;
-    Some(
-        PathBuf::from(home)
-            .join("Library/Application Support")
-            .join(APP_ID)
-            .join(name),
-    )
+    Some(locate::own_folder()?.join(name))
 }
 
 /// Reads what was kept in `file`. `None` if it is missing or cannot be

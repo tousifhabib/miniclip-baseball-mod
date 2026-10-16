@@ -23,8 +23,9 @@ use clap::Parser;
 #[command(about = "Plays the baseball game")]
 struct Args {
     /// The folder that holds the art. Without this, the game looks inside
-    /// its own app bundle, then in its folder under Application Support,
-    /// then beside the program, then for `extracted` where it was started.
+    /// its own Mac app bundle, then in the player's own folder for the game
+    /// (under Application Support on a Mac, in %APPDATA% on Windows), then
+    /// beside the program, then for `extracted` where it was started.
     dir: Option<PathBuf>,
     /// Play no sound.
     #[arg(long)]

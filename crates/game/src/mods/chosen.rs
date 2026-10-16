@@ -78,8 +78,8 @@ impl Mods {
         }
     }
 
-    /// Where the choice is kept: beside the scores, in the game's folder
-    /// under Application Support.
+    /// Where the choice is kept: beside the scores, in the player's own
+    /// folder for the game.
     pub fn usual_file() -> Option<PathBuf> {
         kept::usual_file("mods.toml")
     }
