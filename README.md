@@ -23,6 +23,7 @@ anywhere else. Miniclip does not run or support this project.
 | `crates/format` | The types the art's files are read into |
 | `crates/modtools` | Tools for working on the art |
 | `scripts/bundle-mac.sh` | Builds the Mac app |
+| `scripts/bundle-windows.ps1` | Builds the Windows app |
 | `scripts/check.sh` | Everything a change has to pass, in one go |
 | `scripts/as-it-was.sh` | Plays the record of whole games to the end |
 | `assets/icon.svg` | The app's icon |
@@ -36,6 +37,9 @@ edit.
 
 Needs Rust, by way of `rustup`. `rust-toolchain.toml` names the version the
 code is written for, and `rustup` fetches it the first time it is wanted.
+On Windows Rust also needs Microsoft's C++ build tools, with a Windows SDK:
+the C++ workload of Visual Studio, or of the Build Tools for Visual Studio,
+has both.
 
 ```bash
 cargo run --release -p bb-game
@@ -62,9 +66,25 @@ scripts/bundle-mac.sh
 open "target/app/Baseball Mod.app"
 ```
 
+To build it as a Windows app, from PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\bundle-windows.ps1
+& "target\app\Baseball Mod\Baseball Mod.exe"
+```
+
+That makes a folder, `target\app\Baseball Mod`, with the program and the
+art beside it, which can be put anywhere, and the same folder as a zip. The
+program needs nothing else put on the machine to run. It opens no console
+window of its own, and if it cannot start it says why in a dialog. It is
+not signed, so Windows asks before running a copy that came from the
+internet.
+
 The app is called Baseball Mod and keeps its scores, its choice of mods and
 its tournament apart from the vanilla game's, so both can be installed side
-by side.
+by side. They are kept in the player's own folder for it: on a Mac
+`~/Library/Application Support/io.github.tousifhabib.baseball-mod`, and on
+Windows `%APPDATA%\io.github.tousifhabib.baseball-mod`.
 
 ## How far a hit goes
 
@@ -706,6 +726,9 @@ from.
 scripts/check.sh
 ```
 
+On Windows this and the other scripts in `scripts/` that end in `.sh` are
+run from Git Bash, which comes with Git for Windows.
+
 That lays nothing out afresh but checks that `cargo fmt` would not, that
 no file of code has grown past three hundred lines, runs clippy with
 anything it says counted as a failure, runs the tests, builds the docs and
@@ -741,6 +764,14 @@ afresh, in a commit of its own that says why:
 ```bash
 BB_WRITE_DOWN=1 scripts/as-it-was.sh
 ```
+
+The record is kept for two kinds of machine, since a few of the game's sums
+come out differently in the last place on each: a Mac with Apple's own
+processor, in `aarch64-macos`, and Windows on an x86-64 one, in
+`x86_64-windows`. A change that alters the game writes both down. With only
+one kind to hand, the workflow called "write down the record" does it on
+GitHub's machines (`gh workflow run write-down.yml --ref BRANCH`) and
+leaves each kind's folder in the run's artifacts.
 
 The record sees what is on the stage, not how it comes out as pixels. For a
 change to the drawing, draw the same pictures before it and after it and

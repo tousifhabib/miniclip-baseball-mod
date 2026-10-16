@@ -31,6 +31,8 @@ impl View {
         let attributes = Window::default_attributes()
             .with_title(title)
             .with_inner_size(LogicalSize::new(stage.width, stage.height));
+        #[cfg(windows)]
+        let attributes = with_own_icon(attributes);
         let window = Arc::new(
             event_loop
                 .create_window(attributes)
@@ -55,6 +57,13 @@ impl View {
         if let Some(format) = formats.into_iter().find(|format| !format.is_srgb()) {
             config.format = format;
         }
+        // Every picture waits for the screen. The pace counts redraws, and
+        // plays a frame of the game every so many of them, which only keeps
+        // time if each redraw is one of the screen's. A card's first offer
+        // is not always that: on Windows it is to draw as fast as it can and
+        // show the newest picture, which drew some three hundred a second
+        // on a screen of sixty, out of step with it, and play juddered.
+        config.present_mode = wgpu::PresentMode::Fifo;
         // Keep one finished picture waiting for the screen and no more. A
         // frame takes a small part of a redraw to draw, so a longer queue
         // would only put more time between a click and what it does.
@@ -84,4 +93,16 @@ impl View {
             egui_renderer,
         })
     }
+}
+
+/// The window's attributes with the program's own icon on its title bar and
+/// in the taskbar, where the program has one built into it. Windows gives a
+/// window no icon of its own otherwise, and draws a blank one there.
+#[cfg(windows)]
+fn with_own_icon(attributes: winit::window::WindowAttributes) -> winit::window::WindowAttributes {
+    use winit::platform::windows::{IconExtWindows, WindowAttributesExtWindows};
+    use winit::window::Icon;
+    // The first of a program's icons is the one Windows shows for it.
+    let own = || Icon::from_resource(1, None).ok();
+    attributes.with_window_icon(own()).with_taskbar_icon(own())
 }

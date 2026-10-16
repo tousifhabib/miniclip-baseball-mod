@@ -32,8 +32,7 @@ impl Scores {
     /// How many scores are kept.
     pub const KEPT: usize = 10;
 
-    /// Where the table is kept: in the game's folder under Application
-    /// Support.
+    /// Where the table is kept: in the player's own folder for the game.
     pub fn usual_file() -> Option<PathBuf> {
         kept::usual_file("scores.toml")
     }

@@ -10,3 +10,11 @@ tidy = "fmt --all"
 art-check = "run --release -p bb-modtools --bin extracted-check -- extracted"
 # Builds the docs of everything, what is private included.
 docs = "doc --no-deps --document-private-items"
+
+# On Windows the C runtime is built into every program, the tests' as well
+# as the app's. The app then runs on a machine that has never had
+# Microsoft's runtime for C++ put on it, and the mathematics the record of
+# whole games depends on is the program's own, not whatever version of
+# Windows' the machine it runs on has.
+[target.'cfg(all(windows, target_env = "msvc"))']
+rustflags = ["-C", "target-feature=+crt-static"]
