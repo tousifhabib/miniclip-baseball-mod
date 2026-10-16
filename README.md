@@ -733,6 +733,9 @@ from.
 scripts/check.sh
 ```
 
+On Windows this and the other scripts in `scripts/` that end in `.sh` are
+run from Git Bash, which comes with Git for Windows.
+
 That lays nothing out afresh but checks that `cargo fmt` would not, that
 no file of code has grown past three hundred lines, runs clippy with
 anything it says counted as a failure, runs the tests, builds the docs and
@@ -768,6 +771,14 @@ afresh, in a commit of its own that says why:
 ```bash
 BB_WRITE_DOWN=1 scripts/as-it-was.sh
 ```
+
+The record is kept for two kinds of machine, since a few of the game's sums
+come out differently in the last place on each: a Mac with Apple's own
+processor, in `aarch64-macos`, and Windows on an x86-64 one, in
+`x86_64-windows`. A change that alters the game writes both down. With only
+one kind to hand, the workflow called "write down the record" does it on
+GitHub's machines (`gh workflow run write-down.yml --ref BRANCH`) and
+leaves each kind's folder in the run's artifacts.
 
 The record sees what is on the stage, not how it comes out as pixels. For a
 change to the drawing, draw the same pictures before it and after it and
