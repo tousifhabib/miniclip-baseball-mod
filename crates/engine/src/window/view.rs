@@ -57,6 +57,13 @@ impl View {
         if let Some(format) = formats.into_iter().find(|format| !format.is_srgb()) {
             config.format = format;
         }
+        // Every picture waits for the screen. The pace counts redraws, and
+        // plays a frame of the game every so many of them, which only keeps
+        // time if each redraw is one of the screen's. A card's first offer
+        // is not always that: on Windows it is to draw as fast as it can and
+        // show the newest picture, which drew some three hundred a second
+        // on a screen of sixty, out of step with it, and play juddered.
+        config.present_mode = wgpu::PresentMode::Fifo;
         // Keep one finished picture waiting for the screen and no more. A
         // frame takes a small part of a redraw to draw, so a longer queue
         // would only put more time between a click and what it does.
