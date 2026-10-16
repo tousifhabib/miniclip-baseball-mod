@@ -50,6 +50,12 @@ fi
 
 mkdir -p "$1"
 out=$(cd "$1" && pwd)
+# Under Git Bash on Windows the game is a Windows program. Bash turns a
+# path of its own into one of Windows' when the path is a whole argument,
+# but not inside the steps of `--run`, so the folder is said Windows' way.
+if command -v cygpath >/dev/null; then
+    out=$(cygpath -m "$out")
+fi
 cd "$root"
 
 cargo build --release -p bb-game -p bb-engine -p bb-modtools
