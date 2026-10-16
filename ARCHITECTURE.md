@@ -306,6 +306,7 @@ itself.
 | A word the art's files may hold | Its type in `bb-format`, made with `words!` |
 | A step of the script language | `Step` in `script/step.rs` |
 | Something kept between runs | `kept.rs` reads and writes it |
+| Something done one way on a Mac and another on Windows | `locate.rs` for where things are, `alert.rs` for telling a player who has no terminal, and the two scripts that build the apps |
 | A helper two files of played tests both want | `crates/game/tests/common`, once |
 
 ## What is not finished
@@ -316,10 +317,12 @@ smaller, and of the same kind as what has been done already.
 The limits in `clippy.toml` are at a hundred lines and six deep, and could
 come down further: the pages of a full match's boards are the longest
 functions left, and the test that reads those pages is the most tangled.
-The record of whole games is kept for one kind of machine, and on any
-other it only checks that a game plays the same twice. The workflow in
-`.github/` runs everything on each push, on one of GitHub's Macs, whose
-sums have agreed with the record every time so far.
+The record of whole games is kept for two kinds of machine, a Mac with
+Apple's own processor and Windows on an x86-64 one, and on any other it
+only checks that a game plays the same twice. The workflow in `.github/`
+runs everything on each push, on one of GitHub's Macs and one of its
+Windows machines, and a second workflow writes the record down afresh on
+both when it is asked to.
 
 ## Found on the way
 
