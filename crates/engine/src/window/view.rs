@@ -31,6 +31,8 @@ impl View {
         let attributes = Window::default_attributes()
             .with_title(title)
             .with_inner_size(LogicalSize::new(stage.width, stage.height));
+        #[cfg(windows)]
+        let attributes = with_own_icon(attributes);
         let window = Arc::new(
             event_loop
                 .create_window(attributes)
@@ -90,4 +92,16 @@ impl View {
         let millihertz = self.window.current_monitor()?.refresh_rate_millihertz()?;
         (millihertz > 0).then(|| std::time::Duration::from_secs_f64(1000.0 / f64::from(millihertz)))
     }
+}
+
+/// The window's attributes with the program's own icon on its title bar and
+/// in the taskbar, where the program has one built into it. Windows gives a
+/// window no icon of its own otherwise, and draws a blank one there.
+#[cfg(windows)]
+fn with_own_icon(attributes: winit::window::WindowAttributes) -> winit::window::WindowAttributes {
+    use winit::platform::windows::{IconExtWindows, WindowAttributesExtWindows};
+    use winit::window::Icon;
+    // The first of a program's icons is the one Windows shows for it.
+    let own = || Icon::from_resource(1, None).ok();
+    attributes.with_window_icon(own()).with_taskbar_icon(own())
 }
