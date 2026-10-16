@@ -15,8 +15,10 @@ const THE_START: u32 = 1_800;
 /// Where a group's sums are written down for this kind of machine.
 pub(super) fn record(group: &str) -> PathBuf {
     let machine = format!("{}-{}", std::env::consts::ARCH, std::env::consts::OS);
+    // A part at a time, so that Windows names it with its own separators.
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("tests/as_it_was")
+        .join("tests")
+        .join("as_it_was")
         .join(machine)
         .join(format!("{group}.txt"))
 }
