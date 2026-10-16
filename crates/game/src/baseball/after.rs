@@ -1,6 +1,7 @@
 //! The screens a game leaves behind it: the board between innings, and
 //! the lines of the result.
 
+use bb_engine::display::Path;
 use bb_engine::stage::Stage;
 
 use super::Baseball;
@@ -20,18 +21,12 @@ const ZINGER_LINE_SIZE: f32 = 0.8;
 const ZINGER_LINE_COLOUR: Rgb = look::CREAM;
 
 impl Baseball {
-    /// While the board between innings is up, keeps the art's own words
-    /// off it, and writes the full match's once the board has arrived.
-    pub(super) fn show_interval(&mut self, stage: &mut Stage) {
-        if self.screen != Screen::Interval {
-            return;
-        }
-        let Some(path) = art::in_shell(stage, art::BOARD) else {
-            return;
-        };
-        let Some(clip) = stage.clip(&path) else {
-            return;
-        };
+    /// Keeps the art's own words off the board it has for an innings that
+    /// was tied, which a full match and a tournament each write their own
+    /// on. Returns where the board is, and whether it has arrived.
+    pub(super) fn clear_the_board(stage: &mut Stage) -> Option<(Path, bool)> {
+        let path = art::in_shell(stage, art::BOARD)?;
+        let clip = stage.clip(&path)?;
         let arrived = clip.frame >= art::BOARD_WORDS_FRAME;
         let theirs: Vec<u16> = clip
             .children
@@ -46,6 +41,18 @@ impl Baseball {
                 child.set_visible(false);
             }
         }
+        Some((path, arrived))
+    }
+
+    /// While the board between innings is up, keeps the art's own words
+    /// off it, and writes the full match's once the board has arrived.
+    pub(super) fn show_interval(&mut self, stage: &mut Stage) {
+        if self.screen != Screen::Interval {
+            return;
+        }
+        let Some((path, arrived)) = Baseball::clear_the_board(stage) else {
+            return;
+        };
         if !arrived || self.board.is_some() {
             return;
         }
@@ -130,10 +137,14 @@ impl Baseball {
     }
 
     /// Takes in a click on the button at `path`, which may be one of the
-    /// arrows that turn the pages of a finished full match.
+    /// arrows that turn the pages of a finished full match, or one of the
+    /// buttons on a tournament's tables.
     pub(super) fn turn_page(&mut self, path: &[u16], stage: &mut Stage) {
         if let Some(pages) = &mut self.pages {
             pages.clicked(path, stage);
+        }
+        if let Some(tables) = &mut self.tables {
+            tables.clicked(path, stage);
         }
     }
 }

@@ -96,6 +96,7 @@ fn start(game: &Game) -> Option<(Script, Sounds)> {
     if let Some(ground) = game.ground {
         baseball.play_on(ground);
     }
+    baseball.choose_tournament(game.shape, None);
     let sounds = Sounds::default();
     let listening = Box::new(Listening {
         game: baseball,

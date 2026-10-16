@@ -9,7 +9,8 @@ use common::{game, state_after};
 
 /// Where things are on the menu's pages, in stage pixels.
 const BOTTOM_OF_THE_NINTH: &str = "click 200 181";
-const ARCADE: &str = "click 200 252";
+const TOURNAMENT: &str = "click 200 240";
+const ARCADE: &str = "click 200 271";
 const MODS: &str = "click 330 360";
 /// The arrows that turn the pages of the list of mods, on and back.
 const NEXT_PAGE: &str = "click 419 290";
@@ -17,6 +18,37 @@ const LAST_PAGE: &str = "click 338 290";
 const NEXT: &str = "click 490 362";
 const BACK: &str = "click 290 362";
 const PLAY_BALL: &str = "click 480 362";
+
+#[test]
+fn each_of_the_seven_rows_of_the_first_page_leads_to_its_own() {
+    let Some(mut script) = game("menu") else {
+        return;
+    };
+    script.run("wait 60").unwrap();
+    // From the top down, with where each leads. All but the last have a
+    // button that leads back.
+    let rows = [
+        (BOTTOM_OF_THE_NINTH, "Menu, MatchSetup, Medium"),
+        ("click 200 216", "Menu, FullSetup, Medium"),
+        (
+            TOURNAMENT,
+            "Menu, TournamentSetup, Medium: groups, 3 innings",
+        ),
+        (ARCADE, "Menu, ArcadeSetup, Medium"),
+        ("click 250 303", "Menu, HighScores, Medium"),
+        (MODS, "Menu, Mods, Medium"),
+    ];
+    for (row, page) in rows {
+        assert_eq!(
+            state_after(&mut script, &format!("{row}; wait 90; state")),
+            page
+        );
+        let back = format!("{BACK}; wait 90; state");
+        assert_eq!(state_after(&mut script, &back), "Menu, Main, Medium");
+    }
+    let instructions = state_after(&mut script, "click 300 335; wait 90; state");
+    assert_eq!(instructions, "Instructions, Medium");
+}
 
 #[test]
 fn the_menu_leads_through_setup_to_a_match() {

@@ -7,14 +7,14 @@ one innings home, no mods	2400	c557bea2e4a6f71c	0bc622b4c0961274	f4d7996c032a53c
 one innings home, no mods	3000	ae48a3a675f99f6d	0e40977bc0e8bbed	4a46cfe0bb37d94f
 one innings home, no mods	3600	0cc97dd1a8c5c449	14342f750b0c159e	c9717c5ebe677843
 one innings home, no mods	4200	9c135bcca6b7800e	8e4386b26661265e	943cec6b5db01b20
-one innings home, no mods	4800	e0e08b7461143d2c	f706461238fbaa8f	c6af563a071d5e33
-one innings home, no mods	4875	5543caaf7ecf1f91	a78d654773f28677	d0335c64eeae2c23
+one innings home, no mods	4800	e0e08b7461143d2c	363a46683cbc1853	3a0c0a1d352fcce3
+one innings home, no mods	4875	5543caaf7ecf1f91	bad8c0483b8cd320	310f98cbd4174c87
 one innings home, every mod	600	64966b7cf2c796a1	f6cd3925d2702b00	6d09c7cdb521f734
 one innings home, every mod	1200	57a72845e793611c	4fd460c2d636611f	be456924598e6be3
 one innings home, every mod	1800	444a7823d7ac4529	4f764aac5607c9c7	26e21ce6adfcdc63
 one innings home, every mod	2400	0c603a0308697959	8f9ae7f9e150e678	6a9947ceeb285231
-one innings home, every mod	3000	1981953f2ec52bbe	9ed34fe701835551	d9917d8da9ba0470
-one innings home, every mod	3125	a51a9832d81b2c0b	2365d890320c4916	3e1d5fffcf68a80e
+one innings home, every mod	3000	0ad0f1031f67ac9e	27d7992e4b7bec44	f2930f00c9f5a09d
+one innings home, every mod	3125	0263e8e138093ff5	542d2fc606846e46	ecd18b9a061139ae
 one innings away, no mods	600	fa38c5d91869cd0b	9f7a8a7771156fba	820c40fa607fbcf2
 one innings away, no mods	1200	6ec17d4204567dd8	55dd9a193acaa40c	ebc8d876252e42a2
 one innings away, no mods	1800	b1199038904fbf70	6cb61bcb90e066c8	617617f06b279c58
@@ -24,7 +24,7 @@ one innings away, no mods	3600	6af5ccd9b9858e12	38f2a1e7ccac0755	e66d8519b0ea964
 one innings away, no mods	4200	0945ad6ef6761b1a	313c34f8572f10f7	be0e9b152f99392b
 one innings away, no mods	4800	c65cdcd278abc192	53d22855eac05d97	cab23187c15e67ff
 one innings away, no mods	5400	e84a429f9d194d23	e19c7a1ae3649ab7	efee7dec672d3be5
-one innings away, no mods	5893	bb0718ca02206fed	b87a1a3936614bd0	05093d6c6ee126e7
+one innings away, no mods	5893	20e8266a0547e126	0ae3b458969249d3	5882a1e5b21f30dc
 one innings away, every mod	600	3d37346915654b0b	7b4ff02ccdb91230	0fab95594596a8b6
 one innings away, every mod	1200	15485eea9cfed55b	5becd7af9c45b43e	995ccabd9ffede71
 one innings away, every mod	1800	8a38ac53f2a7b234	fdbb4a4956817438	471970bf5c148d90
@@ -33,5 +33,5 @@ one innings away, every mod	3000	8f8741bf1fd76b45	621f8b75f275b761	55de85a315c63
 one innings away, every mod	3600	1ed22e4b245036bc	7a17bb6b4769dba9	834bd98da007465f
 one innings away, every mod	4200	b3bffe6be2d6ca7a	8393c524f709f53c	c711af1ca3cf20d2
 one innings away, every mod	4800	5be2790b244ca1dc	e817765eb77be904	c5e2af9597fe9da4
-one innings away, every mod	5400	53d7bcad4e1df672	91e8a07767b22203	46c5d0fef52538d9
-one innings away, every mod	5463	f8d90e060d527599	6ba4ca8710ab5d2d	5ede8f781aec0f50
+one innings away, every mod	5400	e553652925b85b35	82d753944b1234bc	1e1802ae9f3c64b9
+one innings away, every mod	5463	54554b4e81713f1b	30a6e97ebf6705e8	6158d73562b31d5f

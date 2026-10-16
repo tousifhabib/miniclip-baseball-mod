@@ -4,8 +4,9 @@
 use bb_game::mods::Mod;
 use bb_game::rules::Rules;
 use bb_game::settings::Ground;
+use bb_game::tournament::Format;
 
-use super::{By, Game, ONE_INNINGS, TWO_INNINGS};
+use super::{A_SHORT_TOURNAMENT, By, Game, ONE_INNINGS, TWO_INNINGS};
 use crate::players::Dice;
 
 /// A one-innings full match with every mod on, played to its end and its
@@ -34,8 +35,8 @@ pub fn finished_matches() -> Vec<Game> {
         .collect()
 }
 
-/// Games played by a monkey: a dozen of each kind and of the menu, each with
-/// whatever mods its own dice turn up.
+/// Games played by a monkey: a dozen of each kind, of the menu and of a
+/// tournament's tables, each with whatever mods its own dice turn up.
 pub fn monkeys() -> Vec<Game> {
     let rules = Rules::default();
     let mut games = Vec::new();
@@ -44,6 +45,7 @@ pub fn monkeys() -> Vec<Game> {
         ("arcade", "arcade"),
         ("full match", "fullMatch"),
         ("menu", "menu"),
+        ("tournament", "tournament"),
     ] {
         for monkey in 0..12 {
             let seed = 400 + games.len() as u64;
@@ -54,9 +56,16 @@ pub fn monkeys() -> Vec<Game> {
                 .filter(|which| which.levels(&rules) > 0)
                 .map(|&which| (which, 1 + dice.below(u32::from(which.levels(&rules))) as u8))
                 .collect();
+            // A tournament is of each shape in turn, with short matches.
+            let of_a_tournament = screen == "tournament";
             games.push(Game {
                 levels,
-                rules: TWO_INNINGS,
+                shape: of_a_tournament.then(|| Format::ALL[monkey % Format::ALL.len()]),
+                rules: if of_a_tournament {
+                    A_SHORT_TOURNAMENT
+                } else {
+                    TWO_INNINGS
+                },
                 by: By::Monkey,
                 most: 9_600,
                 ..Game::new(format!("monkey {monkey}, {called}"), screen, seed, &mods)

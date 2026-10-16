@@ -13,6 +13,7 @@ use bb_game::mods::Mod;
 use bb_game::rules::Rules;
 use bb_game::script::Script;
 use bb_game::settings::Ground;
+use bb_game::tournament::Format;
 
 /// The folder that holds the art, if it is there.
 fn extracted() -> Option<PathBuf> {
@@ -40,19 +41,35 @@ pub fn game_with(screen: &str, seed: Option<u64>) -> Option<Script> {
 
 /// The same, played by `rules` instead of the ones built in.
 pub fn game_ruled(screen: &str, seed: Option<u64>, rules: Option<Rules>) -> Option<Script> {
-    game_made(screen, seed, rules, &[], None, None, None)
+    let start = Start {
+        seed,
+        rules,
+        ..Start::default()
+    };
+    game_made(screen, start)
 }
 
 /// The game opened on a screen, with these mods switched on.
 pub fn game_modded(screen: &str, seed: u64, mods: &[Mod]) -> Option<Script> {
-    game_made(screen, Some(seed), None, mods, None, None, None)
+    let start = Start {
+        seed: Some(seed),
+        mods,
+        ..Start::default()
+    };
+    game_made(screen, start)
 }
 
 /// A full match with these mods on, played at home or away, by `rules` if
 /// any are given.
 pub fn full_match(seed: u64, ground: Ground, mods: &[Mod], rules: Option<Rules>) -> Option<Script> {
-    let screen = Screen::FULL_MATCH;
-    game_made(screen, Some(seed), rules, mods, None, None, Some(ground))
+    let start = Start {
+        seed: Some(seed),
+        rules,
+        mods,
+        ground: Some(ground),
+        ..Start::default()
+    };
+    game_made(Screen::FULL_MATCH, start)
 }
 
 /// The rules of a full match of this many innings, in which the other side
@@ -89,39 +106,109 @@ pub fn long_match_ruled(seed: u64, mods: &[Mod], layer: &str) -> Option<Script> 
     let long = "[match]\nouts = 30\n[match.runs_down]\neasy = 40\nmedium = 40\nhard = 40\n";
     let rules = Rules::layered(&[("a long match", long), ("the test's own rules", layer)])
         .expect("rules that read");
-    game_made("match", Some(seed), Some(rules), mods, None, None, None)
+    let start = Start {
+        seed: Some(seed),
+        rules: Some(rules),
+        mods,
+        ..Start::default()
+    };
+    game_made("match", start)
 }
 
 /// The same, keeping its scores in `scores` and starting from what is
 /// there.
 pub fn game_keeping(screen: &str, seed: u64, mods: &[Mod], scores: &Path) -> Option<Script> {
-    game_made(screen, Some(seed), None, mods, Some(scores), None, None)
+    let start = Start {
+        seed: Some(seed),
+        mods,
+        scores: Some(scores),
+        ..Start::default()
+    };
+    game_made(screen, start)
 }
 
 /// The game opened on a screen with one mod switched on, its setting at
 /// `level`, and the timing bar, which says when to swing.
 pub fn game_levelled(screen: &str, seed: u64, which: Mod, level: u8) -> Option<Script> {
     let mods = [Mod::TimingIndicator, which];
-    game_made(
-        screen,
-        Some(seed),
-        None,
-        &mods,
-        None,
-        Some((which, level)),
-        None,
-    )
+    let start = Start {
+        seed: Some(seed),
+        mods: &mods,
+        level: Some((which, level)),
+        ..Start::default()
+    };
+    game_made(screen, start)
 }
 
-fn game_made(
-    screen: &str,
-    seed: Option<u64>,
-    rules: Option<Rules>,
+/// A tournament of this shape, with matches of this many innings, opened
+/// on its tables with this many of its fixtures played on paper already,
+/// the player's own among them.
+pub fn tournament(seed: u64, format: Format, innings: u32, played: usize) -> Option<Script> {
+    let start = Start {
+        seed: Some(seed),
+        tournament: Some((format, innings, played)),
+        ..Start::default()
+    };
+    game_made(Screen::TOURNAMENT, start)
+}
+
+/// A tournament of this shape opened on its tables with nothing played,
+/// with these mods on. Its matches are of one innings, in which every
+/// other side makes one run for each innings' worth it is given, so that
+/// a match is soon lost by a side that makes none and won by one that
+/// makes two.
+pub fn short_tournament(seed: u64, format: Format, mods: &[Mod]) -> Option<Script> {
+    short_tournament_kept(seed, format, mods, None)
+}
+
+/// The same, kept in `file` if one is given, and starting from the
+/// tournament that is there if there is one.
+pub fn short_tournament_kept(
+    seed: u64,
+    format: Format,
     mods: &[Mod],
-    scores: Option<&Path>,
-    level: Option<(Mod, u8)>,
-    ground: Option<Ground>,
+    file: Option<&Path>,
 ) -> Option<Script> {
+    let one = "[0, 1]";
+    let text = format!(
+        "[tournament]\ninnings = [1]\n[full_match.runs]\neasy = {one}\nmedium = {one}\nhard = {one}\n"
+    );
+    let rules = Rules::layered(&[("a short tournament", &text)]).expect("rules that read");
+    let start = Start {
+        seed: Some(seed),
+        rules: Some(rules),
+        mods,
+        tournament: Some((format, 1, 0)),
+        tournament_file: file,
+        ..Start::default()
+    };
+    game_made(Screen::TOURNAMENT, start)
+}
+
+/// What a game is started with, besides the screen it opens on. Whatever
+/// a test does not set is as the game has it.
+#[derive(Default)]
+struct Start<'a> {
+    /// What the game's chances are worked out from, if not the clock.
+    seed: Option<u64>,
+    /// The rules it is played by, if not the ones built in.
+    rules: Option<Rules>,
+    /// The mods that are switched on.
+    mods: &'a [Mod],
+    /// Where it keeps its scores.
+    scores: Option<&'a Path>,
+    /// A mod's setting, and the level it is at.
+    level: Option<(Mod, u8)>,
+    /// Where a full match is played.
+    ground: Option<Ground>,
+    /// The shape of a tournament, how many innings its matches have, and
+    /// how many of its fixtures are played on paper as it is drawn.
+    tournament: Option<(Format, u32, usize)>,
+    /// Where the tournament is kept.
+    tournament_file: Option<&'a Path>,
+}
+
+fn game_made(screen: &str, start: Start<'_>) -> Option<Script> {
     let Some(library) = ART.clone() else {
         eprintln!("skipped: there is no extracted art to play");
         return None;
@@ -129,23 +216,30 @@ fn game_made(
     let mut logic = Box::new(Baseball::new(&library));
     let stage = Stage::new(None, library);
     logic.start_on(Screen::from_label(screen).expect("a screen with that label"));
-    if let Some(seed) = seed {
+    if let Some(seed) = start.seed {
         logic.seed(seed);
     }
-    if let Some(rules) = rules {
+    if let Some(rules) = start.rules {
         logic.play_by(rules);
     }
-    for &which in mods {
+    for &which in start.mods {
         logic.switch_mod(which, true);
     }
-    if let Some(scores) = scores {
+    if let Some(scores) = start.scores {
         logic.keep_scores_in(scores.to_owned());
     }
-    if let Some((which, level)) = level {
+    if let Some((which, level)) = start.level {
         logic.set_mod_level(which, level);
     }
-    if let Some(ground) = ground {
+    if let Some(ground) = start.ground {
         logic.play_on(ground);
+    }
+    if let Some(file) = start.tournament_file {
+        logic.keep_tournament_in(file.to_owned());
+    }
+    if let Some((format, innings, played)) = start.tournament {
+        logic.choose_tournament(Some(format), Some(innings));
+        logic.play_on_paper(played);
     }
     let runner = Runner::new(stage, logic, None);
     Some(Script::new(runner).expect("a renderer with no window"))

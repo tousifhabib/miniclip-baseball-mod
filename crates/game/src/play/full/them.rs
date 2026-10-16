@@ -25,12 +25,15 @@ pub(crate) struct Them {
     /// The board is the one over the field, which draws its home runs
     /// over its figures without taking them off.
     field: bool,
+    /// What the other side is called, in the few letters there is room
+    /// for.
+    says: String,
 }
 
 impl Them {
-    /// Puts the word on both of a view's scoreboards. It is not seen until
-    /// it is kept.
-    pub fn put(parts: &Parts, stage: &mut Stage) -> Vec<Them> {
+    /// Puts the word on both of a view's scoreboards: `says`, which is
+    /// what the other side is called. It is not seen until it is kept.
+    pub fn put(parts: &Parts, says: &str, stage: &mut Stage) -> Vec<Them> {
         let boards = [(&parts.scoreboard, false), (&parts.field_scoreboard, true)];
         let mut put = Vec::new();
         for (board, field) in boards {
@@ -44,6 +47,7 @@ impl Them {
                     board: board.clone(),
                     words,
                     field,
+                    says: says.to_owned(),
                 });
             }
         }
@@ -71,7 +75,7 @@ impl Them {
             }
         }
         if showing {
-            self.words.say("THEM", THEM_COLOUR, stage);
+            self.words.say(&self.says, THEM_COLOUR, stage);
         } else {
             self.words.hide(stage);
         }

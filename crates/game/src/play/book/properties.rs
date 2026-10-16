@@ -78,86 +78,6 @@ fn any_side() -> impl Strategy<Value = Side> {
     })
 }
 
-/// Every count there is in a set of figures. The longest ball is not
-/// one: it is the longest, not how many.
-fn counts(figures: &Figures) -> Vec<u32> {
-    // Taken apart by name, so that a count added to the figures has to
-    // be added here before this will build.
-    let Figures {
-        turns,
-        at_bats,
-        runs,
-        hits,
-        singles,
-        doubles,
-        triples,
-        home_runs,
-        total_bases,
-        runs_in,
-        walks,
-        strikeouts,
-        sacrifices,
-        double_plays,
-        left,
-        chances,
-        chances_taken,
-        two_out_runs,
-        pitches,
-        strikes,
-        called,
-        swinging,
-        fouls,
-        swings,
-        outside,
-        chases,
-        in_play,
-        flies,
-        grounders,
-        thirds: [to_left, to_centre, to_right],
-        feet,
-        longest: _,
-        stolen,
-        caught,
-    } = *figures;
-    vec![
-        turns,
-        at_bats,
-        runs,
-        hits,
-        singles,
-        doubles,
-        triples,
-        home_runs,
-        total_bases,
-        runs_in,
-        walks,
-        strikeouts,
-        sacrifices,
-        double_plays,
-        left,
-        chances,
-        chances_taken,
-        two_out_runs,
-        pitches,
-        strikes,
-        called,
-        swinging,
-        fouls,
-        swings,
-        outside,
-        chases,
-        in_play,
-        flies,
-        grounders,
-        to_left,
-        to_centre,
-        to_right,
-        feet,
-        stolen,
-        caught,
-    ]
-}
-
 proptest! {
     #[test]
     fn the_figures_of_two_lists_of_turns_add_up_to_the_figures_of_both_together(
@@ -166,14 +86,11 @@ proptest! {
     ) {
         let (one, other) = (Figures::of(first.iter()), Figures::of(second.iter()));
         let both = Figures::of(first.iter().chain(&second));
-        let added: Vec<u32> = counts(&one)
-            .iter()
-            .zip(counts(&other))
-            .map(|(one, other)| one + other)
-            .collect();
-        prop_assert_eq!(counts(&both), added);
-        // The longest ball of them all is the longer of the two longest.
-        prop_assert_eq!(both.longest, one.longest.max(other.longest));
+        // Every count is the two counts together, and the longest ball of
+        // them all is the longer of the two longest.
+        let mut added = one;
+        added += other;
+        prop_assert_eq!(added, both);
     }
 
     #[test]
@@ -252,18 +169,9 @@ proptest! {
     #[test]
     fn what_the_nine_batters_did_adds_up_to_what_their_side_did(side in any_side()) {
         let whole = side.figures();
-        let each: Vec<Figures> = (0..ORDER).map(|order| side.figures_of(order)).collect();
-        let mut added = vec![0; counts(&whole).len()];
-        for figures in &each {
-            for (sum, count) in added.iter_mut().zip(counts(figures)) {
-                *sum += count;
-            }
-        }
+        let each: Figures = (0..ORDER).map(|order| side.figures_of(order)).sum();
         // But for the runners left on base, who are the side's and no
         // one batter's.
-        let but_left = Figures { left: 0, ..whole };
-        prop_assert_eq!(added, counts(&but_left));
-        let longest = each.iter().map(|figures| figures.longest).max();
-        prop_assert_eq!(longest, Some(whole.longest));
+        prop_assert_eq!(each, Figures { left: 0, ..whole });
     }
 }

@@ -1,9 +1,5 @@
-use proptest::prelude::*;
-
 use super::*;
 use crate::play::book::Figures;
-// By name, because all of what proptest offers includes an `Rng` of its
-// own.
 use crate::rng::Rng;
 use crate::rules::Rules;
 
@@ -11,7 +7,7 @@ fn played(made: u32, winning: bool, first_up: usize, seed: u64) -> Half {
     played_by(made, winning, first_up, seed, None)
 }
 
-fn played_by(
+pub(super) fn played_by(
     made: u32,
     winning: bool,
     first_up: usize,
@@ -30,7 +26,7 @@ fn played_by(
 }
 
 /// Checks everything that has to be so of a half however it went.
-fn sound(half: &Half, made: u32, winning: bool, first_up: usize) {
+pub(super) fn sound(half: &Half, made: u32, winning: bool, first_up: usize) {
     let runs_in: u32 = half.turns.iter().map(|turn| turn.runs_in).sum();
     assert_eq!(runs_in, made, "the runs that came in");
     assert_eq!(
@@ -186,6 +182,50 @@ fn without_runners_who_steal_nobody_does() {
 }
 
 #[test]
+fn halves_played_into_a_book_follow_on_from_one_another() {
+    let rules = Rules::default();
+    let (batting, steals) = (&rules.full_match.their_batting, Some(&rules.steal));
+    let ground = Ground::default();
+    let mut side = Side::default();
+    let mut up = 4;
+    let mut turns = Vec::new();
+    for innings in 1..=6 {
+        let wanted = Wanted {
+            made: innings % 3,
+            winning: false,
+            innings,
+            first_up: up,
+        };
+        up = half_into(&mut side, wanted, 21, batting, steals, &ground);
+        turns.push(side.turns.len());
+    }
+    // Six halves' worth of runs, of runners left on and of outs, with
+    // the batters coming up in order from one half to the next.
+    assert_eq!(side.runs.iter().sum::<u32>(), 1 + 2 + 1 + 2);
+    assert_eq!((side.left.len(), side.outs()), (6, 18));
+    for (index, turn) in side.turns.iter().enumerate() {
+        assert_eq!(turn.order, (4 + index) % ORDER);
+    }
+    assert_eq!(up, (4 + side.turns.len()) % ORDER);
+    // A steal is told among the turns of the innings it was made in.
+    assert!(!side.steals.is_empty(), "nobody tried for a base");
+    for steal in &side.steals {
+        let from = turns.get(steal.innings as usize - 2).copied().unwrap_or(0);
+        let to = turns[steal.innings as usize - 1];
+        assert!((from..=to).contains(&steal.at), "{steal:?}");
+    }
+    // The chances a skill level gives are drawn once for each innings'
+    // worth of runs.
+    let (mut once, mut thrice) = (Rng::new(5), Rng::new(5));
+    let full = &rules.full_match;
+    let three: u32 = (0..3)
+        .map(|_| runs_wanted(full, Difficulty::Hard, 1, &mut once))
+        .sum();
+    assert_eq!(runs_wanted(full, Difficulty::Hard, 3, &mut thrice), three);
+    assert_eq!(runs_wanted(full, Difficulty::Hard, 0, &mut thrice), 0);
+}
+
+#[test]
 fn the_same_numbers_play_the_same_half() {
     assert_eq!(played(3, false, 2, 11), played(3, false, 2, 11));
     assert_ne!(played(3, false, 2, 11), played(3, false, 2, 12));
@@ -232,32 +272,4 @@ fn an_innings_that_will_not_come_out_is_written_plainly() {
     sound(&half, 4, false, 7);
     let winning = plainly(wanted(2, true, 0), &ground);
     sound(&winning, 2, true, 0);
-}
-
-proptest! {
-    // Each case plays a half over and over until it comes out right.
-    #![proptest_config(ProptestConfig::with_cases(48))]
-
-    #[test]
-    fn any_half_played_on_paper_adds_up(
-        made in 0u32..=12,
-        winning: bool,
-        first_up in 0..ORDER,
-        seed: u64,
-        // Whether their runners steal, and if they do how often one
-        // goes for second, how much of that often for third, and how
-        // often either gets there.
-        steals in prop::option::of((0.0f32..=1.0, 0.0f32..=1.0, 0.0f32..=1.0)),
-    ) {
-        // A half that wins the match has at least the run that wins it.
-        let winning = winning && made > 0;
-        let steals = steals.map(|(their_chance, their_third, their_safe)| StealRules {
-            their_chance,
-            their_third,
-            their_safe,
-            ..Rules::default().steal
-        });
-        let half = played_by(made, winning, first_up, seed, steals.as_ref());
-        sound(&half, made, winning, first_up);
-    }
 }

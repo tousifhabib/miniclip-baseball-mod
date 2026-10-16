@@ -96,19 +96,26 @@ sounds, and in which free place on the stage a new thing takes.
 
 `baseball/` is the top: which screen is showing, and what each button
 does. It owns the menu (`menu/`), the match being played (`play/`), the
-scores and the choice of mods. Each frame it does a short list of named
-steps. Its files are the screens, the going between them, a game in
-progress, what a game leaves behind it, and the player's choices. What
-every screen works from, the rules, the player's choices and the mods that
-are on, is the `Game` in `game.rs`. Whatever writes words or puts the art's
-things on a panel, the menu, the list of mods, the table of scores and the
-boards of a full match, does it with the one `Sheet` in `sheet.rs`.
+scores, the choice of mods and the tournament in hand (`tournament/`). Each
+frame it does a short list of named steps. Its files are the screens, the
+going between them, a game in progress, what a game leaves behind it, the
+player's choices, the tournament in hand and a fixture of it, what is
+heard, and the game's account of itself. What every screen works from, the
+rules, the player's choices and the mods that are on, is the `Game` in
+`game.rs`. Whatever writes words or puts the art's things on a panel, the
+menu, the list of mods, the table of scores, the boards of a full match
+and the tables of a tournament, does it with the one `Sheet` in `sheet.rs`.
+A row of boxes to choose one thing of several by is the one `Choice` in
+`choice.rs`.
 
 The numbers the game is played by are in `rules/`, which mirrors
 `data/rules.toml`: the numbers of the game, of the ball and of the mods,
 the shapes a number comes in, the laying of one file of rules over
 another, and the check that a set can be played by. The boards of a full
-match are in `board/`, a file to a page.
+match are in `board/`, a file to a page. A tournament's tables are on a
+board of the same kind, in `board/tables/`, a file to a kind of page. The
+tables of batting, of figures and of innings are written from rows, by
+one writer each, whichever of the two the rows come from.
 
 ### A match
 
@@ -146,8 +153,11 @@ ball's flight, to the fielding and the next pitch being asked for.
 - `pitch/`, `field/`, `book/`, `paper/`, and the innings of a full match
   in `full/`, touch nothing on the stage. They are sums, and are tested as
   sums. Each has its parts in files: the pitch its timing window, the
-  field its ground and the way a fielder faces, the book a turn and the
-  figures, an innings on paper its pitches and its balls in play.
+  field its ground and the way a fielder faces, the book a turn, the
+  figures, the adding of figures together and the rows a board writes of
+  them, an innings on paper its pitches and its balls in play. `full/`
+  says once how a match ends, in `ending.rs`, which a match played wholly
+  on paper asks as well.
 - `snapshot/`: asked how it stands, a match sets down plain facts, and the
   facts print as one line. That printing, in `words.rs`, is the only place
   the words of the line and their order are fixed.
@@ -184,6 +194,42 @@ in it, and a test reads the files to keep it so. What a mod is known by on
 the menu, its key, its name and its setting, is at the top of its own file
 too, so the whole of a mod is in one place.
 
+### A tournament
+
+A tournament is made of full matches, and adds no kind of game of its own.
+`tournament/` is all sums: none of it touches the stage, and a whole
+tournament can be drawn, played out on paper and added up with no game
+running, which is how most of its tests go.
+
+- A `Tournament` keeps what was chosen for it, the sides in the order they
+  were drawn, and the card of every fixture played. Who meets whom next,
+  how the tables stand and who has won are worked out from those each time
+  they are asked for. Nothing is kept twice.
+- `format.rs` has the three shapes, `sides.rs` the draw, `schedule/` who
+  is to meet whom, and `fixtures.rs` the fixtures as far as they are
+  known. In each round the player's own comes first, so that the tables
+  are level whenever the player comes to bat.
+- A fixture of the player's is a full match played by other numbers:
+  `progress.rs` says which, the tournament's innings, the skill level it
+  was drawn at, the other side's runs leant by its strength
+  (`strength.rs`), and a seed of the fixture's own. `baseball/fixture.rs`
+  lays them over the game the match is played by, as the mods' numbers
+  are laid over it, and nothing in `play/` knows a tournament is on.
+- A fixture of other sides is a match `on_paper`: both sides doing what
+  the other side of a full match does.
+- What is kept of a match is its `card`: the runs innings by innings and
+  the figures of the nine places of each side. `table.rs` and `stats/`
+  add the cards up, as rows for a page to write, by the sums the book has
+  for a full match's own pages. `brief.rs` is the few lines the menu says,
+  and `describe.rs` the one a script reads.
+- `kept.rs` writes a tournament out and reads it back by playing the cards
+  into one begun afresh, so that a file that is no tournament is found
+  out.
+
+The menu is told of the tournament in hand and keeps no more of it than
+that. Its two pages for one are in `menu/tournament/`, on the sections the
+art has for a match.
+
 ## How the files are cut
 
 A file does one job and says which in its first lines. None is over three
@@ -205,7 +251,9 @@ that is not meant to alter the game must leave that so. In practice:
 
 - **Numbers by chance are drawn in the same order.** A match has one
   generator for the play, and separate ones for the lit sign, the other
-  side's runs and their innings on paper. Asking for a number sooner,
+  side's runs and their innings on paper. A tournament has one for its
+  draw and a seed for each fixture, from which a fixture on paper has a
+  generator for each of its sides. Asking for a number sooner,
   later, or not at all changes every pitch after it. Two of the draws only
   choose a sound, and still count.
 - **The stage is touched in the same order.** See "A frame" above.
@@ -225,7 +273,7 @@ what is in it and how to read a failure. In short there are three nets:
 1. **The tests**, most of which play the real game by written steps. Each
    mod's rules also have tests of their own that need no game, and the
    sums are checked against cases made up by the hundred (`proptest`).
-2. **The record of whole games** (`crates/game/tests/as_it_was`). About two
+2. **The record of whole games** (`crates/game/tests/as_it_was`). Over two
    hundred seeded games, with sums of everything said, heard and seen every
    frame. It was tried against deliberate breakages before it was trusted.
 3. **Pictures before and after** (`scripts/pictures.sh`), for changes to
@@ -249,6 +297,12 @@ itself.
 | Something for a match to say of itself | A field of `Snapshot`, and its place in the line in `snapshot/words.rs` |
 | A step in getting the view ready | `set_up/`, called from `mod.rs` at the place in the order it belongs |
 | A page of a full match's boards | A file in `board/`, and its name in `Page` |
+| A page of a tournament's tables | A file in `board/tables/`, and its name in `Page` there |
+| Something a tournament adds up | `tournament/stats/`, as rows, with a test that needs no game |
+| A shape of tournament | `Format` in `tournament/format.rs`, and its ties in `tournament/schedule/` |
+| A side to play against | `[tournament.sides]` in `data/rules.toml` |
+| One thing to be chosen of several | A `Choice`, from `choice.rs` |
+| A row of the menu's first page | New art, placed in the menu's clip, and its words in `Menu::clicked` |
 | A word the art's files may hold | Its type in `bb-format`, made with `words!` |
 | A step of the script language | `Step` in `script/step.rs` |
 | Something kept between runs | `kept.rs` reads and writes it |

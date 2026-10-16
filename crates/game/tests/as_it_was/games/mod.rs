@@ -4,14 +4,17 @@
 //! another, in each kind of game, at each skill level, and round the menu.
 
 mod menu;
+mod tournament;
 mod whole;
 
 use bb_game::mods::Mod;
 use bb_game::rules::Rules;
 use bb_game::settings::Ground;
+use bb_game::tournament::Format;
 
 use crate::players::{Batter, Monkey, Player, Then, Tricks, Written};
 pub use menu::the_menu;
+pub use tournament::tournaments;
 pub use whole::{finished_matches, monkeys, whole_matches};
 
 /// Who plays a game.
@@ -35,6 +38,8 @@ pub struct Game {
     /// The settings of the mods that have one, where not the usual.
     pub levels: Vec<(Mod, u8)>,
     pub ground: Option<Ground>,
+    /// The shape of the tournament it is a game of, if it is of one.
+    pub shape: Option<Format>,
     /// Numbers laid over the game's own, as a rules file would be.
     pub rules: &'static str,
     pub by: By,
@@ -51,6 +56,7 @@ impl Game {
             mods: mods.to_vec(),
             levels: Vec::new(),
             ground: None,
+            shape: None,
             rules: "",
             by: By::Batter(tricks_for(mods)),
             most: 12_000,
@@ -87,6 +93,8 @@ const A_LONG_INNINGS: &str =
 /// A full match short enough to play through: two innings a side.
 const TWO_INNINGS: &str = "[full_match]\ninnings = 2\n";
 const ONE_INNINGS: &str = "[full_match]\ninnings = 1\n";
+/// A tournament whose matches are of one innings.
+const A_SHORT_TOURNAMENT: &str = "[tournament]\ninnings = [1]\n";
 
 /// The kinds of game: what each is called here, the screen it starts on,
 /// where a full match is played, the rules laid over it and how many frames
@@ -218,7 +226,7 @@ pub fn levels() -> Vec<Game> {
 /// Where things are on the menu's pages, in stage pixels.
 const BOTTOM_OF_THE_NINTH: &str = "click 200 181";
 const FULL_MATCH: &str = "click 200 216";
-const ARCADE: &str = "click 200 252";
+const ARCADE: &str = "click 200 271";
 const MODS: &str = "click 330 360";
 const NEXT: &str = "click 490 362";
 const BACK: &str = "click 290 362";

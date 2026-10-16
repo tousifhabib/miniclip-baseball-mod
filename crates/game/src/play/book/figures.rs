@@ -1,10 +1,14 @@
 //! The figures a side's turns add up to, and the averages and rates
 //! worked out from them.
 
+use serde::{Deserialize, Serialize};
+
 use super::turn::{End, Steal, Thrown, Turn};
 
-/// What a batter's or a side's turns add up to.
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+/// What a batter's or a side's turns add up to. They can be written out
+/// and read back, a count that was not written reading as nought.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
 pub struct Figures {
     pub turns: u32,
     pub at_bats: u32,

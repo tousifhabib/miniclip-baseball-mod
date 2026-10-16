@@ -6,29 +6,21 @@ use bb_engine::stage::Stage;
 
 use super::batting::batting;
 use super::figures::figures;
+use super::pager::Pager;
 use super::spray::field;
 use super::timing::timing;
 use super::turns::turns;
 use super::{
-    BACKING, CREAM, MIDDLE, RESULT_INNINGS, TURN_ROWS, VERDICT_SIZE, VERDICT_TOP, innings,
+    BACKING, CREAM, MIDDLE, PANEL, PANEL_ALPHA, RESULT_INNINGS, TURN_ROWS, VERDICT_SIZE,
+    VERDICT_TOP, innings,
 };
 use crate::art;
 use crate::play::full::{FullMatch, ordinal};
-use crate::play::overlay::Words;
 use crate::play::paper;
 use crate::sheet::Sheet;
 
-/// The arrows that turn the pages, and the words between them: how far
-/// down, how far either side of the middle the arrows are, and the size of
-/// the words.
-const PAGER_TOP: f32 = 317.0;
-const PAGER_REACH: f32 = 62.0;
-const PAGER_SIZE: f32 = 0.7;
-
-/// The pages after the first have a backing of their own, under a heading:
-/// its left, top, width and height, and how solid it is.
-const PANEL: [f32; 4] = [28.0, 84.0, 534.0, 228.0];
-const PANEL_ALPHA: f32 = 0.55;
+/// How far down the heading of a page after the first is, over its
+/// backing, and its size.
 const PAGE_HEADING: (f32, f32) = (58.0, 1.35);
 
 /// How far down the line about zingers is on a full match's board.
@@ -66,9 +58,7 @@ pub struct Pages {
     page: usize,
     /// The clip the page that is up is written in.
     sheet: Option<Path>,
-    back: Path,
-    on: Path,
-    count: Words,
+    pager: Pager,
 }
 
 impl Pages {
@@ -102,27 +92,7 @@ impl Pages {
                 pages.push(Page::Innings { innings, part });
             }
         }
-        let mut sheet = Sheet::on(holder.to_vec(), 500);
-        // The art's arrow points on. The one back is the same, turned
-        // round.
-        let down = PAGER_TOP;
-        let back = sheet.add(
-            stage,
-            art::BOARD_TURN,
-            "pageBack",
-            (MIDDLE - PAGER_REACH, down),
-            (-1.0, 1.0),
-        )?;
-        let on = sheet.add(
-            stage,
-            art::BOARD_TURN,
-            "pageOn",
-            (MIDDLE + PAGER_REACH, down),
-            (1.0, 1.0),
-        )?;
-        let depth = sheet.depth;
-        let top = (MIDDLE, PAGER_TOP - 1.0);
-        let count = Words::new(holder, depth, "pageCount", top, PAGER_SIZE, stage)?;
+        let pager = Pager::put(holder, stage)?;
         let mut pages = Pages {
             holder: holder.to_vec(),
             full: full.clone(),
@@ -131,9 +101,7 @@ impl Pages {
             pages,
             page: 0,
             sheet: None,
-            back,
-            on,
-            count,
+            pager,
         };
         pages.draw(stage);
         Some(pages)
@@ -142,14 +110,11 @@ impl Pages {
     /// Takes in a click on the button at `path`, which may be one of the
     /// arrows. They go round: back from the first page is the last.
     pub fn clicked(&mut self, path: &[u16], stage: &mut Stage) {
-        let pages = self.pages.len();
-        if self.back == path {
-            self.page = (self.page + pages - 1) % pages;
-        } else if self.on == path {
-            self.page = (self.page + 1) % pages;
-        } else {
+        let turned = self.pager.turned(path, self.page, self.pages.len());
+        let Some(page) = turned else {
             return;
-        }
+        };
+        self.page = page;
         self.draw(stage);
     }
 
@@ -177,8 +142,7 @@ impl Pages {
         if let Some(old) = self.sheet.take() {
             stage.remove(&old);
         }
-        let says = format!("PAGE {} OF {}", self.page + 1, self.pages.len());
-        self.count.say(&says, CREAM, stage);
+        self.pager.say(self.page, self.pages.len(), stage);
         let Some(holder) = stage.attach(&self.holder, art::HOLDER, 10, "resultPage") else {
             return;
         };
@@ -201,7 +165,8 @@ impl Pages {
                 sheet.write(stage, "zingerLine", zingers, top, VERDICT_SIZE, CREAM);
             }
             let (down, size) = RESULT_INNINGS;
-            return innings(full, &mut sheet, MIDDLE, down, size, stage);
+            let (shown, lines) = (full.shown(), full.lines());
+            return innings(shown, &lines, &mut sheet, MIDDLE, down, size, stage);
         }
         sheet.block(stage, "pagePanel", PANEL, BACKING, PANEL_ALPHA);
         let side = |ours: bool| {
@@ -211,13 +176,15 @@ impl Pages {
                 &full.book.theirs
             }
         };
+        // The other side goes by its name where it has one.
+        let their = full.their_name();
         let heading = match page {
             Page::Score => String::new(),
             Page::Batting { ours: true } => "YOUR BATTING".to_owned(),
-            Page::Batting { ours: false } => "THEIR BATTING".to_owned(),
+            Page::Batting { ours: false } => format!("{} BATTING", their.unwrap_or("THEIR")),
             Page::Figures => "THE FIGURES".to_owned(),
             Page::Field { ours: true } => "WHERE YOU HIT IT".to_owned(),
-            Page::Field { ours: false } => "WHERE THEY HIT IT".to_owned(),
+            Page::Field { ours: false } => format!("WHERE {} HIT IT", their.unwrap_or("THEY")),
             Page::Timing => "YOUR TIMING".to_owned(),
             Page::Innings { innings, part: 0 } => format!("THE {} INNINGS", ordinal(innings)),
             Page::Innings { innings, .. } => format!("THE {} INNINGS, GOING ON", ordinal(innings)),
@@ -232,7 +199,10 @@ impl Pages {
                 let outs = if ours { self.our_outs } else { paper::OUTS };
                 batting(side(ours), side(!ours), (ours, outs), &mut sheet, stage);
             }
-            Page::Figures => figures(&full.book.ours, &full.book.theirs, &mut sheet, stage),
+            Page::Figures => {
+                let (ours, theirs) = (&full.book.ours, &full.book.theirs);
+                figures(ours, theirs, full.them(), &mut sheet, stage);
+            }
             Page::Field { ours } => field(side(ours), &mut sheet, stage),
             Page::Timing => timing(&full.book.ours, &mut sheet, stage),
             Page::Innings { innings, part } => turns(full, innings, part, &mut sheet, stage),

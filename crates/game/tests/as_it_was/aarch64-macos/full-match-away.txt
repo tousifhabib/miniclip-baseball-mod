@@ -13,7 +13,7 @@ full match away, no mods	6000	9bd957bcecca95b4	81ef11363f0d8345	6213be95048621cf
 full match away, no mods	6600	d6d9f6f5fedfe508	3efbe07766f27c76	b2bc478ba9e336a5
 full match away, no mods	7200	6ff9ef2071251edd	ee905951438ffe96	2d3bb6a0898b27e7
 full match away, no mods	7800	f53e707851a6f8f9	86bfc968d58c0e03	3108f30969d2282e
-full match away, no mods	8256	1b0b1b896ed7fdb0	7d497ded67bf5608	c3437127ebb21f55
+full match away, no mods	8256	f7372b7a663d8b65	f84d020bbe301c75	b5ae6135510d2f87
 full match away, timing_indicator	600	5c66ebe53dcc6763	5608f0034c78648d	8b916f25d5db5771
 full match away, timing_indicator	1200	c44df7f32e1f64a8	5aa38b4396aa93e2	e8f1cb7381df1c8c
 full match away, timing_indicator	1800	88acc0de27a6963e	745f464cd93bf987	d56cf4dd9ce0fb0e
@@ -29,11 +29,11 @@ full match away, timing_indicator	7200	4c2a39897b975d02	fc82c532cbfbc8e2	a4ff25b
 full match away, timing_indicator	7800	a51e11a98f356da8	18dbc1d65d332efd	cf072c02522ffc43
 full match away, timing_indicator	8400	5630a91c3582413d	663d741648277728	ea173452cb0bf292
 full match away, timing_indicator	9000	30241ad53a650ff2	6d99d53f658219a4	708344756a548bd8
-full match away, timing_indicator	9600	8dc67297d9ca2cbf	f7e899f1846332d8	6aeffb9e480d17b4
-full match away, timing_indicator	10200	b58fd98890ae129c	48adb80eb9b1fbb0	729bae07e93aad5e
-full match away, timing_indicator	10800	4c2d36eb299179ac	e452807b8085f22d	b4dcb2ea7a57f762
-full match away, timing_indicator	11400	e8b5e02c9ca4c352	02d5ecc5c3941624	9f2c61c195295f84
-full match away, timing_indicator	12000	a591c6b65d722abe	c5f406b4bd9f4bca	7aa977eb07ae2892
+full match away, timing_indicator	9600	8dc67297d9ca2cbf	3eee6ca6c0da3f83	8b121ef2cda99902
+full match away, timing_indicator	10200	b58fd98890ae129c	19365cdc2954c3b0	92635211d35e74f5
+full match away, timing_indicator	10800	4c2d36eb299179ac	d3a1e69a527be1a6	1a81bd4d931ac29e
+full match away, timing_indicator	11400	e8b5e02c9ca4c352	27fb0ad371f02470	ccf58d93893231fc
+full match away, timing_indicator	12000	a591c6b65d722abe	e316b9b8ede888f6	f03836457202d05c
 full match away, lone_pitcher	600	6a7f7f311c9cd19f	02781578bc277518	7025f061cd49be54
 full match away, lone_pitcher	1200	9683200244a875d1	ae147fc239327ec3	a54ec2a7632dc362
 full match away, lone_pitcher	1800	a3ebb480a03a47f0	1314b6b3cc7336ab	3d5ad4fc81e08fc8
@@ -46,14 +46,7 @@ full match away, lone_pitcher	5400	b0d9bd89e475ca20	d8836a191bc9d5cd	7858cd9572b
 full match away, lone_pitcher	6000	35420c564efbbdec	d73f6ed8051f644e	cce633ff35a47aca
 full match away, lone_pitcher	6600	d71e40cf05aa5560	7bc625c84d02dd8a	596ec22968ab24fe
 full match away, lone_pitcher	7200	8e0a02416ad66c25	7731b9af72112c35	6c3fc8c5f498596d
-full match away, lone_pitcher	7800	abd783da6e961365	98146bbc4e86a9d1	4a812609e7f4e5f0
-full match away, lone_pitcher	8400	b66730b854a36cf4	96c73caeee1da04f	9cf098aa329e68ce
-full match away, lone_pitcher	9000	c8af5081b3b1811b	d3e275d39d385b77	82c8935d42d9abd6
-full match away, lone_pitcher	9600	f05c8925143f7363	cad6f0e9bb13842a	3584b185cf1bf0f4
-full match away, lone_pitcher	10200	210b4fd55e9c0df6	52792155ca9404bf	292bc1eed81a1c82
-full match away, lone_pitcher	10800	cbdd760fbdb11c48	98974eee156e5f1f	aa1c23e9a6d3df24
-full match away, lone_pitcher	11400	16a0fe8b9fffeee5	496837602c169cd4	38f9ff6837233419
-full match away, lone_pitcher	12000	d2090c12abdac383	1d6af2e66ac116f4	2096361db9412fe8
+full match away, lone_pitcher	7657	84a460c8e3b42ef8	24967b870ec64658	52879abeeaa5fd28
 full match away, zinger_hit	600	db74c8dec7f36653	c911a48ea4277732	3f039fe0d8ffb5b1
 full match away, zinger_hit	1200	00134cc05d8164a1	d21bb53a34de3e69	dcdec4ed4614bd86
 full match away, zinger_hit	1800	2d267176ba4d7ae2	d1db3db49f490a6b	e6a0c84fa4001674
@@ -85,8 +78,8 @@ full match away, butterfingers	4800	efe9b3ef5b2d0bf2	5681b509db1c2f84	1622f07552
 full match away, butterfingers	5400	cae47cd17e7c8ea1	431870c1ae79a89e	0909f091f6225a20
 full match away, butterfingers	6000	817fd8ac650f77f4	0203f6fd745f754e	d8734d71bf78d924
 full match away, butterfingers	6600	f4ca45b89fff7532	4893c8e2547f4acf	da095ca3b345f0d8
-full match away, butterfingers	7200	58d25eb9a6a98737	4e3c9524c5b2e4d8	965772337d810c95
-full match away, butterfingers	7221	f1ad9c35daa2af06	3ebe59809e58008e	e580cc8a6bf28aa1
+full match away, butterfingers	7200	e2f44d4ca541bddc	98202e4da12da80e	82878c7422801167
+full match away, butterfingers	7221	ac2b328ab4403ec6	ef62d9651dace5e0	a4d84ad01acd6987
 full match away, knuckleball	600	e4ae0fe541cdf0b5	7e1637f667093386	f0875e64fcc99752
 full match away, knuckleball	1200	43647fbedadcac9b	1b51024e2cb5c259	092d6a9641708724
 full match away, knuckleball	1800	4e8d47d99d23971c	0e54dd30ea5701c0	286f93a21d227214
@@ -99,8 +92,8 @@ full match away, knuckleball	5400	dd7f7304c7e2edd7	d0589e1eb8da7d8a	931cf775d321
 full match away, knuckleball	6000	5d0e7b7dac87d4b2	8b73cfbbb933009c	ff2414a72ebca289
 full match away, knuckleball	6600	6fe28ac570139cdb	1fad31e25454a7a5	c63e1650bcd2e623
 full match away, knuckleball	7200	295526cf300c5855	1b270720978647a7	913265042f9d9fe2
-full match away, knuckleball	7800	270b8eb8017f59cf	013cde32edb7ba41	dc10acb324e39ed5
-full match away, knuckleball	7828	89424e39d09d78d9	522f37f18f06e984	80c9daf592dc0715
+full match away, knuckleball	7800	1e9a490200a9e8a5	29a01a1647246608	dc0c55c45a598745
+full match away, knuckleball	7828	e06b8d25dfc7e0bd	a91267b12290463e	22c3d717ae1ac375
 full match away, heat_check	600	c0e671ec5e8c4053	3b05b101b9b13be4	00a415be0f88d95c
 full match away, heat_check	1200	1cb80e91e65e5ea0	72f757d159a25b91	0f6f9717d533ed43
 full match away, heat_check	1800	b22abde89d7299ce	8d8ced0b3ca0c507	f1e9400caba58e0b
@@ -111,8 +104,8 @@ full match away, heat_check	4200	0a8979de4fe4bad4	479422e9032e685e	9ffd4f191f665
 full match away, heat_check	4800	c16f080af6b0574e	df2b7640705ef15c	8081f872175160a3
 full match away, heat_check	5400	9847c32f52c4ccdd	3869ff32ce35461c	03740fccb366a13e
 full match away, heat_check	6000	68ba2ce57520477f	1cbb92e6d1f2e1a5	c86ceb48d3ee8b38
-full match away, heat_check	6600	f146df4d5be08b29	11ec97b6a5826d88	08cc4cc71e752f4c
-full match away, heat_check	6697	f27fc05c0bccba52	b24b04b885f75fd7	15c1b88522ffe3c7
+full match away, heat_check	6600	cb88e312e7128f49	006fa319e82c3b25	3b7204336fdce302
+full match away, heat_check	6697	48f63c392fcdb4ed	718f92d17fa7f0da	8c4bc6795f5fdf2e
 full match away, mystery_pitch	600	a395ebecce06ed8c	1efdae20faa68f71	f27762a033637231
 full match away, mystery_pitch	1200	83f55ad095e5bbda	1c3fb485cfe655ed	958a7b34a6e939f3
 full match away, mystery_pitch	1800	f39903c2a3c6ffe1	b312a43edbd624e5	3b6d8ffd3d07050e
@@ -129,7 +122,7 @@ full match away, mystery_pitch	7800	240b63d0aecdd826	ea0afcf26c4699d0	13cb47e2c0
 full match away, mystery_pitch	8400	a0002cafe222bd34	ee6e45253ec1bcc7	2b3be430fe07efed
 full match away, mystery_pitch	9000	f3ea66c57628b25f	472de8c2dc8f8c38	2e2c14aac254751e
 full match away, mystery_pitch	9600	75ea546e0b941a1f	8cfdf040ab4139d4	c06bbdbd59f0676b
-full match away, mystery_pitch	9909	6e95ac8821a92e7f	477666c27c4caa7e	c6d33edd841b465a
+full match away, mystery_pitch	9909	6e95ac8821a92e7f	1d023d0a226e8dd0	eb9d73f91879a2c5
 full match away, called_shot	600	896856be62b54f53	ac86b516d0a330da	2f2b637d15665372
 full match away, called_shot	1200	a8862e2cd0ee0d5f	0baea3374fbe95a6	efad1aa134c2e41c
 full match away, called_shot	1800	6ec2bbf42647b7cc	c0e1cba7e3dd1bf5	9f08e295d90dde68
@@ -141,7 +134,7 @@ full match away, called_shot	4800	441ddc5685b5328b	3ba698bcc6bb020c	3bd9a0a50306
 full match away, called_shot	5400	512d9efcb59aa365	dc70f4d943dc1a5c	7236384a4a1c568e
 full match away, called_shot	6000	a89a29f0834d05cc	7ff20e609e1bc48b	de452e624fec358d
 full match away, called_shot	6600	a7ac416dc5d6ab4a	84b0fc8eb670c431	07e0c7397aa9a2de
-full match away, called_shot	7040	1890c930dbd6e9c4	0222737673768769	86fb563cb8035f96
+full match away, called_shot	7040	61e73761d9e43893	be218c5229ff5c06	cd020d65ab532d2f
 full match away, hot_bat	600	465fdb1ef5ef5d66	26ef90f01dc0a3da	e05b8a5af0e003ef
 full match away, hot_bat	1200	0ac2990deb11ce49	fa823fca43ebe69e	f14159361c3d9824
 full match away, hot_bat	1800	c94a6d542ee6aff0	a02484428816cd79	f4de727a89a72771
@@ -153,7 +146,7 @@ full match away, hot_bat	4800	f810b3907e9bf451	0acc10b7e38fad87	13ef8faef0e70d13
 full match away, hot_bat	5400	edbca7a4d49b1952	c81cdf368036f7e2	2e17f0962cb8a137
 full match away, hot_bat	6000	ac706924b8a8d44c	c674e0ea49cca641	bc5294679127a7ff
 full match away, hot_bat	6600	82073805fe8165bf	d44242e54d514f85	58aa15abfecc883e
-full match away, hot_bat	7102	caeb0bd94e8f2243	29530a21a6b261fb	317a0d44df5c7afa
+full match away, hot_bat	7102	5c7f238618e2ef21	5c80dec4a513537a	d9e71f8319ae5fe0
 full match away, sudden_death	600	cc804668b229dc35	2c3fe9d16c89f39c	d7aec7aa6e0053f9
 full match away, sudden_death	1200	55851393cc47188f	0996e086ff5e132b	58de362a3838a7dd
 full match away, sudden_death	1800	117c2efc0abfeac7	61978cba8bc75618	0ba5606d667cffe6
@@ -167,7 +160,7 @@ full match away, sudden_death	6000	aeaf06df5aa4d9d0	e19520170c83ebfe	ddee7083b96
 full match away, sudden_death	6600	060a6b43fe09dd11	ada72a03098e0f59	c847da74ebe573fd
 full match away, sudden_death	7200	8661882e4e5e9286	48a5353162ebbf75	ac5e3b2bd23f8524
 full match away, sudden_death	7800	bc6b6db3080d4b65	f72cc7f23d97e35a	45c878ab0db7908f
-full match away, sudden_death	8318	f54249decf14260a	87156153df313788	122fa7e2639ce1d8
+full match away, sudden_death	8318	d10cc5ffb701e162	92e7446ac0d815c6	43fbb9cc782bf19b
 full match away, golden_ball	600	9af951684d65b25d	2dcde5bb8237caf7	aaab3b4535b5a28b
 full match away, golden_ball	1200	8279bd3041569a73	f336ef7c8a9569cc	0d7b95579f976878
 full match away, golden_ball	1800	56c70c12bce425cf	79822f1865ee253a	3ddbe85f5b90ed4b
@@ -176,13 +169,7 @@ full match away, golden_ball	3000	db63d5e31e626168	94572f1a01810d40	0f5d2270ae29
 full match away, golden_ball	3600	e96fa9a0c629f14f	e56e5abb5176c8dc	9f604ba3cddaa6bd
 full match away, golden_ball	4200	688198989557728b	8296e9943e98d434	cef45979d83bc9f3
 full match away, golden_ball	4800	24a12df588bd4929	dc1ab4c5af2ac12a	2c29bf807ce44f7a
-full match away, golden_ball	5400	8ce42ccb57c1831a	ba052ab217e05832	6bab6213bf33638e
-full match away, golden_ball	6000	dab5cb1042d75054	d93be726cbe27ad8	c908f6c7893215d7
-full match away, golden_ball	6600	06f495d05e98d94b	50baca09e882e542	c4809ca801f5ed81
-full match away, golden_ball	7200	18770747adf5185a	b439c38ddc9f0569	5b85286bcc50ec83
-full match away, golden_ball	7800	9acfbbe5364b4760	c24ab4fd127d132a	fadb5b76b998235f
-full match away, golden_ball	8400	8f7d1122796e9cef	3dd97604f9e8f1da	407fca26b35cb1a1
-full match away, golden_ball	8756	78fe76e907696046	94cdd85b613d34c9	e8b970f09a4b03d3
+full match away, golden_ball	5347	adec36f400d308be	d563d325740c52cb	8c3d22350c4539b9
 full match away, pinball_park	600	3999b92e12722d59	9f6d73f60dc513d8	4f3783c9c5372593
 full match away, pinball_park	1200	d105def9c8736efb	e456c2e19edc7cdf	4712c3c0e2ac0092
 full match away, pinball_park	1800	dd0a86e5e6747b1e	663bf1a653aa2b61	cc3cfd7da21cb0fb
@@ -194,8 +181,8 @@ full match away, pinball_park	4800	778c5f7b8e08d90c	45129830b8d86c4e	ce1a984339d
 full match away, pinball_park	5400	e3bcd26b43888542	8af21fcc62cd16c7	0bac475228038233
 full match away, pinball_park	6000	12b3f9c1ea04fec9	28a397c5444a570c	8743d46642334825
 full match away, pinball_park	6600	4cea7c0f0fbfae4b	d53ffc875b15a1fe	cd17f936359bb669
-full match away, pinball_park	7200	f09b92b8adb064f8	09b8dda9983d92ff	3f5038f229f6c01e
-full match away, pinball_park	7329	442ab0fda0fa396f	0bd9e038f201bc40	a9cd8d96b697a82c
+full match away, pinball_park	7200	02cfaab798975729	63a7edeb3223843c	44fd5b7702b8643b
+full match away, pinball_park	7329	ceb2e7a32c065ca6	9bb0db6c3e3b675a	3651f7cfae62f2f0
 full match away, moon_ball	600	c5e458bb8b1cb40d	609a27afc188db74	9941c4d59d03810d
 full match away, moon_ball	1200	ee1a3a6286c8c2f5	35b051ba39a298e1	1efc72fadaf6268e
 full match away, moon_ball	1800	4a6c7b7d19f64e35	ae90134fc4d50c4f	ef443561d3122389
@@ -204,12 +191,12 @@ full match away, moon_ball	3000	044447290393e106	84764bd26bfefceb	5ef42c6023ad34
 full match away, moon_ball	3600	37d884ddafad89ca	96b916ae2629b0a9	b1c2c43e877e5114
 full match away, moon_ball	4200	d3e1b53bd9a717a7	dbc073b68c0da99d	f939cbaab93fc7e1
 full match away, moon_ball	4800	b8adcb90d8567bf9	2bfe3a2500d952db	e8f9d1532ad4ff3a
-full match away, moon_ball	5400	f1d9c0b45ad12af5	e14a9147297d55c0	716675b09d143030
-full match away, moon_ball	6000	71a76ace08d5c781	b8152e2dcc26a475	e583d895435f885a
-full match away, moon_ball	6600	94bab229c4c72a88	fb073e25f992484d	7aaed6e0d1ee8b58
-full match away, moon_ball	7200	6b10a95c196cc020	71db69283bfd1496	906e12cb35a76112
-full match away, moon_ball	7800	a424f987dd7f389f	56f43e0354347c43	b5dab7fa2b66d4bd
-full match away, moon_ball	8081	3b73904f63b06f83	8aa1263b5bc492c4	8d1c10bfb601ba6c
+full match away, moon_ball	5400	f1d9c0b45ad12af5	9f82fa240ee6ff28	58d0eed26ce241c4
+full match away, moon_ball	6000	71a76ace08d5c781	3f5b71b93ad0b541	d871c883e6f249d9
+full match away, moon_ball	6600	94bab229c4c72a88	7a50d13caae6413f	908056c8bb8ecdbc
+full match away, moon_ball	7200	6b10a95c196cc020	40686b1dae1d2e5a	35b6484c7aac7eb1
+full match away, moon_ball	7800	a424f987dd7f389f	951549bdad9ee756	26294fb0ddaccc57
+full match away, moon_ball	8081	3b73904f63b06f83	f2a9721d35665cd6	0686a8f5593d75a0
 full match away, turbo_runners	600	7a17fe75a2fce696	f32798f22d29a1f9	493f09f73766a6c6
 full match away, turbo_runners	1200	69f60144d7107fe3	332997e89caed2e9	8bf296969c17a646
 full match away, turbo_runners	1800	041f0ce2299f2506	38631b3c4a4eeef9	5f085e4ce9a76ed6
@@ -224,12 +211,7 @@ full match away, turbo_runners	6600	e0c62b2bb4a8609b	1ab0737e80b8624a	500548f8d3
 full match away, turbo_runners	7200	9d7afd84439cad2b	6fa214699f566d5d	797b7bddc1069d5b
 full match away, turbo_runners	7800	baa9e057ede103d1	6cd6025e24a75bb7	3aa2fba233715a78
 full match away, turbo_runners	8400	5a1713d153d7300f	5f3f3bf2daa4e716	da797320e87dc8eb
-full match away, turbo_runners	9000	3f5e479cfc7234ec	f068c02852304b01	95939728d12e0884
-full match away, turbo_runners	9600	2e5cb066c0ec224d	1ffd72e7b389dcd9	19f7160649900ad6
-full match away, turbo_runners	10200	2b1e12726b0751d2	0c7e3e2114f00364	6f1dcf4b19e42518
-full match away, turbo_runners	10800	4898ceeb21a8dbab	236d0c46e76628c0	6802eda6ca361639
-full match away, turbo_runners	11400	e8b599680f51f943	415d5f9fcf056662	e06f447bf4e88ba0
-full match away, turbo_runners	12000	b68fefa68d3b19d2	6628e7d742c5e89b	4db02919badb15a7
+full match away, turbo_runners	8784	5eb6d9569a1235c9	66b9969020c72fba	e9b9477c9c033231
 full match away, night_game	600	d03b98e75aef5aa1	73dc964ca9d62e8c	7514f2fd7bba08af
 full match away, night_game	1200	17435b6cbb4d2b0a	57fa6858913ab5e2	1a48deb06b14c236
 full match away, night_game	1800	65820e93f6370f89	9f1491bcc97a5ba9	cb8d4552ecae9024
@@ -247,8 +229,8 @@ full match away, night_game	8400	17cd19b3d457c622	1e7aa8710cf876dd	872bcd84337fa
 full match away, night_game	9000	19269c7993b49634	a57a57158df67fc5	e9250e63ab942254
 full match away, night_game	9600	6d45202a32ac60b9	54a979c880b96acb	0b5a48918255912e
 full match away, night_game	10200	246a30f821e53e72	f029ac9175d563d2	6a126775a738dba3
-full match away, night_game	10800	36081ac67ae6a083	91da7ead8381304f	af2fbc43e5a022f0
-full match away, night_game	10815	3c60c66750d9ddd6	85e39754dab61075	57e082277984e3b9
+full match away, night_game	10800	4eeb683219c72420	cc1d7bec51d25b75	93418b55b5b211d7
+full match away, night_game	10815	a884c861d9402c7d	81974753743a98d6	5ef2d5b95f6bafde
 full match away, the_shift	600	a94ca21586d40ff8	132d2283eebfc583	89cadce0d411f058
 full match away, the_shift	1200	045878f92e270901	a1936e8324cc3dd9	448ddbe84a5c95a7
 full match away, the_shift	1800	d8f83f4a8b365c0a	7ec1732bb1f9de2c	5331856e4e986d9a
@@ -258,14 +240,7 @@ full match away, the_shift	3600	b1ca5358231a5a43	737c618ac941b6d9	eec56b81889707
 full match away, the_shift	4200	e123d5fcd338f07b	0989963eb0839521	88d1cd3b6b712dbf
 full match away, the_shift	4800	0040654a23d7a564	e1006514f981c241	63284cf91ad9fb0d
 full match away, the_shift	5400	e5e6213463b69fa5	4d9ae15f695168c6	353151f01c44e966
-full match away, the_shift	6000	65ab0c854ca69e8f	b6a167eb4b589cb5	3ffa8a7962990c48
-full match away, the_shift	6600	c3d403e3ffd3daa0	7bfecbcbcf6e261e	a1d8741eb74b0fac
-full match away, the_shift	7200	345cfaee13ba3e90	02b3511d62298877	0edaae3e28625023
-full match away, the_shift	7800	f5b60484746a5d49	5de8bf76dd620105	6af45a2c62c40f64
-full match away, the_shift	8400	af23981a34f3cffa	0679c73916a57ff6	f227a40fa93b125c
-full match away, the_shift	9000	d6a77b81857d5d01	00b9eefcae2db1f8	2bbba7f0ad0543f4
-full match away, the_shift	9600	2445084263dfe03a	86c33ce4393f813b	787b327868a01bd2
-full match away, the_shift	9786	b093c6c0fc148e09	c1edacd689bbc10c	3244509c7762d963
+full match away, the_shift	5958	e437e0461a61ccb3	3d19f3d9406ed5fa	787f9e198c0a0f1c
 full match away, tired_arm	600	9b5b606f9888ea1e	6bfb429f7360cb5a	7d0cab638f9e5be5
 full match away, tired_arm	1200	661467e6574b4c35	fd305e84164d70eb	94db6dec555dd30e
 full match away, tired_arm	1800	b96038dfabe2d7cc	bd491b323d11a6b6	744dfd0c2933172d
@@ -279,7 +254,7 @@ full match away, tired_arm	6000	c26030ebc8d5ac36	1eef0a5b47af1fe8	2ac242ce5fc17a
 full match away, tired_arm	6600	7934944458c7e91c	c6607eab9685cd53	4cc2eebc9ad24f79
 full match away, tired_arm	7200	190e8c33046875fe	f623d59997c70291	abcc73349a4e6bcc
 full match away, tired_arm	7800	62fccf19081647de	19d0b260e42fb899	0189084471db49c7
-full match away, tired_arm	8081	692c1586dfe74c41	5284e274fcf7869d	3affae6c1c3fb18e
+full match away, tired_arm	8081	ad8af315d186226e	4295cf2801e193c0	668bc039c948cfd1
 full match away, stolen_bases	600	4c2d863c1b5b0b9e	888775e2b144a3bc	623fbe996a721a3d
 full match away, stolen_bases	1200	ecae9b91ada88d85	addf48a12e317453	1f08989255fe4e9f
 full match away, stolen_bases	1800	8508747b29a8aa5f	65353a02931f76bc	74550da6bce4a52f
@@ -288,7 +263,7 @@ full match away, stolen_bases	3000	91487c9ce1bfbb23	c9a3f10c8d7419b0	4990cf7b4d9
 full match away, stolen_bases	3600	7b7617ea66e5ba89	801dcb495596148a	5239a055835a8674
 full match away, stolen_bases	4200	febeb680669bd636	0334be8b4ca413e9	4955c83ce8e63f0b
 full match away, stolen_bases	4800	ce382db9c24c47da	4d0b86c8031ecbd6	4e318f4b17717058
-full match away, stolen_bases	5291	c311d162f1f88d76	3e1c18fe9dec2407	7d8059f87a8b7228
+full match away, stolen_bases	5291	c311d162f1f88d76	8dea8367fc9f5006	5055e04b7644ebe3
 full match away, hit_the_sign	600	646c0a76f0438190	49703c8307942823	fae393dc771d6753
 full match away, hit_the_sign	1200	2c9c66a3ecbadcff	ccea83d09fe70626	efdae49f5ad12bc0
 full match away, hit_the_sign	1800	dee1724474834b40	07ff5bb36a2d21f0	47d763b48cf4a6fb
@@ -299,7 +274,7 @@ full match away, hit_the_sign	4200	46adc3d5e57c09d3	e1233d1736ab9a27	e3b459b6938
 full match away, hit_the_sign	4800	6b6d9ce1c877dd5f	843c827dfc96b827	c6eb07b2f3abfe88
 full match away, hit_the_sign	5400	5a486b4ec987813b	c10c4fa2a411b36e	8fd40bbfe94791c0
 full match away, hit_the_sign	6000	96cf77349bb528e4	b3c1d657d7198d80	35ce67e0ba675ed2
-full match away, hit_the_sign	6291	62fa1e8c1f7d884d	3e7431c731f7f88a	2e0398d397829e6b
+full match away, hit_the_sign	6291	c20e6b8fd7acbdf7	2f51d8c0f01c72bb	2c15aa052abdec1e
 full match away, rally	600	54134d9867e976a8	1838000998d952d7	b6d08b6322652781
 full match away, rally	1200	80aa9b4bde7ab1e2	07f99946dfa83434	6dd27e9541eea5cf
 full match away, rally	1800	b5d216ed24f23dd7	4d737220fe6c63bd	f2eee4f02b81928d
@@ -312,8 +287,8 @@ full match away, rally	5400	6aba1bb4ecebad01	dda43bfa5ec7d257	288798a89af96694
 full match away, rally	6000	35ec3f6eb56fe9d7	38be1eebcfe14533	4df467cc207c200f
 full match away, rally	6600	cd7c631469d269ff	84f901be37807b3f	b7faa0869034dd95
 full match away, rally	7200	340f1563c1b00bdc	0a6d6891237c73cd	81c55abb9e50aaf1
-full match away, rally	7800	7531a125d7d8af31	50bf8bb469930309	04267da12808e155
-full match away, rally	7893	d2b0e95d4127740d	2b42d87e4f1a30d9	31dec6abbe4d3ebb
+full match away, rally	7800	f3f70e5cc3091e99	9a8581003078d759	d32f33ee4260d105
+full match away, rally	7893	14c54269c55cfde7	2495ddea493cb57c	3f29a56b5882f38f
 full match away, clutch	600	ea9041de8bc2d15d	ee731299ec5c8602	0fe79c788974e868
 full match away, clutch	1200	9514973931dd71c5	6b045fe7a86bb33e	da0a1a72cad9fc68
 full match away, clutch	1800	c8079d909432d281	cfe432f2301867aa	8284c152b3acd44a
@@ -327,8 +302,8 @@ full match away, clutch	6000	155d3d31708bc1a7	32b9561fb9c10094	e224fe0a5de04cbd
 full match away, clutch	6600	48a14f3157619245	202b54627c76a0dc	97a2bde3ff8fa4b0
 full match away, clutch	7200	e603b20bb453202f	335a225107d183be	ae54d609a7da991d
 full match away, clutch	7800	c358d7940bee7ffd	86985076a8c79c6f	ecca45884307e965
-full match away, clutch	8400	cf8b66a6cab81145	6c01e171fa68b4fe	8a27af86832276f0
-full match away, clutch	8488	73480ed096e1d95b	8d4a77e2881e24c8	0d15097e5b7d868b
+full match away, clutch	8400	d7a21820bd995037	9d8a244abf80f422	e5ebf0efa7e21014
+full match away, clutch	8488	12f822b602acc536	914beb7e7a32cefb	f75cd138e1221285
 full match away, bullet_time	600	7e02023660757802	577c7ec887e9d605	d2cfe7329fa78efb
 full match away, bullet_time	1200	aae459e433d1190c	fd743a08b70dae3a	f4438abfe94cb930
 full match away, bullet_time	1800	e8ae6f7702ed501b	ebcd9e989667532c	c02edb49b0a783eb
@@ -342,8 +317,8 @@ full match away, bullet_time	6000	b7ee6a4f7de6b745	eb464db48ae1e2b9	c287f6a8f7f6
 full match away, bullet_time	6600	21ce9537735aeed8	a9199f6597cb34d7	ea56b5999cced7fb
 full match away, bullet_time	7200	2e155b1a76f40c0d	c1b61610fee9c6be	c5f2c35f3581c575
 full match away, bullet_time	7800	aebd7bdf9060a3ce	0e4e2fdbcf4b66e7	8c2a0add515aaacf
-full match away, bullet_time	8400	0e9687c583db7682	95abccfba6d684a0	0ed1d1192a68bc80
-full match away, bullet_time	8554	c904e567cd535591	6edb0692c16f4869	0b3dad41b7ddda52
+full match away, bullet_time	8400	a95f7dc9bc73c0bb	ed19c2033f7d0716	7652aa86629ea726
+full match away, bullet_time	8554	8237acfde90069c2	838424a4458bab24	76f04b5de973bebb
 full match away, southpaw	600	28945fe4d23c268a	340e3b9ba7a50065	f730bb8e0b2f1cc0
 full match away, southpaw	1200	65feecedfab157f2	2d3342091e001e36	704ef8dcdbb7d0b5
 full match away, southpaw	1800	14d75bc72d4a187a	b81d85c544fda828	f2ea75e2c5ed2657
@@ -363,4 +338,4 @@ full match away, southpaw	9600	af1bfb4a5d80f0a1	ce92a0eca30e8f14	f036d287ea7cf32
 full match away, southpaw	10200	5cbefa3c35a331d7	ebc87ddfe5b67d4c	c457e867a97217ba
 full match away, southpaw	10800	1e2ce28d46c98f2a	2287933588d10d2b	0b853c5ec8915f84
 full match away, southpaw	11400	db3ec1e720003368	66966d16934afb94	29ce8f7457c8d2b7
-full match away, southpaw	12000	e243cdf677320f41	fd0b70dff993cb22	5c1f0e688014b7c1
+full match away, southpaw	12000	363b9372062bc389	abd48fdc73c4320b	7244ed2a8fa9e2a9

@@ -6,15 +6,22 @@
 //! What the game keeps from screen to screen is here, with what the engine
 //! asks of it each frame. The screens are named in `screen`, going from one
 //! to another is in `screens`, a game in progress in `playing`, what a game
-//! leaves behind it in `after`, the player's choices in `choices`, and the
-//! table of scores in `scores`.
+//! leaves behind it in `after`, the player's choices in `choices`, the
+//! table of scores in `scores`, the tournament in hand in `tournament`
+//! and a fixture of it in `fixture`,
+//! what is heard on each screen in `sound`, and the game's account of
+//! itself in `describe`.
 
 mod after;
 mod choices;
+mod describe;
+mod fixture;
 mod playing;
 mod scores;
 mod screen;
 mod screens;
+mod sound;
+mod tournament;
 
 use bb_engine::app::Logic;
 use bb_engine::display::{ButtonEvent, Event, Path};
@@ -33,6 +40,7 @@ use crate::play::{Match, bullet};
 use crate::rules::Rules;
 use crate::scores::Scores;
 use crate::settings::Ground;
+use crate::tournament::{ToPlay, Tournament};
 pub use screen::Screen;
 
 pub struct Baseball {
@@ -81,6 +89,18 @@ pub struct Baseball {
     /// The pages of the full match just finished, once they are up on its
     /// result screen.
     pages: Option<board::Pages>,
+    /// The tournament in hand, if there is one, and its tables while they
+    /// are up on the board.
+    tournament: Option<Tournament>,
+    /// Where it is kept. `None` keeps it only for this run.
+    tournament_file: Option<std::path::PathBuf>,
+    tables: Option<board::Tables>,
+    /// The fixture of the tournament that the full match in hand, or the
+    /// one just finished, is.
+    fixture: Option<ToPlay>,
+    /// How many fixtures of a tournament are played on paper as soon as
+    /// it is drawn, for trying one out.
+    on_paper: usize,
 }
 
 impl Baseball {
@@ -112,6 +132,11 @@ impl Baseball {
             finished: None,
             board: None,
             pages: None,
+            tournament: None,
+            tournament_file: None,
+            tables: None,
+            fixture: None,
+            on_paper: 0,
         }
     }
 
@@ -131,31 +156,6 @@ impl Baseball {
         self.game.mods = Mods::load(&file);
         self.game.mods.keep_within(&self.game.rules);
         self.mods_file = Some(file);
-    }
-
-    /// Starts and stops the music and the crowd for the screen being shown.
-    /// The music belongs to the menu and the screens a game ends on. The
-    /// crowd is heard under a game.
-    fn sound_for(&mut self, screen: Screen, stage: &mut Stage) {
-        let sound = &self.game.rules.sound;
-        for (name, level) in &sound.levels {
-            stage.set_sound_level(name, *level);
-        }
-        let in_game = screen.is_game();
-        let wants_music = screen == Screen::Menu;
-        let stops_music = in_game || screen == Screen::Instructions;
-        if wants_music && !self.music_on {
-            self.music_on = stage.play_sound(&sound.music, 999);
-        } else if stops_music && self.music_on {
-            stage.stop_sound(&sound.music);
-            self.music_on = false;
-        }
-        if in_game && !self.crowd_on {
-            self.crowd_on = stage.play_sound(&sound.crowd, 999);
-        } else if screen == Screen::Menu && self.crowd_on {
-            stage.stop_sound(&sound.crowd);
-            self.crowd_on = false;
-        }
     }
 
     /// Makes every game go the same way, for a test or for chasing a fault.
@@ -200,6 +200,7 @@ impl Logic for Baseball {
         self.stop_held_clips(stage);
         self.play_a_frame(stage);
         self.show_interval(stage);
+        self.show_tables(stage);
         self.show_result_lines(stage);
         self.name_the_skill_played(stage);
         if let Some(shell) = art::shell(stage) {
@@ -223,46 +224,6 @@ impl Logic for Baseball {
     }
 
     fn describe(&self) -> String {
-        match self.screen {
-            Screen::Menu => {
-                // The mods that are on are named, when any are, each with
-                // the level its setting is at if it has one.
-                let mods: Vec<String> = self
-                    .game
-                    .mods
-                    .all_on()
-                    .map(|which| match which.setting() {
-                        Some(_) => format!("{}={}", which.key(), self.game.mods.level(which)),
-                        None => which.key().to_owned(),
-                    })
-                    .collect();
-                let mods = if mods.is_empty() {
-                    String::new()
-                } else {
-                    format!(", with {}", mods.join(" and "))
-                };
-                format!(
-                    "Menu, {:?}, {:?}{mods}",
-                    self.menu.page(),
-                    self.game.settings.difficulty
-                )
-            }
-            screen => {
-                // A game says how it stands, and the screen a full match
-                // ended on says how it went.
-                let play = match (&self.play, &self.finished) {
-                    (Some(play), _) => format!(": {}", play.describe()),
-                    (None, Some(full)) => {
-                        let page = self.pages.as_ref().map_or(String::new(), |pages| {
-                            let (page, of) = pages.at();
-                            format!(", page {page} of {of}")
-                        });
-                        format!(": {}, {}{page}", full.verdict(), full.describe())
-                    }
-                    (None, None) => String::new(),
-                };
-                format!("{screen:?}, {:?}{play}", self.game.settings.difficulty)
-            }
-        }
+        self.in_words()
     }
 }

@@ -9,9 +9,15 @@
 mod figures;
 #[cfg(test)]
 mod properties;
+mod rows;
+mod sum;
 mod turn;
 
 pub use figures::{Figures, average, percent, tenths};
+pub use rows::{
+    BATTING_HEADS, Row, batting_cells, besides, hitting_rows, innings_pitched, pitcher,
+    pitching_rows,
+};
 pub use turn::{End, Hit, Pitch, Steal, Thrown, Turn};
 
 /// How many batters make up the order before it comes round again.

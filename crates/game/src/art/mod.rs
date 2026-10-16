@@ -97,6 +97,9 @@ pub const CHOICE: SymbolId = 2052;
 pub const BADGE: [SymbolId; 2] = [69, 70];
 pub const NINE: SymbolId = 2048;
 pub const NINE_FROM_BADGE: (f32, f32) = (-16.7, -4.4);
+/// The cup that is the tournament's picture in the badge, which is drawn
+/// to lie on it as the nine is.
+pub const CUP: SymbolId = 2056;
 /// The heading and the words of the page that says what a match is to be,
 /// which a full match writes its own in place of.
 pub const SUMMARY_WORDS: [SymbolId; 2] = [481, 486];
@@ -108,6 +111,10 @@ pub const BOARD: SymbolId = 1769;
 pub const BOARD_WORDS: [SymbolId; 5] = [1760, 1761, 1762, 1763, 1764];
 /// The frame of the board on which its words arrive.
 pub const BOARD_WORDS_FRAME: u16 = 38;
+/// The words on that board's button, NEXT INNINGS, as the clip they are
+/// in. A tournament's tables are on the board too, and write their own
+/// there.
+pub const NEXT_INNINGS_WORDS: SymbolId = 1766;
 /// The word over the score to beat on the game's scoreboards, as its two
 /// drawings. In a full match the other side's score is shown there.
 pub const TARGET_LABEL: [SymbolId; 2] = [505, 517];

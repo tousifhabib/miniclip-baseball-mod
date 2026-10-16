@@ -32,7 +32,11 @@ pub(super) fn turns(
         // Every turn, and every try at stealing a base, in the order they
         // came.
         let all = side.told(innings);
-        let who = if ours { "YOU" } else { "THEM" };
+        let who = if ours {
+            "YOU"
+        } else {
+            full.their_name().unwrap_or("THEM")
+        };
         let head = if all.is_empty() {
             format!("{half}: {who}, NOT BATTED")
         } else {

@@ -80,6 +80,7 @@ impl Baseball {
         self.show(screen_after(outcome), stage);
         self.last_zinger = longest;
         self.finished = finished;
+        self.take_the_result(stage);
     }
 
     /// The arcade game's finish screen names the skill level played, on a

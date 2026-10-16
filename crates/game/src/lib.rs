@@ -8,6 +8,7 @@
 pub mod art;
 pub mod baseball;
 pub mod board;
+mod choice;
 pub mod game;
 pub mod kept;
 pub mod locate;
@@ -21,3 +22,4 @@ pub mod scores;
 pub mod script;
 pub mod settings;
 mod sheet;
+pub mod tournament;

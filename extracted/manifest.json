@@ -16456,6 +16456,44 @@
     "2053": {
       "file": "buttons/2053.json",
       "kind": "button"
+    },
+    "2054": {
+      "file": "texts/2054.json",
+      "kind": "text"
+    },
+    "2055": {
+      "file": "shapes/2055.svg",
+      "kind": "shape",
+      "bounds": {
+        "x_min": 46.9,
+        "y_min": 7.9,
+        "x_max": 180.9,
+        "y_max": 23.05
+      }
+    },
+    "2056": {
+      "file": "shapes/2056.svg",
+      "kind": "shape",
+      "bounds": {
+        "x_min": 6.2,
+        "y_min": 6.1,
+        "x_max": 26.0,
+        "y_max": 25.9
+      }
+    },
+    "2057": {
+      "file": "shapes/2057.svg",
+      "kind": "shape",
+      "bounds": {
+        "x_min": 6.2,
+        "y_min": 6.1,
+        "x_max": 26.0,
+        "y_max": 25.9
+      }
+    },
+    "2058": {
+      "file": "buttons/2058.json",
+      "kind": "button"
     }
   },
   "exports": {

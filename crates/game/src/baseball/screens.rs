@@ -24,6 +24,9 @@ impl Baseball {
             stage.remove(&lines);
         }
         self.pages = None;
+        if let Some(tables) = self.tables.take() {
+            tables.take_down(stage);
+        }
         // What was written on the board went with the board.
         self.board = None;
         // A game with the southpaw mod on has the stage draw what is
@@ -45,17 +48,23 @@ impl Baseball {
             return;
         }
         self.finished = None;
+        // A fixture lasts from its first ball to the screen it ends on.
+        let of_a_match = [Screen::FullMatch, Screen::MatchWon, Screen::MatchLost];
+        if !of_a_match.contains(&screen) {
+            self.fixture = None;
+        }
+        // The tables are of a tournament, which is drawn if there is none.
+        if screen == Screen::Tournament && self.tournament.is_none() {
+            self.draw_tournament(stage);
+            self.tell_the_menu();
+        }
         let seed = self.seed.unwrap_or_else(Rng::seed_from_clock);
         self.play = match screen {
             Screen::Match => {
                 self.playing = self.game.as_played(true);
                 Some(Match::new(&self.playing, seed, stage.library()))
             }
-            Screen::FullMatch => {
-                self.playing = self.game.as_played(true);
-                let home = self.menu.take_home(&self.game.settings);
-                Some(Match::new_full(&self.playing, home, seed, stage.library()))
-            }
+            Screen::FullMatch => Some(self.a_full_match(seed, stage)),
             Screen::Arcade => {
                 self.playing = self.game.as_played(false);
                 Some(Match::new_arcade(&self.playing, seed, stage.library()))
@@ -84,6 +93,9 @@ impl Baseball {
             Leave::Match => Screen::Match,
             Leave::Arcade => Screen::Arcade,
             Leave::FullMatch => Screen::FullMatch,
+            Leave::Tables => Screen::Tournament,
+            Leave::Fixture => return self.play_the_fixture(stage),
+            Leave::Draw | Leave::GiveUp => return self.about_the_tournament(leave, stage),
         };
         self.show(screen, stage);
     }
@@ -103,7 +115,7 @@ impl Baseball {
             Screen::Match | Screen::FullMatch | Screen::Arcade => match label {
                 "QUIT" => self.quit_prompt(true, stage),
                 "NO" => self.quit_prompt(false, stage),
-                "YES" => self.show(Screen::Menu, stage),
+                "YES" => self.give_the_game_up(stage),
                 _ => {}
             },
             Screen::MatchLost | Screen::MatchWon | Screen::InningsTied | Screen::ArcadeFinish => {
@@ -111,12 +123,20 @@ impl Baseball {
                     self.show(Screen::Menu, stage);
                     self.menu.open(MenuPage::HighScores, &self.game, stage);
                 } else if label == "MAIN MENU" || art::CONTINUE_BUTTONS.contains(&button) {
-                    self.show(Screen::Menu, stage);
+                    self.on_from_the_result(stage);
                 }
             }
             Screen::Interval => {
                 if art::CONTINUE_BUTTONS.contains(&button) {
                     self.bat_again(stage);
+                }
+            }
+            Screen::Tournament => {
+                // On from the tables is the menu's page of what is next.
+                if art::CONTINUE_BUTTONS.contains(&button) {
+                    self.show(Screen::Menu, stage);
+                    self.menu
+                        .open(MenuPage::TournamentSummary, &self.game, stage);
                 }
             }
             Screen::Instructions => self.instructions_clicked(label, stage),
