@@ -29,6 +29,13 @@ nothing put on the machine first, and the mathematics a test is played by
 comes with the program and not with the machine. `.cargo/config.toml` says
 so for every program built for Windows, the tests' as well.
 
+**Why the window waits for the screen.** The pace plays a frame of the game
+every so many redraws, and counts on each redraw being one of the screen's.
+A Mac's card offers that first. Windows' offers first to draw as fast as it
+can and show the newest picture, which drew some three hundred a second on
+a screen of sixty, never in step with it, and the game juddered. The window
+now asks for a picture that waits for the screen, which every card has.
+
 **Why the dialog is a crate's.** No code here may be unsafe, and Windows'
 own call for a message box is. `rfd` puts one up safely, and is built for
 Windows only. The Mac's alert was already put up by a program the system
