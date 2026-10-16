@@ -60,7 +60,7 @@ fn own_folder_on(system: System, var: impl Fn(&str) -> Option<OsString>) -> Opti
 /// 1. inside the Mac app bundle the program is running from, in its
 ///    resources;
 /// 2. the player's own copy, in the game's own folder;
-/// 3. beside the program;
+/// 3. beside the program, which is where the Windows app has it;
 /// 4. in the folder the program was started from.
 ///
 /// `program` is the path of the running program, `own` the game's own folder

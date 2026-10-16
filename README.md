@@ -23,6 +23,7 @@ anywhere else. Miniclip does not run or support this project.
 | `crates/format` | The types the art's files are read into |
 | `crates/modtools` | Tools for working on the art |
 | `scripts/bundle-mac.sh` | Builds the Mac app |
+| `scripts/bundle-windows.ps1` | Builds the Windows app |
 | `scripts/check.sh` | Everything a change has to pass, in one go |
 | `scripts/as-it-was.sh` | Plays the record of whole games to the end |
 | `assets/icon.svg` | The app's icon |
@@ -36,6 +37,9 @@ edit.
 
 Needs Rust, by way of `rustup`. `rust-toolchain.toml` names the version the
 code is written for, and `rustup` fetches it the first time it is wanted.
+On Windows Rust also needs Microsoft's C++ build tools, with a Windows SDK:
+the C++ workload of Visual Studio, or of the Build Tools for Visual Studio,
+has both.
 
 ```bash
 cargo run --release -p bb-game
@@ -62,9 +66,25 @@ scripts/bundle-mac.sh
 open "target/app/Baseball Mod.app"
 ```
 
+To build it as a Windows app, from PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\bundle-windows.ps1
+& "target\app\Baseball Mod\Baseball Mod.exe"
+```
+
+That makes a folder, `target\app\Baseball Mod`, with the program and the
+art beside it, which can be put anywhere, and the same folder as a zip. The
+program needs nothing else put on the machine to run. It opens no console
+window of its own, and if it cannot start it says why in a dialog. It is
+not signed, so Windows asks before running a copy that came from the
+internet.
+
 The app is called Baseball Mod and keeps its scores, its choice of mods and
 its tournament apart from the vanilla game's, so both can be installed side
-by side.
+by side. They are kept in the player's own folder for it: on a Mac
+`~/Library/Application Support/io.github.tousifhabib.baseball-mod`, and on
+Windows `%APPDATA%\io.github.tousifhabib.baseball-mod`.
 
 ## How far a hit goes
 
