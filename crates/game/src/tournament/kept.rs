@@ -55,8 +55,8 @@ fn written([red, green, blue]: Rgb) -> String {
 }
 
 impl Tournament {
-    /// Where a tournament is kept: in the game's folder under Application
-    /// Support.
+    /// Where a tournament is kept: beside the scores, in the player's own
+    /// folder for the game.
     pub fn usual_file() -> Option<PathBuf> {
         kept::usual_file("tournament.toml")
     }
