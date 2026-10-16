@@ -14,6 +14,14 @@ path = "src/lib.rs"
 name = "bb-game"
 path = "src/main.rs"
 
+[features]
+# For the program that goes into the Windows app, which is started from its
+# folder and not from a terminal: it opens no console window of its own, and
+# says why it could not start in a dialog. `scripts/bundle-windows.ps1`
+# builds with it. A Mac app needs nothing of the kind, since the program can
+# see that it is in a bundle.
+app = []
+
 [dependencies]
 anyhow.workspace = true
 bb-engine = { path = "../engine" }
@@ -23,6 +31,11 @@ serde = { workspace = true, features = ["derive"] }
 resvg = "0.48"
 thiserror.workspace = true
 toml = "1"
+
+# The dialog that says why the game could not start, on Windows. The Mac's
+# is put up by the system's own `osascript`.
+[target.'cfg(windows)'.dependencies]
+rfd = { version = "0.17", default-features = false }
 
 [dev-dependencies]
 proptest.workspace = true

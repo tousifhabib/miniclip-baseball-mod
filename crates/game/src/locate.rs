@@ -93,9 +93,15 @@ pub fn candidates(
     places
 }
 
-/// Whether the program is running from inside an app bundle, and so has no
-/// terminal to speak through.
-pub fn in_app_bundle() -> bool {
+/// Whether the program was started as an app, and so has no terminal to
+/// speak through: from inside a Mac app bundle, or built to be the Windows
+/// app (with the `app` feature, which opens no console window).
+pub fn started_as_app() -> bool {
+    cfg!(all(windows, feature = "app")) || in_app_bundle()
+}
+
+/// Whether the program is running from inside a Mac app bundle.
+fn in_app_bundle() -> bool {
     std::env::current_exe()
         .ok()
         .as_deref()

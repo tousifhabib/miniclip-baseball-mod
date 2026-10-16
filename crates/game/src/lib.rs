@@ -5,6 +5,7 @@
 // dealt with, or the reason it cannot be is given.
 #![warn(clippy::unwrap_used)]
 
+pub mod alert;
 pub mod art;
 pub mod baseball;
 pub mod board;
