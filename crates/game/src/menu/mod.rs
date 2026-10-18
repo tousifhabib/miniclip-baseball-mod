@@ -33,6 +33,9 @@ pub struct Menu {
     arriving: bool,
     /// What the coin for a full match is tossed with, if not the clock.
     coin: Option<Rng>,
+    /// What the runs a match starts behind by are drawn with, if not the
+    /// clock.
+    runs_down: Option<Rng>,
     /// Whether the side is at home in the full match about to begin, once
     /// that has been settled.
     home: Option<bool>,
@@ -55,6 +58,7 @@ impl Default for Menu {
             page: MenuPage::Opening,
             arriving: false,
             coin: None,
+            runs_down: None,
             home: None,
             grounds: None,
             summary: None,
@@ -74,6 +78,7 @@ impl Menu {
     /// Makes the toss for a full match come out the same way every time.
     pub fn seed(&mut self, seed: u64) {
         self.coin = Some(Rng::new(seed ^ mixed_with::THE_COIN));
+        self.runs_down = Some(Rng::new(seed ^ mixed_with::RUNS_DOWN));
     }
 
     fn clip(stage: &Stage) -> Option<&ClipState> {
@@ -98,8 +103,12 @@ impl Menu {
         if stage.goto_label(&menu, page.label(), true) {
             self.page = page;
             // What the summary pages say about the game to come.
+            // Until a match's summary has drawn how far behind it starts,
+            // the least it could be stands in.
             let rules = &game.rules.game;
-            let behind = *rules.runs_down.at(game.settings.difficulty);
+            let behind = game
+                .runs_down
+                .unwrap_or(rules.runs_down.at(game.settings.difficulty).low);
             stage.set_text("oppositionScore", behind.to_string());
             // Drawing level is not enough: the target is one run more.
             stage.set_text("scoreTarget", (behind + 1).to_string());
@@ -186,6 +195,19 @@ impl Menu {
             }
             _ => return None,
         };
+        // How far behind the match starts is drawn afresh each time its
+        // summary comes up, which says it, and the match keeps to it.
+        // Going anywhere else, it is forgotten.
+        match page {
+            MatchSummary => {
+                let rng = self.runs_down.get_or_insert_with(|| {
+                    Rng::new(Rng::seed_from_clock() ^ mixed_with::RUNS_DOWN)
+                });
+                game.runs_down = Some(game.draw_runs_down(rng));
+            }
+            ToMatch => {}
+            _ => game.runs_down = None,
+        }
         self.open(page, game, stage);
         None
     }

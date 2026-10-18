@@ -33,7 +33,7 @@ use bb_format::SymbolId;
 
 use crate::game::Game;
 use crate::look::Rgb;
-use crate::rng::Rng;
+use crate::rng::{Rng, mixed_with};
 use at_bat::AtBat;
 use mode::Mode;
 pub(crate) use mods::bullet_time as bullet;
@@ -95,13 +95,9 @@ const NEXT_BALL_BUTTON: SymbolId = 1618;
 impl Match {
     pub fn new(game: &Game, seed: u64, library: &Library) -> Match {
         let mods = ModsInPlay::for_game(game, seed, false);
-        // With every hit a home run there are more runs to get.
-        let runs_down = if mods.every_hit_is_a_home_run() {
-            &game.rules.zinger.runs_down
-        } else {
-            &game.rules.game.runs_down
-        };
-        let behind = *runs_down.at(game.settings.difficulty);
+        let behind = game
+            .runs_down
+            .unwrap_or_else(|| game.draw_runs_down(&mut Rng::new(seed ^ mixed_with::RUNS_DOWN)));
         Match {
             score: 0,
             // Drawing level is not enough: the target is one run more.

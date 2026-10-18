@@ -3,7 +3,7 @@
 
 use serde::Deserialize;
 
-use super::shapes::{Area, BySkill, Ring};
+use super::shapes::{Area, BySkill, Ring, Span};
 use crate::settings::Difficulty;
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
@@ -11,8 +11,8 @@ use crate::settings::Difficulty;
 pub struct MatchRules {
     /// Outs a side gets in its innings.
     pub outs: u32,
-    /// How many runs behind the player starts.
-    pub runs_down: BySkill<u32>,
+    /// How many runs behind the player starts, drawn for each match.
+    pub runs_down: BySkill<Span>,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]

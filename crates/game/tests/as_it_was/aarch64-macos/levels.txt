@@ -96,8 +96,8 @@ full match at home, pinball_park at 5	8400	ca7cffa7c7b4b235	995b6f0ac0e9f4e3	20d
 full match at home, pinball_park at 5	9000	34a0138d63617e50	7ac9e5842a2e7a94	9b634168607d5d88
 full match at home, pinball_park at 5	9600	f46049ebff020a4b	9fd0fe9454b0e51a	13ed0cc63a0998b5
 full match at home, pinball_park at 5	10200	0f24f1bf1f746c97	33c4128200b64c86	5443db101f4a3533
-full match at home, pinball_park at 5	10800	76013189a4d43c2d	008c9d09dbc76e53	6432c5e419644e70
-full match at home, pinball_park at 5	10925	9a1fc0ed677adc21	a056441be9713917	c52cc5204536331b
+full match at home, pinball_park at 5	10800	76013189a4d43c2d	008c9d09dbc76e53	e2c0e323f6d3b694
+full match at home, pinball_park at 5	10925	9a1fc0ed677adc21	a056441be9713917	0cbfa4c3e32e3a6f
 last innings, moon_ball at 1	600	eb32a64504349dd5	a36d5105bf67cda9	b05d7a3d794ead9f
 last innings, moon_ball at 1	1200	3fa9f453f479b7a4	4241801f41df7416	d53e647edda5f047
 last innings, moon_ball at 1	1800	0b25c570bf9e262f	a15c7d356c3ac330	2da03854a8f13c1d
@@ -188,5 +188,5 @@ full match at home, turbo_runners at 5	5400	f020e7a606f05e5e	82ce219536a50643	36
 full match at home, turbo_runners at 5	6000	2b3b134719f41e34	2c823e82e539eec0	c13c33fa264aa9dc
 full match at home, turbo_runners at 5	6600	c4934a53e296199c	538a22939bd5a327	83ca542838950c41
 full match at home, turbo_runners at 5	7200	940a10ba21ac5a15	08438a8316b5e460	3c94cbd026d2ad6a
-full match at home, turbo_runners at 5	7800	c3007afbef45f899	e6af5e720571667f	e21045b5bcfaf73b
-full match at home, turbo_runners at 5	7858	8713e10cc502671e	725b1f95a3949853	4733e89c831ffe87
+full match at home, turbo_runners at 5	7800	c3007afbef45f899	e6af5e720571667f	789d568692d0f6ad
+full match at home, turbo_runners at 5	7858	8713e10cc502671e	725b1f95a3949853	fdfd3a5bad00c6c1

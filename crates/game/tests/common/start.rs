@@ -103,7 +103,8 @@ pub fn long_match(seed: u64, mods: &[Mod]) -> Option<Script> {
 /// The same, with the numbers in `layer` laid over the rules: what a test
 /// changes of them to see a mod's whole effect in a few pitches.
 pub fn long_match_ruled(seed: u64, mods: &[Mod], layer: &str) -> Option<Script> {
-    let long = "[match]\nouts = 30\n[match.runs_down]\neasy = 40\nmedium = 40\nhard = 40\n";
+    let long = "[match]\nouts = 30\n[match.runs_down]\neasy = { low = 40, high = 40 }\n\
+                medium = { low = 40, high = 40 }\nhard = { low = 40, high = 40 }\n";
     let rules = Rules::layered(&[("a long match", long), ("the test's own rules", layer)])
         .expect("rules that read");
     let start = Start {

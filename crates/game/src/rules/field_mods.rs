@@ -146,6 +146,7 @@ pub struct ZingerRules {
     pub stands: f32,
     pub ball_size: f32,
     pub wall_feet: f32,
-    /// How many runs behind a match starts with the mod on.
-    pub runs_down: BySkill<u32>,
+    /// How many runs behind a match starts with the mod on, drawn for each
+    /// match.
+    pub runs_down: BySkill<Span>,
 }

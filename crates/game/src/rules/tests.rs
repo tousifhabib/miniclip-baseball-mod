@@ -8,7 +8,10 @@ use crate::settings::Difficulty;
 fn the_built_in_rules_are_sound() {
     let rules = Rules::layered(&[]).unwrap();
     assert_eq!(rules.game.outs, 3);
-    assert_eq!(*rules.game.runs_down.at(Difficulty::Hard), 3);
+    assert_eq!(
+        *rules.game.runs_down.at(Difficulty::Hard),
+        Span { low: 8, high: 12 }
+    );
 }
 
 #[test]
@@ -89,9 +92,16 @@ fn a_level_past_the_last_is_the_last_and_a_list_of_none_has_no_number() {
 
 #[test]
 fn a_layer_changes_only_what_it_names() {
-    let rules = Rules::layered(&[("a mod", "[match.runs_down]\nhard = 5\n")]).unwrap();
-    assert_eq!(*rules.game.runs_down.at(Difficulty::Hard), 5);
-    assert_eq!(*rules.game.runs_down.at(Difficulty::Easy), 1);
+    let layer = "[match.runs_down]\nhard = { low = 5, high = 6 }\n";
+    let rules = Rules::layered(&[("a mod", layer)]).unwrap();
+    assert_eq!(
+        *rules.game.runs_down.at(Difficulty::Hard),
+        Span { low: 5, high: 6 }
+    );
+    assert_eq!(
+        *rules.game.runs_down.at(Difficulty::Easy),
+        Span { low: 4, high: 8 }
+    );
     assert_eq!(rules.game.outs, 3);
 }
 

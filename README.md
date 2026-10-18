@@ -49,6 +49,12 @@ for that run, and `--ground home` (or `away`, or `toss`) says where a full
 match is played. `--screen tournament` opens on a tournament's tables: see
 Tournament, below.
 
+In Bottom of the Ninth the runs to win are drawn afresh for each match, from
+5 to 9 on easy, 8 to 14 on medium and 9 to 13 on hard. The summary page
+before the first ball says how many it came to. They are under
+`[match.runs_down]` in `data/rules.toml`, as the runs you start behind by,
+which are one fewer.
+
 The game plays sixty frames a second. On a screen that redraws sixty times a
 second, or a whole number of times that, it plays a frame every so many
 redraws and not by the clock, so that each is on the screen for as long as
@@ -316,9 +322,10 @@ longest of the game just played with the longest ever. With the timing bar
 on as well, a figure over each of the bar's colours says how far a swing on
 that colour sends the ball at the most.
 
-Because every hit scores, a match with the mod on starts further behind: 3
-runs on easy, 5 on medium and 8 on hard. In the arcade game there is no
-target: a hit scores the feet it goes.
+Because every hit scores, a match with the mod on starts further behind,
+with twice the runs to get: 10 to 18 on easy, 16 to 28 on medium and 18 to
+26 on hard. In the arcade game there is no target: a hit scores the feet it
+goes.
 
 The mod's numbers are under `[zinger]` in `data/rules.toml`.
 

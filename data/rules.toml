@@ -9,11 +9,13 @@
 outs = 3
 
 # In a match you come to bat in the last innings already behind. This is by
-# how many runs, for each skill level.
+# how many runs, for each skill level: a number drawn from low to high for
+# each match. The runs to win are one more, so 5 to 9 on easy, 8 to 14 on
+# medium and 9 to 13 on hard.
 [match.runs_down]
-easy = 1
-medium = 2
-hard = 3
+easy = { low = 4, high = 8 }
+medium = { low = 7, high = 13 }
+hard = { low = 8, high = 12 }
 
 # Strikes that put a batter out, and balls that walk him to first.
 [count]
@@ -367,11 +369,13 @@ medium = 2.125
 hard = 2.25
 
 # With the mod on a match takes more winning: this is how many runs behind
-# you start, in place of the numbers under [match].
+# you start, in place of the numbers under [match]. The runs to win are
+# twice what they are without it: 10 to 18 on easy, 16 to 28 on medium and
+# 18 to 26 on hard.
 [zinger.runs_down]
-easy = 3
-medium = 5
-hard = 8
+easy = { low = 9, high = 17 }
+medium = { low = 15, high = 27 }
+hard = { low = 17, high = 25 }
 
 # ---------------------------------------------------------------------------
 # The butterfingers mod: fielders let the ball go.
