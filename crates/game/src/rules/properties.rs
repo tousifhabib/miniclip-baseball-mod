@@ -18,15 +18,15 @@ type Part = (&'static str, fn(&mut Rules) -> &mut f32);
 /// may give it any value at all.
 const WHOLES: [Whole; 10] = [
     ("match.outs", |rules| &mut rules.game.outs),
-    ("match.runs_down.hard", |rules| {
-        &mut rules.game.runs_down.hard
+    ("match.runs_down.hard.high", |rules| {
+        &mut rules.game.runs_down.hard.high
     }),
     ("count.strikes", |rules| &mut rules.count.strikes),
     ("full_match.innings", |rules| &mut rules.full_match.innings),
     ("throw.settle", |rules| &mut rules.throw.settle),
     ("hit.watch", |rules| &mut rules.hit.watch),
-    ("zinger.runs_down.medium", |rules| {
-        &mut rules.zinger.runs_down.medium
+    ("zinger.runs_down.medium.low", |rules| {
+        &mut rules.zinger.runs_down.medium.low
     }),
     ("heat.most", |rules| &mut rules.heat.most),
     ("golden.every", |rules| &mut rules.golden.every),
@@ -159,5 +159,24 @@ proptest! {
         if low >= 1 {
             prop_assert_eq!(span.times(1.0), span);
         }
+    }
+
+    #[test]
+    fn a_number_drawn_from_a_span_is_within_its_ends(
+        low in 0u32..=10_000,
+        more in 0u32..=10_000,
+        seed in any::<u64>(),
+    ) {
+        let span = Span {
+            low,
+            high: low + more,
+        };
+        let mut rng = crate::rng::Rng::new(seed);
+        for _ in 0..16 {
+            let drawn = span.draw(&mut rng);
+            prop_assert!(low <= drawn && drawn <= low + more, "{} from {:?}", drawn, span);
+        }
+        // Ends the wrong way round give the low end.
+        prop_assert_eq!(Span { low: low + more + 1, high: low }.draw(&mut rng), low + more + 1);
     }
 }

@@ -36,6 +36,9 @@ pub(crate) mod mixed_with {
     /// runs and plays its halves from numbers of its own.
     pub const THE_VISITORS_ON_PAPER: u64 = 0x1f83_d9ab_fb41_bd6b;
     pub const THE_HOME_SIDE_ON_PAPER: u64 = 0x5be0_cd19_137e_2179;
+    /// How many runs behind a match starts: the same pitches come however
+    /// many that is.
+    pub const RUNS_DOWN: u64 = 0x428a_2f98_d728_ae22;
 }
 
 #[derive(Clone, Debug)]
@@ -221,6 +224,7 @@ mod tests {
             mixed_with::A_FIXTURE,
             mixed_with::THE_VISITORS_ON_PAPER,
             mixed_with::THE_HOME_SIDE_ON_PAPER,
+            mixed_with::RUNS_DOWN,
         ];
         for (index, one) in all.iter().enumerate() {
             assert!(!all[index + 1..].contains(one), "{one:#x} is there twice");

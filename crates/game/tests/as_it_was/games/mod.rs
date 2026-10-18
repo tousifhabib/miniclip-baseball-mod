@@ -88,8 +88,8 @@ fn tricks_for(mods: &[Mod]) -> Tricks {
 
 /// A last innings that takes a good many pitches to win or lose, so that a
 /// mod has time to do all it does: six outs to get nine runs in.
-const A_LONG_INNINGS: &str =
-    "[match]\nouts = 6\n[match.runs_down]\neasy = 9\nmedium = 9\nhard = 9\n";
+const A_LONG_INNINGS: &str = "[match]\nouts = 6\n[match.runs_down]\neasy = { low = 9, high = 9 }\n\
+     medium = { low = 9, high = 9 }\nhard = { low = 9, high = 9 }\n";
 /// A full match short enough to play through: two innings a side.
 const TWO_INNINGS: &str = "[full_match]\ninnings = 2\n";
 const ONE_INNINGS: &str = "[full_match]\ninnings = 1\n";

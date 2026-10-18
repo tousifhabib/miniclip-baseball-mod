@@ -5,7 +5,7 @@ use bb_game::art::all_named;
 use bb_game::scores::Scores;
 
 use super::{SPOILT, feet, game, mods};
-use crate::common::{ON, game_keeping, next, pitch, playing, said, state};
+use crate::common::{ON, game_keeping, next, number, pitch, playing, said, state};
 
 #[test]
 fn a_swing_that_misses_is_still_a_strike() {
@@ -25,9 +25,13 @@ fn there_are_more_runs_to_get_and_a_hit_for_each_wins_the_match() {
         return;
     };
     usual.run("wait 60").unwrap();
-    assert!(state(&mut usual).contains("score 0 of 3"));
+    let to_get = |state: &str| number(state, "score 0 of ").expect("a target") as usize;
+    let without = to_get(&state(&mut usual));
 
     let mut script = game("match", 1, true).unwrap();
+    script.run("wait 60").unwrap();
+    let with = to_get(&state(&mut script));
+    assert!(with > without, "{with} with the mod, {without} without");
     let mut pitches = 0;
     let end = loop {
         let (_, off) = SPOILT[pitches % SPOILT.len()];
@@ -36,12 +40,12 @@ fn there_are_more_runs_to_get_and_a_hit_for_each_wins_the_match() {
             break now;
         }
         pitches += 1;
-        assert!(pitches <= 6, "{now}");
-        assert!(now.contains(&format!("score {pitches} of 6")), "{now}");
+        assert!(pitches <= with, "{now}");
+        assert!(now.contains(&format!("score {pitches} of {with}")), "{now}");
         next(&mut script);
     };
     assert!(end.starts_with("MatchWon"), "{end}");
-    assert_eq!(pitches, 6);
+    assert_eq!(pitches, with);
 }
 
 #[test]

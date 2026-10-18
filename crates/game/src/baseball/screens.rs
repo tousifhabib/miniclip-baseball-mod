@@ -62,6 +62,9 @@ impl Baseball {
         self.play = match screen {
             Screen::Match => {
                 self.playing = self.game.as_played(true);
+                // What the menu said is for this match only: another drawn
+                // without it draws its own.
+                self.game.runs_down = None;
                 Some(Match::new(&self.playing, seed, stage.library()))
             }
             Screen::FullMatch => Some(self.a_full_match(seed, stage)),

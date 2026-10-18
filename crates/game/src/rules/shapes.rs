@@ -3,6 +3,7 @@
 
 use serde::Deserialize;
 
+use crate::rng::Rng;
 use crate::settings::Difficulty;
 
 /// A number for each level a mod's setting can be put at, the lowest
@@ -60,6 +61,12 @@ pub struct Span {
 }
 
 impl Span {
+    /// A number from the span, by `rng`. One with its ends the wrong way
+    /// round gives its low end.
+    pub fn draw(self, rng: &mut Rng) -> u32 {
+        self.low + rng.below(self.high.saturating_sub(self.low) + 1)
+    }
+
     /// The span with both its ends this many times what they were, to the
     /// nearest whole number, and never less than 1.
     pub fn times(self, by: f32) -> Span {

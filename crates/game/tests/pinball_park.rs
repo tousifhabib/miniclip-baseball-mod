@@ -80,7 +80,7 @@ fn a_ball_hit_over_the_wall_on_the_fly_is_still_a_home_run() {
         return;
     };
     let after = pitch(&mut park, 0, (0.0, 0.0));
-    assert!(after.contains("score 1 of 3"), "{after}");
+    assert!(after.contains("score 1 of "), "{after}");
     assert_eq!(rebounds(&after), 0);
 }
 
