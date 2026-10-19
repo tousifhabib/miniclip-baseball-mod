@@ -1,389 +1,389 @@
 # How these games went when they were last written down: each game's sums of what
 # was said, heard and seen, every so many frames. See tests/as_it_was/main.rs.
-monkey 0, last innings	600	82b741e4caea395e	3ca82ddc9674d72b	0a95833027a227d7
-monkey 0, last innings	1200	dcb820b5bd2b048d	4d713f02e65ff4f2	4631197e7c8a1b0c
-monkey 0, last innings	1800	e8b7ef07d3443c61	3b1cb6ae6ff3c0b7	15974ebec3fb8ef9
-monkey 0, last innings	2400	446ff46240405154	4a85b44be1388915	6d7e607956ef6c75
-monkey 0, last innings	3000	d0d07621ffbb13ec	ec4b35daaae23ec5	a29d6033fb9eebf3
-monkey 0, last innings	3600	503ddd4551f7a375	ae77584ca9b02bf7	b6211e133399d5d7
-monkey 0, last innings	4200	5e23a7ae2c7b63ed	1dcafdb229094c64	0deea6040dae4481
-monkey 0, last innings	4800	6af275b01295458a	d93c2a735552d5c1	d72cea3531973f00
-monkey 0, last innings	5400	b7d18808f72d618c	4eaba3ae5900e21d	68b0ef7b6ccf7390
-monkey 0, last innings	6000	6c510403f67e0023	290fce567388fcd8	060860e228a6307e
-monkey 0, last innings	6600	47dadcb9e7befb76	c234bbbb410a3c20	c4ffb0330dbe7bfb
-monkey 0, last innings	7200	d54494bca58dabe8	85ab640095365b9f	283bd6993c82232e
-monkey 0, last innings	7800	1ba4e13dad2a1dfb	6747f3f13c50d290	e2376e4fb23d455f
-monkey 0, last innings	8400	23ab4431365f1074	7157aba6b5905fd9	c7c1ac44aa4f2c33
-monkey 0, last innings	9000	7a95eb1e48659702	ceff3d54c16670d7	24f17acd0b22635c
-monkey 0, last innings	9600	b5d92b221a03ca4f	052e87fb92199c00	5aa6d267466ede11
-monkey 1, last innings	600	955a55c8b7163f9a	1e4dfd8d720a406f	0a5a8f921a423d5e
-monkey 1, last innings	1200	d82572b04e338a6c	ddad95076ae62f47	e7467e831353a702
-monkey 1, last innings	1800	8fa8890542a97b4a	249c792744df8a1b	383eebadc6573714
-monkey 1, last innings	2400	067e701788c99636	19a37bc377dc5169	562550b003ed8937
-monkey 1, last innings	3000	190455af991c1f49	cbfd78436b070029	5e3248a16250eb4a
-monkey 1, last innings	3600	c9ff8b1885d12e35	3ce7818ac361891b	eb48a729d97bf626
-monkey 1, last innings	4200	e71383926c63326f	8903356ddacd6211	8b31fd50a5571cdc
-monkey 1, last innings	4800	cd0d67e19dcb1f01	4918b7ed9f0642e4	70040484bf9fbf5b
-monkey 1, last innings	5400	98095f6c2af8ac13	b6247bbbffb91598	9e7fda6effb7dc0b
-monkey 1, last innings	6000	d79be04413c51f19	8f466eedc89eb69e	f6929cab59d72be4
-monkey 1, last innings	6600	72ff6d9176fca4ec	935da271cf7358d1	763165af22b88742
-monkey 1, last innings	7200	2eb3bc7f75dfbf06	b8681e5eb3fc8bb2	fbba733892d5c049
-monkey 1, last innings	7800	d7494e26575bd182	592b10cc42eec884	c402a4865f859b91
-monkey 1, last innings	8400	d9fb014385ac7420	2cc88eaa074a8d51	99a506c9e1883a54
-monkey 1, last innings	9000	7ec4e8b272b064aa	e751f51ee8ced5df	1cd2fe24ab706403
-monkey 1, last innings	9600	fabde2ba7829c250	38c7b4521b587a0d	dbcfbd420cb3ed7b
-monkey 2, last innings	600	ddffae9ac554f178	f7853e615c2eaaa9	be41274ce23da1e5
-monkey 2, last innings	1200	4158753bc12b0a54	7bbc30edd2e6e879	c7ff8687b39a41c3
-monkey 2, last innings	1800	0d9a3efdecf1d24d	81c1d4171526c103	e1a253720dd91d6c
-monkey 2, last innings	2400	b3a735c2467b310d	a75321c060084d2b	11938c88326a3e6e
-monkey 2, last innings	3000	64be151a8980e209	1237445f8cf86c2d	723c7916ec020338
-monkey 2, last innings	3600	65b8248ce08afb37	3179b20e6def6629	eaca1870a69e0268
-monkey 2, last innings	4200	638a18d133c36b69	30fbef594ffad98e	31f699bd4c1c3417
-monkey 2, last innings	4800	8ea81a48dfe1b9a0	4d7461c67bdb4edd	5f9e1bd3239716ba
-monkey 2, last innings	5400	03a14e2e1800a866	3500bf23a8b660c7	2265d095c38bcf69
-monkey 2, last innings	6000	258006dd86e94dc6	995d03073b9dc937	9dd52087b1ee6534
-monkey 2, last innings	6600	77d322bdb237fb6d	1d85c58370a6530b	810957b5f953b492
-monkey 2, last innings	7200	0b27c7d28cac69cc	ee20b13a13f2d4ec	0aa6ee1a52050bc0
-monkey 2, last innings	7800	d6431418bda84364	09f7507376875e36	2df5545e423ec172
-monkey 2, last innings	8400	302802c7b261b6c0	3cf7ebf750e15eb2	6910a0fad9095d85
-monkey 2, last innings	9000	f4ba87230ef3d5b5	2f89730b342d6c34	cbda1c49a5df176b
-monkey 2, last innings	9600	72d7d9dcf9967ca2	38e5f4debaf8cb06	a1792cfe5f3597ef
-monkey 3, last innings	600	9f30efaee05d27ae	16560c960060bb6d	af41f1687abde70a
-monkey 3, last innings	1200	e941652ed6593f9b	1a4d34166cc959fe	bf96b8df33070ed2
-monkey 3, last innings	1800	10591dd95ff929d5	0a6adcdf4ab67b5f	053001b7b8859fa8
-monkey 3, last innings	2400	8c2f7148b116f045	9d69a406a485d0fc	cab9ad27542ebb87
-monkey 3, last innings	3000	647017a7faa625d9	e0b2f154b97299c2	962fcba7b8a15203
-monkey 3, last innings	3600	b5a6c5d0ce7283c6	683a18ba63b7d1bc	890630636f4dd255
-monkey 3, last innings	4200	f3d2e3cf68b4553a	5b585a2c55c746b9	e0c61fb3dfde0233
-monkey 3, last innings	4800	0baf365369691b3d	778aeaf4f91fb2e8	ab051c57a0297c75
-monkey 3, last innings	5400	ada42c79f0dfc5fe	c7626f0ac82ff74e	e5b6aafdd09fdc8d
-monkey 3, last innings	6000	99be43abddd2152f	adc4545d330db710	f41a9332961ea7f8
-monkey 3, last innings	6600	37594bbcdacd1a6c	01e603de59a9f66c	104540b1c5d9bd81
-monkey 3, last innings	7200	eb12b3a8c31baebe	1e58d4809f9f2832	6bf47e22a0dcfb5d
-monkey 3, last innings	7800	ac8e6e3e14a3fb44	ea90841ecc64d9fc	f3dd8e78841f9b17
-monkey 3, last innings	8400	a67e6d6d1bfa4bf7	386c12096e05974c	7f03008fcb590794
-monkey 3, last innings	9000	799095d6e9e44329	b431e0645dbeaee7	1c71a0e7ec6d236d
-monkey 3, last innings	9600	5b2dd4711d3a85f6	822d90df67c4b85b	5c89adbeaf0e8a61
-monkey 4, last innings	600	94c79ee720da9243	38229fb3cae63abf	41d394bd4fb16b0a
-monkey 4, last innings	1200	b8b1a9a920a3e646	43ca3de08cf1a514	7d96055ea2461459
-monkey 4, last innings	1800	214bc0e7841a4946	a767341d7515fb8c	13c60fb9cb6bf3f7
-monkey 4, last innings	2400	5346effae4c1e3de	d19116eaeaf0cefa	fc3816f90d64bb8e
-monkey 4, last innings	3000	dcfcbb25de417cae	5d2f2a4f6011c7c3	ea920cae9f015da3
-monkey 4, last innings	3600	779323524d8cbfd5	9d9bbbbbb1abb710	0f649e1cd7ee7382
-monkey 4, last innings	4200	57e90af041de1d30	54efec379797618b	c9209712e33f61fe
-monkey 4, last innings	4800	e3516763460aecd0	44058da52ad83b42	fc7cc89b418c5734
-monkey 4, last innings	5400	c1bc7fd27b00ff6e	bdeab402cdb11861	2f0d029c9dcdd7bf
-monkey 4, last innings	6000	ed2589ab06e2b242	ae2b268e73da3d74	f68eecd5d407d3eb
-monkey 4, last innings	6600	6c02324df503772c	9f688f8552c889d6	273129020835c93c
-monkey 4, last innings	7200	e0b3332c9818ef3f	be900fd215f5616b	53f17939c00c571d
-monkey 4, last innings	7800	22e5509723adf8ef	ee3de366b07ce80b	70a60dc5b632f072
-monkey 4, last innings	8400	bc691bba744f8da5	e959d516d013b277	615cf4c714226bc0
-monkey 4, last innings	9000	92bdd9447ea03c3c	3a4681121675a19e	dd08cab83a913868
-monkey 4, last innings	9600	21768bf30ae2443a	61805f932dab904e	d0f0320f34f1c456
-monkey 5, last innings	600	1783cd8f274b1442	2196636227509444	711878a70d709bbb
-monkey 5, last innings	1200	4b484e17388b9dbe	1fae3ee711f28682	4c3242518016995a
-monkey 5, last innings	1800	f76d6f6f24610ced	cf8e63bf89e0b709	2d07dfb331aeda7f
-monkey 5, last innings	2400	82d13b5bbbf1e808	4cd5898c5f828c22	c709db5ca0523730
-monkey 5, last innings	3000	1f3fb61bdc6c7dd8	52cdb4dfd969c92a	905d0c6ced84ea25
-monkey 5, last innings	3600	18b4905f5894175d	20b8fa30aa004518	5843083479967918
-monkey 5, last innings	4200	d4333c774a1b38cb	4533c0abb493bef5	c417fc9d126c80cd
-monkey 5, last innings	4800	fab8e97e29b24b2e	4fd67739c62a8b85	d10b0f6da0b8742d
-monkey 5, last innings	5400	99baec0518dd4c5c	d7f19e5727ef5946	6e6a54b4ca2d60a1
-monkey 5, last innings	6000	d875d12c553b02bc	ae674a8ac1377e64	62a667c691cce883
-monkey 5, last innings	6600	019189b34f587d9b	33b06dfb04ea9c53	43781f811d069525
-monkey 5, last innings	7200	32af40196449bcbd	14a51f700826b06a	3d362632184d6151
-monkey 5, last innings	7800	dc9ebd1c6b7f2450	5945ff6c4857b0b0	a16c5f98e82eb7e9
-monkey 5, last innings	8400	6b2d70d7b0c7b420	a5183a45e561f6a9	2b4aeb744a277bfd
-monkey 5, last innings	9000	2fdc892c784a89a9	cb437b5cc4c6cec3	085ab758b732f708
-monkey 5, last innings	9600	7b97be922a332fe7	76438b2f31ee8a0e	29d1f2798a2e3296
-monkey 6, last innings	600	bcfa5a013f9188da	c6126bddd81d119d	e684a2152e9ad81b
-monkey 6, last innings	1200	1fa200d1ac785df6	b06f3c7d87c658aa	a6fd54a526c71725
-monkey 6, last innings	1800	adf5dfbaaab21d45	5f19a0669bfc45f1	5bfae3234830ad21
-monkey 6, last innings	2400	853c7f0e02db3ce3	1645af141736b14e	cd97cb97a7d790b0
-monkey 6, last innings	3000	65e41d5f44efa7e6	49a02534981fec23	21181cc22d3f8ef0
-monkey 6, last innings	3600	856152343d3822f9	0202fe2e42b8fb59	18419f0439755753
-monkey 6, last innings	4200	da41ea7ac818b59d	b3548c9dd4a5052c	27b666284264e176
-monkey 6, last innings	4800	228f259b7e0f45fe	f4ce45252561fb44	66e776587c012458
-monkey 6, last innings	5400	1c364767f2071459	27489ca2b2d2eda5	80d740ef03f7de2e
-monkey 6, last innings	6000	c8afda18decee993	efd946ee0cd5594f	be04148a53d266c5
-monkey 6, last innings	6600	6e8382f7b7a63a3a	3b69839b9f1b75f7	34cc67dd6610a3a5
-monkey 6, last innings	7200	194a46b33bc28345	c6dc16d437454524	75d98eef96e64c77
-monkey 6, last innings	7800	2f4cc18a442b0b8a	220016e676c5eae2	f44b2fb6b30b48b7
-monkey 6, last innings	8400	fda5db804453e5ed	31f5795d69caaec6	6577e850f5f3af39
-monkey 6, last innings	9000	326d34606fe8d5be	418699c85c12b2ea	0ebb02860713fb6e
-monkey 6, last innings	9600	be904f5bd9399409	2cb7c73a09be9211	6b66f4fad4636c5d
-monkey 7, last innings	600	bdf93fe78396ad5c	643be77dce6c9638	e440344a82b479f0
-monkey 7, last innings	1200	6b36d22cf8f8c6e2	fb5711140a925b97	e63ca60feb8f4958
-monkey 7, last innings	1800	30c7ec66e1ccbfab	afb56cc01d3dfc3f	61f7e0edc22d35e1
-monkey 7, last innings	2400	a67819b34d724689	75c51a61e44beff0	8a58eec6366cff49
-monkey 7, last innings	3000	5c493d1cb945c0d7	e1c6d06b38b14156	799c53b3a2614622
-monkey 7, last innings	3600	fc818edfafe87163	8213b419434897a8	79bca530b806ad1f
-monkey 7, last innings	4200	24933962eedb35bc	1a862849b080a0cd	3d42c0c25346bf40
-monkey 7, last innings	4800	328255a7fc0ba584	64812ef858263e4a	d6fa5c751023c904
-monkey 7, last innings	5400	3264d31ed52fdb82	4bbb352bc2ebed42	94e2d8a2a8067d1a
-monkey 7, last innings	6000	ea102d74c81d45ae	c268e55284871c5a	d9b9311b0a3c5b7b
-monkey 7, last innings	6600	1f56563fe3e14211	b861df8a0ae4540f	d6836124e0c386d1
-monkey 7, last innings	7200	57a71565b06a1246	16deec1d0730d9c6	15a59068efcd0b61
-monkey 7, last innings	7800	f348805df4709f01	8b6b65d02ce421de	ca78092c8cba3688
-monkey 7, last innings	8400	0b413099bd288ef1	c8b07427e6ee3850	a69adcdaaf0702d7
-monkey 7, last innings	9000	94b345aaf0434a23	d8b1d3891b74f530	c1d5cd42b8f0c32e
-monkey 7, last innings	9600	9d3b9036df980bc3	b8e7811d3c484c84	3c932770b664f48d
-monkey 8, last innings	600	360bc5a1fb7a15f3	8eb01aecece3dd4f	b659bed44b6bdf06
-monkey 8, last innings	1200	a7c64089ad250e70	4d327241a2cccf58	5454090f39022527
-monkey 8, last innings	1800	55b24c4334e7018a	939ba8d4cba57d67	7b6f4c272f873884
-monkey 8, last innings	2400	c0b96c3ba6698f04	10242e94724dc349	79cb066d256bfc21
-monkey 8, last innings	3000	2ef06623afab51e4	99409a1ccac560b1	ca0da02f8cf335f0
-monkey 8, last innings	3600	423a025b25d684ec	78908017457b2531	62e2c0f281e8f529
-monkey 8, last innings	4200	af2eb951a83717ec	4bf8dd5430c4639e	926d1568aa72ae4f
-monkey 8, last innings	4800	024fc5be71d860f2	3ee78465102be7b6	8bed21af6602f426
-monkey 8, last innings	5400	b88beef8bd0038ac	1d0f528d026f58d6	e72306e8fe23deb7
-monkey 8, last innings	6000	a0ef9ff89ece5411	08b89afe0418a3d9	aefe14865678ab5d
-monkey 8, last innings	6600	117770d18319a070	00c6cc5131d7c12d	a742f956937f7d5b
-monkey 8, last innings	7200	896f08999d18847d	472d6dedd9c68a8f	ef9cfec7de681e56
-monkey 8, last innings	7800	b513f0f0f462bc3e	3af7e83e97fea41d	92611c77c5b64488
-monkey 8, last innings	8400	fa95be53ed924d33	aded44b2bd152cf0	f50c3e0716a95eef
-monkey 8, last innings	9000	c44cbc0e1427008e	d2221e91900ad841	64496f65a3d12266
-monkey 8, last innings	9600	4020d8852a8579fd	2b027a75134da361	74fc763de45b9fc8
-monkey 9, last innings	600	4457faf2b44443d3	af149fccdc84535a	2b6799d8267c77b4
-monkey 9, last innings	1200	0016a89de2dad69e	827620f55d823261	896182154b9ad510
-monkey 9, last innings	1800	75cbc0af0936c4ce	9d858d00c407f97f	ea1f8d104809b9bf
-monkey 9, last innings	2400	50e7b99d46e0cc22	af96fc411316c8da	4a475730b94cc599
-monkey 9, last innings	3000	0d6e36ae8c342789	b9519f498abfc5f4	34c00a6071bbdd7f
-monkey 9, last innings	3600	af1388e168d07eca	558ac74d307df55c	b209ec02dd4bc659
-monkey 9, last innings	4200	f61c2f34e52f7b5f	5607d849a4a112e3	2a0696c71b4314f1
-monkey 9, last innings	4800	e11428efa49dc49b	44a11f0f37c51389	5328435dc6c1ef1d
-monkey 9, last innings	5400	b1bb3019682f0934	de51f8e81cd799de	a5b6661aac9da616
-monkey 9, last innings	6000	20f6121104bd75ae	ec44af01fe36a6d4	58f4cd9a0c91d769
-monkey 9, last innings	6600	5c10710cad5653e2	43b7c2c72fbdba2c	b23fbab04dbdf4b1
-monkey 9, last innings	7200	2608129e557e98dd	631c27c74878494e	9001f490438e5fb7
-monkey 9, last innings	7800	9609f7b593fe9111	6b8691426272c36a	e1fcd847b5807b71
-monkey 9, last innings	8400	ab897d26590b7a78	6f3b403d61fc7938	3c082897d5a3a0d4
-monkey 9, last innings	9000	4617796a2706058c	b285f1740099201f	810309bc3b179803
-monkey 9, last innings	9600	34f196863bb827da	6fe9bc5942828bf0	abd057eeca3c0472
-monkey 10, last innings	600	04b0bf3ad961c59d	36417de5dcae5983	246588ba5262332a
-monkey 10, last innings	1200	184e61b106f1bcfd	999f9d8a15399bb1	4085c316d085e3c3
-monkey 10, last innings	1800	09521743eb6414d4	7d5d4ff0b61b579a	960138abdf62b9d5
-monkey 10, last innings	2400	46e329e5ce314a70	15222e46ce3794f7	d2276e45132b13ce
-monkey 10, last innings	3000	3137c04e763e6f2e	b7821c39b28d4454	76841f4c2334c475
-monkey 10, last innings	3600	47890c362920fa7e	2b3ed5bf09087f11	4d0eb884030060f7
-monkey 10, last innings	4200	6e5ed3f87bbd4dac	164577de4044a25c	31016569f0490e8d
-monkey 10, last innings	4800	8d7eba57838f135c	ed9b9b45a15d8b5f	1f325bb6976449ec
-monkey 10, last innings	5400	1bb58d30d47e2e7b	3f667c4c28f8e5f5	da1a45f652eb5a1c
-monkey 10, last innings	6000	212d7e3c3188af5e	45f5a180092862cd	862d22f83c4d1b78
-monkey 10, last innings	6600	e3aafd043b958d96	bb3299d57fe9aef9	03faf9fb8f6c660e
-monkey 10, last innings	7200	8487528fea4909cc	454520e096a23a17	f0916c2ebb44eb3c
-monkey 10, last innings	7800	f845fd7f55a2dbae	056f1091235f1646	fe48bd699437b750
-monkey 10, last innings	8400	8043941119437316	1c9e58a615c35fd4	f52ddf258a9b046a
-monkey 10, last innings	9000	d3fda28bd2606d40	ffb1bc87fca151f6	8822cbcd7a665a62
-monkey 10, last innings	9600	023a13ac0065206c	d0c095c3478fc677	94d8c6079a01b614
-monkey 11, last innings	600	48b86408b7f53f33	7d74c8c65d3c8467	c3845202e8bb7246
-monkey 11, last innings	1200	578b26c5f9fc35bb	a4b6d2f36d86cc53	29f486cd7018ce3e
-monkey 11, last innings	1800	0c5e2df66b9b97c3	b25a481ecb5527fa	35c7450beaab7305
-monkey 11, last innings	2400	b3f4c7df6d27d548	05b9e7d36e3e7110	f3b88e36bb1ad31b
-monkey 11, last innings	3000	689eb84439920626	5509373b21f4f79e	206128e0f16d926f
-monkey 11, last innings	3600	1c4e75485f8ad240	0210ee481f8a8bdc	a5d25ad03bd8cc1f
-monkey 11, last innings	4200	f9eed18ee26f0082	9ddcb1065754da92	997f6808ab8ff35f
-monkey 11, last innings	4800	3c5321d712af9153	3a8845b22bda6215	6baefc775cf8a7c1
-monkey 11, last innings	5400	b7a526d1e2b642ec	d56be3986fdd1521	37eb1ad9d9cadb4f
-monkey 11, last innings	6000	a2c12f42d4b52630	11dd3d5764e5d517	6a0fa5f018e839a9
-monkey 11, last innings	6600	a81aa9e4f258d2ea	fcee01cf0c72315b	3832128dbdda6838
-monkey 11, last innings	7200	673d4178da593eca	2676404360ae8c5d	9ecd29b293904fa4
-monkey 11, last innings	7800	c4e56cbc4b70b17e	8f42130d3d05780e	12bcf5d4715eb455
-monkey 11, last innings	8400	b5ee57f90c577ccf	9f09b42da94ec9f3	fe238c39ce6282df
-monkey 11, last innings	9000	45eb162419274d74	27d0c82954b833b1	b7669067eb14f71b
-monkey 11, last innings	9600	4b6031b896d2fa45	3160ff4a408d2bbd	e133f021209b2ea3
-monkey 0, arcade	600	b43bcf1c3ac9af98	db711799eed50526	7d6b622ff49fa110
-monkey 0, arcade	1200	5902be719a5a273e	3cc6f216038c3a00	28ebdc6bbd23f09d
-monkey 0, arcade	1800	0bfb2611f2fef1cd	8ab6df52f544caa6	baeea40e68090dd9
-monkey 0, arcade	2400	ac23dc7cb6b31b73	451bca0e6c96527d	e6e1f0f53475a0d2
-monkey 0, arcade	3000	52126dc31092a1e4	0c5965704d9a7cae	2e1eb0219fa79b12
-monkey 0, arcade	3600	40115486c1863512	a7747c6bc51ed98e	2db901310dd29ec8
-monkey 0, arcade	4200	9f6935b37f65a0d0	2c9381b7cfae75e2	59c2048864888802
-monkey 0, arcade	4800	8ab26e78062f4169	d4a6a064c502d1d6	3a0affd5e5d895ba
-monkey 0, arcade	5400	200e32e22abcead9	7a42a437529a1cec	8171dfde250afded
-monkey 0, arcade	6000	b431403847c257a1	9bd275dc7886699d	5b0c3b8c69b3fa81
-monkey 0, arcade	6600	e80bcd4d0d91dac8	9e29cf11275ee55e	592a36b57f824a95
-monkey 0, arcade	7200	e39b59b7840140f1	9e25fc2565f6c606	792b6812a021fb64
-monkey 0, arcade	7800	87c4680451daa1bc	87e95c6d9849ac00	c1a88b92c6501a2f
-monkey 0, arcade	8400	bcb293964cd4fc39	b4e7aac860a75afa	cbe8f1f005e8a898
-monkey 0, arcade	9000	c51875d2574e9492	669dabb0b20f0844	fe87d44198b88bfd
-monkey 0, arcade	9600	d2224d908edebdee	e1a63cb9c7c543f9	0497f2c649429f12
-monkey 1, arcade	600	9ddee82e9ff94fa3	f68485cdb9bec5d5	ac73af52cd6ccade
-monkey 1, arcade	1200	888e0f207b5d9217	7a9d189879bfb2b2	94ceb2048296257e
-monkey 1, arcade	1800	6c49071c70d0e79c	748b9804d9538ab5	38df1e9ff1cad5a4
-monkey 1, arcade	2400	10f275ea0b906dfb	68e2f0d510c6d7dc	7dd52802162bd97f
-monkey 1, arcade	3000	ebd0f9c11fedb17e	7f1adce8b234468a	9e6b8b1aa1f80961
-monkey 1, arcade	3600	5f34ed9a57594a16	044b9c0639746315	d2c805f6cfe6ef4a
-monkey 1, arcade	4200	5404687fdfda8080	6ae4889fd08e4f75	d5a27880e5855474
-monkey 1, arcade	4800	302d46fa34d7887f	67f4bc64fe8ef9af	bde30f7667971ee5
-monkey 1, arcade	5400	4951edfa9ac0c7b9	5c9b164f81cec250	eea4bfb3cbf50f4a
-monkey 1, arcade	6000	76de598750119463	92d1c37df80d712e	897ddd472de1c4df
-monkey 1, arcade	6600	cc53ae03e5cb7816	1188b6f3f23c69d9	1cb860614bdd3a03
-monkey 1, arcade	7200	ce1de4277176389c	eb24f7f2a2840b99	89f51865a40e6056
-monkey 1, arcade	7800	c1cf25d1ba340f65	8ee28e0c7c7395b0	ab654fe02b11926f
-monkey 1, arcade	8400	162b7680685ba363	3110f47c8e806863	34012d6c9e26a18f
-monkey 1, arcade	9000	91133a1096716e4c	153a3ee87085eec5	401565d9df7dc9bc
-monkey 1, arcade	9600	cbfc2ea0b79bc35c	0cb2625ac2dffa6b	8aee14b0ed2c7d27
-monkey 2, arcade	600	de93fb36ba0e4afa	19dbe54d336d4dd5	83719f11bb8657c0
-monkey 2, arcade	1200	f03706a0a76a8d61	676d137e98859cd7	c1c27bbd597a77b2
-monkey 2, arcade	1800	233569dd6475ee00	5d3dd6fcc9555771	3852d96132445b93
-monkey 2, arcade	2400	aadda0c2586d9247	ed6ae7c4495f68c1	4cce9441cf8ae802
-monkey 2, arcade	3000	c118194e135d94cb	dc39bcc1c5da30f7	e478da9355774094
-monkey 2, arcade	3600	297b11027cd12f9b	c1a859a0efca9613	a20f513e75160bf8
-monkey 2, arcade	4200	75490b2c98f9681c	15086275519d0f95	c12112b57f0c354e
-monkey 2, arcade	4800	ca52c73ebef94918	aa062200f597ac67	83cb0c2224ad1b28
-monkey 2, arcade	5400	f639a93e18139cd3	f8398a71a46ff590	8475f6866ded06e7
-monkey 2, arcade	6000	650b0f558ea017f6	ff2698fa300060c5	5556aae5784e1e72
-monkey 2, arcade	6600	41455fcd886c59f0	af75ba0914b1620d	9d18d93ba98e1d82
-monkey 2, arcade	7200	aad3ed501705adf8	6bb33f5b7aef008f	c210477a7092d693
-monkey 2, arcade	7800	e4552cbbd6be7fbc	1cc51c411bdee8c6	6e33651f988d1802
-monkey 2, arcade	8400	0d33f8ed66494f85	cecc1bd06ea2026b	7150576889a15c68
-monkey 2, arcade	9000	011286b174bfee80	0f352a329774c0e8	0626e5d7b022cf8a
-monkey 2, arcade	9600	830e1e6a3fce9ef2	69b0008f622d81c9	9175ea46a0cc729b
-monkey 3, arcade	600	c49f6ae6c5f857dc	a02d88c59be3debc	d82ff7081724bb9d
-monkey 3, arcade	1200	c6d1e8a86c2ff01b	88ad924f8706063c	2e194b211a8795bd
-monkey 3, arcade	1800	c0a878c5f23a7c03	b42b65e68c42c6c1	2bbc81b6db4a8d6c
-monkey 3, arcade	2400	0d3d49ee038b5a91	eca9e9c3047bfce3	605b4f0f6d8b5efa
-monkey 3, arcade	3000	55e3bc84e0b78665	7d51a498757a885f	8b1b6aefcae05634
-monkey 3, arcade	3600	eeddf46ee8d63e76	92fcbb9becb54dd8	258473b858a92f90
-monkey 3, arcade	4200	b4c92c886c989e30	3d156b7c9daa2107	a013e04e6b308d08
-monkey 3, arcade	4800	5a3025a3419b5d38	19a42f0e04ea75d4	1b0242513be261e4
-monkey 3, arcade	5400	9ab58c666ebef3e6	2e4e6e8fdf13eb5c	d42081fd2d445f66
-monkey 3, arcade	6000	186108d2905e20d2	c030b2e93c2ec501	33144352e751d655
-monkey 3, arcade	6600	17de556b8e8b2a79	7f5f0381c9f4a7c9	cf918c42daba8e1c
-monkey 3, arcade	7200	6cd70c839207c5c8	6ae2e72c10e1b5db	7554214127dba22f
-monkey 3, arcade	7800	de99c52e17be996d	fbdff4789472e227	2c3e213febb01166
-monkey 3, arcade	8400	55ad067e629053b6	c981c7dd90568f80	f538d38895226acf
-monkey 3, arcade	9000	40a9aa215819783e	ad3cd0631aff6f2f	d813c050a9eff1bd
-monkey 3, arcade	9600	fdf535762da87fc9	654f80412b48f351	4bce9367aba70c65
-monkey 4, arcade	600	ad71a878617a7307	fbbebca028ab0229	8e16fc64330b8540
-monkey 4, arcade	1200	b7198dfc46bab782	e25a5d848d814b20	bd21babe3470c253
-monkey 4, arcade	1800	39595ee15fe0e1e8	7c36ca129e07113d	2d425258a142db7c
-monkey 4, arcade	2400	b3ddf0749e112102	4052ddb11894ab6f	aff0a97dd3c68ad7
-monkey 4, arcade	3000	d3222f3a1e5ce62a	67751fac78ec9003	3e7d037222799c8d
-monkey 4, arcade	3600	dbcade9ec3cf12df	bd942dfad33b9281	216650680e01b9ab
-monkey 4, arcade	4200	c6eff9038c7c14f9	1a78d9ed27ccde82	c39d95934574fefe
-monkey 4, arcade	4800	93fa746ccf1791df	6cedbdd8263100ae	b98d81f2f36cec6f
-monkey 4, arcade	5400	5df3bf476f50f93c	b802b70b4931c809	67e61362771d978f
-monkey 4, arcade	6000	b11867756cde561f	f323e44fc443061a	6184988aabbe067f
-monkey 4, arcade	6600	fc27a4d59fda7b79	cdbda33a63a2d1d9	9b353bebaf01bdf8
-monkey 4, arcade	7200	31553473d55ae15e	446c9673a7bddcd4	7e6bc8b7ac9e91b1
-monkey 4, arcade	7800	6b051f94bc04a991	ac9def83a0de7ebb	9f7cce0af90638f8
-monkey 4, arcade	8400	7f5b09e236e4c4e7	ca5fd0724d242b59	f1b126db71a20648
-monkey 4, arcade	9000	0cc8695319220a7a	209688733efcdac6	9b8e50f449c3c23e
-monkey 4, arcade	9600	174594635abca321	446961bd27d06ebd	d2beabf2307e197e
-monkey 5, arcade	600	c240e29dc2fbc5f8	03adbdc96278d24f	d01b312669e04ed9
-monkey 5, arcade	1200	f6ed687a365c1d35	07b5642a8d01cbd4	2a5bd08cb212380a
-monkey 5, arcade	1800	db49b126b605929a	13b0f15a567a3265	21e3dbbe6815105e
-monkey 5, arcade	2400	8a9a3735339de7a9	ddfb50509899f578	f96bf7adeaa5ff85
-monkey 5, arcade	3000	c426ffb6c6023eb6	f4e1b0823e75d105	0f575589e54e6369
-monkey 5, arcade	3600	c3a6b87232872e4b	7e9e08015816fe5f	a76883fc1da4a42c
-monkey 5, arcade	4200	abc1cb3c59f16263	f3556615212c28c7	2ca2f21f1f1a1c38
-monkey 5, arcade	4800	1a8f9a70c8f5403b	85a401ca7b107f37	939c9feb5082dc92
-monkey 5, arcade	5400	348be24867333fb7	917c5069799c028a	2fa27d6a2f033153
-monkey 5, arcade	6000	9d3fea600ac5d6b3	92a49d7fab60df24	1ea75ef23812b6f7
-monkey 5, arcade	6600	5f1de663a48fe53e	13312da9be09a7ac	4a7a1ba99b20ecbf
-monkey 5, arcade	7200	0fdaf23881a80971	4aba25d46c7e2179	63be808a50a0d3fa
-monkey 5, arcade	7800	174e1f3acf5645e7	ee11c6af77ddac8b	a035e465bed85a5e
-monkey 5, arcade	8400	701526824dd8034c	02adbaae620cc521	f551aa80ec838473
-monkey 5, arcade	9000	48b2ca876ddf8740	d9ed3c8444ec18bc	3ad78ead4f0f44aa
-monkey 5, arcade	9600	fde8925d65d311bb	4d7835868820447c	26e7c0326aece790
-monkey 6, arcade	600	f341c8bc9335c009	34870821ceef03d7	d27959b188c00519
-monkey 6, arcade	1200	2f2c5ffec26de67d	f0c0610ab14358e7	ee11174c4c47f78f
-monkey 6, arcade	1800	28efa8d7e3cdecdc	4ad4a3e22dcd5423	bd5eb01b442bf866
-monkey 6, arcade	2400	aff1004540ce79a8	9216cec495410c85	7e1a5ccd69f629b5
-monkey 6, arcade	3000	99d593f528d58043	c505dbc8068db296	61485203b4aa2d0d
-monkey 6, arcade	3600	b75c4f294633a7b5	a7fed1b32e60ad0a	eef31fac5badff26
-monkey 6, arcade	4200	e3e619a2bcf63f52	7c7b6a6320d29d3e	d6199773af60b590
-monkey 6, arcade	4800	2ae5e7ed8d45f31a	bf0952f8fd4595dc	858b105e69661990
-monkey 6, arcade	5400	234af58a5c96e01b	914dd6e8e10b8dbc	e08f6cd617c3ffb8
-monkey 6, arcade	6000	b53bd99a5fc720d6	57abd0e53e959b0e	d8a230538791740d
-monkey 6, arcade	6600	8f3ada8c38a81e66	67843857da97b8e3	d3f183cb42f60afb
-monkey 6, arcade	7200	ef26cfc62230712f	f4ca5d140f10c023	c6881621300d4d2b
-monkey 6, arcade	7800	b9874accb3ea9856	3af316466e704550	96875b103b2ac489
-monkey 6, arcade	8400	1697053d2f38a67a	e647197418218bed	a8e8fc8cd4adebc4
-monkey 6, arcade	9000	5c4e44d1009f8ed3	2ba9c53afb419815	39c2af32fdf1e746
-monkey 6, arcade	9600	4708c1dfe3692c31	7eaedc57b36582e7	84b6e9782991d4a3
-monkey 7, arcade	600	724131f7ac6b8cd4	9bbf48e7ad8ea9fa	8583753bc9f796f5
-monkey 7, arcade	1200	6fe0b6b8e01d7bc4	7a5acc373e09074e	27e38cc7fccf2726
-monkey 7, arcade	1800	53e2c231d0791bd0	8e010cc93153490b	a95f137168440bb0
-monkey 7, arcade	2400	8f3416e976e3687d	cedfb71d91b354dc	c1e394bc90a4c9c1
-monkey 7, arcade	3000	5aa01e4475a9abe4	da05f3184d80605a	307c02087a8c9908
-monkey 7, arcade	3600	f01fd47764a49d3a	5095ec52ece34026	3e60fd20cf25fc4b
-monkey 7, arcade	4200	f5bf3ab5ad41a3e1	98c525acf20d1bd4	a887c9cfbaf44166
-monkey 7, arcade	4800	880e8e4dd8689ca6	0eb29d90a260bfdf	fe360a2ec90b0bb5
-monkey 7, arcade	5400	f08a470cff780ce1	58807bd3f47a53bb	b1a72aaf8d4333dc
-monkey 7, arcade	6000	5222e25c1dc85ca0	957e89b3106f63f0	cd5ccead4e94a200
-monkey 7, arcade	6600	bf212cf4274b8c87	6475ba06fa5194ec	64462cc7dc8c88f9
-monkey 7, arcade	7200	18846b5e13236488	79ecf266746e7e62	1bb4d8971b6f5508
-monkey 7, arcade	7800	a0f333759f65e0e6	334829f631d17841	0c10937c3bdcc7bb
-monkey 7, arcade	8400	31174336302974ba	821a7166a1a47071	da14b7f41033be2a
-monkey 7, arcade	9000	e5babe2b9461cbaa	4193c4498489f9eb	027092dd764947ac
-monkey 7, arcade	9600	19a942e528c02f8f	0244f63b3da520c6	dc52baa12134beba
-monkey 8, arcade	600	86d0f2b7c73e1a5e	d596b61c3e1da486	4cc0bd80abf638fb
-monkey 8, arcade	1200	fec6019836152b85	e014b0dce1a7fedc	5931f43226847075
-monkey 8, arcade	1800	b98e9c0a733e468f	fd4404e399f3fb38	3d9da87a66a30b2d
-monkey 8, arcade	2400	f7fb2009389eb460	a8aab43e57672610	39e0b73dcd240ce2
-monkey 8, arcade	3000	676e0fc5f55b6eea	ed0409e9a24068d6	14896709b5f6c3a3
-monkey 8, arcade	3600	df3468bbf5ab5c8e	a252c9a13a284a82	e5e3e519a1fa31d5
-monkey 8, arcade	4200	f702c6bab3408b0f	9ce5bc8c360cb638	bffe318c0c84abae
-monkey 8, arcade	4800	33758366e7697825	20bca26df9518bd8	070ffee26eae3e36
-monkey 8, arcade	5400	3f459f648882f2c1	bdd55fb5ad1dd360	1f19dc271c5000a7
-monkey 8, arcade	6000	5e8ae0273049182f	621b560f9bc1aff7	9c1bdbcdb579fd19
-monkey 8, arcade	6600	4c56869c26506661	a58e7c644a758551	12eb483950a03611
-monkey 8, arcade	7200	164f0c31ccd16c62	25fb42b575ae3cc7	a74de133da0ac61b
-monkey 8, arcade	7800	9c52227a7873e404	2d547396bfa8c4b7	53abb0efb2a93fdc
-monkey 8, arcade	8400	b8ae87b7740f0e6c	fd17dde578520503	ea6c2d80ec4c10a6
-monkey 8, arcade	9000	4324ea566931fd0b	52cda2a8ca499c9f	a0fcf72604d714d7
-monkey 8, arcade	9600	1b21db3cc815b6c7	e66d69aeef1d2161	c19e8c651ef35ac5
-monkey 9, arcade	600	ecacc4b25e71b6a1	6c7902a455c51407	683e5c0a507cec59
-monkey 9, arcade	1200	efd8c02a6bbfc158	4c940f08b8713cda	2896bc813ffe087e
-monkey 9, arcade	1800	3f4868c1fc786128	6792c1e81d5c59d4	630da3b0c8bfd2bc
-monkey 9, arcade	2400	42a55cab876e5915	a987d696146eafed	7a7bfc9f0bb36b2b
-monkey 9, arcade	3000	c5f0a3df31b32486	149cef52dbc0c8b7	2554cba4b95365a9
-monkey 9, arcade	3600	35e46bc21f83d9ba	ad3629d6629335db	025114cb52068081
-monkey 9, arcade	4200	d327b5909b239db8	6b9abe0dd8b3188b	6b3bff036ad63658
-monkey 9, arcade	4800	1dc9d3d985dada74	92aa0907a72f0589	3a3d5448942040be
-monkey 9, arcade	5400	8c39612a05148b7f	b86c399e41e03f36	5216d6cd3744c82e
-monkey 9, arcade	6000	5a92370e970429e8	4d2d09ef6c7d1974	67fba8abcddd832f
-monkey 9, arcade	6600	651cff4a2de8d73b	f9731292ce34776e	050ac9c85dd95227
-monkey 9, arcade	7200	67233c7a994c5057	c45c0de501064790	e806bc7d6b72f6e7
-monkey 9, arcade	7800	48875a405db6455e	f9551d1eccb90caa	ae9480fd29f02c52
-monkey 9, arcade	8400	159c2a09127632b4	1b282dc9b07c1516	b4d2b2f48cdfbf25
-monkey 9, arcade	9000	13be6d751c4b1912	1941c295ee628a99	702bf3001eb7611f
-monkey 9, arcade	9600	200b0b2623aa945b	601e789f6679bf66	74d655b553c0355e
-monkey 10, arcade	600	c5b957e6a084ec5a	1a36b3cc4d54f493	7bc9d3dd422bd074
-monkey 10, arcade	1200	dae60b0f76baa460	97e8057d73a63414	808592db783c5d56
-monkey 10, arcade	1800	945362e10a3af9cc	8246522314fb0bfb	1e80b6d1cdeea102
-monkey 10, arcade	2400	b3be56b06a8a0210	e11f733270313017	8ff7022b423b26f4
-monkey 10, arcade	3000	f4505cee1834e738	c52f921a8480befe	ae20d9a8dafc48c1
-monkey 10, arcade	3600	e13a99775952af30	e299bcf966c63ede	d7a549a8710ba574
-monkey 10, arcade	4200	a62678c89f46b0ff	9472d56a18942776	86590106f8c49b0c
-monkey 10, arcade	4800	4891c357fd033f11	599d4b73e940ef68	73279e07dd59b34e
-monkey 10, arcade	5400	749051437369c78b	41f6e37ab92461f4	c9a5259cf16cd6c0
-monkey 10, arcade	6000	6d4d352ffa5a58f3	50a311619277a9a7	63e7c3ff8c672e03
-monkey 10, arcade	6600	e7ad612917610f6e	2b9d5923a727e44d	372d3680f3ddade2
-monkey 10, arcade	7200	708c8dc25100a340	ba572cc824ceb63b	d97e9ac614f451fc
-monkey 10, arcade	7800	baedfa19d2569d06	fbb3ba52aa65700f	2db3a1905f99fe48
-monkey 10, arcade	8400	86f89ded48ffaa21	b3f89b7f881029cc	58a470202f0e29e3
-monkey 10, arcade	9000	17463ebc434d4276	47769197251e950f	66b20f62a7795dde
-monkey 10, arcade	9600	35a12b9225c6384c	b3c986c30b3a240f	e1adda7f921ed387
-monkey 11, arcade	600	2eb2dcc004c66e31	d0daeb4f9535fd1b	fa8fec8c3022861c
-monkey 11, arcade	1200	535cce847ffd9902	f6a0b8380aeadb53	b7e2a6fa2ea375ed
-monkey 11, arcade	1800	7d77c1ec01049fad	5443c33edcd744df	400d7e7538b069ba
-monkey 11, arcade	2400	4d44ae70c4c7f62b	1158ae975ffd1b84	26829e1021e1483e
-monkey 11, arcade	3000	f31a553301b1e811	4d4a28670d526fc7	a5eaa660ee0d4778
-monkey 11, arcade	3600	b1feba8cb4c3f7b0	8259d9697213da97	3ecc148563b152f7
-monkey 11, arcade	4200	6560e1538ebd96f6	0322811064d57f39	c156babe5fa68e0e
-monkey 11, arcade	4800	0ccfd50fa4e67cca	5816df712b29027a	76c063827c190b82
-monkey 11, arcade	5400	b04d898838e818b8	87f95ad871c041b9	da53c2ef8c363d7e
-monkey 11, arcade	6000	453edf76bc17280c	2fffb96c586e9964	55c23b4984befef6
-monkey 11, arcade	6600	bb464d6910250378	426db392530f3758	2dccbe61a2422881
-monkey 11, arcade	7200	6424da1f2265994e	43615e35932978c4	5f12c043748ddd6c
-monkey 11, arcade	7800	cf46b8c447c535da	a53dd963df8a5828	fc105a9a955f454b
-monkey 11, arcade	8400	ca7540d4b63c8c9e	6c7091c9a77a3b65	6439d02b1d86cbf6
-monkey 11, arcade	9000	00a162ff08c8f3c8	43e15bc9bbcd1fd2	95f275346e032af6
-monkey 11, arcade	9600	7b824566046d28df	7a095299b5902fdf	95974c56fff5ba2b
+monkey 0, last innings	600	47f1de678ca188a0	3ca82ddc9674d72b	73ca17b8a5945e2d
+monkey 0, last innings	1200	3299d00981353c5e	4d713f02e65ff4f2	407ac0f66ca612f3
+monkey 0, last innings	1800	b445b58b1e51e847	3b1cb6ae6ff3c0b7	7920c26947411230
+monkey 0, last innings	2400	6a4846f95f1d017e	4a85b44be1388915	333b2567bb4b30d7
+monkey 0, last innings	3000	08ad704c4d70c5db	ec4b35daaae23ec5	b4b73081002dddd6
+monkey 0, last innings	3600	192aef7c8028b603	ae77584ca9b02bf7	f9fec8a4f7db4e91
+monkey 0, last innings	4200	4d23dca4537e8ede	1dcafdb229094c64	1e02df3a2994c7ec
+monkey 0, last innings	4800	d2f84f00b338d6c3	d93c2a735552d5c1	1adbc96243afb77d
+monkey 0, last innings	5400	9d8a5587eb5576c7	4eaba3ae5900e21d	ead1213cecb4faab
+monkey 0, last innings	6000	1f5bc450a987c72b	290fce567388fcd8	7c460c2c68f1b379
+monkey 0, last innings	6600	7bc5e7fe0c872ee5	c234bbbb410a3c20	b59ddec3c8fc185d
+monkey 0, last innings	7200	d40a2d717c5a20fb	85ab640095365b9f	c7749d239432a0d2
+monkey 0, last innings	7800	abac9ee4ef720449	6747f3f13c50d290	d6d23eac9b6b85d5
+monkey 0, last innings	8400	6fabd0005a389812	7157aba6b5905fd9	23efdc22497ba0b7
+monkey 0, last innings	9000	60c3b736c2f750c9	ceff3d54c16670d7	59b8acf810534cc3
+monkey 0, last innings	9600	9d171013253182c5	052e87fb92199c00	dce1192f014cd1ef
+monkey 1, last innings	600	e9e9832d42809f2a	1e4dfd8d720a406f	96f07ac4b0edb2fb
+monkey 1, last innings	1200	38912d06d0a7dcb0	ddad95076ae62f47	fad0d696af16da78
+monkey 1, last innings	1800	c418a0a9fb2de396	249c792744df8a1b	6644e49fde5ec9ee
+monkey 1, last innings	2400	78511779822ae7d9	19a37bc377dc5169	54c49b6aae15d54e
+monkey 1, last innings	3000	53c4e5984fd65777	cbfd78436b070029	e0ed4595fa41bf22
+monkey 1, last innings	3600	900e6e23e08d6897	3ce7818ac361891b	3f172797a5c468eb
+monkey 1, last innings	4200	a4e62b6de9c9ce5c	8903356ddacd6211	08cacda91cede5c7
+monkey 1, last innings	4800	e197c9c4513acc36	4918b7ed9f0642e4	872055472a74a65a
+monkey 1, last innings	5400	753cc361231ebd78	b6247bbbffb91598	0d1f3e22027da1ad
+monkey 1, last innings	6000	a4e4d5bd50826af2	8f466eedc89eb69e	3a30ae7a2f09ee9a
+monkey 1, last innings	6600	e6ef18856ad11737	935da271cf7358d1	81ffd42be9a09f83
+monkey 1, last innings	7200	81bddb15cadc61f8	b8681e5eb3fc8bb2	69d5ca055ef4e2fb
+monkey 1, last innings	7800	14c240a57d7c0a9c	592b10cc42eec884	0aec4f61b841a49b
+monkey 1, last innings	8400	7d971d0fbb1f5902	2cc88eaa074a8d51	947da6f32cc59ca4
+monkey 1, last innings	9000	2c59c527e52f9439	e751f51ee8ced5df	34a821c031c33b7d
+monkey 1, last innings	9600	e8bfd2995c335e4b	38c7b4521b587a0d	083e8b746ae5b812
+monkey 2, last innings	600	1b77a82d52541283	f7853e615c2eaaa9	7d9df7d7c62dbe04
+monkey 2, last innings	1200	fab7edb63c5ca3e3	7bbc30edd2e6e879	dd67b253678d1622
+monkey 2, last innings	1800	cfd4e71c93d1e152	81c1d4171526c103	b36a63764711fe06
+monkey 2, last innings	2400	45787861a3ef233e	a75321c060084d2b	e3d7d04f4cc184a4
+monkey 2, last innings	3000	c26c0c628900542c	1237445f8cf86c2d	a5ff3599049daca6
+monkey 2, last innings	3600	576558cf3ed1da6a	3179b20e6def6629	e705cb8cc37398f5
+monkey 2, last innings	4200	7efee4e1c7649d21	30fbef594ffad98e	900d31d3f76cb9bd
+monkey 2, last innings	4800	d71b6abc85785780	4d7461c67bdb4edd	489eb817432cb68d
+monkey 2, last innings	5400	bc360b64811b8252	3500bf23a8b660c7	b74ae54b6730d1c6
+monkey 2, last innings	6000	c95b5ffc3fba32ad	995d03073b9dc937	d3c84e2526dd825c
+monkey 2, last innings	6600	d1462eb58d974e4c	1d85c58370a6530b	c8ba72d9f1bb2d7c
+monkey 2, last innings	7200	255f317b8bed5e2c	ee20b13a13f2d4ec	ea2712c9b8bb12f1
+monkey 2, last innings	7800	509bf5454d486c53	09f7507376875e36	7f0c304a0fb33107
+monkey 2, last innings	8400	6f151b6373092636	3cf7ebf750e15eb2	95e8e838496513fc
+monkey 2, last innings	9000	96efef68375604de	2f89730b342d6c34	b39c14429bac9b77
+monkey 2, last innings	9600	2d022c646efc913a	38e5f4debaf8cb06	d00a1671a25a82d8
+monkey 3, last innings	600	fd6ca9bced4b637b	16560c960060bb6d	04e46cec1bd1f6d1
+monkey 3, last innings	1200	4e636c1799058052	1a4d34166cc959fe	15dd38389e709060
+monkey 3, last innings	1800	fe26e2997201a488	0a6adcdf4ab67b5f	734c960d7c79f31e
+monkey 3, last innings	2400	cd7f40b5dc7dae8c	9d69a406a485d0fc	cbc28089e45b2a42
+monkey 3, last innings	3000	08fdaf849f7948c4	e0b2f154b97299c2	cc95a153c1564ae5
+monkey 3, last innings	3600	33a4e56f66795457	683a18ba63b7d1bc	c86980daac14b64b
+monkey 3, last innings	4200	a0ea6fe39a17011c	5b585a2c55c746b9	a368bec065b6f101
+monkey 3, last innings	4800	5845c6842a82113d	778aeaf4f91fb2e8	6d242f29a3cfd000
+monkey 3, last innings	5400	20cdd3db2ce5698c	c7626f0ac82ff74e	302936b53189f4e5
+monkey 3, last innings	6000	40c5521309326dad	adc4545d330db710	beb5a5202a5a00bc
+monkey 3, last innings	6600	276527114e96cfcc	01e603de59a9f66c	3e9fb2f47d9adf28
+monkey 3, last innings	7200	392cc382f2d8361b	1e58d4809f9f2832	b5f321feb5948ed2
+monkey 3, last innings	7800	41df1acefb4c687b	ea90841ecc64d9fc	6feb421087f50fbc
+monkey 3, last innings	8400	606e729113a7dfc2	386c12096e05974c	f8f9af148896dc89
+monkey 3, last innings	9000	fab860ffdad801c6	b431e0645dbeaee7	e5af5727d4063a9f
+monkey 3, last innings	9600	8eb264ced3946363	822d90df67c4b85b	7a427b4de5305c32
+monkey 4, last innings	600	fffd44d51fd35930	38229fb3cae63abf	41c0e67c8ad99805
+monkey 4, last innings	1200	63adb4ba58c2fac9	43ca3de08cf1a514	f37cb08e17ca301c
+monkey 4, last innings	1800	00f893344c9358df	a767341d7515fb8c	c81b5f21954df43e
+monkey 4, last innings	2400	c1fcf0115e528900	d19116eaeaf0cefa	ace65d9929e5a866
+monkey 4, last innings	3000	24ad7c544addbffb	5d2f2a4f6011c7c3	6aa648cb2122885c
+monkey 4, last innings	3600	3d881905a8833e13	9d9bbbbbb1abb710	323510f5556f7a50
+monkey 4, last innings	4200	3b7cbc1642caafda	54efec379797618b	0b02401b04930489
+monkey 4, last innings	4800	1214df951ee64d10	44058da52ad83b42	c27ca6c6e2e3ed7d
+monkey 4, last innings	5400	27b43aeda235f667	bdeab402cdb11861	44dbe6da873cd1ca
+monkey 4, last innings	6000	a4d4d4a4ea0e0339	ae2b268e73da3d74	ffeb0b3c87d2549e
+monkey 4, last innings	6600	5f80074fc9434308	9f688f8552c889d6	d366b77da816d1a2
+monkey 4, last innings	7200	fd0afc266a7dba96	be900fd215f5616b	97c0a1f98c5eda66
+monkey 4, last innings	7800	f927d6c4020402ab	ee3de366b07ce80b	5daf1eb97c60b679
+monkey 4, last innings	8400	86f6b6f22342a01d	e959d516d013b277	47330af0b743569f
+monkey 4, last innings	9000	d1416937995fab69	3a4681121675a19e	5046aaecbc7009e5
+monkey 4, last innings	9600	2149d7bfc49fdf80	61805f932dab904e	ee9b1165b0b68f88
+monkey 5, last innings	600	01e385c22268ecb6	2196636227509444	858800f4aba3ded4
+monkey 5, last innings	1200	1fa352f2408fbd9f	1fae3ee711f28682	e530987c95555b38
+monkey 5, last innings	1800	61cc69ad330e7d50	cf8e63bf89e0b709	8a0168aa21f25d11
+monkey 5, last innings	2400	e3ecd2a84357a889	4cd5898c5f828c22	4133ee2620c85e08
+monkey 5, last innings	3000	623cdcd162f1269e	52cdb4dfd969c92a	b0d325628e6c4c23
+monkey 5, last innings	3600	15b2cad69df177a0	20b8fa30aa004518	7b0dc8e526608cd1
+monkey 5, last innings	4200	f3aa1e456fb4686a	4533c0abb493bef5	36e6453c44545ffd
+monkey 5, last innings	4800	7d4cd9912e63930e	4fd67739c62a8b85	26e1859cbf91f523
+monkey 5, last innings	5400	f879487e7d806d39	d7f19e5727ef5946	8dcf2b6e801a4615
+monkey 5, last innings	6000	a1e29843d1cacd7b	ae674a8ac1377e64	bc4d3b406a7ce0b6
+monkey 5, last innings	6600	15904c67cce7caed	33b06dfb04ea9c53	1efab905f7735452
+monkey 5, last innings	7200	9a3db9c066f91acf	14a51f700826b06a	040eba166aba333b
+monkey 5, last innings	7800	384856d6b556bef7	5945ff6c4857b0b0	abdeab00d434b035
+monkey 5, last innings	8400	31a9c46da3bd6204	a5183a45e561f6a9	fe59252b4659801f
+monkey 5, last innings	9000	1eec98bb4f7c6a7c	cb437b5cc4c6cec3	b6677df58221b075
+monkey 5, last innings	9600	dd2e334ea2aac420	76438b2f31ee8a0e	0f94f96f4b393ecd
+monkey 6, last innings	600	b6fcc31357a1ee4d	c6126bddd81d119d	704a68937479dbb5
+monkey 6, last innings	1200	0d4c9620f1526a65	b06f3c7d87c658aa	10c2cf9d87472a5a
+monkey 6, last innings	1800	d71d1db68ecae2c4	5f19a0669bfc45f1	e33aa2dc26bc045a
+monkey 6, last innings	2400	35f8daba48cd1d94	1645af141736b14e	70233b5f73acc74d
+monkey 6, last innings	3000	363f4bfe3cc662b9	49a02534981fec23	cc47745d76dfa1b3
+monkey 6, last innings	3600	50bb4826b5f03603	0202fe2e42b8fb59	81d9ce6eb3fa22b6
+monkey 6, last innings	4200	abbb82254ef18b55	b3548c9dd4a5052c	bdff0119b5ce1422
+monkey 6, last innings	4800	ce0068c197b30c8e	f4ce45252561fb44	3d12cc27c2c16abf
+monkey 6, last innings	5400	631fd0a414655c08	27489ca2b2d2eda5	56bd89ba7873b1a1
+monkey 6, last innings	6000	b8d6e5f731c2b19e	efd946ee0cd5594f	630d2f086d69f6da
+monkey 6, last innings	6600	e7f8551845947a4a	3b69839b9f1b75f7	16c5408f83f476c0
+monkey 6, last innings	7200	386c4d27b7620db5	c6dc16d437454524	de696b1480834f8a
+monkey 6, last innings	7800	5b3a93501a92ac92	220016e676c5eae2	fedefe728b450cce
+monkey 6, last innings	8400	81ccc95916a76064	31f5795d69caaec6	23117dc95146e6e6
+monkey 6, last innings	9000	257ac9dfc23c155c	418699c85c12b2ea	c4eff6d61efc50da
+monkey 6, last innings	9600	ac1838ed15e8b6e1	2cb7c73a09be9211	136fa38897c7f0f0
+monkey 7, last innings	600	c9f1140d0d27709e	643be77dce6c9638	f751b3dbe0da3aac
+monkey 7, last innings	1200	d94400dcdd8e144b	fb5711140a925b97	f435fa5ca75f1582
+monkey 7, last innings	1800	fec64dee4be35def	afb56cc01d3dfc3f	1c462c02d322fc6a
+monkey 7, last innings	2400	3466957a49e5fbfa	75c51a61e44beff0	3ef1e37c48aad1df
+monkey 7, last innings	3000	0ef25111eea3ac39	e1c6d06b38b14156	9662dddbada77e42
+monkey 7, last innings	3600	c970ca8330e0f5c5	8213b419434897a8	4744ac9e76e25754
+monkey 7, last innings	4200	40228b55f7894c39	1a862849b080a0cd	9f883d0e6edb2b1a
+monkey 7, last innings	4800	b62a7bd9878906c2	64812ef858263e4a	08d679e2a34152e2
+monkey 7, last innings	5400	94358a3fc61fcec5	4bbb352bc2ebed42	dd59f5e59ee68b14
+monkey 7, last innings	6000	10e530be4479b509	c268e55284871c5a	676d1169c674eb70
+monkey 7, last innings	6600	0d6f510482a6ddcf	b861df8a0ae4540f	e6b821e1c4caea13
+monkey 7, last innings	7200	b1abf1c656b6fe87	16deec1d0730d9c6	a648b36f85aa6b92
+monkey 7, last innings	7800	3985f3afa647760b	8b6b65d02ce421de	3469fc586b6909b0
+monkey 7, last innings	8400	177ddc4b8718e8a7	c8b07427e6ee3850	db9a4d2be847d72c
+monkey 7, last innings	9000	df6790d9fb0c1d11	d8b1d3891b74f530	e01c0f970aab6d99
+monkey 7, last innings	9600	6d180cc565715d19	b8e7811d3c484c84	500717a19d5aa56b
+monkey 8, last innings	600	52d038a8677ac100	8eb01aecece3dd4f	438e997f85909493
+monkey 8, last innings	1200	672fb33096c5d77b	4d327241a2cccf58	8026f6edee2f4c9e
+monkey 8, last innings	1800	ffcfd76e34678d14	939ba8d4cba57d67	a1d720a86c1ccdbe
+monkey 8, last innings	2400	f557f30d13aa61b5	10242e94724dc349	d503fc6a91f22591
+monkey 8, last innings	3000	3453ea1387beb774	99409a1ccac560b1	957cc1ca07786a56
+monkey 8, last innings	3600	950e9b5aaa2f011b	78908017457b2531	97126569b12cf3f3
+monkey 8, last innings	4200	49ee58ab74b9307f	4bf8dd5430c4639e	58ba2e80d77b346c
+monkey 8, last innings	4800	0dc0816affa6418b	3ee78465102be7b6	f160d9a4f2a6d1aa
+monkey 8, last innings	5400	8683d542f23720e3	1d0f528d026f58d6	fd276b77e7acc406
+monkey 8, last innings	6000	745b921c21b96b88	08b89afe0418a3d9	a436ab6862dc2e01
+monkey 8, last innings	6600	c0e0e31c8da190b0	00c6cc5131d7c12d	27e58ff6c2217c2d
+monkey 8, last innings	7200	14890c2330678d2f	472d6dedd9c68a8f	b579f3f8b461d08f
+monkey 8, last innings	7800	5c7419ab6b9148b5	3af7e83e97fea41d	84cd23d2c1d93659
+monkey 8, last innings	8400	ea0d6ccdf53dccf0	aded44b2bd152cf0	9e719541767f94b7
+monkey 8, last innings	9000	9455d321df7a6f95	d2221e91900ad841	ed2fc29232407700
+monkey 8, last innings	9600	b660b94039cf4871	2b027a75134da361	5975da86996ecf8c
+monkey 9, last innings	600	8723933b1de2119b	af149fccdc84535a	027435f1511d0f13
+monkey 9, last innings	1200	559d99333bab2f83	827620f55d823261	7f6904d2710782d9
+monkey 9, last innings	1800	4cb079d9c33cf6c3	9d858d00c407f97f	70715cf87bed5157
+monkey 9, last innings	2400	568fa7abe38cd277	af96fc411316c8da	1ed6b49699632583
+monkey 9, last innings	3000	deeff2e267dfef49	b9519f498abfc5f4	6ee9ac2e8957f784
+monkey 9, last innings	3600	3f4b8fcab0df65db	558ac74d307df55c	4aab448944d1dfab
+monkey 9, last innings	4200	9e3b081767de7f96	5607d849a4a112e3	627563edacd5b8f7
+monkey 9, last innings	4800	b11535208964a1b3	44a11f0f37c51389	f3bea8ca627b263c
+monkey 9, last innings	5400	ed50602e6ab71684	de51f8e81cd799de	3f562a96ca40c44d
+monkey 9, last innings	6000	6344c8dcfd6f8b5b	ec44af01fe36a6d4	548cfffdcc6121ad
+monkey 9, last innings	6600	993fcd05e7d0c8ea	43b7c2c72fbdba2c	495f487f3a45a693
+monkey 9, last innings	7200	3b7c773af772c816	631c27c74878494e	62fd8e53d3f78163
+monkey 9, last innings	7800	156eb294096f0029	6b8691426272c36a	63b862c9e407cab9
+monkey 9, last innings	8400	9c2117015274ffc8	6f3b403d61fc7938	ef0f4d7581607271
+monkey 9, last innings	9000	758f9b76955d9f53	b285f1740099201f	d85fb6e6abfe1940
+monkey 9, last innings	9600	1237f6e3825d3de1	6fe9bc5942828bf0	2da5ee120341b764
+monkey 10, last innings	600	7fcc9ff91e15e0f9	36417de5dcae5983	f9e1498c79798ed0
+monkey 10, last innings	1200	e1e5924ee9ab2d33	999f9d8a15399bb1	19b13338f28df8a1
+monkey 10, last innings	1800	a5d6baa12cd24a6d	7d5d4ff0b61b579a	66e7e788da20cdc2
+monkey 10, last innings	2400	8c7e23e5e9c2f880	15222e46ce3794f7	fe800fc81c00b5ad
+monkey 10, last innings	3000	f1602e4a9b8eb9b6	b7821c39b28d4454	da9fedbf6a3895a7
+monkey 10, last innings	3600	03b9b77e0884ba99	2b3ed5bf09087f11	713f5f3ef72b2cd5
+monkey 10, last innings	4200	7d5715d7bf954b3d	164577de4044a25c	58fa743b22950f41
+monkey 10, last innings	4800	2212705aab4e728b	ed9b9b45a15d8b5f	29660f2377fa8fc0
+monkey 10, last innings	5400	4ee7bd5cbc779431	3f667c4c28f8e5f5	7be6a4927781c55a
+monkey 10, last innings	6000	7f28ce4b0ec593a5	45f5a180092862cd	721587472b7f07fe
+monkey 10, last innings	6600	a8cebedbacff587f	bb3299d57fe9aef9	f38f71008385f25c
+monkey 10, last innings	7200	cd304ad037a02458	454520e096a23a17	557cc2f559b9ac3e
+monkey 10, last innings	7800	ab3477129388ff96	056f1091235f1646	ea55406a90d4f28e
+monkey 10, last innings	8400	0a97d242601c2e63	1c9e58a615c35fd4	aec2d6f80fed96e2
+monkey 10, last innings	9000	0be00ec4ebc89537	ffb1bc87fca151f6	56f540ce3c5d8e42
+monkey 10, last innings	9600	754c9ab1ad1a9e6a	d0c095c3478fc677	de22b7974ea3bc55
+monkey 11, last innings	600	5c87a061f2c8e1c3	7d74c8c65d3c8467	20e41588ee8130fc
+monkey 11, last innings	1200	abf6ddf9dd3a0304	a4b6d2f36d86cc53	c28fe3fe95e1cdb8
+monkey 11, last innings	1800	6260da2221c5a9d1	b25a481ecb5527fa	519b8d86ac15b524
+monkey 11, last innings	2400	539c915b3f275993	05b9e7d36e3e7110	4dbbc79a967c65ad
+monkey 11, last innings	3000	426fccb1c9efc68d	5509373b21f4f79e	95495a66fdd9528a
+monkey 11, last innings	3600	229b7d3e69422729	0210ee481f8a8bdc	694e3388bcdc065f
+monkey 11, last innings	4200	bf084b9814caa186	9ddcb1065754da92	300adca4d3339cfd
+monkey 11, last innings	4800	6d13b038af4d74a8	3a8845b22bda6215	af09d8dab2079906
+monkey 11, last innings	5400	d5a0b6697351ec23	d56be3986fdd1521	f9e1529b60dbd000
+monkey 11, last innings	6000	0e3c3873d984d9da	11dd3d5764e5d517	e59ea4b91583227a
+monkey 11, last innings	6600	c9af38eec2cc3554	fcee01cf0c72315b	f3320200d5dc30c3
+monkey 11, last innings	7200	55771801b30a4b3c	2676404360ae8c5d	5a9a0da6455e59ba
+monkey 11, last innings	7800	458084c997a973c5	8f42130d3d05780e	8fc5d5befce48872
+monkey 11, last innings	8400	c46c7586d6bc247c	9f09b42da94ec9f3	4c238b834a869322
+monkey 11, last innings	9000	4222c54bcc23d181	27d0c82954b833b1	8f3d3d4afcce8b03
+monkey 11, last innings	9600	0383661075e59e69	3160ff4a408d2bbd	e98edbb3aeb25141
+monkey 0, arcade	600	b43bcf1c3ac9af98	db711799eed50526	8985d206ee40319e
+monkey 0, arcade	1200	5902be719a5a273e	3cc6f216038c3a00	46d57de409fa2197
+monkey 0, arcade	1800	0bfb2611f2fef1cd	8ab6df52f544caa6	b3c9db1c469e8f21
+monkey 0, arcade	2400	67903aa35a811e2e	451bca0e6c96527d	22572f09782ae6c4
+monkey 0, arcade	3000	e3a5302b6246fb0e	0c5965704d9a7cae	03a250384139c308
+monkey 0, arcade	3600	f00af9cee234d5b9	a7747c6bc51ed98e	52c6699e1370edef
+monkey 0, arcade	4200	32f646cba0736e0c	2c9381b7cfae75e2	631860b3c73f1ffc
+monkey 0, arcade	4800	c4341e406c2a3834	d4a6a064c502d1d6	c36739f30336d910
+monkey 0, arcade	5400	b8b21e84e125e3e5	7a42a437529a1cec	f1fbbf062143580a
+monkey 0, arcade	6000	fcf69a26c5e5813d	9bd275dc7886699d	655a2f2bfb0700a6
+monkey 0, arcade	6600	ec6fcbde311bf939	9e29cf11275ee55e	42c7eb6492fe8208
+monkey 0, arcade	7200	8b077e2a3ec832e4	9e25fc2565f6c606	3b734074007369f5
+monkey 0, arcade	7800	36e56e15f69bbb9c	87e95c6d9849ac00	2a9c55cf91744136
+monkey 0, arcade	8400	817600ce9ee4cd0b	b4e7aac860a75afa	d4ce0f187b9bceb0
+monkey 0, arcade	9000	0a59641676d69c2b	669dabb0b20f0844	c3f6bca9c0c3960b
+monkey 0, arcade	9600	ce6affd20c4885a7	e1a63cb9c7c543f9	e7fcfd34424fc884
+monkey 1, arcade	600	9ddee82e9ff94fa3	f68485cdb9bec5d5	897f1fee91e27349
+monkey 1, arcade	1200	b23780748c5697c8	7a9d189879bfb2b2	2b98c0129ee1056a
+monkey 1, arcade	1800	59f61b9d12e55c0f	748b9804d9538ab5	37307c4df481f782
+monkey 1, arcade	2400	e8df8167b0427b04	68e2f0d510c6d7dc	e98dd4d7d8f0581a
+monkey 1, arcade	3000	2bc5de9008cf44ca	7f1adce8b234468a	5874cdcd7c78ca53
+monkey 1, arcade	3600	7034f1345d6e3d7e	044b9c0639746315	915ec12a55f2c943
+monkey 1, arcade	4200	f29988201fb7ae47	6ae4889fd08e4f75	b5adfdfeb2169951
+monkey 1, arcade	4800	947fa9b63899fed4	67f4bc64fe8ef9af	26a29341d71721f8
+monkey 1, arcade	5400	fccb699a6455dcca	5c9b164f81cec250	a50cadd7303d93ad
+monkey 1, arcade	6000	71c641b0a029172a	92d1c37df80d712e	171dd1cde8bb1b59
+monkey 1, arcade	6600	a9ec243bc6175b33	1188b6f3f23c69d9	ab4dd0a0b310fbbb
+monkey 1, arcade	7200	aad2f9d69149fa76	eb24f7f2a2840b99	acde5f4563b8a9e3
+monkey 1, arcade	7800	a163ea3af4bb00a4	8ee28e0c7c7395b0	2ca98979d31a37d4
+monkey 1, arcade	8400	7e187c061a03d296	3110f47c8e806863	d4822069cd1416d6
+monkey 1, arcade	9000	b4620182e79396f6	153a3ee87085eec5	f67b00019f795a9a
+monkey 1, arcade	9600	bab3db434aa3fdab	0cb2625ac2dffa6b	3108fecd3c3683f4
+monkey 2, arcade	600	de93fb36ba0e4afa	19dbe54d336d4dd5	2ef6d9a6eb06ac4b
+monkey 2, arcade	1200	f03706a0a76a8d61	676d137e98859cd7	c176b5a560e0a657
+monkey 2, arcade	1800	233569dd6475ee00	5d3dd6fcc9555771	c5ea640ef93e1f72
+monkey 2, arcade	2400	aadda0c2586d9247	ed6ae7c4495f68c1	c7e192806240eccb
+monkey 2, arcade	3000	c118194e135d94cb	dc39bcc1c5da30f7	2b5ef6fd7a3b5c4e
+monkey 2, arcade	3600	297b11027cd12f9b	c1a859a0efca9613	3f6c087fc1a0d207
+monkey 2, arcade	4200	75490b2c98f9681c	15086275519d0f95	8b71315c9ec70655
+monkey 2, arcade	4800	ca52c73ebef94918	aa062200f597ac67	adaec885bc880173
+monkey 2, arcade	5400	f639a93e18139cd3	f8398a71a46ff590	c61a41d29892e487
+monkey 2, arcade	6000	650b0f558ea017f6	ff2698fa300060c5	70e5f5a32133e47d
+monkey 2, arcade	6600	41455fcd886c59f0	af75ba0914b1620d	6df8f71b4c50cfb9
+monkey 2, arcade	7200	aad3ed501705adf8	6bb33f5b7aef008f	5cf41a9180b863ad
+monkey 2, arcade	7800	e4552cbbd6be7fbc	1cc51c411bdee8c6	61aa74c7bc39d397
+monkey 2, arcade	8400	0d33f8ed66494f85	cecc1bd06ea2026b	e652d499bbc44fd1
+monkey 2, arcade	9000	011286b174bfee80	0f352a329774c0e8	6b825d62a69e9e58
+monkey 2, arcade	9600	830e1e6a3fce9ef2	69b0008f622d81c9	79e3a6ae9366ae7f
+monkey 3, arcade	600	c49f6ae6c5f857dc	a02d88c59be3debc	f8a3f61d0251e2b6
+monkey 3, arcade	1200	c6d1e8a86c2ff01b	88ad924f8706063c	c7c48b49588be483
+monkey 3, arcade	1800	c0a878c5f23a7c03	b42b65e68c42c6c1	b0ba1c70df29a7af
+monkey 3, arcade	2400	0d3d49ee038b5a91	eca9e9c3047bfce3	4db883064dc64d7a
+monkey 3, arcade	3000	55e3bc84e0b78665	7d51a498757a885f	8408ba88f05ebb75
+monkey 3, arcade	3600	eeddf46ee8d63e76	92fcbb9becb54dd8	537ffb63daa98633
+monkey 3, arcade	4200	b4c92c886c989e30	3d156b7c9daa2107	201da1ad8eeccf81
+monkey 3, arcade	4800	5a3025a3419b5d38	19a42f0e04ea75d4	f5c256a627f2f07f
+monkey 3, arcade	5400	9ab58c666ebef3e6	2e4e6e8fdf13eb5c	177ac88fe8a2b5d1
+monkey 3, arcade	6000	186108d2905e20d2	c030b2e93c2ec501	ae08f17d60c79a75
+monkey 3, arcade	6600	49941012a82063dc	7f5f0381c9f4a7c9	d0791f61884b855b
+monkey 3, arcade	7200	71317d9e2164bd05	6ae2e72c10e1b5db	9fd916c124402426
+monkey 3, arcade	7800	bd1639932655be05	fbdff4789472e227	400a74b4df980bb1
+monkey 3, arcade	8400	6950438fb501e9e0	c981c7dd90568f80	1eec3a617b65b3de
+monkey 3, arcade	9000	cc6ca197d4a3522e	ad3cd0631aff6f2f	3e35b1156562109f
+monkey 3, arcade	9600	57e34b01fce07e69	654f80412b48f351	41357eb3e0c9c6fa
+monkey 4, arcade	600	ad71a878617a7307	fbbebca028ab0229	cf3a2c95993267d9
+monkey 4, arcade	1200	b7198dfc46bab782	e25a5d848d814b20	d7f83024b3ab34ae
+monkey 4, arcade	1800	39595ee15fe0e1e8	7c36ca129e07113d	21a7331910905c42
+monkey 4, arcade	2400	b3ddf0749e112102	4052ddb11894ab6f	4af1fae5444c5a8f
+monkey 4, arcade	3000	d3222f3a1e5ce62a	67751fac78ec9003	0fedb474d098342d
+monkey 4, arcade	3600	50eae8e3871732d8	bd942dfad33b9281	39d15cb1aea1d791
+monkey 4, arcade	4200	70ad219e8f7cb7ed	1a78d9ed27ccde82	39ec2245c244911f
+monkey 4, arcade	4800	90bca6b4732277f3	6cedbdd8263100ae	0fa51dbc1401fcab
+monkey 4, arcade	5400	6892b9cef8005998	b802b70b4931c809	b7cc977b2ea08670
+monkey 4, arcade	6000	e7c12ea9195784c8	f323e44fc443061a	69cb3e10b2556a9f
+monkey 4, arcade	6600	92bb880610cdd280	cdbda33a63a2d1d9	5c5be35a982e3c70
+monkey 4, arcade	7200	ca0edde097851466	446c9673a7bddcd4	7265de8e3c6ad826
+monkey 4, arcade	7800	110c67df0ba4faa1	ac9def83a0de7ebb	e3ba1f7440c8b573
+monkey 4, arcade	8400	fb4610ffb9b70b4c	ca5fd0724d242b59	3ec76c90d3d90e33
+monkey 4, arcade	9000	d948c09d87202cf1	209688733efcdac6	446011400f3bfc7b
+monkey 4, arcade	9600	ae2f022398bed66d	446961bd27d06ebd	d54e8b76dd1a32b7
+monkey 5, arcade	600	c240e29dc2fbc5f8	03adbdc96278d24f	8b0bdea77f10cbeb
+monkey 5, arcade	1200	f6ed687a365c1d35	07b5642a8d01cbd4	1a20cecc2ca07e67
+monkey 5, arcade	1800	db49b126b605929a	13b0f15a567a3265	d9514c41c8cc59e9
+monkey 5, arcade	2400	8a9a3735339de7a9	ddfb50509899f578	d9644ec07329588a
+monkey 5, arcade	3000	c426ffb6c6023eb6	f4e1b0823e75d105	edd5b87c749ef19f
+monkey 5, arcade	3600	c3a6b87232872e4b	7e9e08015816fe5f	212f5b35a7bb4838
+monkey 5, arcade	4200	abc1cb3c59f16263	f3556615212c28c7	14eca88b7dd3fad5
+monkey 5, arcade	4800	1a8f9a70c8f5403b	85a401ca7b107f37	ffaf9312c3405bb1
+monkey 5, arcade	5400	348be24867333fb7	917c5069799c028a	c9fa72bea74a2d9c
+monkey 5, arcade	6000	9d3fea600ac5d6b3	92a49d7fab60df24	5972414bcd89f179
+monkey 5, arcade	6600	5f1de663a48fe53e	13312da9be09a7ac	3c18d6a11423c63e
+monkey 5, arcade	7200	0fdaf23881a80971	4aba25d46c7e2179	c055f3cc4128d1a1
+monkey 5, arcade	7800	174e1f3acf5645e7	ee11c6af77ddac8b	0a77075541295835
+monkey 5, arcade	8400	701526824dd8034c	02adbaae620cc521	1c45d431ce1b49c3
+monkey 5, arcade	9000	48b2ca876ddf8740	d9ed3c8444ec18bc	677c8cb8f92fb0f7
+monkey 5, arcade	9600	fde8925d65d311bb	4d7835868820447c	415ea91e6a5b8706
+monkey 6, arcade	600	f341c8bc9335c009	34870821ceef03d7	fce7a94714ba8992
+monkey 6, arcade	1200	6f2134d0ea14518c	f0c0610ab14358e7	f29d3d5719faf074
+monkey 6, arcade	1800	765b87dd53a1c95b	4ad4a3e22dcd5423	39fd3a4a3f7dfb25
+monkey 6, arcade	2400	e09bc4cd2614d848	9216cec495410c85	afd228dae4e68810
+monkey 6, arcade	3000	74af9c087978f7fe	c505dbc8068db296	578d952f329c790b
+monkey 6, arcade	3600	ed449e837ca2ee88	a7fed1b32e60ad0a	49acc5787c6a0181
+monkey 6, arcade	4200	586c965dde718880	7c7b6a6320d29d3e	3ebe751726e9ba9c
+monkey 6, arcade	4800	a22a12d75251a117	bf0952f8fd4595dc	b103a8e0cf946e2d
+monkey 6, arcade	5400	7d917a1a056cfa2d	914dd6e8e10b8dbc	51433e78da95a889
+monkey 6, arcade	6000	3e13e1d77b9d61d0	57abd0e53e959b0e	d5e4546d188af163
+monkey 6, arcade	6600	6bafa8d8dd4ea6de	67843857da97b8e3	c25decfae4e6bc9b
+monkey 6, arcade	7200	dafa777c164b504e	f4ca5d140f10c023	bf8add841b49e290
+monkey 6, arcade	7800	153a0b6a9536aa6d	3af316466e704550	13acba34b180ee70
+monkey 6, arcade	8400	2665b0c74725b9ff	e647197418218bed	576b447c327b18e7
+monkey 6, arcade	9000	8c5450f8439d05be	2ba9c53afb419815	0af172eff36aad8c
+monkey 6, arcade	9600	e82eb996bb64290b	7eaedc57b36582e7	169c4e7fe5ca464b
+monkey 7, arcade	600	724131f7ac6b8cd4	9bbf48e7ad8ea9fa	3710f363821d5469
+monkey 7, arcade	1200	6fe0b6b8e01d7bc4	7a5acc373e09074e	6ce44664ee175ca1
+monkey 7, arcade	1800	53e2c231d0791bd0	8e010cc93153490b	df1a0c7276035ff4
+monkey 7, arcade	2400	8f3416e976e3687d	cedfb71d91b354dc	55d7e95b3acc19ac
+monkey 7, arcade	3000	5aa01e4475a9abe4	da05f3184d80605a	639b2f276b99fc91
+monkey 7, arcade	3600	f01fd47764a49d3a	5095ec52ece34026	7a93509a3c89eeb7
+monkey 7, arcade	4200	f5bf3ab5ad41a3e1	98c525acf20d1bd4	368677a01c4e232a
+monkey 7, arcade	4800	880e8e4dd8689ca6	0eb29d90a260bfdf	42651ead17791f06
+monkey 7, arcade	5400	f08a470cff780ce1	58807bd3f47a53bb	a31fad249cbc1e86
+monkey 7, arcade	6000	5222e25c1dc85ca0	957e89b3106f63f0	1e7e15f614bc95f8
+monkey 7, arcade	6600	bf212cf4274b8c87	6475ba06fa5194ec	5ab1bb0241cbd52d
+monkey 7, arcade	7200	18846b5e13236488	79ecf266746e7e62	9d1f07e0f4dcba0f
+monkey 7, arcade	7800	a0f333759f65e0e6	334829f631d17841	3a1668734f78f014
+monkey 7, arcade	8400	31174336302974ba	821a7166a1a47071	40c6c119e2063f8c
+monkey 7, arcade	9000	e5babe2b9461cbaa	4193c4498489f9eb	7046a6ee413d0f76
+monkey 7, arcade	9600	19a942e528c02f8f	0244f63b3da520c6	766fab0cb4783184
+monkey 8, arcade	600	86d0f2b7c73e1a5e	d596b61c3e1da486	320ab336e3d29af3
+monkey 8, arcade	1200	fec6019836152b85	e014b0dce1a7fedc	4910fcd1231afae2
+monkey 8, arcade	1800	b98e9c0a733e468f	fd4404e399f3fb38	a8def7346cf69923
+monkey 8, arcade	2400	f7fb2009389eb460	a8aab43e57672610	4580bee0df6d54c8
+monkey 8, arcade	3000	676e0fc5f55b6eea	ed0409e9a24068d6	29b77c14dc00f739
+monkey 8, arcade	3600	df3468bbf5ab5c8e	a252c9a13a284a82	d7c1422dcf62975a
+monkey 8, arcade	4200	f702c6bab3408b0f	9ce5bc8c360cb638	408d921fa334ecac
+monkey 8, arcade	4800	33758366e7697825	20bca26df9518bd8	36c54cdd8f5e2a10
+monkey 8, arcade	5400	3f459f648882f2c1	bdd55fb5ad1dd360	91baee88cdab323f
+monkey 8, arcade	6000	5e8ae0273049182f	621b560f9bc1aff7	2ef791ffc39f37a3
+monkey 8, arcade	6600	4c56869c26506661	a58e7c644a758551	6060aa2807186aba
+monkey 8, arcade	7200	164f0c31ccd16c62	25fb42b575ae3cc7	f8ae55b9bfaaa6dd
+monkey 8, arcade	7800	9c52227a7873e404	2d547396bfa8c4b7	88265f567b4e73e5
+monkey 8, arcade	8400	b8ae87b7740f0e6c	fd17dde578520503	03d0a7fa215a269b
+monkey 8, arcade	9000	4324ea566931fd0b	52cda2a8ca499c9f	32299f9392be4e7b
+monkey 8, arcade	9600	1b21db3cc815b6c7	e66d69aeef1d2161	0c8c19908d98223d
+monkey 9, arcade	600	ecacc4b25e71b6a1	6c7902a455c51407	993460b2df308cd6
+monkey 9, arcade	1200	efd8c02a6bbfc158	4c940f08b8713cda	fd7e95ef6e24dc9b
+monkey 9, arcade	1800	3f4868c1fc786128	6792c1e81d5c59d4	015b6df27a97ae03
+monkey 9, arcade	2400	42a55cab876e5915	a987d696146eafed	5c740bd2ea5a57ab
+monkey 9, arcade	3000	c5f0a3df31b32486	149cef52dbc0c8b7	785b965593095969
+monkey 9, arcade	3600	79b82c147b537d01	ad3629d6629335db	df62759f85991dda
+monkey 9, arcade	4200	be2384bb378f64f9	6b9abe0dd8b3188b	a2fc33b2e423a7d2
+monkey 9, arcade	4800	cd56bc26041b42af	92aa0907a72f0589	6d8a58ef091eca9b
+monkey 9, arcade	5400	242266b144b28515	b86c399e41e03f36	da16de420c230ab5
+monkey 9, arcade	6000	79eef42e1c98721b	4d2d09ef6c7d1974	f6d2cec1be7c697d
+monkey 9, arcade	6600	d6291062a7c983bf	f9731292ce34776e	7819ef7b618f2464
+monkey 9, arcade	7200	cce8e81bb3fbdc16	c45c0de501064790	230234eb2eaac59d
+monkey 9, arcade	7800	2a48142fec1d90d5	f9551d1eccb90caa	d79893e14d154b54
+monkey 9, arcade	8400	670177ffd29129e5	1b282dc9b07c1516	8082453fe319f5c8
+monkey 9, arcade	9000	181fabb3688fe08e	1941c295ee628a99	7282234e9cb3a346
+monkey 9, arcade	9600	e62e77a76904d749	601e789f6679bf66	596d94f19441c9b1
+monkey 10, arcade	600	c5b957e6a084ec5a	1a36b3cc4d54f493	0af66ab3402d521e
+monkey 10, arcade	1200	dae60b0f76baa460	97e8057d73a63414	dcec458b0bb227f4
+monkey 10, arcade	1800	945362e10a3af9cc	8246522314fb0bfb	9e7b0add67bbc9d5
+monkey 10, arcade	2400	b3be56b06a8a0210	e11f733270313017	2b9fc896d9756c28
+monkey 10, arcade	3000	f4505cee1834e738	c52f921a8480befe	9b70977446be81d5
+monkey 10, arcade	3600	e13a99775952af30	e299bcf966c63ede	ed3750082c4badb0
+monkey 10, arcade	4200	a62678c89f46b0ff	9472d56a18942776	775f08d0b78a7e9a
+monkey 10, arcade	4800	4891c357fd033f11	599d4b73e940ef68	9ffe9d7e7db7400a
+monkey 10, arcade	5400	749051437369c78b	41f6e37ab92461f4	ba0f085aab80804e
+monkey 10, arcade	6000	6d4d352ffa5a58f3	50a311619277a9a7	b4385316d29280bf
+monkey 10, arcade	6600	e7ad612917610f6e	2b9d5923a727e44d	e9ff62622df8dbed
+monkey 10, arcade	7200	708c8dc25100a340	ba572cc824ceb63b	d8104d97ca8708c6
+monkey 10, arcade	7800	baedfa19d2569d06	fbb3ba52aa65700f	a64bb662e578467f
+monkey 10, arcade	8400	083232f98b7a2170	b3f89b7f881029cc	fcf44325e55861d6
+monkey 10, arcade	9000	b3d619f5d9016653	47769197251e950f	f76e786fe1d21b9c
+monkey 10, arcade	9600	48015e27feb1efea	b3c986c30b3a240f	2e4c00b6c6927363
+monkey 11, arcade	600	2eb2dcc004c66e31	d0daeb4f9535fd1b	91df69f31d31d431
+monkey 11, arcade	1200	535cce847ffd9902	f6a0b8380aeadb53	ed7aec9ee092110b
+monkey 11, arcade	1800	7d77c1ec01049fad	5443c33edcd744df	47857d5fafc79bc6
+monkey 11, arcade	2400	4d44ae70c4c7f62b	1158ae975ffd1b84	1ff3e5d182df5032
+monkey 11, arcade	3000	f31a553301b1e811	4d4a28670d526fc7	3ae60a1fcca21d05
+monkey 11, arcade	3600	b1feba8cb4c3f7b0	8259d9697213da97	7ec3445de1619aa8
+monkey 11, arcade	4200	6560e1538ebd96f6	0322811064d57f39	69320f4a6750304e
+monkey 11, arcade	4800	0ccfd50fa4e67cca	5816df712b29027a	c2f00f9b0d651421
+monkey 11, arcade	5400	b04d898838e818b8	87f95ad871c041b9	3e2032b954ad2b4f
+monkey 11, arcade	6000	453edf76bc17280c	2fffb96c586e9964	e358889b12064c3e
+monkey 11, arcade	6600	0d0ae5e384ed8bcc	426db392530f3758	cb2579e821edf49b
+monkey 11, arcade	7200	faa2bdf70c52d891	43615e35932978c4	a25dd94ff6cbc353
+monkey 11, arcade	7800	bcb6236d651f6034	a53dd963df8a5828	1ac32b5873b747fc
+monkey 11, arcade	8400	0d4167ce9a4b8442	6c7091c9a77a3b65	914f86d3bfb52249
+monkey 11, arcade	9000	c5fafdb8472f00c4	43e15bc9bbcd1fd2	61610ba3661c3df6
+monkey 11, arcade	9600	dbd781620db02dce	7a095299b5902fdf	38acd437a1d55f07
 monkey 0, full match	600	dfafe89db069ddcb	df6a5206fbebf45a	6523012285074e20
 monkey 0, full match	1200	3b81b397846140fc	870ae3ffcf4784da	c08d513493dc70c2
 monkey 0, full match	1800	fbb1ab1bc02f0f0e	a1607aaab03125a2	2920b463e75d04bc
@@ -394,172 +394,172 @@ monkey 0, full match	4200	45e9badf302fa417	6775072bf3210a8f	ea33cea4d1a508ca
 monkey 0, full match	4800	bc0fcad95b8d5eb5	0478b0317170fbc7	92a2549d90c55e6f
 monkey 0, full match	5400	f5b434e1ec94e8ca	c7e2ac904db236e5	78b19e451bfc0a32
 monkey 0, full match	6000	98e519d1d8a84f2e	364431a6d27418a8	42ec695934fd6359
-monkey 0, full match	6600	45fc20a7fa4982d1	6ebdc30a4762b023	1989a997e76e6e78
-monkey 0, full match	7200	789896b2844c40cf	58b53a9aa39e1129	5d3827495edc3b6c
-monkey 0, full match	7800	9cd441bd8c57a170	b4a81213170dc407	23f4abca2a0557a8
-monkey 0, full match	8400	270e29d3bd4eb033	4324e61256687b6f	4f442c47f9e5a7d8
-monkey 0, full match	9000	098d41b6a04988c3	672100bd911d001b	3507538057cd7dce
-monkey 0, full match	9600	3d23fe82dc339a81	cbf071d85aff7a68	9c89d6f8f13e476c
-monkey 1, full match	600	847d2b93b3644876	95d3256e0b715ea4	147ee0b0da4187ae
-monkey 1, full match	1200	a1e08f4a20e849ff	96bc98d294e6a593	c8b751957269ca8a
-monkey 1, full match	1800	427c964bdef81f49	1be2dc82229612a9	44d554b12e95cf08
-monkey 1, full match	2400	0431ed4f37336869	7819edcf164038f3	42bd1104ac295658
-monkey 1, full match	3000	77c0c53422e8e6db	1041de79f98ba270	438eb97214b92c5f
-monkey 1, full match	3600	7ae5bf6ce94be7a6	d58d177a5da6dafa	d63eccfd3f7401b3
-monkey 1, full match	4200	ed6d78cd50221705	0700a948e8af3c7c	f7ecb0e8c9362ee9
-monkey 1, full match	4800	604cd62b52bbd8f5	50387416290f0478	e98edb2d641a0c2b
-monkey 1, full match	5400	a6024f33843a4e14	b764061c0aad585d	cc82371e34791cef
-monkey 1, full match	6000	1d32276b88207160	b2e40d99b511ccd7	f8d24b75a91d0800
-monkey 1, full match	6600	4c57a77148be3eec	e5d2141a0a820ce4	10e2a558edd222b8
-monkey 1, full match	7200	9e803dedb0a5843b	7842413d0fc6c371	67fccc8280bd6667
-monkey 1, full match	7800	f415f6c0c35deeb9	6882cb1854c36a88	a844af41435dc697
-monkey 1, full match	8400	2b9f3a9255ffa63e	3c6ca6d4b81a3f9e	0bcbaccbf1a15113
-monkey 1, full match	9000	ee563fc8e9ca898e	e8485504a3284684	416e9020d9c503b2
-monkey 1, full match	9600	da7ee9b818ac4126	5567963de0fa8b1a	4e601f8f2c0e0c11
+monkey 0, full match	6600	45fc20a7fa4982d1	6ebdc30a4762b023	74ec2b820018f680
+monkey 0, full match	7200	b356e2774a9236dc	58b53a9aa39e1129	fc90c42b69afe2b8
+monkey 0, full match	7800	89658fa87c03fa48	b4a81213170dc407	84f98437b0cea7ae
+monkey 0, full match	8400	388b6cd313ae5494	4324e61256687b6f	18e41405539f8a21
+monkey 0, full match	9000	ffaf3a44be4f6756	672100bd911d001b	a0d5e000ce16a4e4
+monkey 0, full match	9600	916a59654a4b5bd6	cbf071d85aff7a68	a66f8e5c518e7345
+monkey 1, full match	600	847d2b93b3644876	95d3256e0b715ea4	bc7e0cee2787f63f
+monkey 1, full match	1200	a1e08f4a20e849ff	96bc98d294e6a593	b48a6a7fec2434e4
+monkey 1, full match	1800	427c964bdef81f49	1be2dc82229612a9	41ae900ee53cc62e
+monkey 1, full match	2400	35448351b7360a4f	7819edcf164038f3	5e14023050404c7b
+monkey 1, full match	3000	e6da3fe76ba5eeb6	1041de79f98ba270	77b18e198eaea8cf
+monkey 1, full match	3600	2d691e9801221fe4	d58d177a5da6dafa	a1e0c5e8d6d580ed
+monkey 1, full match	4200	55eedcbd08e7a7ef	0700a948e8af3c7c	6195c85583aaded9
+monkey 1, full match	4800	e0618d494f8cb46e	50387416290f0478	05c0588aaa9e15c1
+monkey 1, full match	5400	49742fdf3dee0ad3	b764061c0aad585d	0bb72d65bbf0ac61
+monkey 1, full match	6000	8c4a873cad4aec7c	b2e40d99b511ccd7	55d0cf172672cca3
+monkey 1, full match	6600	8dc2d13775460eb9	e5d2141a0a820ce4	067a08f2cc95e3ed
+monkey 1, full match	7200	7ae826ca0699bc6c	7842413d0fc6c371	1d75784a95548f56
+monkey 1, full match	7800	3c9ed660069dfcaa	6882cb1854c36a88	0ef6eaf969c5029f
+monkey 1, full match	8400	c22e885620a507da	3c6ca6d4b81a3f9e	e60011e1ea6b0b47
+monkey 1, full match	9000	779d1ec0e728dc8a	e8485504a3284684	b3264e60115bf206
+monkey 1, full match	9600	2e81f448b46591a0	5567963de0fa8b1a	5690b176344c0903
 monkey 2, full match	600	84bc64135dbe4030	7fdd42f3f448e9ad	450da71828300a9a
 monkey 2, full match	1200	7ac7ea384a15d553	e65ce1d952b4f8a6	26f603b1d5ff2903
 monkey 2, full match	1800	8d1f534a48c0d365	13ebbdbf2266e8d7	95f846af528d1c11
 monkey 2, full match	2400	3d1ade70ad2d2d7e	b816dec8fe1edbfd	8ae935e5ed411079
 monkey 2, full match	3000	4b0913706234b22d	d1da027c343b4f2e	a176703058fcd997
 monkey 2, full match	3600	140da96ab5be4a75	bc0cd64b7eafb218	fc0cfd4fb7db12de
-monkey 2, full match	4200	63c01e7d755c879b	736de020f96601ef	26a7f213de3d4b33
-monkey 2, full match	4800	40ef7b57a99c1722	26ab5d2502b6aaa2	0d95342e625f3670
-monkey 2, full match	5400	c1e07b4d8ca4a0d3	151c93d01a0f1c42	1b8d4e1b2a4b39be
-monkey 2, full match	6000	b32c92d75478095a	200a2144d133c060	c1ba8e36a04ad80c
-monkey 2, full match	6600	3351aeae67a088c7	5473ac7c5c7a7815	cd53e5565dda0dea
-monkey 2, full match	7200	254f1cd0594738b0	04b69584d32d2056	43117233f999de9e
-monkey 2, full match	7800	55bda33e548e5f4f	774d8c41138e1b91	c2ef1fa5d008cb71
-monkey 2, full match	8400	c8267fc8e3723e90	31f6fc1e5c6c2dfc	54ff4af989546957
-monkey 2, full match	9000	8d03cbe3227d1d30	02ca28039f5b5ce5	fe9898786dcad41d
-monkey 2, full match	9600	11563d96e9c3fc7b	c18c140f016944d5	d59903725d695a1f
-monkey 3, full match	600	a7da38971fa39a16	5886c9f69e1c61a4	afc6cb44066df013
-monkey 3, full match	1200	0eb2de466d48df85	a1b3ef10799d590b	284a0784567ac0fb
-monkey 3, full match	1800	8a94811b20cdeaeb	0f189ac0c214ab18	83b44f84145bb9fc
-monkey 3, full match	2400	ac76859e7134bfea	cb7f35dfa0e9315c	6e91ce9bfbf15dcc
-monkey 3, full match	3000	cccc6233a5daa457	abedb55d2543a7d0	934c924826f2a0e6
-monkey 3, full match	3600	01a25e85053d45ba	6e6aec43a0bd6bcf	260dbedeb3752c79
-monkey 3, full match	4200	b42d9f59fd71748b	8fb0a24fc3e4ffda	0f38da03562007ed
-monkey 3, full match	4800	293d28b73cb3fea7	3166af8a2a6e3b37	dbf895164da18cba
-monkey 3, full match	5400	5420448c9117a7d0	38a7fb588b1474e0	dc43ba10b5d8e729
-monkey 3, full match	6000	413c146985d5b5d7	e4657964f657a7f9	518a202f9406e64f
-monkey 3, full match	6600	fc50c4467421b153	eb381273748ed5d3	e8da15a1e448640c
-monkey 3, full match	7200	dda01627daeb2deb	901e63bd778c571a	6daa1f301ef75e99
-monkey 3, full match	7800	04c2305d1f2d80c0	f24a8883ec6704fa	a3a08e7e9c651387
-monkey 3, full match	8400	a86d11cbb2c6ae7e	02f0365c5438ba37	89969316479ca059
-monkey 3, full match	9000	e8072612daf2d039	899254fac7337787	b62ee051d6b5cf05
-monkey 3, full match	9600	788e7e0fc2d91329	523ce5d7b96e9310	d4647c9d93980c3f
-monkey 4, full match	600	1bd68444c1dc6d64	f4ff1e228d68e9c3	2def01b44376ef26
-monkey 4, full match	1200	c9d0b99b1d73e30d	ec1d67106910a986	89d6fe7cc4414c14
-monkey 4, full match	1800	0b1a84aadafa61c1	597c849d207c0d4d	67301ab995b88176
-monkey 4, full match	2400	b3fa562e4bef4cb8	b3532e3b86fee438	7b37729348dc5374
-monkey 4, full match	3000	c6150ce11ed04c30	800f42c61fc80b41	9f906c3721af94e7
-monkey 4, full match	3600	3db21829f71a4966	7952a77bb8d3102c	ac1f217840b97500
-monkey 4, full match	4200	41107e4d2d667972	4c5c50ceee50aec7	113c2886e2c323b8
-monkey 4, full match	4800	71045d5e070ab125	a03dd80a22f1bd39	4b3b04fb74b81156
-monkey 4, full match	5400	2aaf987a434e001c	db4c92fd4bc5183e	fca16059eff8de0f
-monkey 4, full match	6000	70a7e57645580e73	5fd4c819c19faa2a	509144adebb3c952
-monkey 4, full match	6600	d9363a7f858c77cb	493abdb1d086005f	edaf2c9c51a03801
-monkey 4, full match	7200	a5904bc5a6417655	491bacbb72038879	868ce780c467e217
-monkey 4, full match	7800	914f5ee14b1b7529	575f1418fae676e8	b2461f33b56685b2
-monkey 4, full match	8400	beb8b54de007e33a	d9ec6934367299a8	ee3f6f98614d9e43
-monkey 4, full match	9000	1d8df9aca9a6ff05	ff6b97c8ec6ccefc	d98edded2fb29d5a
-monkey 4, full match	9600	2458b07c928b7eb1	f3f6417f59b490fe	55e143fafa286568
+monkey 2, full match	4200	63c01e7d755c879b	736de020f96601ef	c4e7f176b927c7ca
+monkey 2, full match	4800	4890125e18515d4d	26ab5d2502b6aaa2	7723ebeb226e3e15
+monkey 2, full match	5400	ffbfdb95ecd5ef0b	151c93d01a0f1c42	2a72dd75b317965b
+monkey 2, full match	6000	43bf70c3cbbb18ce	200a2144d133c060	54bd8bfb8fe434d4
+monkey 2, full match	6600	79fb3a758ffaf6d2	5473ac7c5c7a7815	0f5c515e2aab63fc
+monkey 2, full match	7200	85ac402881d60546	04b69584d32d2056	af08e260dce1dd2e
+monkey 2, full match	7800	e96a6ba0f6dd01f4	774d8c41138e1b91	6f07e7b6e02b3365
+monkey 2, full match	8400	9440e7fe6716e6da	31f6fc1e5c6c2dfc	56ba2f7f2581a545
+monkey 2, full match	9000	90e112e8cfa56bb1	02ca28039f5b5ce5	b60fc3bc10523049
+monkey 2, full match	9600	2f1bc24850603fec	c18c140f016944d5	9c0f0df0da7e2ba2
+monkey 3, full match	600	a7da38971fa39a16	5886c9f69e1c61a4	faa05c5407fa2631
+monkey 3, full match	1200	0eb2de466d48df85	a1b3ef10799d590b	5c5ca71f3381b1b3
+monkey 3, full match	1800	8a94811b20cdeaeb	0f189ac0c214ab18	ffac2c38202d2944
+monkey 3, full match	2400	ac76859e7134bfea	cb7f35dfa0e9315c	a4c50fc58f40cab1
+monkey 3, full match	3000	cccc6233a5daa457	abedb55d2543a7d0	464b0a7f99691cf0
+monkey 3, full match	3600	01a25e85053d45ba	6e6aec43a0bd6bcf	d34e34e7a9408f10
+monkey 3, full match	4200	b42d9f59fd71748b	8fb0a24fc3e4ffda	7f6715a95d0a81aa
+monkey 3, full match	4800	293d28b73cb3fea7	3166af8a2a6e3b37	230122189be57440
+monkey 3, full match	5400	5420448c9117a7d0	38a7fb588b1474e0	3bba45212a22a058
+monkey 3, full match	6000	413c146985d5b5d7	e4657964f657a7f9	06113d01717985c8
+monkey 3, full match	6600	fc50c4467421b153	eb381273748ed5d3	745fb7bdd7e915f7
+monkey 3, full match	7200	dda01627daeb2deb	901e63bd778c571a	ba287909b71c5764
+monkey 3, full match	7800	04c2305d1f2d80c0	f24a8883ec6704fa	67ceb576636c0b38
+monkey 3, full match	8400	a86d11cbb2c6ae7e	02f0365c5438ba37	33a107313bfbb402
+monkey 3, full match	9000	e8072612daf2d039	899254fac7337787	37f5050a88c25b65
+monkey 3, full match	9600	788e7e0fc2d91329	523ce5d7b96e9310	dad0bf51cd06991b
+monkey 4, full match	600	1bd68444c1dc6d64	f4ff1e228d68e9c3	85afbb931be8579e
+monkey 4, full match	1200	c9d0b99b1d73e30d	ec1d67106910a986	ba7fdb5ee191279a
+monkey 4, full match	1800	0b1a84aadafa61c1	597c849d207c0d4d	cb1d4f9cde804128
+monkey 4, full match	2400	b3fa562e4bef4cb8	b3532e3b86fee438	bb24076050732b6c
+monkey 4, full match	3000	06f34ac781b4c051	800f42c61fc80b41	36cf825588e343ed
+monkey 4, full match	3600	e5aba5015ce02010	7952a77bb8d3102c	b30f8eaa4755752b
+monkey 4, full match	4200	b3bd776500dd47ac	4c5c50ceee50aec7	da7a9d1f0baa4914
+monkey 4, full match	4800	bafa24caf2d04e67	a03dd80a22f1bd39	0b4e8daf6dc4750c
+monkey 4, full match	5400	39832da962b41bdd	db4c92fd4bc5183e	c5ceb00ffe5d55dc
+monkey 4, full match	6000	432c89dcb9a44cd8	5fd4c819c19faa2a	46b6d2405346705e
+monkey 4, full match	6600	5c52c0040acca54c	493abdb1d086005f	23adffa33df36ca4
+monkey 4, full match	7200	7640ae68c554a723	491bacbb72038879	e21b9bba2d9b116b
+monkey 4, full match	7800	ae0bd3542f96016f	575f1418fae676e8	0d8fbd15533f5ab4
+monkey 4, full match	8400	c2243b5b22b0a6cd	d9ec6934367299a8	d4204a5292cf4b09
+monkey 4, full match	9000	89bea29223f9dbba	ff6b97c8ec6ccefc	eb9ab667a518a02b
+monkey 4, full match	9600	c17a2b4d36b318bf	f3f6417f59b490fe	254520af299e2dd0
 monkey 5, full match	600	69794886c7de98f3	c342232013d6487a	9caac457091e69e5
-monkey 5, full match	1200	8536aadb34519279	c9b54d9d362bdc9e	7166843d974f3781
-monkey 5, full match	1800	7c052ebed9be858f	29e3970c43b256a5	d04ef939b5bac57a
-monkey 5, full match	2400	f8b6300dddf42b65	d9da5949ef4074d4	e2c9be4ff14a4aa6
-monkey 5, full match	3000	31a05866947e5ed5	25229ea7879a9764	094a629e42e60b5d
-monkey 5, full match	3600	279b9db08d344937	3d5639a79059f88c	8ef47db38cde857b
-monkey 5, full match	4200	5c9ce0afb32a2396	ec5d7c995c25d6a9	60f590dfe59b6e76
-monkey 5, full match	4800	c431b28012e16bfc	7367d5fb7830688f	c71adaef2f67113c
-monkey 5, full match	5400	f4da8366be18d52d	66b60103eabc6b06	c98fdf121ffc94ce
-monkey 5, full match	6000	cde4807b347ad5c9	38abb5bf2867bd7e	f1098893cdc49090
-monkey 5, full match	6600	e772efdeb6d52ece	6c2dc3ae35ac1bca	04890d4f5020c081
-monkey 5, full match	7200	3094549443156b56	c2df564ffc4d814e	950c44d96e33a7d0
-monkey 5, full match	7800	371d83a9a367a758	eb2f7e954a6d02f9	6cdde7868a9d3095
-monkey 5, full match	8400	1a753524557a29ed	b37dc0af793d479c	6864a6f85f207683
-monkey 5, full match	9000	7c0970e51cbaab29	0064da85f5e546ec	5e66bf7f54d32051
-monkey 5, full match	9600	05810773416ff50d	653e756deb072aa8	373a3cee95a5ac8c
+monkey 5, full match	1200	0bd72f38b065d3f5	c9b54d9d362bdc9e	05fbbdbfffda640a
+monkey 5, full match	1800	a2734bd6606540d6	29e3970c43b256a5	20ba4dad40e88b83
+monkey 5, full match	2400	a8d39bcec6e27f19	d9da5949ef4074d4	04286382fdbb1716
+monkey 5, full match	3000	331077916afe11d7	25229ea7879a9764	969d97bd02057bb5
+monkey 5, full match	3600	bbe6ce828632d0f3	3d5639a79059f88c	355508ed0786cad2
+monkey 5, full match	4200	b55915c7088eec37	ec5d7c995c25d6a9	a4fa436c57d46b9e
+monkey 5, full match	4800	d9cf3c22d4759e2a	7367d5fb7830688f	702630ee9a7ebac8
+monkey 5, full match	5400	bcec12caa2181fb8	66b60103eabc6b06	c803b3c902cd84a9
+monkey 5, full match	6000	62d1f13094a86aad	38abb5bf2867bd7e	4b3d4c44b67454ad
+monkey 5, full match	6600	b0c67e53f71bfabf	6c2dc3ae35ac1bca	3d29782f0a6f3d60
+monkey 5, full match	7200	97d75d1d3749f112	c2df564ffc4d814e	505eee7b34cec30d
+monkey 5, full match	7800	087e96b8960092ef	eb2f7e954a6d02f9	2d910e0434a3ec76
+monkey 5, full match	8400	36ee406f986a9aed	b37dc0af793d479c	c55a574eac2f7d72
+monkey 5, full match	9000	294f2417b454ca25	0064da85f5e546ec	c559d82ae9ad9ceb
+monkey 5, full match	9600	7fc79755763664bf	653e756deb072aa8	2a936992e9b51f83
 monkey 6, full match	600	e20fd51087f62cb8	a764f792c4eb4598	62542eb80c978009
 monkey 6, full match	1200	0cbcbd1cf0845715	fb8428e84ee35963	4175db7ee02295d3
-monkey 6, full match	1800	c173db4461cfe9e3	ced70ac5cc5ff645	29c87a2f4841edeb
-monkey 6, full match	2400	09edc1d8351006a2	032fdb33b3ff0f5e	3998e315d6582e94
-monkey 6, full match	3000	abea73ce1e7c30e7	e0e49f7b25b8354b	0bf7c5828de1a71e
-monkey 6, full match	3600	cca2dfe0f29f1fc2	8939f674a08014eb	cb173c22991367e6
-monkey 6, full match	4200	09d0ef46aab93a96	1a7a48c6a03b01a0	642b730fdd704c44
-monkey 6, full match	4800	a2b876377acd010c	a8f7956583aa8408	8728e710adb0f398
-monkey 6, full match	5400	16807f264c95e1da	a0c3b01394c49238	bba9acdaa51a8801
-monkey 6, full match	6000	dfc57985659af652	b395f766624832f0	cbbeba0c606d4dc6
-monkey 6, full match	6600	a540cdcd4108ada9	cdbbea3707be9f19	e0a4fb57a1ad7a42
-monkey 6, full match	7200	ff52eaf0d501b565	6b6d97f26b13c816	eba56244bcf9efce
-monkey 6, full match	7800	5c17717f7f850541	dd0c30c2c4d36617	b1a9ce417de681cf
-monkey 6, full match	8400	e6344f2bbcc2cf58	2673ecd6a663fde6	5189cfee2bee92e8
-monkey 6, full match	9000	fc97514073faf363	9ec034537858fc98	c22549c67b890938
-monkey 6, full match	9600	17dfc8107d504793	c5843da9199dc67e	983aa751c05385aa
-monkey 7, full match	600	78932af231f20971	4dd689152cea3566	c38dea2241307f7a
-monkey 7, full match	1200	8eefba6ef245e1fb	e6f5879244f1db5e	91fa47964123b616
-monkey 7, full match	1800	0ef75f23996abdbb	0799c370458c7313	6fd8748295d892e5
-monkey 7, full match	2400	bd92417d8574f41f	45bc8c0409ff6ca1	0e0fd883a5119a7c
-monkey 7, full match	3000	d86e40668695c735	bc98011ef6f58544	5ba5322673207625
-monkey 7, full match	3600	326294f5abe8ed60	1e61bea71baa15bb	4f308d6612ec9427
-monkey 7, full match	4200	129ddda4172dd915	d689adcc7fbd57e9	0e776d8f6258ec5d
-monkey 7, full match	4800	8abd799e1171644d	5646c1fcffb2fc16	69a9205fa6f53b36
-monkey 7, full match	5400	1eb324a130e1c41e	fccb4bba36ce0769	0c61f63e4069141b
-monkey 7, full match	6000	219cf136fd032563	ea13c48d3118cde1	ffc353e1a497e585
-monkey 7, full match	6600	b7a9d481e460d938	2a8fd25284600716	319df6a1e23b91b5
-monkey 7, full match	7200	0b0d2a64d0da4e1e	0a7e2cc9951a342a	30c1bff849a76967
-monkey 7, full match	7800	7b1793320a7f40f6	a30e9c13322b4ad8	87a5d3a51d69a9fd
-monkey 7, full match	8400	4af50cec313228f1	f0c04516407b5aa7	359139e8427ccf89
-monkey 7, full match	9000	d8c72a74368c5ab6	8e0840946acaf15d	104b489367835088
-monkey 7, full match	9600	6cc2d09d31bc9294	be5db57d3ed0c131	370bc0629937334d
-monkey 8, full match	600	058a4cf70044f4a0	1b1f89f1f5abb249	fabe45d587a476a1
-monkey 8, full match	1200	62bab42d5288644a	599129a0a5b386dd	24c622ceae87fbe4
-monkey 8, full match	1800	4aa1caf4ad382067	060ee6e42a2e3ce3	8df5719dc418703a
-monkey 8, full match	2400	3857973f8f64609d	53a5190524083e10	24ac2842adfd544d
-monkey 8, full match	3000	c4e2b6f85a9e0750	b5645120123b429b	2c0d60d90dd32db9
-monkey 8, full match	3600	f8e70cb7e5dcf4c7	c82f87cf38520886	540cda43c99a9074
-monkey 8, full match	4200	50c0d1d514aacda1	76e7b3465fd92813	63e2415e0396eea3
-monkey 8, full match	4800	de9e469fba3dc347	1e024acc828671e2	2b7e39ca45a329fb
-monkey 8, full match	5400	7bf2555612fc5ed4	ec29a29d9726a2a3	1afe5f04df00d0ce
-monkey 8, full match	6000	7f26037f103eae45	5c11c1efe33db703	69da2e544b5de17c
-monkey 8, full match	6600	cf98086014f2f287	6d4380e44d6054b1	23f2973191cf2a84
-monkey 8, full match	7200	01a2f80463b9de61	a33cb6af4e6c1ab7	31d10103f5f1fb15
-monkey 8, full match	7800	97cf378b7ebdc1ff	fcfc5a17fa509ea6	7696f200b575c124
-monkey 8, full match	8400	b31d7280d9e2df03	9c5aa8e74ed76fbf	4495d735bddf23e3
-monkey 8, full match	9000	0aef0d99299673b1	840b70aafbacf3aa	468b8d6a53db206d
-monkey 8, full match	9600	848230892f5a7043	9811f53120240c58	205cc1e3e2c508a6
-monkey 9, full match	600	7e8cf8d6a51343f4	efd24a0b52b5b176	c874aae80c1be68b
-monkey 9, full match	1200	348c8949031d2722	d76139caebac40ef	174c6693243d719e
-monkey 9, full match	1800	a7c34a2e2d13a5e8	e41bace907502ba3	573fbad4bbd530fc
-monkey 9, full match	2400	45d9a8e16d9e8890	dbb44a33a0df5107	d9de29390c91fb02
-monkey 9, full match	3000	311df269b1d2d847	6c7ddf43ebde661c	fcfc1072012177ac
-monkey 9, full match	3600	42b9f3a5e83321a4	cb41cb062a17ebe1	6ce05c22fc46a7f5
-monkey 9, full match	4200	0290fb7c71087238	d3a9fc3cce6ce239	fd71f2c206e3d864
-monkey 9, full match	4800	4d438f2ff48322ce	6d11a7298932e55c	15ade8ef1ca701a7
-monkey 9, full match	5400	18784e9d32ce6703	a3671149ae357eb5	5c311dbc4c246473
-monkey 9, full match	6000	f230f997217e71cb	6eb43cef6675777b	f2ae76c794796f60
-monkey 9, full match	6600	c5f9171b68736853	116ba2dfb38f105a	573188e7a4cd0ab0
-monkey 9, full match	7200	6af5b5e07140eb9c	139603d03fe84e60	730c0ea956561e87
-monkey 9, full match	7800	87ae59eb56d8caac	05540dd3b753d392	3805775fbd394901
-monkey 9, full match	8400	f48d34eb19d57942	c3f3f491d9346bf5	091605ecc0da6b12
-monkey 9, full match	9000	77a3c1a2d222c3e1	8ff8c242cdd3f3ce	88a74481757dea7f
-monkey 9, full match	9600	b9857c4d07758fa6	d56ccbe6b619f678	89748477f31cec3c
-monkey 10, full match	600	bba1a1191df24bf5	baebe3cfabae304b	d69b0851bf7d3874
-monkey 10, full match	1200	db0830690d032531	f1b0a4e370aa08fc	ab9e78405ccad6bd
-monkey 10, full match	1800	154280ff6e7968c4	878f14279dfe982f	ed4f304bd84c2942
-monkey 10, full match	2400	1b90d2837284bacd	acb8805c51c96929	4ee32ca94a29964b
-monkey 10, full match	3000	c75215175bef3295	32da074e1a5aad53	49b554f4c24b1ee6
-monkey 10, full match	3600	b042ec957a4149ba	3aaf56782135e7e3	72ef16135e7f8907
-monkey 10, full match	4200	cdebf1766c99fb19	5797dc740420c1b7	a69f07cf801df4ed
-monkey 10, full match	4800	5ec21afaba919732	3a6bfaec9afd9513	12d8e1bba12c2c9c
-monkey 10, full match	5400	e390d2255cb949f3	04bdb69332e6617e	39c04cd164259d4f
-monkey 10, full match	6000	8d1e817665b8f100	3c561254e3fd3113	23e658d260c44588
-monkey 10, full match	6600	1bc1084a1489d399	88cb988b0da62016	95b5774d3c08ac24
-monkey 10, full match	7200	b97e4f46f3430362	e732524f3c181a65	497d9fb84829303b
-monkey 10, full match	7800	008740567bacefdf	0ad290c504846042	2d746d6391eff500
-monkey 10, full match	8400	5e56e29aabbc7414	6f2e97084ac21501	061471c09e31a331
-monkey 10, full match	9000	3fb95b96d6ba61bf	3ba7ffc047656cf7	5ef9f15875ed34fb
-monkey 10, full match	9600	d469518f2ad510c0	7f75a4dada6fe91b	fbde556ee7a1549f
+monkey 6, full match	1800	2a3daaeeab992495	ced70ac5cc5ff645	cfb5b3229939324d
+monkey 6, full match	2400	46fee70038de37f6	032fdb33b3ff0f5e	011a4b237805be1e
+monkey 6, full match	3000	7750241e58c20f82	e0e49f7b25b8354b	bc0eba869b9ed914
+monkey 6, full match	3600	12c68342515d37ec	8939f674a08014eb	312fa141b4f0a1c4
+monkey 6, full match	4200	e00dde2c8dd02e5e	1a7a48c6a03b01a0	7956242abc21643e
+monkey 6, full match	4800	6a5d370a5e87c07d	a8f7956583aa8408	7aa22444e93f85b9
+monkey 6, full match	5400	d28cffe81de18ec6	a0c3b01394c49238	1c2385c03c7709ce
+monkey 6, full match	6000	75f359c36ec90bc7	b395f766624832f0	d4584cd88b3ed29c
+monkey 6, full match	6600	6f4f1a049eb8b8ce	cdbbea3707be9f19	36e91a910fc83977
+monkey 6, full match	7200	52b152f29da1eaf1	6b6d97f26b13c816	fbdd1832e70b6104
+monkey 6, full match	7800	6cac1ef888518069	dd0c30c2c4d36617	2c2aebad1689f3eb
+monkey 6, full match	8400	cf46f2b8c89df753	2673ecd6a663fde6	a189f961755ab31f
+monkey 6, full match	9000	cbd5b8493b5ee46a	9ec034537858fc98	0c3279fa2c11fce8
+monkey 6, full match	9600	3e126e3cff672826	c5843da9199dc67e	46d1fbe86d6b7b60
+monkey 7, full match	600	78932af231f20971	4dd689152cea3566	23618d7dd6c58692
+monkey 7, full match	1200	8eefba6ef245e1fb	e6f5879244f1db5e	4db907b37e0b6844
+monkey 7, full match	1800	e9ee4f4ef6b2546b	0799c370458c7313	cccce28352d35cfb
+monkey 7, full match	2400	7659bfb1bb83866a	45bc8c0409ff6ca1	d47dda1f576a7f82
+monkey 7, full match	3000	09152c4301033854	bc98011ef6f58544	6a891503fbe5c81f
+monkey 7, full match	3600	cf678d61bb1043cc	1e61bea71baa15bb	92515d699e415017
+monkey 7, full match	4200	bbf16b16d3441340	d689adcc7fbd57e9	b2e9251518921817
+monkey 7, full match	4800	f7029bda57d9eaab	5646c1fcffb2fc16	0c219d6ca6fd779f
+monkey 7, full match	5400	f14292399c9fa19e	fccb4bba36ce0769	7ca48f260efa526c
+monkey 7, full match	6000	1cd4142c2d50a49b	ea13c48d3118cde1	3d1ab224de63ac2f
+monkey 7, full match	6600	8ef8f14e3974c295	2a8fd25284600716	d4db99dd76ade99e
+monkey 7, full match	7200	1d611a3a754565ff	0a7e2cc9951a342a	7b20c20669711594
+monkey 7, full match	7800	9c39e23707cee6e3	a30e9c13322b4ad8	d67f773827d2698d
+monkey 7, full match	8400	a5b27028c471d96e	f0c04516407b5aa7	d26e5b7235a9bb8a
+monkey 7, full match	9000	3a27860c03ba084c	8e0840946acaf15d	0a77e808a2fda232
+monkey 7, full match	9600	65e2e54fb34be803	be5db57d3ed0c131	4352cb72ab0473af
+monkey 8, full match	600	058a4cf70044f4a0	1b1f89f1f5abb249	3813fedbb04420d0
+monkey 8, full match	1200	62bab42d5288644a	599129a0a5b386dd	90b72aff0fd5d6d6
+monkey 8, full match	1800	4aa1caf4ad382067	060ee6e42a2e3ce3	e7c909cbcf4fafe0
+monkey 8, full match	2400	3857973f8f64609d	53a5190524083e10	3b1d590ddcdade28
+monkey 8, full match	3000	c4e2b6f85a9e0750	b5645120123b429b	6dca8a193dbed798
+monkey 8, full match	3600	f8e70cb7e5dcf4c7	c82f87cf38520886	f4b00a89fafb6621
+monkey 8, full match	4200	50c0d1d514aacda1	76e7b3465fd92813	049b1055370d9cd9
+monkey 8, full match	4800	de9e469fba3dc347	1e024acc828671e2	a63558ed266c727a
+monkey 8, full match	5400	7bf2555612fc5ed4	ec29a29d9726a2a3	35d6952d998dcdec
+monkey 8, full match	6000	7f26037f103eae45	5c11c1efe33db703	7adf5e7c4bc1795f
+monkey 8, full match	6600	cf98086014f2f287	6d4380e44d6054b1	65c13eaa6b50445c
+monkey 8, full match	7200	01a2f80463b9de61	a33cb6af4e6c1ab7	c19b05c028b3fea6
+monkey 8, full match	7800	97cf378b7ebdc1ff	fcfc5a17fa509ea6	3358dcffd1ef8593
+monkey 8, full match	8400	b31d7280d9e2df03	9c5aa8e74ed76fbf	9039539c484c7f8c
+monkey 8, full match	9000	0aef0d99299673b1	840b70aafbacf3aa	1bcdcff0af4c009e
+monkey 8, full match	9600	848230892f5a7043	9811f53120240c58	c188c459e12976b8
+monkey 9, full match	600	7e8cf8d6a51343f4	efd24a0b52b5b176	95bd88aa4181826a
+monkey 9, full match	1200	e33f707874980402	d76139caebac40ef	27b754742cdc273d
+monkey 9, full match	1800	faf596feae0ba86d	e41bace907502ba3	956ed8efeb0993c7
+monkey 9, full match	2400	5f856f596ae7c388	dbb44a33a0df5107	2e698f87f951bf81
+monkey 9, full match	3000	213e9ae6fc697f60	6c7ddf43ebde661c	6464fdc0e046d937
+monkey 9, full match	3600	1dd9bcfc67d45e0e	cb41cb062a17ebe1	40d223de2483c111
+monkey 9, full match	4200	b2e5530e9c9b5f28	d3a9fc3cce6ce239	4096841c54b2fd0c
+monkey 9, full match	4800	77c37264ee21536c	6d11a7298932e55c	55725526fe1791ca
+monkey 9, full match	5400	10860bb524df5795	a3671149ae357eb5	68b2b0caf2afd274
+monkey 9, full match	6000	9544d47d313d5162	6eb43cef6675777b	70dd1539423e2f9e
+monkey 9, full match	6600	1fffe5d3665db3f5	116ba2dfb38f105a	da989d4ac5776bb9
+monkey 9, full match	7200	4b2637e06af57161	139603d03fe84e60	cccefab8ef5996ed
+monkey 9, full match	7800	727631231a6ed9bf	05540dd3b753d392	a3bcf9af23c96cd0
+monkey 9, full match	8400	3b8ba8626e2ad4db	c3f3f491d9346bf5	3177213a8c4c5687
+monkey 9, full match	9000	ba74e13bff9f1233	8ff8c242cdd3f3ce	f4da384a2d4c0bf0
+monkey 9, full match	9600	2d60767425fe5e0f	d56ccbe6b619f678	f4c56f250d957ca4
+monkey 10, full match	600	bba1a1191df24bf5	baebe3cfabae304b	463efc097572867b
+monkey 10, full match	1200	db0830690d032531	f1b0a4e370aa08fc	88967064394ff477
+monkey 10, full match	1800	154280ff6e7968c4	878f14279dfe982f	8448c7592d7b8d15
+monkey 10, full match	2400	1b90d2837284bacd	acb8805c51c96929	498d51561efcc89b
+monkey 10, full match	3000	c75215175bef3295	32da074e1a5aad53	86940b3443dfb95a
+monkey 10, full match	3600	b042ec957a4149ba	3aaf56782135e7e3	218f4e49ef9f39c6
+monkey 10, full match	4200	cdebf1766c99fb19	5797dc740420c1b7	8440cbe8d3625a2b
+monkey 10, full match	4800	5ec21afaba919732	3a6bfaec9afd9513	73666c2768262ef4
+monkey 10, full match	5400	e390d2255cb949f3	04bdb69332e6617e	78ad8fe7aa13db5f
+monkey 10, full match	6000	8d1e817665b8f100	3c561254e3fd3113	978ed78d514a310d
+monkey 10, full match	6600	1bc1084a1489d399	88cb988b0da62016	f9e331e1713decc8
+monkey 10, full match	7200	b97e4f46f3430362	e732524f3c181a65	ad72ffc74407187b
+monkey 10, full match	7800	008740567bacefdf	0ad290c504846042	462e1dffe3d5311e
+monkey 10, full match	8400	5e56e29aabbc7414	6f2e97084ac21501	248988e39e031b54
+monkey 10, full match	9000	3fb95b96d6ba61bf	3ba7ffc047656cf7	7ff5e0b2e8c06d72
+monkey 10, full match	9600	d469518f2ad510c0	7f75a4dada6fe91b	d8cde071c241d10d
 monkey 11, full match	600	dfafe89db069ddcb	c2f024d5dcd96a79	f4465fb0294e8a6b
 monkey 11, full match	1200	3b81b397846140fc	bef147fb314ad95e	b5e1be674864e158
 monkey 11, full match	1800	fbb1ab1bc02f0f0e	18e76538d696cb7d	5613c158c9f89fc3
@@ -568,206 +568,206 @@ monkey 11, full match	3000	8aca9889e520de0f	8ddcf3b1988cb23d	3ebbc61d3f3f1c38
 monkey 11, full match	3600	f12f585244a3dcdf	2a1c68365c906d04	ecd4f9f2c02d765b
 monkey 11, full match	4200	45e9badf302fa417	0bc5606e9148776f	c7ab925f0b3a68e7
 monkey 11, full match	4800	fa91829c13e6f6a8	58f1927d2c37923f	34f2b6f4feced2bc
-monkey 11, full match	5400	58a896370a974dfe	10a12cf2a71b5450	8cdab10deee411ec
-monkey 11, full match	6000	9b2bd456b6885c1b	59ece946527c3d06	cb5be4c90835a39b
-monkey 11, full match	6600	ec9b6e327d14a348	6860c48f697eca58	95134d52dc0d18d0
-monkey 11, full match	7200	a6c71650ed9fbc93	784328699b0b258e	df0519477c70042a
-monkey 11, full match	7800	2f7d40976ebe4265	f30d7f3e5d95c576	cffe7c0b97115335
-monkey 11, full match	8400	481ae5b7b0e80f73	eff65cda0e31ace2	149f6c5c20030a46
-monkey 11, full match	9000	05b7f1bcb1289675	ab156c865a71d7c8	640d3440da1d9a2c
-monkey 11, full match	9600	f6e9a7444352c5cd	b479386e2a9d7b62	a9aea966478a0fad
-monkey 0, menu	600	316ac3be2dfc1f02	3ef6218989055868	bcbdd5c25420729e
-monkey 0, menu	1200	c844a0bbb0cf7c24	0815284efdf3392b	9dbc1c58efb8d42b
-monkey 0, menu	1800	e4c73d14c3d73893	34c2a23707ab5c8b	d65a3c188c2441fd
-monkey 0, menu	2400	5c9284b8796aa0a9	c939807932bbc622	31657b674be85bc4
-monkey 0, menu	3000	f688c92f7a07f866	4067fde3e219bcb6	95832d8665157d17
-monkey 0, menu	3600	7653fae5c10f1e4c	3acad645c2aca0f0	cc0179c828001721
-monkey 0, menu	4200	817e87b4bb64b5f6	647df50cbea1d38a	42e818598668f29f
-monkey 0, menu	4800	fd25568dffb4d8b8	d73b67e5f17ed677	ba3b11e2d2354dca
-monkey 0, menu	5400	effbc8c96c9fd7ae	b31d136fcd0132a1	48aca3e7ec288675
-monkey 0, menu	6000	46a7b6f21b8a6d23	708950524bd3cea4	7b796ee2bb814676
-monkey 0, menu	6600	2370206cd3dd58ee	17183286efa4fc40	e8b2a44762d7e690
-monkey 0, menu	7200	64e5bbd2a96bce7e	3be97777d549d61e	8dea4c79235f9f96
-monkey 0, menu	7800	8bc7a14ae53b21d4	46c8c2a78a90fd70	57b92cba7c8d078b
-monkey 0, menu	8400	81cdfcad7c724846	18be502382d312d2	56b51d47f2a6c6b9
-monkey 0, menu	9000	3642b2a45de2d0c0	c863d04faffb7da9	6b3e671c551a2292
-monkey 0, menu	9600	c17bba68683931ad	bacab1217b3ef407	ed68d734c7b84a5c
-monkey 1, menu	600	0d9bec170d25e86a	97de6cbc4cecbe6e	aac5e60f8134f33f
-monkey 1, menu	1200	8508fa32ffde726f	bb7512a883bdb7a2	6cfbdc51d9941d12
-monkey 1, menu	1800	4503e73d507139a9	fd2183a62d7efa92	71943b8876b0fa8a
-monkey 1, menu	2400	d13380425fe2a92d	dbedd0eb385543bf	83172700ed7164f0
-monkey 1, menu	3000	c018db86c0fe9ad1	4ddc56269e2d8440	883cee16a7908805
-monkey 1, menu	3600	b8acf72af5a856a8	bee4b357e0fd9b38	60a411a7cccc686f
-monkey 1, menu	4200	aa72bea1334cd7bb	a72d36dfdd771542	01f740185dc6bb61
-monkey 1, menu	4800	e693d287289e18cd	09dceb2d6d91b334	cc8c6967fc2c0628
-monkey 1, menu	5400	8f67d316aa8a5e61	c4ec20cfc9576557	329c65a01f2d1364
-monkey 1, menu	6000	1765280e50e43fbd	c8b781dca3f696b2	24c4cc6428e19c43
-monkey 1, menu	6600	7600ebb8fa24ad5c	2a304ff16c886f77	f68ccba7b58c63e0
-monkey 1, menu	7200	e085180ea887fd62	321306c7857557a1	c0cf46186d536659
-monkey 1, menu	7800	10f59e77a19cd9a1	1ccf3c8b9601a8cb	de66cecfe0139eaf
-monkey 1, menu	8400	810526289bc8cd31	2fec337981e80035	f2e495089a76516f
-monkey 1, menu	9000	43ca91ca334b0471	2ec606f4ff7abca6	1fa1906f51a99c46
-monkey 1, menu	9600	91dddc1fedcc8bb7	ea650b28f1c9f5d8	7e8dffeaf284d264
-monkey 2, menu	600	a61ee80b8de4d531	a6a567593bff7f3e	4a3937bf3ed42cb3
-monkey 2, menu	1200	0992af9fccf639f2	a8a3fa88848847ef	dd4ac467ec514360
-monkey 2, menu	1800	e1c6450a073c386d	59bcb6c68c7c3ae9	5f975c3a4206a60f
-monkey 2, menu	2400	7b90051d8fddcfcc	325e6b92dcc566b4	dc120136ccbcd988
-monkey 2, menu	3000	86b70891a30653f3	00e3fc03999aebb0	6900c3f2791e4eaa
-monkey 2, menu	3600	2be38135851d1adf	53c78fedcf3501bd	7d61c406088b6c1c
-monkey 2, menu	4200	70f65a488b7665cc	4f38db3f496f7a8f	876d14d47e5483a9
-monkey 2, menu	4800	3a53e9fa52f0783e	958da9dab0b52a54	2020c4509f87ca52
-monkey 2, menu	5400	24b8c49009af8da8	65e5185c4e284d74	9505d191e5b43613
-monkey 2, menu	6000	44db137279c88e78	9a287b5703659d3b	65f0fd09424dd95f
-monkey 2, menu	6600	e966ef5d6ded6da5	ae3297079dbe7b4c	46259c4ae0775dc2
-monkey 2, menu	7200	6ddb5263ff0e5a4e	7985d57cbb660004	643b5c29e402c0a8
-monkey 2, menu	7800	9d54c0579d1b20d8	856c113dd67bd706	8d9bb25a7365e75a
-monkey 2, menu	8400	ff94dd1986cb2b5d	00be348df33b33ee	64ee88a20a4bb555
-monkey 2, menu	9000	bd814f1573e000a7	f446251a6a254939	66a16c2cbb65c067
-monkey 2, menu	9600	e8d32511ad7ae195	935b5cbecc4e70ae	1c22470f3caeb970
-monkey 3, menu	600	4c9f4b939a514382	bb9e858fe0b998a4	07a6e39e812f726b
-monkey 3, menu	1200	c8f8e7b360e3c72e	52e38bff68aab4b3	d99f61d571517699
-monkey 3, menu	1800	8e01e74b1b68f21a	0b337b68fc978bc3	228e5b40c585a5c9
-monkey 3, menu	2400	90e4dad745cf4325	21998cd621849ef4	20ad4de435fbd295
-monkey 3, menu	3000	a672b9e0c41eb550	1479cd436c5a8bd1	6cbdbcda42691a2e
-monkey 3, menu	3600	b46c649b6c75238d	02cd039395dbb615	1f2b4582cfbbb1dd
-monkey 3, menu	4200	0ad90f091b141483	7d6fe09f205ce975	d34ddb784a7a06fd
-monkey 3, menu	4800	bbe96c3d87a3a78a	159d661ccd1d8d0c	0eb02f21b307a1e6
-monkey 3, menu	5400	01fe48624e456bce	31e1c2e12255ce64	def06b033cbbdf4c
-monkey 3, menu	6000	d06751d4fec2c03c	1ee3f4de80ebf78c	896b465b95c766f9
-monkey 3, menu	6600	3b87634be40705a7	17c04e8e0f38405f	937b4ee0380dbea0
-monkey 3, menu	7200	148b6ad180791d78	b5026f1ce498d9cf	8c56c97fa5cee47b
-monkey 3, menu	7800	8020c1c3e5cd4571	e1fdf40b670c04bb	08c9350f77fafb32
-monkey 3, menu	8400	b82c1a661e2aae28	81397b91a40848dc	30a86c18e17d611a
-monkey 3, menu	9000	1f72c49e8f81ff87	8a9fdc5108468d28	455be60ca866b463
-monkey 3, menu	9600	6c00aed6c4899f5a	33373a41cfa5f1b5	bbdb0c192af78657
-monkey 4, menu	600	aea0d3dd4862ce77	f777122769f29c8f	b3349357b0a2141e
-monkey 4, menu	1200	2801238aa3b1426f	d0580c839d3bb15a	59d9d29336d04f13
-monkey 4, menu	1800	53bcab62fbc7028f	779c8323b4f50af6	50eb1e67abae3785
-monkey 4, menu	2400	f52b8db2d7e0b2e4	4b68049f6121b965	826b53f1d037bf97
-monkey 4, menu	3000	c209267095042c97	f5a020152af544de	dead6640e426bf14
-monkey 4, menu	3600	d295573cb9e54824	e3dd8058f32a3610	b24c29d41020ba22
-monkey 4, menu	4200	60d38a5bced4d9b6	da55fa12d809285c	83f3e410242c0620
-monkey 4, menu	4800	afe8141a2d1d4290	028d8cff828eb53f	45118dbf5d63a17d
-monkey 4, menu	5400	083c63ece5da4a41	33e20f4c02bd55d4	cc73cdea858f0100
-monkey 4, menu	6000	94458d6066c765c1	e6976b690cc6b9a8	eb4d8224150c9195
-monkey 4, menu	6600	ad345ab39628bc50	224dec5dddcf5d2b	5a890ab3d38f2b95
-monkey 4, menu	7200	cd9135b297f54a35	74afdd447c163300	cb19246e2b07f05b
-monkey 4, menu	7800	cc9599c902eab9bc	3b7c766a93b1aa18	d4130e9a311a4bcb
-monkey 4, menu	8400	7e68265a82831eec	83df1eb0f38f6b99	a9fd0bc6a99d5389
-monkey 4, menu	9000	b85b47ce4982db5d	ba698abc07cb990a	c9dbd9c9899918cc
-monkey 4, menu	9600	98b4f2d341d1a0ef	63c35c72254d9bf5	6464c4a8ea173afa
-monkey 5, menu	600	7b4bd100df44d657	ced63ca8159c682d	3b9fc24e227a6e56
-monkey 5, menu	1200	4da9e75415cdc67a	79f05aa18da0cc47	35be6b1096597d74
-monkey 5, menu	1800	e2099ddc335eb9bc	7d983e3fdb3f49d1	0cf54858e8f3d381
-monkey 5, menu	2400	5bfdb54808cb4141	896cf0e3413e88c8	0757a600e7019f77
-monkey 5, menu	3000	6b297c4915cf67e3	e8f448ce13285b2c	634f3c95efa98b47
-monkey 5, menu	3600	495adcd9fda88d72	cb26508346339f3b	2b6ac3e197b3e62e
-monkey 5, menu	4200	77a752c4307b4a3d	ad04b2bdfd44b86d	beaf73de8000c9b0
-monkey 5, menu	4800	47d9f74f5acd081c	5b80939c4d9ec01b	abc9a620bd3067ca
-monkey 5, menu	5400	605492e7d01c4c37	14ea890ee23a636d	b2c7957b9eb27e12
-monkey 5, menu	6000	4afb30d1d54c551c	7f6ad9b5f217a5aa	f01ba24f6631c1c8
-monkey 5, menu	6600	8f4a2f5a115e03e7	e9e2a9485bb3cb89	5ac94b6fbebdd4cc
-monkey 5, menu	7200	8039b2db4810982d	7c2898d7878e0097	d2a8d0853ddd45fa
-monkey 5, menu	7800	86b7e3e31a0a2ff3	c9b5456d958cb444	e78f312e84d52cef
-monkey 5, menu	8400	d00a63e4e1e501e5	1a928ad7bafdcd13	445e49ba713a1127
-monkey 5, menu	9000	bb26df301c84dda8	a9ea456ba716b4f1	c592849f533821b0
-monkey 5, menu	9600	b1b3b524526f8c9b	6cb29b9bf32f1887	756004be24d83d43
-monkey 6, menu	600	9d6fecf253b8a28b	b3f882e359ad48be	1e70825b6549da41
-monkey 6, menu	1200	2246835fbe1c48ba	ca9d26a730059bde	b7c39d0b5b4280d5
-monkey 6, menu	1800	1e3420ae5b7ec751	e864733f31824c7c	2780ef5dcbd300c2
-monkey 6, menu	2400	65d540be63af914f	05fa4e12a5a42909	713a17dd3dc2bcea
-monkey 6, menu	3000	cc8c640b2884a9f4	4d4cffc352f5b227	b16fe6cf6075ca0e
-monkey 6, menu	3600	44bb05f032a0b45e	f9aee2d33d382ed2	55dc9b96d8c19e5a
-monkey 6, menu	4200	4618ba9482969bea	4265ffff7bbccaf4	3dd078b98efbc300
-monkey 6, menu	4800	b258831edfb9e666	abda76e375518075	0516b049f79a8135
-monkey 6, menu	5400	7fdb49419b8a5f8a	836cdbeadaabfe9b	f97ff473b4c33a51
-monkey 6, menu	6000	e92032217392e7c9	be7a25ef91627e2a	834973cb32d91755
-monkey 6, menu	6600	e16e13eae421d7ac	05ab979e8ecb3629	fb7971224dd4063c
-monkey 6, menu	7200	8f71f311bdb9603d	5643c8c9f02a5299	3b12a9b375dde5b7
-monkey 6, menu	7800	e9f4de839fabae40	7bee2fb2f27b4456	5593d7a5ede74ff0
-monkey 6, menu	8400	bf2ad41728cf81d1	ecbdffe83c0d5b93	390ac340f84f60f9
-monkey 6, menu	9000	68c8dbb6e1354a92	1aca2e500230495e	823f2cdb0c0e7d77
-monkey 6, menu	9600	a5013b14f5605b64	3f2e5182f83f2e35	69662d054ff5d338
-monkey 7, menu	600	7894daf02e12c22e	b9410ef2f1d8a6d5	68cbf4ff43d6de58
-monkey 7, menu	1200	656e285ab26e5b1f	cafe19a59dc11ae4	ccc3fc31601e3ddc
-monkey 7, menu	1800	526c34058b3c48dc	ee41d0f567325e36	4e645373d422e30c
-monkey 7, menu	2400	5a768096214cfcc2	03ce6f1c07f2b03b	d8ecad8c4d5861a9
-monkey 7, menu	3000	67ac143deb078464	581f800becf67d97	fbf41bd43e9694d2
-monkey 7, menu	3600	cb7fdb5c8121fa60	ed340551acba96d6	7bf71a130b7f7718
-monkey 7, menu	4200	d124607091abd07c	499e1bdeef73213e	2d09d032844676e8
-monkey 7, menu	4800	231efcf4fd7dbe04	a4ac2382e7dadb2e	8c8eb1f7d59b8426
-monkey 7, menu	5400	4c5c2f349b22a695	5fc102043cfd2d6c	d6c4b6791aba2b9a
-monkey 7, menu	6000	605eecb0d4875e85	1c35e02ca61ec4e9	2f7b6f5763fd177e
-monkey 7, menu	6600	83717d05c3270ec5	f322fc888551a048	6adcf1abd67e6dd4
-monkey 7, menu	7200	a159679a9d7069f2	e5c9b0d5f3d9e5d7	41e3678545d4b944
-monkey 7, menu	7800	4cfa1f4e62784a6b	a1bfeeafed10c1ae	ddd00890ea48e03e
-monkey 7, menu	8400	9866d4aac031d84f	e94a045ab084cd51	ff851179ff88e84b
-monkey 7, menu	9000	060c5459d6590e9c	e1fe496420003614	4d86b085ee97190f
-monkey 7, menu	9600	8eb4e90c4b7dcc27	0b362887250d2a75	d908e98adbe5e51a
-monkey 8, menu	600	3ff54b8746792b8f	740a62a3077cd9fb	c84d1a6de992250d
-monkey 8, menu	1200	a5c1f1398f94ce68	c6b06bb07fc05a80	8aedadae5ae404ba
-monkey 8, menu	1800	ef9cd16f32571efc	88261e8d929bef7d	d9449854b2d9bd34
-monkey 8, menu	2400	a496f1debad9425f	5941284bdbd3b420	54b9fadca0c78a6b
-monkey 8, menu	3000	d6734eeb518d08b3	12eabc6e1d4f64e3	a9d0760060242a2f
-monkey 8, menu	3600	72537842661516f1	91ef8f2443e35411	b9199ef615d50021
-monkey 8, menu	4200	d365cdea5a3db797	400a9132c9dcb675	85d5bb450f3daf59
-monkey 8, menu	4800	685457ee451e6638	6ba0f77ec68ec35d	06eebdada309f3de
-monkey 8, menu	5400	1a66ed4c13c5abe3	8870fb81ce8e6480	cadeca51837a46c3
-monkey 8, menu	6000	d84e18dbb496587c	7df6e176cd9fcc18	0cffe0a86cd9158c
-monkey 8, menu	6600	ec674f4ea006133b	3b33ec0ac9a5d7c4	54925ad4ecfc8cd2
-monkey 8, menu	7200	5d1ac39550d55f73	ebb4378e3bc154df	a89db4d2c07a350e
-monkey 8, menu	7800	6097be6a58e93a9d	f8f2c7efb4412078	2cc9890ee7d14695
-monkey 8, menu	8400	0736466c7a7b6074	dd85fabcc00da1cf	4a9fbd20395329e2
-monkey 8, menu	9000	e93ba211ba7e6d40	b7f832b7c3729d08	23e8e6be22580129
-monkey 8, menu	9600	6c883351cd408e7a	87182a47285a24e9	6a30c48869741756
-monkey 9, menu	600	8c721d92126bdb5c	a161a46da472fb7f	0ca10a9bb471556b
-monkey 9, menu	1200	32f3bb85d12503b6	8516dd45aa68f949	c10b836569d6a280
-monkey 9, menu	1800	15064522c05f598c	7df8ee2313f6cf02	80d27ff6e1b9e2ef
-monkey 9, menu	2400	4052e5b56d406939	287da6fe1f0c240a	b405f2a7450fa61e
-monkey 9, menu	3000	de5d14ebfb81df55	fc8d4856eca91396	20f983a6a0054c57
-monkey 9, menu	3600	0173cabe8d7ffc49	1e3f7afbc2aad547	a3dca41af6caf903
-monkey 9, menu	4200	6dea90b20cf71b19	6c695dda46bed78b	75577569b156c17b
-monkey 9, menu	4800	2079d204080f4d92	fb939c7eb185a067	5edc08225cee008c
-monkey 9, menu	5400	f18a02f1aca487c3	b44b8fdb98144922	b162198205ebf908
-monkey 9, menu	6000	3f397745197354bf	8ec3a8b8f3ca31b5	bdb28963954edf83
-monkey 9, menu	6600	41c3e271123a67fd	91e45a00ae3258e2	18a75b26a8d7ac45
-monkey 9, menu	7200	b51d14ee75a82d43	3aebda743d4c40de	0a0ba57d427e60ce
-monkey 9, menu	7800	6440d6ed93ef852e	7e1a9a9d59d2c280	15fc06a12d5951bc
-monkey 9, menu	8400	2413a72cb4504875	d43ed197748c873e	776d0402b36cea0a
-monkey 9, menu	9000	5ac74e0c9fb1bf7f	9432c932a77994fb	a0281c4191eaecd9
-monkey 9, menu	9600	748edcb431a93ef4	2f172e5c17de02c8	a6e8b055619c377c
-monkey 10, menu	600	d734ce67091ab70c	78b7240c6ca25aa2	00b86e8287d00765
-monkey 10, menu	1200	875c925d21f40a13	030eae28fe84f39d	3c65af728912d149
-monkey 10, menu	1800	a104f4e3a306fe69	f2c7517f0a70a51b	bdb4399d79406e30
-monkey 10, menu	2400	e12d3838b385f6d8	d6f4ec08f8a2a22f	4722293550567bad
-monkey 10, menu	3000	2a2107272613506b	ebdc3a892da6a16e	74efd5c47a383aca
-monkey 10, menu	3600	6b5d2054f3dc467f	ad3bc14f6481d3b6	0619ecb95298f51a
-monkey 10, menu	4200	92e14bd08b304f4a	0453d418ca3d747a	651c20de56e3ec81
-monkey 10, menu	4800	300a0b24e37dc510	1c34f797df5c24d7	ed7b21ca31f40c96
-monkey 10, menu	5400	fd11c7e278b5283f	14c325c5c0bc9678	7e3bbd384a579625
-monkey 10, menu	6000	a5eac48824f565b1	344a0624f9bf514e	a770d7547d084d63
-monkey 10, menu	6600	18ff83fba80d78a7	933aeaee3fa6e689	d2391def1624ac35
-monkey 10, menu	7200	a9122395f8cb626a	09acb120c7cadd4d	f4cbd8f6ad9cefc1
-monkey 10, menu	7800	147c0cafac711e3f	18f8bdf9b75b3d9b	98cac95e4471b5f1
-monkey 10, menu	8400	864eccc66821f1b1	9b3cd9515206b3bb	d6365fa83c29c273
-monkey 10, menu	9000	d8ff5029c332ce38	eac4fc0c1aab21de	a67911485165d691
-monkey 10, menu	9600	d76b94081926540a	f14b790b4c418888	a8192132e3c54380
-monkey 11, menu	600	5f5c6bb6c34024e8	65d8c0bbe3e51533	a3659b1411f5cb9f
-monkey 11, menu	1200	62587a166de58da0	da2c11039392b91d	18009c02b0be835a
-monkey 11, menu	1800	ac70ffd96e25fad7	ebea0d5e0e8ffaad	6c60ffc1097088a1
-monkey 11, menu	2400	48795719706d6151	a3937efa084e428d	34bc4df031559e31
-monkey 11, menu	3000	ed0ada893ad2f4e2	eb2cebccc1a2a25f	30e769d61b361458
-monkey 11, menu	3600	4b55674d5cbc37e2	61faf7facf7b3636	0cb39dbdb798afad
-monkey 11, menu	4200	467df3509b6de664	0ce7acca57ae035b	0d8bff30e0f28b8d
-monkey 11, menu	4800	cb0a11b95cac5f99	31588dedc3eafc76	20bd6b12e4e3376c
-monkey 11, menu	5400	d18efe301458f8de	ef7d2dba5b6d1f85	3806a8464e29708d
-monkey 11, menu	6000	dd8c956885c285ae	f4163c47644bd7e2	bbb39719eb51f75c
-monkey 11, menu	6600	9118d079c8728648	491970622f60096f	6e57514931005bda
-monkey 11, menu	7200	8662553cb280c360	7e6b8d228618816e	f01343be337e561b
-monkey 11, menu	7800	1664c7d2b583b742	b571accf747e9f4d	0e4e54586140ff32
-monkey 11, menu	8400	efc8668abb214c45	4ddca27c02d95337	afd2e29117983b27
-monkey 11, menu	9000	b78073f509a457f3	20ebfce7018407bf	65683ff2ef3c7042
-monkey 11, menu	9600	bb645a05eea689bf	88bac28d8a3a236d	1a7793fc31e5147e
+monkey 11, full match	5400	58a896370a974dfe	10a12cf2a71b5450	8656acb8c0fed69b
+monkey 11, full match	6000	9b2bd456b6885c1b	59ece946527c3d06	3faa34e27bff1fce
+monkey 11, full match	6600	ec9b6e327d14a348	6860c48f697eca58	f656e68ceb22d31f
+monkey 11, full match	7200	a6c71650ed9fbc93	784328699b0b258e	b190ee8f4bd42f99
+monkey 11, full match	7800	2f7d40976ebe4265	f30d7f3e5d95c576	76e0ad1f91894ac4
+monkey 11, full match	8400	481ae5b7b0e80f73	eff65cda0e31ace2	9dc7eb78cf5461c5
+monkey 11, full match	9000	05b7f1bcb1289675	ab156c865a71d7c8	6c345ab0d9f3d573
+monkey 11, full match	9600	f6e9a7444352c5cd	b479386e2a9d7b62	17f0f968dbfdd88a
+monkey 0, menu	600	316ac3be2dfc1f02	3ef6218989055868	eb700837d110f15b
+monkey 0, menu	1200	c844a0bbb0cf7c24	0815284efdf3392b	10fa3f99f29dfb94
+monkey 0, menu	1800	e4c73d14c3d73893	34c2a23707ab5c8b	85c0b4213676f2fe
+monkey 0, menu	2400	93a80b975079970b	c939807932bbc622	6f26e44ffd541cb2
+monkey 0, menu	3000	620071ec82ff4911	4067fde3e219bcb6	dc58c72418ed2c48
+monkey 0, menu	3600	927199d4e3df4737	3acad645c2aca0f0	e6d1b56385069ad9
+monkey 0, menu	4200	71647cf31f7722ad	647df50cbea1d38a	201c9bc89d03f1e2
+monkey 0, menu	4800	659968bbb198058b	d73b67e5f17ed677	91cc9af8e65b1f74
+monkey 0, menu	5400	f6c3e823a8e992a0	b31d136fcd0132a1	834ce0154f1bd0d7
+monkey 0, menu	6000	f5c634dd12de2383	708950524bd3cea4	4c165dfe2a688dcf
+monkey 0, menu	6600	135271ea15d5fa71	17183286efa4fc40	f8c02bd29f489a6b
+monkey 0, menu	7200	36ea445d542a2b1e	3be97777d549d61e	01744e481bf8f496
+monkey 0, menu	7800	0d3221f7782ff8a2	46c8c2a78a90fd70	5f7e8a11932b6012
+monkey 0, menu	8400	702270a3b9119aa3	18be502382d312d2	422bd65b95ee7b71
+monkey 0, menu	9000	56e4838e61cb1493	c863d04faffb7da9	8511af36c2bfe846
+monkey 0, menu	9600	b8d9d5ec2296140c	bacab1217b3ef407	dccd4d70958734c8
+monkey 1, menu	600	0d9bec170d25e86a	97de6cbc4cecbe6e	27bcc1d2c01f35e2
+monkey 1, menu	1200	8508fa32ffde726f	bb7512a883bdb7a2	ed88f8f95af33e11
+monkey 1, menu	1800	4503e73d507139a9	fd2183a62d7efa92	b76f9039b6838870
+monkey 1, menu	2400	d13380425fe2a92d	dbedd0eb385543bf	5c46a17099253c00
+monkey 1, menu	3000	c018db86c0fe9ad1	4ddc56269e2d8440	01eb7aa70ec838ac
+monkey 1, menu	3600	b8acf72af5a856a8	bee4b357e0fd9b38	1892b2c6c2b21850
+monkey 1, menu	4200	aa72bea1334cd7bb	a72d36dfdd771542	df0c16ddaf30d859
+monkey 1, menu	4800	e693d287289e18cd	09dceb2d6d91b334	a2e24434fd2e1120
+monkey 1, menu	5400	8f67d316aa8a5e61	c4ec20cfc9576557	acd9557b3c418e52
+monkey 1, menu	6000	1765280e50e43fbd	c8b781dca3f696b2	36048482190fb677
+monkey 1, menu	6600	7600ebb8fa24ad5c	2a304ff16c886f77	0c191b04748f8d6e
+monkey 1, menu	7200	e085180ea887fd62	321306c7857557a1	98b9d26b487696e3
+monkey 1, menu	7800	10f59e77a19cd9a1	1ccf3c8b9601a8cb	9915c5ca30666e8e
+monkey 1, menu	8400	810526289bc8cd31	2fec337981e80035	9aed329f6a3bf423
+monkey 1, menu	9000	43ca91ca334b0471	2ec606f4ff7abca6	3e22478adc05cc6c
+monkey 1, menu	9600	91dddc1fedcc8bb7	ea650b28f1c9f5d8	2549704464e3456c
+monkey 2, menu	600	a61ee80b8de4d531	a6a567593bff7f3e	ca9083ce37710bb1
+monkey 2, menu	1200	0992af9fccf639f2	a8a3fa88848847ef	0ad4d6a905ed018a
+monkey 2, menu	1800	e1c6450a073c386d	59bcb6c68c7c3ae9	c38fc51c9d9df741
+monkey 2, menu	2400	7b90051d8fddcfcc	325e6b92dcc566b4	14e09f8887f3a564
+monkey 2, menu	3000	86b70891a30653f3	00e3fc03999aebb0	19ce6790ef752885
+monkey 2, menu	3600	2be38135851d1adf	53c78fedcf3501bd	a07860498be0fb9a
+monkey 2, menu	4200	70f65a488b7665cc	4f38db3f496f7a8f	e681ae1765af77b4
+monkey 2, menu	4800	3a53e9fa52f0783e	958da9dab0b52a54	0d463840061eb6de
+monkey 2, menu	5400	24b8c49009af8da8	65e5185c4e284d74	7a6e6b536d7af257
+monkey 2, menu	6000	44db137279c88e78	9a287b5703659d3b	14544bf891451fbc
+monkey 2, menu	6600	e966ef5d6ded6da5	ae3297079dbe7b4c	218ec0e14f451d8e
+monkey 2, menu	7200	6ddb5263ff0e5a4e	7985d57cbb660004	7772803c48732369
+monkey 2, menu	7800	9d54c0579d1b20d8	856c113dd67bd706	52c57cfc9bb813ab
+monkey 2, menu	8400	ff94dd1986cb2b5d	00be348df33b33ee	451e310d1a11e914
+monkey 2, menu	9000	bd814f1573e000a7	f446251a6a254939	bf2c9a03a1c554a5
+monkey 2, menu	9600	e8d32511ad7ae195	935b5cbecc4e70ae	0942440a28c328a0
+monkey 3, menu	600	4c9f4b939a514382	bb9e858fe0b998a4	274bd4373fbc170b
+monkey 3, menu	1200	c8f8e7b360e3c72e	52e38bff68aab4b3	f3988c8b972edbc1
+monkey 3, menu	1800	8e01e74b1b68f21a	0b337b68fc978bc3	260165bfdfc7074a
+monkey 3, menu	2400	90e4dad745cf4325	21998cd621849ef4	230894d76413a926
+monkey 3, menu	3000	a672b9e0c41eb550	1479cd436c5a8bd1	b3c6096d09f8d630
+monkey 3, menu	3600	b46c649b6c75238d	02cd039395dbb615	95ef2c7943a8180e
+monkey 3, menu	4200	0ad90f091b141483	7d6fe09f205ce975	5377fc062c46e09a
+monkey 3, menu	4800	bbe96c3d87a3a78a	159d661ccd1d8d0c	660dd74c6583a59e
+monkey 3, menu	5400	01fe48624e456bce	31e1c2e12255ce64	1aa0b7168525c22e
+monkey 3, menu	6000	d06751d4fec2c03c	1ee3f4de80ebf78c	e143a6c2c7cf3184
+monkey 3, menu	6600	3b87634be40705a7	17c04e8e0f38405f	016db6ac3ad7b760
+monkey 3, menu	7200	148b6ad180791d78	b5026f1ce498d9cf	69ed0c4be7f46e5c
+monkey 3, menu	7800	8020c1c3e5cd4571	e1fdf40b670c04bb	e282c4ee9dcfafc3
+monkey 3, menu	8400	b82c1a661e2aae28	81397b91a40848dc	a8fb45f19f77461c
+monkey 3, menu	9000	1f72c49e8f81ff87	8a9fdc5108468d28	c65aaf0cb0252ef5
+monkey 3, menu	9600	6c00aed6c4899f5a	33373a41cfa5f1b5	d05b0e120e34370b
+monkey 4, menu	600	aea0d3dd4862ce77	f777122769f29c8f	326673257e37151b
+monkey 4, menu	1200	2a61367d116457e3	d0580c839d3bb15a	46c8309cc943f2a7
+monkey 4, menu	1800	ed9e2f7f064a180f	779c8323b4f50af6	ce81e1a195a48978
+monkey 4, menu	2400	c9aef525dc8de767	4b68049f6121b965	4d934567d0af9dcb
+monkey 4, menu	3000	9b61ad0c90cb779b	f5a020152af544de	d5f4706820f0cc37
+monkey 4, menu	3600	2201220b34435146	e3dd8058f32a3610	d52a79566777f098
+monkey 4, menu	4200	d0ffb287c7d8d348	da55fa12d809285c	c5e60dd051f2be27
+monkey 4, menu	4800	7c317d6e4b811e06	028d8cff828eb53f	daee7b4a1ae23ff2
+monkey 4, menu	5400	e2b4a407d6c2718f	33e20f4c02bd55d4	4e582971a72baa18
+monkey 4, menu	6000	e33be57545080fdf	e6976b690cc6b9a8	204ba191916ee3c4
+monkey 4, menu	6600	42fafb0a8ed96622	224dec5dddcf5d2b	d0444b9d4f4cd0f4
+monkey 4, menu	7200	498bc2227924e7c2	74afdd447c163300	bcd5b62e1b172666
+monkey 4, menu	7800	c9d5ea9871f25b34	3b7c766a93b1aa18	c652aef793fa7bd6
+monkey 4, menu	8400	4ebbba4982e0f824	83df1eb0f38f6b99	d07db78c59a5b4e5
+monkey 4, menu	9000	b092b958ddb0f945	ba698abc07cb990a	15f4958fe90e32f4
+monkey 4, menu	9600	daa21e1fa496d738	63c35c72254d9bf5	e4161501d9a3bcbe
+monkey 5, menu	600	a10bcb16b29c7b98	ced63ca8159c682d	932b18145b8a4727
+monkey 5, menu	1200	0aa466b7b10e6736	79f05aa18da0cc47	c11bc353a4d6fe26
+monkey 5, menu	1800	c093934f705a058f	7d983e3fdb3f49d1	4d975c140b3356b2
+monkey 5, menu	2400	d7dd118e9981a65b	896cf0e3413e88c8	cd8518f27fadde79
+monkey 5, menu	3000	0d6c2524f253ed61	e8f448ce13285b2c	c9f1e50783420255
+monkey 5, menu	3600	7f87147c6aa97b2d	cb26508346339f3b	97bd6984c5f9cbaf
+monkey 5, menu	4200	b4b310633c3ae9b3	ad04b2bdfd44b86d	546aa701324da4e2
+monkey 5, menu	4800	1f771a3b75821cd1	5b80939c4d9ec01b	22a915aeb713f3a9
+monkey 5, menu	5400	44d16426b73806ce	14ea890ee23a636d	470c10a9bc3b6ec6
+monkey 5, menu	6000	38243f8d95dc5677	7f6ad9b5f217a5aa	313a1568ec8a6df7
+monkey 5, menu	6600	aac42d0d6a504e7d	e9e2a9485bb3cb89	b0765e704a14a649
+monkey 5, menu	7200	77b3cc5eb17f7b58	7c2898d7878e0097	ae55c7be3a53c2cf
+monkey 5, menu	7800	2dddd3db951649f1	c9b5456d958cb444	3360cf4b2c2c068e
+monkey 5, menu	8400	23c1895ad371e43d	1a928ad7bafdcd13	96f4c810aba63c30
+monkey 5, menu	9000	0af709de46ff80ff	a9ea456ba716b4f1	c1de7a0f473f500a
+monkey 5, menu	9600	d5948cbaac8b1f92	6cb29b9bf32f1887	a661b78aac5376f6
+monkey 6, menu	600	9d6fecf253b8a28b	b3f882e359ad48be	39450d2fb83f4d91
+monkey 6, menu	1200	2246835fbe1c48ba	ca9d26a730059bde	78190112deadf046
+monkey 6, menu	1800	1e3420ae5b7ec751	e864733f31824c7c	cc00bcc1f84478a1
+monkey 6, menu	2400	65d540be63af914f	05fa4e12a5a42909	5b91c628ca959aba
+monkey 6, menu	3000	cc8c640b2884a9f4	4d4cffc352f5b227	a6382c798b852c27
+monkey 6, menu	3600	44bb05f032a0b45e	f9aee2d33d382ed2	6ac7574170e46e53
+monkey 6, menu	4200	4618ba9482969bea	4265ffff7bbccaf4	8fe33fa89e92cc54
+monkey 6, menu	4800	b258831edfb9e666	abda76e375518075	b1f7db42bc05d727
+monkey 6, menu	5400	7fdb49419b8a5f8a	836cdbeadaabfe9b	26b34df61843a950
+monkey 6, menu	6000	e92032217392e7c9	be7a25ef91627e2a	0dda65dad9331792
+monkey 6, menu	6600	e16e13eae421d7ac	05ab979e8ecb3629	98c25202c14020fc
+monkey 6, menu	7200	8f71f311bdb9603d	5643c8c9f02a5299	e8b19cd54bc8f78e
+monkey 6, menu	7800	e9f4de839fabae40	7bee2fb2f27b4456	2f67e753ad62e0f5
+monkey 6, menu	8400	bf2ad41728cf81d1	ecbdffe83c0d5b93	43040b663ff0a2fe
+monkey 6, menu	9000	68c8dbb6e1354a92	1aca2e500230495e	0b614564e3b71309
+monkey 6, menu	9600	a5013b14f5605b64	3f2e5182f83f2e35	8bf37e4b871f395e
+monkey 7, menu	600	94c087d971a3fb21	b9410ef2f1d8a6d5	4d284d7bd736b8a7
+monkey 7, menu	1200	56371151784a6125	cafe19a59dc11ae4	bce73c77d8c0dccd
+monkey 7, menu	1800	9356bb77a6735ac0	ee41d0f567325e36	32fac169974b7738
+monkey 7, menu	2400	80f5a0d2b60ad72a	03ce6f1c07f2b03b	c3fdf76bb0b5e834
+monkey 7, menu	3000	4251e8b82b20a8d3	581f800becf67d97	8591da0d65571cae
+monkey 7, menu	3600	c4c3a6d3b7d86810	ed340551acba96d6	82ab89c13ac922e1
+monkey 7, menu	4200	c2a89b9b863d958d	499e1bdeef73213e	53d4983df02cacff
+monkey 7, menu	4800	dd207b81ba1113ec	a4ac2382e7dadb2e	409b5e1fd5f0fa7f
+monkey 7, menu	5400	9814318c8709e31e	5fc102043cfd2d6c	114322eeac5932fc
+monkey 7, menu	6000	0ce3d7da195c7077	1c35e02ca61ec4e9	a869489a59679382
+monkey 7, menu	6600	efe81db7fa9f2a2d	f322fc888551a048	f4220ce9dd6aab9d
+monkey 7, menu	7200	8e28d35c08d1d6a8	e5c9b0d5f3d9e5d7	fd988512865fd91f
+monkey 7, menu	7800	4fee0794b770ff4d	a1bfeeafed10c1ae	a42a06efb4385200
+monkey 7, menu	8400	cc47e8041bf3691e	e94a045ab084cd51	620d1a0d798adf5a
+monkey 7, menu	9000	08d3d0180b99d890	e1fe496420003614	7a25264c38cb6c6a
+monkey 7, menu	9600	965a39242828475a	0b362887250d2a75	d5c229eebc1c682d
+monkey 8, menu	600	3ff54b8746792b8f	740a62a3077cd9fb	05a8ea82d77ba723
+monkey 8, menu	1200	a5c1f1398f94ce68	c6b06bb07fc05a80	5e4cd50f64804a30
+monkey 8, menu	1800	ef9cd16f32571efc	88261e8d929bef7d	97a22a083b05aee1
+monkey 8, menu	2400	a496f1debad9425f	5941284bdbd3b420	a9b9d176beff3a88
+monkey 8, menu	3000	d6734eeb518d08b3	12eabc6e1d4f64e3	45008b715e6d6210
+monkey 8, menu	3600	72537842661516f1	91ef8f2443e35411	55eac8e8b75f5ab3
+monkey 8, menu	4200	d365cdea5a3db797	400a9132c9dcb675	8f73f88b244cbbc9
+monkey 8, menu	4800	685457ee451e6638	6ba0f77ec68ec35d	03c8cf50a5688986
+monkey 8, menu	5400	f69ab76124543d4a	8870fb81ce8e6480	c7d34a410e5a85b2
+monkey 8, menu	6000	a9d02307a980c09e	7df6e176cd9fcc18	462694239c12543b
+monkey 8, menu	6600	4665eadf6d743f7e	3b33ec0ac9a5d7c4	9146bbfd3e6b3679
+monkey 8, menu	7200	be9fb7148d740d1a	ebb4378e3bc154df	71034a3194fca5eb
+monkey 8, menu	7800	cad61ffae12ca4fd	f8f2c7efb4412078	1ef94ab6fa892cfc
+monkey 8, menu	8400	91a0e5a0ca716943	dd85fabcc00da1cf	37a0eec5a570e0ba
+monkey 8, menu	9000	b55525d241080693	b7f832b7c3729d08	7044ec65edd7c377
+monkey 8, menu	9600	9a3e397495e7ef67	87182a47285a24e9	578d2ee05d2bebaf
+monkey 9, menu	600	8c721d92126bdb5c	a161a46da472fb7f	9e66214964c5d4bd
+monkey 9, menu	1200	32f3bb85d12503b6	8516dd45aa68f949	cc1ac835018caa2e
+monkey 9, menu	1800	15064522c05f598c	7df8ee2313f6cf02	2b3fb00460886985
+monkey 9, menu	2400	4052e5b56d406939	287da6fe1f0c240a	56e10a5bf10f8999
+monkey 9, menu	3000	de5d14ebfb81df55	fc8d4856eca91396	fe9a2c9cb2da42fc
+monkey 9, menu	3600	2b5dfb07cb1074fa	1e3f7afbc2aad547	b38504e56a93d05b
+monkey 9, menu	4200	4184abfc50316071	6c695dda46bed78b	50f071949e353070
+monkey 9, menu	4800	17e3040139a1986c	fb939c7eb185a067	4ad546f2c4b6ee74
+monkey 9, menu	5400	ff7f1ef0718d7bed	b44b8fdb98144922	c0ec1bea4dcaafa1
+monkey 9, menu	6000	d8cf9614379382e0	8ec3a8b8f3ca31b5	efefbbe325d4c18d
+monkey 9, menu	6600	125d7030eb8f8699	91e45a00ae3258e2	3b24d9ff2f9777d5
+monkey 9, menu	7200	fb39cd3151f8444d	3aebda743d4c40de	8f36251ffad232ca
+monkey 9, menu	7800	f0aa901a92a96ddf	7e1a9a9d59d2c280	2a533bc46a581c96
+monkey 9, menu	8400	c14294c6e8ce76ea	d43ed197748c873e	a824402577fff942
+monkey 9, menu	9000	1f7bfd24865adfcd	9432c932a77994fb	e3d3225825c643e9
+monkey 9, menu	9600	05ca91250c9a67da	2f172e5c17de02c8	685ef9281674087f
+monkey 10, menu	600	d734ce67091ab70c	78b7240c6ca25aa2	2e44e5152d2be383
+monkey 10, menu	1200	875c925d21f40a13	030eae28fe84f39d	f8694f79feb3eec0
+monkey 10, menu	1800	a104f4e3a306fe69	f2c7517f0a70a51b	b096fbaac0e981a8
+monkey 10, menu	2400	e12d3838b385f6d8	d6f4ec08f8a2a22f	c90737243f752eba
+monkey 10, menu	3000	2a2107272613506b	ebdc3a892da6a16e	8e2ad6f4fbf941a6
+monkey 10, menu	3600	6b5d2054f3dc467f	ad3bc14f6481d3b6	4b3ac3d51de1fe13
+monkey 10, menu	4200	92e14bd08b304f4a	0453d418ca3d747a	53a72ec9fe8c7ec6
+monkey 10, menu	4800	300a0b24e37dc510	1c34f797df5c24d7	ecc42c44ee3cde84
+monkey 10, menu	5400	fd11c7e278b5283f	14c325c5c0bc9678	554537c9f58ae19f
+monkey 10, menu	6000	a5eac48824f565b1	344a0624f9bf514e	b5e45d3570787e77
+monkey 10, menu	6600	18ff83fba80d78a7	933aeaee3fa6e689	7fc4c86969254f4f
+monkey 10, menu	7200	a9122395f8cb626a	09acb120c7cadd4d	d264f6f06fd7f585
+monkey 10, menu	7800	147c0cafac711e3f	18f8bdf9b75b3d9b	e858bfaa2db9b430
+monkey 10, menu	8400	696ef480a0a077b1	9b3cd9515206b3bb	832143fd8abdf2a8
+monkey 10, menu	9000	6e08f5649ef70aee	eac4fc0c1aab21de	a8c1c5aef2da05f9
+monkey 10, menu	9600	a21ff0b3eb92a952	f14b790b4c418888	269b507146e3453c
+monkey 11, menu	600	5f5c6bb6c34024e8	65d8c0bbe3e51533	81f1e5f24930bc9e
+monkey 11, menu	1200	62587a166de58da0	da2c11039392b91d	a577f4c3724728b9
+monkey 11, menu	1800	ac70ffd96e25fad7	ebea0d5e0e8ffaad	4864467b68e7f922
+monkey 11, menu	2400	48795719706d6151	a3937efa084e428d	8517ddb3f5f8dc1d
+monkey 11, menu	3000	ed0ada893ad2f4e2	eb2cebccc1a2a25f	5a9eb1e88e91a9eb
+monkey 11, menu	3600	a41339f7596832db	61faf7facf7b3636	3717b162081c7fea
+monkey 11, menu	4200	212f618935e2bc09	0ce7acca57ae035b	5413b9be321af53f
+monkey 11, menu	4800	b5b695ad45944572	31588dedc3eafc76	38ebd38a9037b44b
+monkey 11, menu	5400	b48312ce0fde44b7	ef7d2dba5b6d1f85	489c5c9b811bfe4d
+monkey 11, menu	6000	f1bfe3c8d11ad744	f4163c47644bd7e2	d623af6fa8254ddc
+monkey 11, menu	6600	2cabedb848441742	491970622f60096f	0341a1048d5fadcf
+monkey 11, menu	7200	138189893d1912bb	7e6b8d228618816e	2f2b662095792284
+monkey 11, menu	7800	52d2e8e88a72de51	b571accf747e9f4d	69bab426a8190264
+monkey 11, menu	8400	4fd8a7fde79b7ce6	4ddca27c02d95337	8b2b82c6b9a8a3b1
+monkey 11, menu	9000	e5825dbc953beb77	20ebfce7018407bf	1fac652677437341
+monkey 11, menu	9600	48efd7bfaa68926d	88bac28d8a3a236d	6e274136d16393f3
 monkey 0, tournament	600	7265d021de2556bd	2cc3373acdbd51d2	45dc02aa225defbe
 monkey 0, tournament	1200	57fff4260ec12f0b	efcc998e44c796b4	97c8f949c320585f
 monkey 0, tournament	1800	317401dc2d22f703	725c113633633462	1cce9440b0748dfe
@@ -780,42 +780,42 @@ monkey 0, tournament	5400	7f2c92478b607e2d	97fb4e7c74f70002	f25e7db55df43894
 monkey 0, tournament	6000	e409992893a88b82	d57947b1a9af694d	fe4d25a7a6d8a34e
 monkey 0, tournament	6600	0a086eb3f94fc59d	1caa47b1b828b843	40b5aa5afa3fdfe1
 monkey 0, tournament	7200	4a2d7da338b2e4a6	94e5fc608ad717db	04c76d61a33435f7
-monkey 0, tournament	7800	e194742869e6b0ab	72dfdf1c517aef0a	2071e107d1428eaf
-monkey 0, tournament	8400	b9701779cc947760	bd4e2441e05d3957	b992f3c1d1fe4754
-monkey 0, tournament	9000	124ae3dc7087eab6	08261a7cb62216c2	ce571ce3a55ebe08
-monkey 0, tournament	9600	bf1b833cf1539c0d	3b13f7d9115464b5	260053b1a58f61c5
-monkey 1, tournament	600	bb2ee45512412e75	c3813efa568a3e82	12a3f5538ea88236
-monkey 1, tournament	1200	dd35b8d682f5ff7f	125abe739370ad42	0a24dac004ba7d2e
-monkey 1, tournament	1800	04b2e76365512fc5	a9e805efe40dae8c	81de61e6c9c18e9f
-monkey 1, tournament	2400	aa7373e34843d651	e2f8b6de0b9cc8af	6ad2ef5b00a5fc81
-monkey 1, tournament	3000	7b4c8b8b32a25d57	4dfdd089029c4d1d	6266393a2047a231
-monkey 1, tournament	3600	7f15016a1eebaa1b	b9083cc0bc7c66d5	69f2ea9417f51f47
-monkey 1, tournament	4200	77311853d4926254	26ee969356ccbe43	b64cc5cc5d1bd4f4
-monkey 1, tournament	4800	8cdf2154534af02c	b1fc569245a8352a	404381752d87e4df
-monkey 1, tournament	5400	50c937fd23ecb26a	297d54e196c91344	7936eb35a615321d
-monkey 1, tournament	6000	0477951d83b526c5	e925e194f1210e07	eeb3670782d0715d
-monkey 1, tournament	6600	af11a887df085f71	9e63fa79d4146533	ec4603e66961c734
-monkey 1, tournament	7200	38215ee772c094ea	75ee433e22258287	5328bf6e78463335
-monkey 1, tournament	7800	16869763e38566cd	4b9b11c8e304413e	3aa5f8c172e19403
-monkey 1, tournament	8400	8bf664b4ce69ca7c	d6fca1e58d3b9832	fc3f331b047319a9
-monkey 1, tournament	9000	ab0d3e4203d7206d	d598c489a2b4b6f7	8f9af2d5b9c218b4
-monkey 1, tournament	9600	9a7137d08fed7df9	334e468544046c33	eb04be3f7289055f
+monkey 0, tournament	7800	e194742869e6b0ab	72dfdf1c517aef0a	9e49f4986437a721
+monkey 0, tournament	8400	b9701779cc947760	bd4e2441e05d3957	af047dae5337043b
+monkey 0, tournament	9000	124ae3dc7087eab6	08261a7cb62216c2	a9492352519b9c9e
+monkey 0, tournament	9600	bf1b833cf1539c0d	3b13f7d9115464b5	39d1827170ae16d2
+monkey 1, tournament	600	bb2ee45512412e75	c3813efa568a3e82	8fb89f012f71975d
+monkey 1, tournament	1200	dd35b8d682f5ff7f	125abe739370ad42	2b9be6bb78729cdc
+monkey 1, tournament	1800	04b2e76365512fc5	a9e805efe40dae8c	497da55c7b41fe1f
+monkey 1, tournament	2400	aa7373e34843d651	e2f8b6de0b9cc8af	61a10b5e8f34296d
+monkey 1, tournament	3000	7b4c8b8b32a25d57	4dfdd089029c4d1d	6f841338cc289b79
+monkey 1, tournament	3600	7f15016a1eebaa1b	b9083cc0bc7c66d5	2ce82b5d9556fa42
+monkey 1, tournament	4200	77311853d4926254	26ee969356ccbe43	06e808b982f09fc8
+monkey 1, tournament	4800	8cdf2154534af02c	b1fc569245a8352a	f48bf33c5aaf6014
+monkey 1, tournament	5400	50c937fd23ecb26a	297d54e196c91344	b8e212607c5b1bff
+monkey 1, tournament	6000	0477951d83b526c5	e925e194f1210e07	27f1406c24e974f6
+monkey 1, tournament	6600	af11a887df085f71	9e63fa79d4146533	54281f5c2a02453d
+monkey 1, tournament	7200	38215ee772c094ea	75ee433e22258287	d04d394cf27b1b18
+monkey 1, tournament	7800	16869763e38566cd	4b9b11c8e304413e	1ab74a905b81caa8
+monkey 1, tournament	8400	8bf664b4ce69ca7c	d6fca1e58d3b9832	5e8138ad47264061
+monkey 1, tournament	9000	ab0d3e4203d7206d	d598c489a2b4b6f7	3a72d77c5a6a18ab
+monkey 1, tournament	9600	9a7137d08fed7df9	334e468544046c33	73cca632df38368d
 monkey 2, tournament	600	d1b1f88027995ed0	04c364a448268804	65380c59aac1d5ba
 monkey 2, tournament	1200	dca4e6c5f57c5c58	36388358542d02e6	b0a8717d02b02519
 monkey 2, tournament	1800	f664f1e99abbbc45	8f3b431d488bad2b	576823f54879763b
-monkey 2, tournament	2400	581f3544b5a3717b	7f168ba835fd4dc1	3246d60d6d2ed7cd
-monkey 2, tournament	3000	7c4ba517e27faf16	0a2c9927450f931f	b7f1d2167b42dee1
-monkey 2, tournament	3600	367e20f1a8552cd0	39783920a2bcb281	a2f50ed488b53d59
-monkey 2, tournament	4200	17de14fa0f4e1fff	87893558d048df1c	23c9db97f4199f3d
-monkey 2, tournament	4800	99c814a91894bd2b	820ffdd347f9369d	5fdc3b966bbf950d
-monkey 2, tournament	5400	6d1a72253f533886	23e82d2534ac1162	b910e5d8dc6fb5a8
-monkey 2, tournament	6000	955f0e1b00639c3b	9bc209dbcf246712	c6a1bc5298196b2b
-monkey 2, tournament	6600	52ea92261f1ade4d	4c07b1ab33618726	c8372b464a7866ee
-monkey 2, tournament	7200	9cf4243a1faab89a	5c943c59e1177765	7bb06600c2ef4cd5
-monkey 2, tournament	7800	09552bce0ee85466	2464e960775d10a3	6056a27c7080c255
-monkey 2, tournament	8400	1f0d96c7a3fc6bab	0b7e4c5466f13128	4deea13e55b7a232
-monkey 2, tournament	9000	df6b2a35ddeb139f	8cf72a1bd0714a78	118d72cfbfe98dbb
-monkey 2, tournament	9600	ff102bc222086f67	48d1ee7a82ca6f68	a4776a3f88045f4a
+monkey 2, tournament	2400	581f3544b5a3717b	7f168ba835fd4dc1	01bdb9535c11c4ad
+monkey 2, tournament	3000	7c4ba517e27faf16	0a2c9927450f931f	11f76ca53b1ca40a
+monkey 2, tournament	3600	367e20f1a8552cd0	39783920a2bcb281	4aa69aa0670e316f
+monkey 2, tournament	4200	17de14fa0f4e1fff	87893558d048df1c	9d021b24ad9f2115
+monkey 2, tournament	4800	99c814a91894bd2b	820ffdd347f9369d	d12047b42ae192d0
+monkey 2, tournament	5400	6d1a72253f533886	23e82d2534ac1162	9776ba8740e583d1
+monkey 2, tournament	6000	955f0e1b00639c3b	9bc209dbcf246712	9bbef2d7bcd4d3a2
+monkey 2, tournament	6600	52ea92261f1ade4d	4c07b1ab33618726	6f96b59bc5f04908
+monkey 2, tournament	7200	9cf4243a1faab89a	5c943c59e1177765	72ea7d501145ef1d
+monkey 2, tournament	7800	09552bce0ee85466	2464e960775d10a3	90434b39f1742afc
+monkey 2, tournament	8400	1f0d96c7a3fc6bab	0b7e4c5466f13128	bc016d97f9556fc9
+monkey 2, tournament	9000	df6b2a35ddeb139f	8cf72a1bd0714a78	e8ad1cf158003fda
+monkey 2, tournament	9600	ff102bc222086f67	48d1ee7a82ca6f68	27735fa9b17f3c18
 monkey 3, tournament	600	1a0785554e854a8c	56dfb72c97af96dc	f9cb721d0ce094fb
 monkey 3, tournament	1200	bd840054e54fc0c4	8a94a93ddb53bf19	8eac4fada15a2184
 monkey 3, tournament	1800	94e0e61d04467a3f	1d345e7806c75710	14a9ce90f93afb8c
@@ -860,10 +860,10 @@ monkey 5, tournament	5400	1309777a3e0b04fa	6f05f2de145ae7e2	e245fdd1559ca110
 monkey 5, tournament	6000	60c43419a6264b34	de22dfb6af186397	c6334a578bf46830
 monkey 5, tournament	6600	c21c15cf09a106b5	349cf2a1a54b223b	a1a3eb0dfea355c1
 monkey 5, tournament	7200	77aa361eaea90197	9660ef06f554daa4	5a81feb8ede59082
-monkey 5, tournament	7800	9f6a42fc3f71b5ba	714e6abbad2de056	c98cb0ff02818d88
-monkey 5, tournament	8400	713d48511b355557	a73fb1aabb86e9fc	5b9fae113df1727a
-monkey 5, tournament	9000	18118f4a85d18165	a93301b6b34544d5	963e7a781e4af156
-monkey 5, tournament	9600	32bb49e5b6752ea4	aed0e3668852d720	b9b769a64c9d3b4b
+monkey 5, tournament	7800	9f6a42fc3f71b5ba	714e6abbad2de056	32dea789704173ee
+monkey 5, tournament	8400	713d48511b355557	a73fb1aabb86e9fc	c20ae5ac7a23fbdc
+monkey 5, tournament	9000	18118f4a85d18165	a93301b6b34544d5	52c3bb89704a0427
+monkey 5, tournament	9600	32bb49e5b6752ea4	aed0e3668852d720	da6a582dce2d4df2
 monkey 6, tournament	600	556fa9b22bda4164	9211a7a7913384a4	5554fc0dfd975c98
 monkey 6, tournament	1200	ec5bdd755e4a3e84	9722ee6292ef61b6	89e9026146d7f7a1
 monkey 6, tournament	1800	5973ff601d11c297	e401b8623c0877b8	47684e26a669c504
@@ -882,20 +882,20 @@ monkey 6, tournament	9000	b941885ef29d1196	2062377197cbad6f	468ff36476bd5edc
 monkey 6, tournament	9600	db15a871f58b401c	84ca0a143448e2b9	e747039ffe1235c5
 monkey 7, tournament	600	73c8c5d98f6e6303	f0f7df7e915f5dec	3c5842f39a1a0c33
 monkey 7, tournament	1200	791df2ec2389eb9a	a76b2e313ccf4a2e	04579bd0168df046
-monkey 7, tournament	1800	89add26e23b743d1	5a84b8dbb71098da	099e5f588829c588
-monkey 7, tournament	2400	79a7341899f7f9f2	6864534bc97ae90d	0fc9f3578fde325f
-monkey 7, tournament	3000	61cabfc18f0435a3	389a3ffcc28e2083	6d5dcbc8212efe32
-monkey 7, tournament	3600	2f0e18a198236347	f0c5e14b785926df	526f43e0feeb3d34
-monkey 7, tournament	4200	e7a239448f70ce18	a94ab5f7de472ae3	13b15f106b834ddc
-monkey 7, tournament	4800	e03df3b19b6f0d56	ca9a9b1e74cef9f3	6209709f7138b408
-monkey 7, tournament	5400	79ea466e886b3896	a29123645c7f7108	3b3e3d32449f1173
-monkey 7, tournament	6000	fd373796219c7216	548440b3a93d6470	c68bec1548352140
-monkey 7, tournament	6600	557519d284b25e26	50f544bdd680735d	63be83a0ac1e3d37
-monkey 7, tournament	7200	803880ff798fa524	b3793d2112685fb8	e042cb9c9cae43ee
-monkey 7, tournament	7800	bca5cec532b4fa02	74c38462ee08983c	42f27a0dd487bbb0
-monkey 7, tournament	8400	e224188d01565490	a012d70930082703	028749e1b17623a9
-monkey 7, tournament	9000	524036ad2ac3d1a2	9bf78e3cdabc4d4c	0fed36744294e444
-monkey 7, tournament	9600	e40849c4b6474361	648c68134081405b	7e826aee369330c3
+monkey 7, tournament	1800	89add26e23b743d1	5a84b8dbb71098da	352e9a3454c379c4
+monkey 7, tournament	2400	79a7341899f7f9f2	6864534bc97ae90d	860f1aa20cc0333a
+monkey 7, tournament	3000	61cabfc18f0435a3	389a3ffcc28e2083	3e098ee406e4d6b3
+monkey 7, tournament	3600	2f0e18a198236347	f0c5e14b785926df	4daa6c99c31d96bd
+monkey 7, tournament	4200	e7a239448f70ce18	a94ab5f7de472ae3	8b8cdd1c2accd7fe
+monkey 7, tournament	4800	e03df3b19b6f0d56	ca9a9b1e74cef9f3	77cfce6f13beaffe
+monkey 7, tournament	5400	ff327b3869c49da9	a29123645c7f7108	ce4bfc6a9592900c
+monkey 7, tournament	6000	aa0bcff55375dc23	548440b3a93d6470	9c515ba51865f594
+monkey 7, tournament	6600	82bb19d8775bf841	50f544bdd680735d	fc466fef3e4e742a
+monkey 7, tournament	7200	e8ed3cb9bd86b64c	b3793d2112685fb8	4d59da111fc2325a
+monkey 7, tournament	7800	1684557507d180ee	74c38462ee08983c	48e7b548e78db471
+monkey 7, tournament	8400	708fd680c2e56cae	a012d70930082703	8f3ec1359e0a8f72
+monkey 7, tournament	9000	f5f28c4db49c1c36	9bf78e3cdabc4d4c	4553f4b867041f39
+monkey 7, tournament	9600	6eea20be657f08ce	648c68134081405b	d1e27b13a1a7a884
 monkey 8, tournament	600	f301dd3bb91825d7	2f2fbbd68e045242	52d5720526b59d87
 monkey 8, tournament	1200	63fefb9d4a092d35	8d1245faf5d65926	a683571c243df97c
 monkey 8, tournament	1800	08c99dca587ca9bd	3c818f1ac1caed7f	2bb96604940c7130
@@ -912,51 +912,51 @@ monkey 8, tournament	7800	a4bd9335705b14a9	8249c20172953545	00b25f5578a1705a
 monkey 8, tournament	8400	f24a9319804565f4	6148376de0e6a8c4	3cfbf022c1ebda0e
 monkey 8, tournament	9000	6733861909c3e386	5cf65aadad343e34	d0914894fa3b3341
 monkey 8, tournament	9600	cadbaade4190ea7a	42914d1af5ac0cf8	084ecc2b4d3ab99a
-monkey 9, tournament	600	b6b40cdd3dead2d7	dc47606f79d4e0ce	1c5090c9479c77d1
-monkey 9, tournament	1200	20f0f2bb84b78e01	35f78df2d471bbef	04579a0f85b26e94
-monkey 9, tournament	1800	c0a8d4956103ee11	182b41e855ddc3d0	0926177b14ddf1bf
-monkey 9, tournament	2400	2f72d219acb64ee7	42062346e53c67b5	ef0df2a6a80f32ae
-monkey 9, tournament	3000	21eb504248b6c9d5	ac3ed8a5f2ba0f9b	61ae531d8e67c2a2
-monkey 9, tournament	3600	d13f6f89e9c2fc3d	43efa932a6830870	a743a87c8ac3fd11
-monkey 9, tournament	4200	970630d586e7563e	0564b033b9d43a67	67e5a6c555d8768a
-monkey 9, tournament	4800	ebcc3f98220d5255	11b43559eea5f485	fb836b53b091ea7a
-monkey 9, tournament	5400	52286bada5a787cd	2dc3fe1ecbec333f	900af8fc804455ec
-monkey 9, tournament	6000	b8d60cd58afa08e3	4562750acde51f88	6d0202d0fc3bff6c
-monkey 9, tournament	6600	614b8ca6ea42ab0f	81f3a109fc54a4b3	cbca607e44db90fb
-monkey 9, tournament	7200	cece173de7d9dba6	238eb1bc1f911aca	2d7585c49265a16b
-monkey 9, tournament	7800	d85f234e52cd233c	5580b47ceeeb1981	20b7e443e004729c
-monkey 9, tournament	8400	8b5758d45bb8ff40	9dcbd7081bf83302	d797f87518002d5e
-monkey 9, tournament	9000	24c2bdcd110365a7	4fee2c22fb35a9d5	06e4ad283e1c25a8
-monkey 9, tournament	9600	6114756e60d9458b	696375c3191384d7	e4baae8463a376f4
+monkey 9, tournament	600	b6b40cdd3dead2d7	dc47606f79d4e0ce	d88845d0900a5627
+monkey 9, tournament	1200	20f0f2bb84b78e01	35f78df2d471bbef	ce46c4535774b56d
+monkey 9, tournament	1800	c0a8d4956103ee11	182b41e855ddc3d0	e33f4b3dab3ac307
+monkey 9, tournament	2400	2f72d219acb64ee7	42062346e53c67b5	15a091d15fa423a9
+monkey 9, tournament	3000	21eb504248b6c9d5	ac3ed8a5f2ba0f9b	4b873726e76d2440
+monkey 9, tournament	3600	d13f6f89e9c2fc3d	43efa932a6830870	5e2fe53dd564c75f
+monkey 9, tournament	4200	970630d586e7563e	0564b033b9d43a67	94432b4dbd7ed435
+monkey 9, tournament	4800	ebcc3f98220d5255	11b43559eea5f485	bd965cb89859ff58
+monkey 9, tournament	5400	52286bada5a787cd	2dc3fe1ecbec333f	99f01fc06244e3cf
+monkey 9, tournament	6000	b8d60cd58afa08e3	4562750acde51f88	556be7a61f45a79d
+monkey 9, tournament	6600	614b8ca6ea42ab0f	81f3a109fc54a4b3	81342a0e54b58087
+monkey 9, tournament	7200	cece173de7d9dba6	238eb1bc1f911aca	cf7fcc9047c04d5e
+monkey 9, tournament	7800	d85f234e52cd233c	5580b47ceeeb1981	20cf3377da0644dd
+monkey 9, tournament	8400	8b5758d45bb8ff40	9dcbd7081bf83302	a03bd2b2a80047a5
+monkey 9, tournament	9000	24c2bdcd110365a7	4fee2c22fb35a9d5	9b3cbcaf507ac9a9
+monkey 9, tournament	9600	6114756e60d9458b	696375c3191384d7	bc079f129642a7b4
 monkey 10, tournament	600	c4a4e702ec9bec5f	36ac0571d4f6f275	2b809c87bb8ce1e5
-monkey 10, tournament	1200	26460858b46d4034	ebc42146ac414e5c	0799581126233634
-monkey 10, tournament	1800	a236a296a8aeadca	ff22209f3add0856	61a466e57d0e2d8a
-monkey 10, tournament	2400	16d59ded2b4b276c	d637edc76382eb5d	2f9ece91ff703546
-monkey 10, tournament	3000	ee204ad3fc49225c	62b41dbbb9337845	205793ccf446fd65
-monkey 10, tournament	3600	4c7cbe3bbd364040	b337013dc6588399	4a798545fdac8365
-monkey 10, tournament	4200	7a574ab9f162d679	14844bbe105e1043	9921212c1ce33517
-monkey 10, tournament	4800	869996ed2f305dd6	764caa9d86d02770	646a75a418af9ca1
-monkey 10, tournament	5400	cb8a19a89984862e	c5a97e1d3e7e8233	0e09c86288d3f879
-monkey 10, tournament	6000	f280d5545d2fd4f3	e6e6ae5085a33030	cd1083e20412c661
-monkey 10, tournament	6600	c5ee803372e0e917	3e1881e3c8d5806a	6fdfd89470ffd150
-monkey 10, tournament	7200	a8893fa82f663136	48b0b2183f2e9154	7b126f77b7c8b5b2
-monkey 10, tournament	7800	b8852bcc5c2c7b58	5baf1b9061ad2d1b	9a342756dac97ecb
-monkey 10, tournament	8400	c270835ca0b55dbb	d778008df25a7223	7cf90ab3c4e07644
-monkey 10, tournament	9000	2ad7c396a196ab04	7870246d61c7236e	7975f7f31895febb
-monkey 10, tournament	9600	92cf9684fdb85d7a	61a5ef1590b8fabc	3549521229259e6e
-monkey 11, tournament	600	d467405e05ba1f65	ef8abd93a284be4a	9637fe8e8e9270f9
-monkey 11, tournament	1200	93f67bb54cf2ac36	5f19b3e3504a323b	6963c9c433d93c4e
-monkey 11, tournament	1800	2919b6af92ff7ef5	b408ea5bddb86779	b9fcaa9fbac12249
-monkey 11, tournament	2400	e7f23f945f539135	428004c066745bd0	0c01525c62d65220
-monkey 11, tournament	3000	010d71efc04876f7	745a5cd8ac1421bd	1e88a6c254fc3669
-monkey 11, tournament	3600	5eafecaf7820b854	edff4696f45fd108	4e0fdb356279d235
-monkey 11, tournament	4200	7321689d18bd87d7	80d4148223e9cee4	1d8805cec89823e6
-monkey 11, tournament	4800	c03edb094cc99312	db2520d85b633dde	00bc6e855d472622
-monkey 11, tournament	5400	8ebe2930de7429fc	1fdf3415949efdf9	3319381fa82b8f49
-monkey 11, tournament	6000	0340da48cddff992	d802ffe01bc8f921	a222bb841c9254a8
-monkey 11, tournament	6600	c836d2830073eb83	04455844ea27a2de	daa88e487eb7391f
-monkey 11, tournament	7200	f17cd4eaf00d6a66	4e8fafdf96f1855e	9f8273ac65a8e85b
-monkey 11, tournament	7800	b270ec8d6978b01b	8661047a4c14030a	88d427ce6efa63e1
-monkey 11, tournament	8400	30045d1e7d81a21b	913aca3a342c9bf6	36296a22534fd741
-monkey 11, tournament	9000	43ba3892c4ab3077	9540e6e66057080b	8437f514f0726549
-monkey 11, tournament	9600	288a4e9f6833f1de	2bfc37f458606bc2	b90002cbed45e5f6
+monkey 10, tournament	1200	26460858b46d4034	ebc42146ac414e5c	80b44f67c285b8e0
+monkey 10, tournament	1800	a236a296a8aeadca	ff22209f3add0856	4e67ccb6bf6e08ed
+monkey 10, tournament	2400	16d59ded2b4b276c	d637edc76382eb5d	c95a0353fc7084ae
+monkey 10, tournament	3000	ee204ad3fc49225c	62b41dbbb9337845	4caf8cb87a65dd49
+monkey 10, tournament	3600	4c7cbe3bbd364040	b337013dc6588399	614befb68c08f394
+monkey 10, tournament	4200	7a574ab9f162d679	14844bbe105e1043	473c7f75a397ebd6
+monkey 10, tournament	4800	869996ed2f305dd6	764caa9d86d02770	cdb0a5cf7d8da845
+monkey 10, tournament	5400	cb8a19a89984862e	c5a97e1d3e7e8233	238d8a186a8c8419
+monkey 10, tournament	6000	f280d5545d2fd4f3	e6e6ae5085a33030	52bf7fe0cfa7597d
+monkey 10, tournament	6600	c5ee803372e0e917	3e1881e3c8d5806a	325f8b7c972a8fbb
+monkey 10, tournament	7200	a8893fa82f663136	48b0b2183f2e9154	907dbf9413be1b04
+monkey 10, tournament	7800	b8852bcc5c2c7b58	5baf1b9061ad2d1b	89e4b39cfab77273
+monkey 10, tournament	8400	c270835ca0b55dbb	d778008df25a7223	c7ff9fe8874f9818
+monkey 10, tournament	9000	2ad7c396a196ab04	7870246d61c7236e	852ec2a3e74ba807
+monkey 10, tournament	9600	92cf9684fdb85d7a	61a5ef1590b8fabc	7e67ecf7b5ec5636
+monkey 11, tournament	600	d467405e05ba1f65	ef8abd93a284be4a	5467679199ce5116
+monkey 11, tournament	1200	93f67bb54cf2ac36	5f19b3e3504a323b	f5bcf48667c9f7b6
+monkey 11, tournament	1800	2919b6af92ff7ef5	b408ea5bddb86779	cf8892ead6e1b52d
+monkey 11, tournament	2400	e7f23f945f539135	428004c066745bd0	91b337e0bf515484
+monkey 11, tournament	3000	010d71efc04876f7	745a5cd8ac1421bd	7f4a3b1b7bfc6044
+monkey 11, tournament	3600	5eafecaf7820b854	edff4696f45fd108	1f27b8f6ed4d9917
+monkey 11, tournament	4200	7321689d18bd87d7	80d4148223e9cee4	4c9267c6390c4305
+monkey 11, tournament	4800	c03edb094cc99312	db2520d85b633dde	c6b348a847ac9c6e
+monkey 11, tournament	5400	8ebe2930de7429fc	1fdf3415949efdf9	f1b7cc4bdc7a4833
+monkey 11, tournament	6000	0340da48cddff992	d802ffe01bc8f921	b2a663a9f73623fb
+monkey 11, tournament	6600	c836d2830073eb83	04455844ea27a2de	b523ab61134b4542
+monkey 11, tournament	7200	f17cd4eaf00d6a66	4e8fafdf96f1855e	136a84a796fcae28
+monkey 11, tournament	7800	b270ec8d6978b01b	8661047a4c14030a	46609d4926b963c0
+monkey 11, tournament	8400	30045d1e7d81a21b	913aca3a342c9bf6	5773f550878ded5c
+monkey 11, tournament	9000	43ba3892c4ab3077	9540e6e66057080b	60614ce5ccc21d97
+monkey 11, tournament	9600	288a4e9f6833f1de	2bfc37f458606bc2	0bf1f76fbaf62644

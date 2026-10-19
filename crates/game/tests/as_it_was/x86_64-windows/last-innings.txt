@@ -1,12 +1,12 @@
 # How these games went when they were last written down: each game's sums of what
 # was said, heard and seen, every so many frames. See tests/as_it_was/main.rs.
-last innings, as it is	600	4a76a7042bf3f101	cc6b8001e37e0c58	203431201d5810f1
-last innings, as it is	1200	fbe7bef9cb368847	464196f85d343749	d3804d9ebdba7d5d
-last innings, as it is	1800	bbe91d4bd5b75d98	14d860421241e213	58ac5fac246d4a2b
-last innings, as it is	2400	02ae2fdfc03169a6	d552574ae6c61f46	bfb84035d332fa4d
-last innings, as it is	3000	468baaaeffaff23b	d5ca8204c48cf912	3d63afbba5e4998b
-last innings, as it is	3600	d66b7cdc1d71d1ea	31621798fa05cb0c	9fef98a90ec40e36
-last innings, as it is	3679	e5678318c39108eb	b45adf710650ba43	46a393fe800de570
+last innings, as it is	600	adbeb8ff3107281e	cc6b8001e37e0c58	ed61ff7fc16fd8af
+last innings, as it is	1200	4e10d465a509584e	464196f85d343749	92936c999fed1538
+last innings, as it is	1800	37c8ccef1dfc489f	14d860421241e213	96a9d97881526dc1
+last innings, as it is	2400	079454f4a6d9555b	d552574ae6c61f46	a22ede9ebcd93283
+last innings, as it is	3000	c37b71b8cb7b6c07	d5ca8204c48cf912	e8ac458180de27b6
+last innings, as it is	3600	5a5625628da8717b	31621798fa05cb0c	245fbddfe821024a
+last innings, as it is	3679	f64a984fd063db37	b45adf710650ba43	bc334599336476bf
 last innings, no mods	600	f5b3197b5ad96892	2a3c84b52e503ddf	e7ea7467d72331b2
 last innings, no mods	1200	0fa6d79671b4460a	47794aa3b5e1d39e	62b97b07adcfe05b
 last innings, no mods	1800	32bf7e5ffc91039f	7a11a182fefc31c4	928b33578f67f38d
@@ -56,18 +56,26 @@ last innings, lone_pitcher	10200	de930c123220866c	ad4bb02fb54d5ea7	1c603aaed9b1e
 last innings, lone_pitcher	10800	bf5d50610f1d828e	efa2b9417d2516fa	71cee36626af880b
 last innings, lone_pitcher	11400	48462e868a26c037	4e27c3fe2a7edf3e	d22323a3ad6863a2
 last innings, lone_pitcher	12000	01290a59fe62f220	8de8b53ff7a7ea89	25de8c6493757b0e
-last innings, zinger_hit	600	89248d8d1479f345	51fb09e7c9e74963	840d79daf7598d97
-last innings, zinger_hit	1200	1af7534313084c78	0e25f37b8e3f22f0	9921828df1a4bb81
-last innings, zinger_hit	1800	0129d57bc29f9421	72398b936e379c74	5f62f40f7f88795d
-last innings, zinger_hit	2400	fe818ae730a3e285	5c0a5e89b7b2514b	f5beca54c2858d1b
-last innings, zinger_hit	3000	9f324a9df427f5af	d25d084894946abb	6f6142f0b00e1124
-last innings, zinger_hit	3600	01da1f2b471a8a65	4736cfb3f3776e38	5491e30fcf792257
-last innings, zinger_hit	4200	4b5df85a3f743946	02d613f68e2e5d96	5d871ad53cc09795
-last innings, zinger_hit	4800	c7b424920e3c670b	c0df7f67dbbe6c54	2e4d446aaa431413
-last innings, zinger_hit	5400	4a39788cf1a46dd7	e3780b32619631c7	8934d26cf3d4a9e5
-last innings, zinger_hit	6000	2097f35ddfe2dc9e	9a59cc1d0dcfdf0b	b088243537ba356a
-last innings, zinger_hit	6600	a6a1ee3b2d3435c8	8a37838be147b781	803d02bf099c5f77
-last innings, zinger_hit	7078	23285c9428922b06	484250bcf5be9b3f	39dc2efc1041140e
+last innings, zinger_hit	600	7f494e8c61f3ae67	51fb09e7c9e74963	8889d6d6aec27b09
+last innings, zinger_hit	1200	649b85ae76e8883e	0e25f37b8e3f22f0	48393d19320f65c9
+last innings, zinger_hit	1800	5d7e8f52727b8418	72398b936e379c74	fadad4acf49f090d
+last innings, zinger_hit	2400	f12c0dc8f247d70a	5c0a5e89b7b2514b	e804791d0e1c06a0
+last innings, zinger_hit	3000	71ebee6811e2949e	d25d084894946abb	fa7747effac41725
+last innings, zinger_hit	3600	c4767a5afdecde14	4736cfb3f3776e38	446e5b3f0f03dbba
+last innings, zinger_hit	4200	6358ab1d782ce094	02d613f68e2e5d96	ca22f1dd559075b3
+last innings, zinger_hit	4800	c94b688df6c48166	c0df7f67dbbe6c54	2eda27677c95dff8
+last innings, zinger_hit	5400	02e8b0dd05f94d6d	e3780b32619631c7	cc4a3995b72811fe
+last innings, zinger_hit	6000	c076f7685744135b	9a59cc1d0dcfdf0b	3e747c0e6e411808
+last innings, zinger_hit	6600	e492224e4d5e2c9c	f0c66e41b9a4e3e8	0a4d86e5fb0b1eb7
+last innings, zinger_hit	7200	c297642753097b82	4c06d96d2d6bc5e8	c72741ba7905c85a
+last innings, zinger_hit	7800	17b4eb4e2a3b6cb3	f3c2b98599827fc9	3951a803a0bb80d9
+last innings, zinger_hit	8400	1f84f36f9ebc3144	dfddd9a722f4b7e2	16891ad6216d7a23
+last innings, zinger_hit	9000	d9c7071b2ad03ed0	a4e9889bb28cbe5a	ea81e52d7f60f1ad
+last innings, zinger_hit	9600	b4ae1dcc1c8ae716	f44e0c13900bb466	f69dac8c3202187d
+last innings, zinger_hit	10200	e41feeed40c55c44	b84c345163c0b421	ebc046c92ebaea04
+last innings, zinger_hit	10800	4cbe29d4d7c7e8a0	79523e04ae80302e	afcac7e5edd86134
+last innings, zinger_hit	11400	0f56e77bc70b96e6	238d1eda3f0f5e22	633e5a6031d747ee
+last innings, zinger_hit	12000	2dbb6e7b8a75ae8d	ae20c18ad82e4618	5bf7fa1eeb062324
 last innings, butterfingers	600	48662a52745e1ca1	d02885b86f7c7e7e	62e7d83581a5c346
 last innings, butterfingers	1200	607f013d2722133c	1173e55d203fb454	5687b4256adc8b29
 last innings, butterfingers	1800	b0f8d513a3d18c43	280e42685542a7dd	7cd4e96b14d23a28
