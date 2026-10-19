@@ -1,0 +1,10 @@
+# Every text file is kept, and checked out, with plain line feeds on every
+# kind of machine. Git on Windows would otherwise end each line with two
+# characters, which bash will not run, and which would change what the
+# record of whole games sums of the art and the rules it reads.
+* text=auto eol=lf
+
+# Pictures and sounds are kept byte for byte.
+*.png binary
+*.mp3 binary
+*.ico binary

@@ -1,0 +1,45 @@
+# Writes the record of whole games down afresh on each kind of machine it is
+# kept for, and keeps what was written for a while, to be downloaded and
+# committed. It is for a change that is meant to alter how the game plays,
+# whose author has only one of the two kinds to hand: see
+# crates/game/tests/as_it_was/main.rs.
+#
+# Started by hand, from the Actions tab or with
+#
+#     gh workflow run write-down.yml --ref BRANCH
+#
+# and each kind's folder is then in the run's artifacts, to be put in
+# crates/game/tests/as_it_was in a commit of its own that says why.
+
+name: write down the record
+
+on:
+  workflow_dispatch:
+
+jobs:
+  write-down:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, windows-2025]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: The toolchain the code is written for
+        run: |
+          rustup toolchain install 1.99 --profile minimal
+          rustup default 1.99
+      - uses: Swatinem/rust-cache@v2
+      - name: The art is here
+        run: test -f extracted/manifest.json
+      - name: The record, written down afresh
+        run: BB_WRITE_DOWN=1 scripts/as-it-was.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: record-${{ matrix.os }}
+          path: crates/game/tests/as_it_was/*/*.txt
+          if-no-files-found: error
+          retention-days: 14
