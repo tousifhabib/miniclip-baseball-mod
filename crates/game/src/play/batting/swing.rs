@@ -43,16 +43,20 @@ impl Match {
             }
         }
 
+        let mut gone_by = None;
         if let Some(clicked) = pressed
             && at_bat.swing.is_none()
         {
-            self.start_the_swing(at_bat, step, clicked, stage);
+            gone_by = self.start_the_swing(at_bat, step, clicked, stage);
         } else if let Some(frames) = &mut at_bat.swing {
             *frames += 1;
         }
 
-        let in_band = sample.in_band(at_bat.table.band);
-        let met = at_bat.swing.and_then(|frames| {
+        let met = gone_by.or_else(|| {
+            let frames = at_bat.swing?;
+            if !sample.in_band(at_bat.table.band) {
+                return None;
+            }
             let (quality, power) = pitch::meets(&at_bat.table, frames)?;
             Some(Met {
                 frames,
@@ -60,22 +64,30 @@ impl Match {
                 power,
             })
         });
-        if let (true, Some(met)) = (in_band, met) {
+        if let Some(met) = met {
             self.the_bat_meets_the_ball(at_bat, sample, met, game, stage);
         } else {
             self.phase = Phase::Flight { step: step + 1 };
         }
     }
 
-    /// The batter swings, at a click at this point of the stage, on this
-    /// step of the pitch's flight.
+    /// The batter swings, at a click at this point of the stage, reaching
+    /// the game on this step of the pitch's flight.
+    ///
+    /// The swing begins on the step the player saw when they clicked,
+    /// which is this one unless the click took a frame or two to arrive.
+    /// Then the swing is that far along already, and may have met the ball
+    /// on one of the steps gone by. Returns how, if it has.
     fn start_the_swing(
         &mut self,
         at_bat: &mut AtBat,
         step: usize,
         clicked: Point,
         stage: &mut Stage,
-    ) {
+    ) -> Option<Met> {
+        let seen = at_bat.clicked_on.take();
+        let begins = seen.map_or(step, |seen| seen.step.clamp(0, step as i32) as usize);
+        let along = (step - begins) as u32;
         let (x, y) = clicked;
         // The swing is high, level or low by where the click was.
         let pointer = stage
@@ -87,20 +99,31 @@ impl Match {
             _ => "hitLow",
         };
         stage.goto_label(&at_bat.parts.hitter, label, true);
+        // The batter is as far into his swing as it has gone.
+        stage.play_on(&at_bat.parts.hitter, along);
         if !self.mode.is_arcade() {
             Match::sound(stage, "batSwing_fast");
         }
-        at_bat.swing = Some(0);
+        at_bat.swing = Some(along);
         if self.mode.full().is_some() {
             at_bat.swing_off = timing::Timing::of(&at_bat.pitch, &at_bat.table)
                 .best()
-                .map(|(first, last)| step as i32 - step.clamp(first, last) as i32);
+                .map(|(first, last)| begins as i32 - begins.clamp(first, last) as i32);
         }
-        at_bat.under = at_bat.aim.1 - at_bat.pitch.crosses.1;
-        at_bat.across = at_bat.aim.0 - at_bat.pitch.crosses.0;
+        // The ring is where the player saw it.
+        let aim = seen.map_or(at_bat.aim, |seen| seen.aim);
+        at_bat.under = aim.1 - at_bat.pitch.crosses.1;
+        at_bat.across = aim.0 - at_bat.pitch.crosses.0;
         if let Some(bar) = &mut at_bat.timing {
-            bar.swung(step, stage);
+            bar.swung(begins, stage);
         }
+        // Where a swing begun then first meets the ball, if it does.
+        let (on, quality, power) = at_bat.pitch.swing_from(&at_bat.table, begins)?;
+        (on < step).then_some(Met {
+            frames: (on - begins) as u32,
+            quality,
+            power,
+        })
     }
 
     /// The bat has met the ball: the crowd says how well, the ball leaves

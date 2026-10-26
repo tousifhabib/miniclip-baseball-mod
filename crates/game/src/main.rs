@@ -10,6 +10,7 @@ use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 use bb_engine::window::{self, Options};
 use bb_game::baseball::{Baseball, Screen};
+use bb_game::delay::Delay;
 use bb_game::locate;
 use bb_game::mods::{Mod, Mods};
 use bb_game::scores::Scores;
@@ -45,9 +46,9 @@ struct Args {
     #[arg(long, value_name = "WHERE")]
     ground: Option<String>,
     /// Play with no window, following these steps, separated by semicolons:
-    /// `wait N`, `click X Y`, `move X Y`, `press`, `release`, `type TEXT`,
-    /// `key NAME`, `hold NAME`, `lift NAME`, `state`, `events`, `tree` and
-    /// `shot FILE`.
+    /// `wait N`, `click X Y`, `click X Y late N`, `move X Y`, `press`,
+    /// `release`, `type TEXT`, `key NAME`, `hold NAME`, `lift NAME`,
+    /// `state`, `events`, `tree` and `shot FILE`.
     #[arg(long)]
     run: Option<String>,
     /// Make every game go the same way: the number its chances are worked
@@ -71,6 +72,11 @@ struct Args {
     /// player's own among them. For testing.
     #[arg(long, value_name = "N")]
     played: Option<usize>,
+    /// Take clicks as reaching the game this many thousandths of a second
+    /// after they were meant, for this run, in place of what was measured
+    /// on the menu's page for it.
+    #[arg(long, value_name = "MS", allow_negative_numbers = true)]
+    delay: Option<f32>,
     /// With `--run`: picture pixels per stage pixel.
     #[arg(long, default_value_t = 1.0)]
     scale: f32,
@@ -124,6 +130,12 @@ fn run() -> Result<()> {
         if let Some(file) = Tournament::usual_file() {
             logic.keep_tournament_in(file);
         }
+        if let Some(file) = Delay::usual_file() {
+            logic.keep_delay_in(file);
+        }
+    }
+    if let Some(ms) = args.delay {
+        logic.delay_clicks_by(Delay::of(ms));
     }
     for asked in &args.mods {
         let (name, level) = match asked.split_once('=') {

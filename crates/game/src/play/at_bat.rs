@@ -11,6 +11,7 @@ use crate::play::mods::{
     zinger_hit as zinger,
 };
 use crate::play::pitch::{Kind, Pitch, Point, Quality};
+use crate::play::shown::{Seen, Shown};
 use crate::play::view::{Parts, overlay};
 use crate::play::{fielding, full};
 use crate::rules::PitchRules;
@@ -32,6 +33,10 @@ pub(crate) struct AtBat {
     /// shot mod on.
     pub called: Option<called::Called>,
     pub aim: Point,
+    /// What the view showed on the last few frames, and what it showed when
+    /// the click that is to begin the swing was made, if that is known.
+    pub shown: Shown,
+    pub clicked_on: Option<Seen>,
     /// Where the hit would go sideways, as the art's indicator shows it.
     pub aim_area_x: f32,
     /// Frames since the swing began.

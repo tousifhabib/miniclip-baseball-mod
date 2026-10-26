@@ -6,6 +6,7 @@ use bb_engine::stage::Stage;
 
 use super::{Line, ModsPage, Pager};
 use crate::art;
+use crate::delay::page::TimingPage;
 use crate::look::{self, Rgb};
 use crate::rules::Rules;
 use crate::sheet::Sheet;
@@ -52,7 +53,8 @@ impl ModsPage {
         // A backing without the tabs goes under the panel's border, which
         // stays.
         stage.attach(panel, art::MODS_PANEL, art::MODS_PANEL_DEPTH, "modsPanel");
-        self.pages = ModsPage::pages(rules).len();
+        // The delay's page comes after the mods'.
+        self.pages = ModsPage::pages(rules).len() + 1;
         let mut on = Sheet::on(panel.clone(), Stage::RULES_DEPTH + 301);
         self.heading = on.label(stage, WORDS, "MODS", (-166.0, -123.0), 0.8, WHITE);
         if self.pages > 1 {
@@ -113,13 +115,25 @@ impl ModsPage {
         line.level_words = panel.label(stage, WORDS, "", after, size, DARK);
     }
 
-    /// Puts the mods of the page that is up on the panel.
+    /// Puts the page that is up on the panel: its mods, or the delay's
+    /// page after the last of them. The heading says which.
     pub(super) fn lay_out(&mut self, panel: &Path, rules: &Rules, stage: &mut Stage) {
-        let listed = ModsPage::pages(rules)
-            .into_iter()
-            .nth(self.page)
-            .unwrap_or_default();
+        let listed = ModsPage::pages(rules).into_iter().nth(self.page);
         let mut panel = Sheet::on(panel.clone(), self.depth);
+        let heading = if listed.is_some() {
+            "MODS"
+        } else {
+            "SWING TIMING"
+        };
+        if let Some(words) = self.heading.as_ref().and_then(|path| stage.child_mut(path)) {
+            words.said = Some(heading.to_owned());
+        }
+        let Some(listed) = listed else {
+            self.timing = TimingPage::lay_out(&mut panel, stage.frames_played(), stage);
+            self.drawn = panel.put_since(self.depth);
+            self.depth = panel.depth;
+            return;
+        };
         let (left, mut down) = ModsPage::FIRST;
         for which in listed {
             let words = left + 24.0;

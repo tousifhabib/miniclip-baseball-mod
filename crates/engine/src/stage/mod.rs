@@ -46,6 +46,8 @@ pub struct Stage {
     pub upright_text: bool,
     /// Frames played, for blinking the caret.
     ticks: u32,
+    /// Frames played since the stage began. A press is timed against it.
+    played: u64,
     /// How loud each sound is to be played, where the game has said.
     levels: std::collections::HashMap<SymbolId, f32>,
     events: Vec<Event>,
@@ -66,6 +68,7 @@ impl Stage {
             keys_down: Vec::new(),
             upright_text: false,
             ticks: 0,
+            played: 0,
             levels: std::collections::HashMap::new(),
             events,
         }
@@ -84,6 +87,7 @@ impl Stage {
     /// Plays one frame.
     pub fn advance(&mut self, geometry: &mut dyn Geometry) {
         self.ticks = self.ticks.wrapping_add(1);
+        self.played += 1;
         self.root
             .advance(&self.library, &mut self.events, &mut Path::new());
         self.end_typing_if_its_field_has_gone();
@@ -114,10 +118,26 @@ impl Stage {
         self.texts.get(text_key(variable)).map(String::as_str)
     }
 
+    /// How many frames have been played since the stage began.
+    pub fn frames_played(&self) -> u64 {
+        self.played
+    }
+
+    /// Says when the press being kept for the next frame was made, as the
+    /// host's clock has it: `at` is in frames, on the clock that
+    /// [`Pointer::went_down_at`] describes. A press that is not being
+    /// kept, or that has been timed already, is left as it is.
+    pub fn time_the_press(&mut self, at: f64) {
+        if self.pointer.went_down.is_some() && self.pointer.went_down_at.is_none() {
+            self.pointer.went_down_at = Some(at);
+        }
+    }
+
     /// Forgets a click that was being kept for the next frame to act on:
     /// it has been acted on, or was never meant for the game.
     pub fn forget_click(&mut self) {
         self.pointer.went_down = None;
+        self.pointer.went_down_at = None;
     }
 
     /// Adds something for the caller to act on, as if the timelines had

@@ -115,6 +115,15 @@ impl Script {
                 runner.tick(renderer);
                 runner.pointer(x, y, false, renderer);
             }
+            Step::LateClick(x, y, frames) => {
+                runner.pointer(x, y, false, renderer);
+                runner.pointer(x, y, true, renderer);
+                // With no screen, a frame is seen as it is played.
+                let seen = runner.stage.frames_played() as f64 - f64::from(frames);
+                runner.stage.time_the_press(seen);
+                runner.tick(renderer);
+                runner.pointer(x, y, false, renderer);
+            }
             Step::Press | Step::Release => {
                 let (x, y) = (runner.stage.pointer.x, runner.stage.pointer.y);
                 runner.pointer(x, y, step == Step::Press, renderer);

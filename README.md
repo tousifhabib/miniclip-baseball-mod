@@ -61,6 +61,18 @@ redraws and not by the clock, so that each is on the screen for as long as
 the last; the inspector says which it is doing. A click is acted on by the
 next frame even if the button is up again before then.
 
+A swing begins on the frame you were looking at when you clicked, not the
+later one your click reached the game on. The window plays each frame just
+before the screen takes it, so what you see is as fresh as it can be, and
+times every click against the frames it has shown. What it cannot see is
+how long your screen takes to light up and your mouse to say it was
+pressed: that is your delay. Set it on the last of the Mods pages, Swing
+timing. Click ten times as the marker crosses the line and the game
+measures it, or set it by hand with the arrows, five thousandths of a
+second at a time. It is kept from one run to the next, and `--delay MS`
+sets it for one run. `docs/decisions/0011-a-swing-begins-on-the-frame-that-was-seen.md`
+says how it works.
+
 To build it as a Mac app:
 
 ```bash
@@ -68,8 +80,8 @@ scripts/bundle-mac.sh
 open "target/app/Baseball Mod.app"
 ```
 
-The app is called Baseball Mod and keeps its scores, its choice of mods and
-its tournament apart from the vanilla game's, so both can be installed side
+The app is called Baseball Mod and keeps its scores, its choice of mods,
+its delay and its tournament apart from the vanilla game's, so both can be installed side
 by side.
 
 ## How far a hit goes
@@ -246,7 +258,8 @@ strength.
 
 The menu's first page has a Mods row. It leads to a list of the mods, each
 with a box to tick. The list has pages of its own, turned by the arrows under
-it. What is ticked is kept from one run to the next, beside
+it, and after them the Swing timing page, which is not a mod (see Playing,
+above). What is ticked is kept from one run to the next, beside
 the scores. Every mod starts off, so until one is switched on the game
 plays as it did, but for how far a hit goes.
 
@@ -606,7 +619,9 @@ screen works from, `play/` is a game in progress, `tournament/` is a
 tournament and everything it adds up, `board/` is what a full match and a
 tournament write on the boards, `sheet.rs` is how words and drawings are
 put on a panel, `choice.rs` is a row of boxes to choose one thing by, `look.rs` dresses the batting side, `scores.rs` keeps the high
-scores, `mods/` is the list of mods and their page of the menu, `rules/`
+scores, `mods/` is the list of mods and their page of the menu, `delay/` is
+how late the player's clicks reach the game and the page it is measured on,
+`rules/`
 is the shape of `data/rules.toml`, and `art/` describes how the art is put
 together: which clip is which, and what each button is.
 
@@ -626,6 +641,7 @@ Inside `play/`:
 | `arcade/`, `full/` | What only the arcade game keeps, and a full match's innings |
 | `book/`, `paper/` | A full match's scorebook, and the other side's innings played on paper |
 | `snapshot/` | How a game stands, as facts, and the one line they are printed as |
+| `shown.rs` | What the batting view showed on its last few frames, for a click to be taken as made on the one the player saw |
 | `view/` | Where the parts of the view are, the small things done to them, and the words and notices laid over them |
 | `mods/` | The mods: a file or a folder each, named as the mod is, and what the game asks of them |
 
@@ -771,7 +787,8 @@ cargo run --release -p bb-game -- --screen menu \
   --run "wait 60; click 200 181; wait 60; state; shot setup.png"
 ```
 
-`wait N` plays N frames, `click X Y` clicks at a stage position, `move`,
+`wait N` plays N frames, `click X Y` clicks at a stage position (`click X Y
+late N` clicks there as a player looking at the frame of N frames ago), `move`,
 `press` and `release` work the pointer by hand, `type TEXT` types, `key NAME`
 presses a key, `hold NAME` and `lift NAME` put one down and let it up again,
 `state` prints where the game is, `events` prints the buttons

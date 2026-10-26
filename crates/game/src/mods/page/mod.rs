@@ -8,6 +8,8 @@ use bb_engine::stage::Stage;
 use super::Mod;
 use super::chosen::Mods;
 use crate::art;
+use crate::delay::Delay;
+use crate::delay::page::TimingPage;
 use crate::rules::Rules;
 
 /// One mod as the page lists it: the box, and the tick that shows in it.
@@ -29,6 +31,9 @@ pub enum Asked {
     Switch(Mod),
     /// Set this mod's setting to this level.
     Level(Mod, u8),
+    /// Make the delay this many thousandths of a second longer, or
+    /// shorter if it is below nought.
+    Nudge(i32),
 }
 
 /// What turns the pages of the list, when it has more than one: the arrows
@@ -42,7 +47,8 @@ struct Pager {
 /// The page of the menu the mods are listed on. It is the high-score page
 /// with the table's own drawings taken off its panel and the list put there
 /// instead, so it arrives, leaves and has a way back as that page does. The
-/// list has pages of its own, as many as it takes to hold every mod.
+/// list has pages of its own, as many as it takes to hold every mod, and
+/// after them the page the delay of the player's clicks is set on.
 #[derive(Default)]
 pub struct ModsPage {
     /// The panel has been made ready for the list. Its heading is kept, to
@@ -57,6 +63,8 @@ pub struct ModsPage {
     /// The lines of the page that is up, and everything on the panel that
     /// goes when the page is turned.
     lines: Vec<Line>,
+    /// The delay's page, when it is the one up.
+    timing: Option<TimingPage>,
     drawn: Vec<Path>,
     /// The depth the next thing put on the panel goes at.
     depth: u16,
@@ -114,8 +122,17 @@ impl ModsPage {
     }
 
     /// Puts the list on the panel once the page has arrived, and keeps its
-    /// ticks and levels true to `mods` for as long as it is up.
-    pub fn show(&mut self, showing: bool, mods: &Mods, rules: &Rules, stage: &mut Stage) {
+    /// ticks and levels true to `mods`, and the delay's page to `delay`,
+    /// for as long as it is up. Returns the delay that page has measured,
+    /// when it has.
+    pub fn show(
+        &mut self,
+        showing: bool,
+        mods: &Mods,
+        rules: &Rules,
+        delay: Delay,
+        stage: &mut Stage,
+    ) -> Option<Delay> {
         // Everything goes when the panel does, as the page is left. The
         // list opens at its first page again the next time.
         if self
@@ -126,24 +143,26 @@ impl ModsPage {
             *self = ModsPage::default();
         }
         if !showing {
-            return;
+            return None;
         }
-        let Some(panel) =
-            art::shell(stage).and_then(|shell| stage.find_symbol(&shell, art::SCORE_PANEL))
-        else {
-            return;
-        };
+        let panel =
+            art::shell(stage).and_then(|shell| stage.find_symbol(&shell, art::SCORE_PANEL))?;
         if self.heading.is_none() && !self.make_ready(&panel, rules, stage) {
-            return;
+            return None;
         }
-        if self.lines.is_empty() || self.wanted != self.page {
+        if self.drawn.is_empty() || self.wanted != self.page {
             for path in self.drawn.drain(..) {
                 stage.remove(&path);
             }
             self.lines.clear();
+            self.timing = None;
             self.page = self.wanted;
             self.lay_out(&panel, rules, stage);
         }
+        let measured = self
+            .timing
+            .as_mut()
+            .and_then(|timing| timing.show(delay, stage));
         for line in &self.lines {
             if let Some(tick) = stage.child_mut(&line.tick) {
                 tick.set_visible(mods.is_on(line.which));
@@ -182,6 +201,7 @@ impl ModsPage {
                 }
             }
         }
+        measured
     }
 
     /// What a click on the button at `path` asks for, if that is one of
@@ -193,6 +213,9 @@ impl ModsPage {
             } else if pager.on == path {
                 self.wanted = (self.page + 1).min(self.pages.saturating_sub(1));
             }
+        }
+        if let Some(by) = self.timing.as_ref().and_then(|timing| timing.nudge(path)) {
+            return Some(Asked::Nudge(by));
         }
         self.lines.iter().find_map(|line| {
             if line.button == path {

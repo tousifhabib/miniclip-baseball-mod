@@ -7,12 +7,14 @@
 #
 # COMMIT is one where the game went as it should. FROM and TO are the frames
 # to look at, which the failing test gives. The earlier game is built in a
-# work tree of its own under target/, so nothing here is disturbed.
+# work tree of its own under target/, so nothing here is disturbed, and into
+# a build folder of its own. Sharing one, cargo takes the two for the same
+# and plays the earlier game twice, and every game looks unchanged.
 
 set -euo pipefail
 
 if [[ $# -lt 2 ]]; then
-    sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'
     exit 2
 fi
 
@@ -24,6 +26,8 @@ to=${4:-600}
 root=$(cd "$(dirname "$0")/.." && pwd)
 out="$root/target/what-changed"
 tree="$out/then"
+# Kept from one run to the next, so that only what changed is built again.
+then_target="$out/then-target"
 
 rm -rf "$out/was" "$out/is"
 mkdir -p "$out"
@@ -49,7 +53,7 @@ write_out() {
 }
 
 echo "Playing '$game' as it was at $then_commit..."
-write_out "$tree" "$out/was" "$root/target"
+write_out "$tree" "$out/was" "$then_target"
 echo "Playing it as it is now..."
 write_out "$root" "$out/is" "$root/target"
 

@@ -1,6 +1,7 @@
 //! Getting around: the menu, its pages, and the way into a game.
 
 mod mods_page;
+mod swing_timing;
 
 #[path = "../common/mod.rs"]
 mod common;

@@ -18,8 +18,8 @@ last innings, no mods	4800	c95852a681fb688a	d4bc86a2596e1c7d	d923ee00065846c6
 last innings, no mods	5400	2f4425017787f4e5	8e61108535553c97	4de995ba2829d36d
 last innings, no mods	6000	3b7e0f27f0257866	a9576be20063da93	44dfe00df782a400
 last innings, no mods	6600	02ff994381d368c8	fe05c8d2f98fc289	62f5da736cad426c
-last innings, no mods	7200	5af37bc43cb56d85	f0f5e6634e069281	cafaf54f1f7a4aaa
-last innings, no mods	7288	ad521d6d7892b88e	a4eb9d69270ea5c7	5f5f86092ecb8087
+last innings, no mods	7200	5af37bc43cb56d85	f0f5e6634e069281	f1ca2265f1c7f1c3
+last innings, no mods	7288	ad521d6d7892b88e	a4eb9d69270ea5c7	543d88cbac8d5cdb
 last innings, timing_indicator	600	88c590ad014dd886	b5db076cfbd305d7	ab3ec29c92021e9a
 last innings, timing_indicator	1200	0e01cd4f4d6c8fd2	f440bc66516ed6c2	4b7f8ec82d391370
 last innings, timing_indicator	1800	768d60055e6be33e	90e7a7cdd6e8a73b	22b3b5880bc1f4cb
@@ -35,7 +35,7 @@ last innings, timing_indicator	7200	dfd04c8a704cac85	c1ed54863386434c	7b43c189f9
 last innings, timing_indicator	7800	e39ea4a1b147936a	821cfb410496389a	fedd2f59de494175
 last innings, timing_indicator	8400	2b49c34a3887ee61	2d5e96f7ecf518cd	89dfac1749860c52
 last innings, timing_indicator	9000	59e132b0c640c9ec	dacfd2744e7e621b	5245b7c2dfe6bb24
-last innings, timing_indicator	9145	42e155fcc990a013	aa29b21c528b6676	e046f1df78bfba17
+last innings, timing_indicator	9145	42e155fcc990a013	aa29b21c528b6676	d2e204eb605ee2e3
 last innings, lone_pitcher	600	e628c2a92f166d21	601ba8121b61352f	4a057ad1709e845e
 last innings, lone_pitcher	1200	c8c12b4096c5ff10	93510208f45deba3	12a9a2f4896a33dc
 last innings, lone_pitcher	1800	34db8345814be29c	edda95e22f32841c	f016333f451bd13c
@@ -139,8 +139,8 @@ last innings, mystery_pitch	5400	6bf4347562f36736	1bd66ccae23173b6	31ec988bbb77e
 last innings, mystery_pitch	6000	50fc3c56e8dab1fb	25072d631c993efc	03c6b6353f8b578d
 last innings, mystery_pitch	6600	38d0ba08b8de517c	7eea962f635d79df	f133920a98f904c6
 last innings, mystery_pitch	7200	d857ec4f2acf5564	94f100a1413ece2d	736274f8f92f8ab3
-last innings, mystery_pitch	7800	706d0056d969dbdd	4b835892198cd06e	72cdfa337d6d7b62
-last innings, mystery_pitch	7823	8baacef1e7a75c5b	e2f05fc7351eea5f	154d06ac0b5beada
+last innings, mystery_pitch	7800	706d0056d969dbdd	4b835892198cd06e	deb8e126c0b30279
+last innings, mystery_pitch	7823	8baacef1e7a75c5b	e2f05fc7351eea5f	f4ca84724397e549
 last innings, called_shot	600	5d62cbc41182c70b	2090818b44b3c592	fa996e967ed082c0
 last innings, called_shot	1200	8f173049595d1cff	50e44b20e931e714	3abbccc5bc400df9
 last innings, called_shot	1800	07e9fd441b201ea9	7be0815e8a8aaec7	65028012db7dbff9
@@ -152,8 +152,8 @@ last innings, called_shot	4800	8bf8ea1ec7672037	ba8bacb8d6d57ee0	3ffd0a0b53152a6
 last innings, called_shot	5400	e09830f6f9414af3	0b93bbf129da9ec7	41c5aca9939b2f63
 last innings, called_shot	6000	599b435cb3b68d05	179314893eea8a6f	81065d5a562f5f5f
 last innings, called_shot	6600	d6ecad9481205145	3d6e7467b0f4aac3	3954f66ab5d1b53b
-last innings, called_shot	7200	677ad8331b43c6b3	b5dbf7b0a3901643	4f3b816beb7356c1
-last innings, called_shot	7227	ad53049cf27c6af6	58de19f5a5cd1056	65c87fa564d766ca
+last innings, called_shot	7200	677ad8331b43c6b3	b5dbf7b0a3901643	009c4f0069a342ff
+last innings, called_shot	7227	ad53049cf27c6af6	58de19f5a5cd1056	b6ca6c005c9c6316
 last innings, hot_bat	600	d155b0031ba3c9cb	18c6f933c87d331d	478cf926c8c4f836
 last innings, hot_bat	1200	5657034f1eccc26f	8368dfcb0eb19ce4	140676d789d75399
 last innings, hot_bat	1800	69d58cc22c3ec49c	964150090f80d176	cef56120786d59c2
@@ -182,7 +182,7 @@ last innings, golden_ball	4200	cf7ea27e2da42d11	b37b94572791ae83	3e49faaffd6faf0
 last innings, golden_ball	4800	d9ffa5b8b1815b82	4d765cc8a2b1f1a3	f2c336a5ef1048e7
 last innings, golden_ball	5400	c52d98eda6a69cd7	8d37788323e6d13e	56d315f3ee1b083e
 last innings, golden_ball	6000	660f7670b60e1bdd	ee3b09e25b5b8fa9	bdb6f83f2c4ae03f
-last innings, golden_ball	6268	490533ab40b4357d	69ce1f72cd952bec	494c238ba964384a
+last innings, golden_ball	6268	490533ab40b4357d	69ce1f72cd952bec	4ee1d0f1eabad4eb
 last innings, pinball_park	600	966bf36a5789a4d4	43454bdbafb93d44	8a9c0ec2ffb7ad21
 last innings, pinball_park	1200	c3ebe905aa14c931	c3d3b1ff9a85ebed	28c440b89366ca0a
 last innings, pinball_park	1800	65e1f6cab8b386a9	e03ccdfd54f03744	628f5c8bb24e10eb
@@ -213,7 +213,7 @@ last innings, moon_ball	5400	10c35b322941ce3f	c25e171101856c28	a3678911243c15e7
 last innings, moon_ball	6000	65e7b9c6ab2e433e	70a24e53a5db1688	40897bd82c116861
 last innings, moon_ball	6600	c2490a5eef93b402	f2fa50a2ca52892c	1eb239345eed0b6a
 last innings, moon_ball	7200	5038f1c63b8577ad	467645619b91cf78	0482ebf8517c2951
-last innings, moon_ball	7625	89edf6d6b77032dd	ad539d6f894b39d5	8ba260b132f67815
+last innings, moon_ball	7625	89edf6d6b77032dd	ad539d6f894b39d5	9a6cb7f9ec65af6a
 last innings, turbo_runners	600	48b7359aa20d01b6	d711384a5b532e5b	6c3799efea6cfe46
 last innings, turbo_runners	1200	322d7746f8ea0151	a10d37be711fafd8	0f04b844ee3d8ee4
 last innings, turbo_runners	1800	2b5b5c1736e4519f	e5eefd7aaff9d19a	b43079f91e0c8b8b
@@ -227,7 +227,7 @@ last innings, turbo_runners	6000	87c5cda689a80ace	61b15ed5bd502409	8134af4d0cda2
 last innings, turbo_runners	6600	9273ccdd3c1533b2	30f1e2890e98db69	2563dd517308a27a
 last innings, turbo_runners	7200	35ae306fe696983a	266ae33fbf9f5e03	a76ae6ef4a97dcf9
 last innings, turbo_runners	7800	fe7406c6f35cfdd0	3660eff8b08d9c93	51db74b229d78b4d
-last innings, turbo_runners	8114	e2b6697b715484f9	09282f7360121857	8aa1f03c4b913eb3
+last innings, turbo_runners	8114	e2b6697b715484f9	09282f7360121857	258ea1022b350498
 last innings, night_game	600	4d1088fec32004f7	424eff83ac6c9c36	95757db9e0a4e0bd
 last innings, night_game	1200	05fc02b4adae0fcf	9413deca21333e5e	301b2c6255a63382
 last innings, night_game	1800	1d309e45a06d42b2	abf5bc3498216105	9046c793816fcc31
@@ -308,8 +308,8 @@ last innings, rally	3000	2155ed6cbbf029c0	85b5718d264cba59	4236a05dc88c1ea9
 last innings, rally	3600	5af0aaa33e42bf68	59ffe8b43ef95e5d	b658bb2f4a1af545
 last innings, rally	4200	41784aa552c20f28	74710d42047d7465	1f5d3830dbd34c35
 last innings, rally	4800	1be811bfd0357043	7a9278ecedff6cfa	ebfdb3866992a2e0
-last innings, rally	5400	d6d2bc0b75c56577	4fd050a9ba0a7fbd	b09e5231673aef63
-last innings, rally	5574	5b53d6c9b3d2d454	c2244614f7b33931	cc2f9e2365d0a035
+last innings, rally	5400	d6d2bc0b75c56577	4fd050a9ba0a7fbd	0140c9e11a40a125
+last innings, rally	5574	5b53d6c9b3d2d454	c2244614f7b33931	e30941d9face4108
 last innings, clutch	600	b44ad0125f6fed24	571f8f31f99f558e	2e7a1a5d02a3940f
 last innings, clutch	1200	d01ddf0b4fae1229	9b3fcdc27f172922	93dea3425bbc03c1
 last innings, clutch	1800	8b26a150a73665fe	48d1e5d72885885e	ab1ab959314a2a08
@@ -332,7 +332,7 @@ last innings, bullet_time	4200	8049b78b10e96c8a	95bca147c7d382a4	1528edd487007f5
 last innings, bullet_time	4800	7dbc5c9463f63eb0	8eea066ccef31503	524791cad57c1273
 last innings, bullet_time	5400	06331dda003479de	8fd3b24208f4aab2	e491d04136b036a6
 last innings, bullet_time	6000	f1149bc5b2a8ce88	006e81f838da846b	1922f69c16a59d58
-last innings, bullet_time	6492	9a8172b890479312	f5705533a85a8ffb	b3104b97da6eb21d
+last innings, bullet_time	6492	9a8172b890479312	f5705533a85a8ffb	ce6db47d2b28aec1
 last innings, southpaw	600	24bd79f51e265f45	552d7e49119eddae	c8b2012a8e093d11
 last innings, southpaw	1200	1b60cf235cc23960	a49a0d17400a41d6	fd247339dd91372a
 last innings, southpaw	1800	2acc6da6b06718aa	409d894f59b3fba2	78c4c9458b5a8e25
@@ -341,5 +341,5 @@ last innings, southpaw	3000	4b801022038add12	a62da22837e49551	f30b6ec5230c4321
 last innings, southpaw	3600	d3f45f60e1a4f055	f86a55bac4e6d767	c6722e6415fa0082
 last innings, southpaw	4200	cb5feca36933c604	2de65936417b6339	76ce60c372bef60c
 last innings, southpaw	4800	8399a7ef973ac729	5d57e77a6a8910dd	cf5432a33c92589d
-last innings, southpaw	5400	30740e5ed6f85f6c	9aacf63943d82149	6f4a6c8e5e7488c8
-last innings, southpaw	5529	88291cc799212529	568b652abef56d05	31aaf9f5c6d72f3e
+last innings, southpaw	5400	30740e5ed6f85f6c	9aacf63943d82149	98325527084b51f8
+last innings, southpaw	5529	88291cc799212529	568b652abef56d05	2421759421163c21

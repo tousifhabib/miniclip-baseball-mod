@@ -38,11 +38,21 @@ impl App {
             return;
         }
         if self.redraw() {
-            // Drawing waits for the screen, so the next redraw can
-            // be asked for at once.
-            event_loop.set_control_flow(ControlFlow::Wait);
-            if let Some(view) = &self.view {
-                view.window.request_redraw();
+            match self.clock.wake_at() {
+                // Asked for at once, the next redraw would spend most of
+                // its time waiting for the screen and deaf to the player.
+                // It sleeps until a moment before, taking in clicks.
+                Some(wake) if wake > Instant::now() => {
+                    event_loop.set_control_flow(ControlFlow::WaitUntil(wake));
+                }
+                // Not knowing when the screen will be ready, it waits for
+                // it, which puts the clock in step for the next one.
+                _ => {
+                    event_loop.set_control_flow(ControlFlow::Wait);
+                    if let Some(view) = &self.view {
+                        view.window.request_redraw();
+                    }
+                }
             }
         } else {
             // Nothing was drawn: the window is hidden or covered,
@@ -57,11 +67,20 @@ impl App {
     /// The pointer's button has gone down or come up. `taken` is whether
     /// the inspector has kept the click for itself.
     fn button_changed(&mut self, down: bool, taken: bool) {
+        let now = Instant::now();
         // A release always goes through, so that a press which began
         // on the game is not left hanging.
         if !down || !taken {
             self.pressed = down;
             self.pointer_changed();
+        }
+        // The game is told when a press was made, by the frame that was
+        // on the screen then, as well as that it was.
+        if down
+            && !taken
+            && let Some(at) = self.clock.moment(now)
+        {
+            self.runner.stage.time_the_press(at);
         }
     }
 
@@ -119,6 +138,7 @@ impl ApplicationHandler for App {
         let stage = &self.runner.library().manifest.stage;
         match View::open(event_loop, &self.options.title, stage) {
             Ok(view) => {
+                self.clock.redraws_every(view.redraws_every());
                 view.window.request_redraw();
                 self.last_redraw = Instant::now();
                 self.view = Some(view);
@@ -131,7 +151,9 @@ impl ApplicationHandler for App {
     }
 
     fn new_events(&mut self, _: &ActiveEventLoop, cause: StartCause) {
-        // The wait after a redraw that drew nothing is over.
+        // The wait after a redraw is over: for the screen to be nearly
+        // ready for the next, or, after one that drew nothing, for the
+        // game's next frame to be due.
         if matches!(cause, StartCause::ResumeTimeReached { .. })
             && let Some(view) = &self.view
         {
@@ -152,6 +174,13 @@ impl ApplicationHandler for App {
         match event {
             WindowEvent::CloseRequested => event_loop.exit(),
             WindowEvent::Resized(size) => self.resized(size),
+            // It may be on another screen now, which redraws at another
+            // rate.
+            WindowEvent::Moved(_) | WindowEvent::ScaleFactorChanged { .. } => {
+                if let Some(view) = &self.view {
+                    self.clock.redraws_every(view.redraws_every());
+                }
+            }
             WindowEvent::RedrawRequested => self.redraw_requested(event_loop),
             WindowEvent::CursorMoved { position, .. } => {
                 self.cursor = (position.x as f32, position.y as f32);

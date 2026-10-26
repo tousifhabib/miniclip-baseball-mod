@@ -259,4 +259,37 @@ mod tests {
         let told = [None, Some((30.0, 40.0)), None, Some((50.0, 60.0)), None];
         assert_eq!(*seen.borrow(), told);
     }
+
+    /// Rules that write down when each frame's click was made, if it was
+    /// timed.
+    struct Timed(Rc<RefCell<Vec<Option<f64>>>>);
+
+    impl Logic for Timed {
+        fn tick(&mut self, stage: &mut Stage) {
+            self.0.borrow_mut().push(stage.pointer.went_down_at);
+        }
+    }
+
+    #[test]
+    fn a_click_keeps_the_time_it_was_first_given_for_the_frame_it_is_kept_for() {
+        let library = library_with(vec![frame(vec![])], vec![frame(vec![])]);
+        let stage = Stage::new(None, library);
+        let seen = Rc::new(RefCell::new(Vec::new()));
+        let mut runner = Runner::new(stage, Box::new(Timed(seen.clone())), None);
+        runner.tick(&mut Empty);
+        assert_eq!(runner.stage.frames_played(), 1);
+        // With no click being kept, there is nothing to time.
+        runner.stage.time_the_press(0.5);
+        runner.pointer(30.0, 40.0, true, &mut Empty);
+        runner.stage.time_the_press(0.75);
+        // A second time for the same click is not taken.
+        runner.stage.time_the_press(0.9);
+        runner.pointer(30.0, 40.0, false, &mut Empty);
+        runner.tick(&mut Empty);
+        // A click with no time given has none.
+        runner.pointer(30.0, 40.0, true, &mut Empty);
+        runner.tick(&mut Empty);
+        assert_eq!(*seen.borrow(), [None, Some(0.75), None]);
+        assert_eq!(runner.stage.frames_played(), 3);
+    }
 }

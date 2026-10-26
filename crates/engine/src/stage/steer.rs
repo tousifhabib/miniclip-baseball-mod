@@ -65,6 +65,19 @@ impl Stage {
         self.events = events;
     }
 
+    /// Plays the clip at `path`, and everything in it, `frames` frames on,
+    /// as if they had been played. Nothing else on the stage moves.
+    pub fn play_on(&mut self, path: &[u16], frames: u32) {
+        let library = Arc::clone(&self.library);
+        let mut events = std::mem::take(&mut self.events);
+        if let Some(clip) = self.clip_mut(path) {
+            for _ in 0..frames {
+                clip.advance(&library, &mut events, &mut path.to_vec());
+            }
+        }
+        self.events = events;
+    }
+
     /// Jumps the clip at `path` to the frame with this label, and sets it
     /// playing or stopped. Returns whether there is such a clip and label.
     pub fn goto_label(&mut self, path: &[u16], label: &str, play: bool) -> bool {

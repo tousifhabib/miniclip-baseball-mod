@@ -13,6 +13,11 @@ pub enum Step {
     Move(f32, f32),
     /// `click X Y` clicks at a stage position, which plays one frame.
     Click(f32, f32),
+    /// `click X Y late N` clicks there as a player does who was looking
+    /// at the frame played N frames ago: the click reaches the game that
+    /// much after it was made, as it does from a screen that is slow to
+    /// show what it is given.
+    LateClick(f32, f32, u32),
     /// `press` puts the pointer's button down where it is.
     Press,
     /// `release` lets it up again.
@@ -68,6 +73,7 @@ impl std::fmt::Display for Step {
             Step::Wait(frames) => write!(f, "wait {frames}"),
             Step::Move(x, y) => write!(f, "move {x} {y}"),
             Step::Click(x, y) => write!(f, "click {x} {y}"),
+            Step::LateClick(x, y, frames) => write!(f, "click {x} {y} late {frames}"),
             Step::Press => write!(f, "press"),
             Step::Release => write!(f, "release"),
             Step::Type(text) => write!(f, "type {text}"),
@@ -110,6 +116,9 @@ impl Step {
             // only the whole frames are played.
             "wait" => Step::Wait(number(1)? as u32),
             "move" => Step::Move(number(1)?, number(2)?),
+            "click" if words.get(3) == Some(&"late") => {
+                Step::LateClick(number(1)?, number(2)?, number(4)? as u32)
+            }
             "click" => Step::Click(number(1)?, number(2)?),
             "press" => Step::Press,
             "release" => Step::Release,
@@ -167,6 +176,7 @@ mod tests {
             (0u32..=16_000_000).prop_map(Step::Wait),
             place().prop_map(|(x, y)| Step::Move(x, y)),
             place().prop_map(|(x, y)| Step::Click(x, y)),
+            (place(), 0u32..=600).prop_map(|((x, y), frames)| Step::LateClick(x, y, frames)),
             Just(Step::Press),
             Just(Step::Release),
             "([!-~][ -~]{0,20})?".prop_map(Step::Type),
@@ -196,6 +206,10 @@ mod tests {
         assert_eq!(read("wait 2.9"), Step::Wait(2));
         assert_eq!(read("move 10 20.5"), Step::Move(10.0, 20.5));
         assert_eq!(read("click 545 355"), Step::Click(545.0, 355.0));
+        assert_eq!(
+            read("click 300 250 late 2"),
+            Step::LateClick(300.0, 250.0, 2)
+        );
         assert_eq!(read("press"), Step::Press);
         assert_eq!(read("release"), Step::Release);
         assert_eq!(read("key enter"), Step::Key(Key::Enter));
@@ -232,6 +246,10 @@ mod tests {
         assert_eq!(
             wrong("click x 2"),
             "`x` in `click x 2` is not a number: invalid float literal"
+        );
+        assert_eq!(
+            wrong("click 1 2 late"),
+            "`click 1 2 late` needs more after it"
         );
         assert_eq!(wrong("key"), "`key` needs the name of a key");
         assert_eq!(wrong("hold shift"), "there is no key called `shift`");

@@ -37,7 +37,7 @@ The engine has a middle that needs no machine, and three ends that do.
 | `tess`, `meshes` | Cutting the art into triangles, and keeping them |
 | `gpu` | Drawing a frame with the graphics card |
 | `audio` | Playing sounds |
-| `window` | The window, its events and the inspector |
+| `window` | The window, its events, the inspector, and when what it draws reaches the screen |
 
 Every part but the smallest is a folder with a file for each of its jobs.
 `display` has the tree, the playing of a timeline with what a frame does
@@ -87,6 +87,13 @@ game up before there is one.
 4. The rules have their turn (`Logic::tick`).
 5. What that set off is handed over in the same way.
 6. A click that was being kept for this frame is forgotten.
+
+The window plays the frames that are due only once it has a picture to
+draw them on, which is when the screen is ready for one, and times every
+click by the frames it has handed to the screen (`Pointer::went_down_at`).
+With no window, a click has no time, and is taken on the frame it reaches.
+`docs/decisions/0011-a-swing-begins-on-the-frame-that-was-seen.md` says
+why.
 
 Everything the rules do to the stage is put in one queue in the order it
 was done, and that order can be seen from outside: in the notes, in the
@@ -158,6 +165,9 @@ ball's flight, to the fielding and the next pitch being asked for.
   them, an innings on paper its pitches and its balls in play. `full/`
   says once how a match ends, in `ending.rs`, which a match played wholly
   on paper asks as well.
+- `shown.rs`: what the batting view showed on its last thirty frames. A
+  timed click looks up the one it was meant for, by the player's delay,
+  and the swing begins on the step that one showed.
 - `snapshot/`: asked how it stands, a match sets down plain facts, and the
   facts print as one line. That printing, in `words.rs`, is the only place
   the words of the line and their order are fixed.
