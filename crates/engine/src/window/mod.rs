@@ -8,9 +8,12 @@
 //! What the window keeps while it runs is in `app`, and what it does
 //! about each thing the system tells it in `events`. What it is made of is
 //! in `view`, how the stage sits in it in `layout`, which of its keys are
-//! which of the game's in `keys`, and the drawing of a frame in `redraw`.
+//! which of the game's in `keys`, the drawing of a frame in `redraw`, and
+//! when what is drawn reaches the screen, and so when a click was made, in
+//! `clock`.
 
 mod app;
+mod clock;
 mod events;
 mod keys;
 mod layout;
@@ -26,6 +29,7 @@ use crate::app::Runner;
 use crate::inspector::Inspector;
 use crate::pace::Pace;
 use app::App;
+use clock::ScreenClock;
 
 pub struct Options {
     pub title: String,
@@ -59,6 +63,7 @@ pub fn run(runner: Runner, options: Options) -> Result<Summary> {
         last_redraw: Instant::now(),
         frame,
         pace: Pace::new(frame),
+        clock: ScreenClock::new(frame),
         frame_time: 1.0 / 60.0,
         drawn: 0,
         cursor: (0.0, 0.0),

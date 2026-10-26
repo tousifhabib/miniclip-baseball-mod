@@ -8,6 +8,7 @@ use crate::app::Runner;
 use crate::inspector::{Action, Inspector};
 use crate::math::Matrix;
 use crate::pace::Pace;
+use crate::window::clock::ScreenClock;
 use crate::window::layout::stage_in_window;
 use crate::window::view::View;
 
@@ -21,6 +22,8 @@ pub(super) struct App {
     pub(super) frame: Duration,
     /// When the game's frames are played.
     pub(super) pace: Pace,
+    /// When what is drawn reaches the screen.
+    pub(super) clock: ScreenClock,
     /// A running average of the time between redraws.
     pub(super) frame_time: f32,
     pub(super) drawn: u32,

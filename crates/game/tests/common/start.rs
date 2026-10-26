@@ -9,6 +9,7 @@ use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 use bb_game::art::all_named;
 use bb_game::baseball::{Baseball, Screen};
+use bb_game::delay::Delay;
 use bb_game::mods::Mod;
 use bb_game::rules::Rules;
 use bb_game::script::Script;
@@ -54,6 +55,29 @@ pub fn game_modded(screen: &str, seed: u64, mods: &[Mod]) -> Option<Script> {
     let start = Start {
         seed: Some(seed),
         mods,
+        ..Start::default()
+    };
+    game_made(screen, start)
+}
+
+/// The game opened on a screen with these mods on, for a player whose
+/// clicks reach it `delay` late.
+pub fn game_delayed(screen: &str, seed: u64, mods: &[Mod], delay: Delay) -> Option<Script> {
+    let start = Start {
+        seed: Some(seed),
+        mods,
+        delay: Some(delay),
+        ..Start::default()
+    };
+    game_made(screen, start)
+}
+
+/// The game opened on a screen, keeping how late the player's clicks
+/// reach it in `file`, and starting from what is there.
+pub fn game_keeping_delay(screen: &str, file: &Path) -> Option<Script> {
+    let start = Start {
+        seed: Some(1),
+        delay_file: Some(file),
         ..Start::default()
     };
     game_made(screen, start)
@@ -207,6 +231,10 @@ struct Start<'a> {
     tournament: Option<(Format, u32, usize)>,
     /// Where the tournament is kept.
     tournament_file: Option<&'a Path>,
+    /// How late the player's clicks reach the game, and where that is
+    /// kept.
+    delay: Option<Delay>,
+    delay_file: Option<&'a Path>,
 }
 
 fn game_made(screen: &str, start: Start<'_>) -> Option<Script> {
@@ -237,6 +265,12 @@ fn game_made(screen: &str, start: Start<'_>) -> Option<Script> {
     }
     if let Some(file) = start.tournament_file {
         logic.keep_tournament_in(file.to_owned());
+    }
+    if let Some(file) = start.delay_file {
+        logic.keep_delay_in(file.to_owned());
+    }
+    if let Some(delay) = start.delay {
+        logic.delay_clicks_by(delay);
     }
     if let Some((format, innings, played)) = start.tournament {
         logic.choose_tournament(Some(format), Some(innings));

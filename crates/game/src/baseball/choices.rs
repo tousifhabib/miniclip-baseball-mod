@@ -7,6 +7,7 @@ use bb_format::SymbolId;
 use super::Baseball;
 use super::screen::Screen;
 use crate::art;
+use crate::delay::Delay;
 use crate::look::{Look, Rgb, Swatch};
 use crate::mods::{Asked, Mod};
 
@@ -30,6 +31,10 @@ impl Baseball {
                 self.game.mods.toggle(which);
             }
             Some(Asked::Level(which, level)) => self.game.mods.set_level(which, level),
+            Some(Asked::Nudge(by)) => {
+                let delay = self.game.settings.delay;
+                return self.set_delay(Delay::of(delay.ms() + by as f32));
+            }
             None => return,
         }
         self.game.mods.keep_within(&self.game.rules);
@@ -37,6 +42,17 @@ impl Baseball {
             && let Err(error) = self.game.mods.save(file)
         {
             eprintln!("The choice of mods could not be saved: {error:#}");
+        }
+    }
+
+    /// Takes the player's clicks as reaching the game `delay` late from
+    /// now on, and writes that down.
+    pub(super) fn set_delay(&mut self, delay: Delay) {
+        self.game.settings.delay = delay;
+        if let Some(file) = &self.delay_file
+            && let Err(error) = delay.save(file)
+        {
+            eprintln!("The delay could not be saved: {error:#}");
         }
     }
 

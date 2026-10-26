@@ -21,6 +21,7 @@ pub mod pitch;
 pub(crate) mod runners;
 mod scoreboard;
 mod set_up;
+mod shown;
 mod snapshot;
 mod standing;
 pub(crate) mod view;
@@ -167,6 +168,12 @@ impl Match {
             }
             Phase::WindUp => self.wind_up_and_throw(&mut at_bat, pressed, game, stage),
             Phase::Flight { step } => {
+                // A click is taken as made on the frame the player was
+                // looking at, which may be a frame or two gone.
+                if pressed.is_some() && at_bat.clicked_on.is_none() {
+                    let delay = game.settings.delay;
+                    at_bat.clicked_on = at_bat.shown.when_clicked(stage, delay);
+                }
                 let pressed = self.mods.late_press().or(pressed);
                 let (steps, swung) = (at_bat.pitch.samples.len(), at_bat.swing.is_some());
                 let key_down = stage.key_down(bullet::KEY);
@@ -213,7 +220,7 @@ impl Match {
             }
             Phase::Ready | Phase::Arriving | Phase::Over => {}
         }
-        self.point_the_timing_bar(&mut at_bat, game, stage);
+        self.show_where_a_swing_begins(&mut at_bat, game, stage);
         self.at = Some(at_bat);
         None
     }

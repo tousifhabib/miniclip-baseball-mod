@@ -84,4 +84,10 @@ impl View {
             egui_renderer,
         })
     }
+
+    /// How often the screen the window is on redraws, if it says.
+    pub(super) fn redraws_every(&self) -> Option<std::time::Duration> {
+        let millihertz = self.window.current_monitor()?.refresh_rate_millihertz()?;
+        (millihertz > 0).then(|| std::time::Duration::from_secs_f64(1000.0 / f64::from(millihertz)))
+    }
 }

@@ -1,5 +1,6 @@
 //! What the player chose before the game began.
 
+use crate::delay::Delay;
 use crate::look::Rgb;
 use crate::tournament::Format;
 
@@ -77,6 +78,9 @@ pub struct Settings {
     pub skin: Option<Rgb>,
     /// The logo on the arcade batter's bat, if one has been picked.
     pub logo: Option<String>,
+    /// How late the player's clicks reach the game. Unlike the rest, it is
+    /// the player's screen's and mouse's, and is kept between runs.
+    pub delay: Delay,
 }
 
 impl Default for Settings {
@@ -89,6 +93,7 @@ impl Default for Settings {
             clothes: None,
             skin: None,
             logo: None,
+            delay: Delay::default(),
         }
     }
 }

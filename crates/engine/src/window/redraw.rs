@@ -15,17 +15,22 @@ impl App {
     /// Plays what frames are due and draws the stage. Returns whether it
     /// was drawn: a window that is hidden or covered is not.
     pub(super) fn redraw(&mut self) -> bool {
+        // The picture to draw on comes first. Having one is waiting for
+        // the screen, and frames played after that wait are as fresh as
+        // they can be when the picture is shown. Played before it, they
+        // would be most of a redraw old by then.
+        let asked = Instant::now();
+        let picture = self.view.as_mut().and_then(View::next_picture);
+        let had = Instant::now();
         self.play_frames_due();
 
-        let Some((width, height)) = self.size() else {
+        let (Some(picture), Some((width, height))) = (picture, self.size()) else {
+            self.pace.undrawn();
             return false;
         };
+        self.clock.waited(asked, had);
         let (base, scissor) = self.layout(width, height);
         let Some(view) = &mut self.view else {
-            return false;
-        };
-        let Some(picture) = view.next_picture() else {
-            self.pace.undrawn();
             return false;
         };
         // What to draw is only worked out once there is something to draw
@@ -48,6 +53,8 @@ impl App {
         let actions = view.draw_the_inspector(&mut self.inspector, &info, &target);
 
         view.renderer.queue.present(picture);
+        let played = self.runner.stage.frames_played();
+        self.clock.handed_over(played, Instant::now());
         view.show_the_pointer(&self.runner.stage, self.inspector.open);
         self.drawn += 1;
 

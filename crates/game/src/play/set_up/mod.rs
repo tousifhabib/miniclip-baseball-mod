@@ -20,6 +20,7 @@ use bb_engine::stage::Stage;
 use super::mods::Line;
 use super::overlay::{Corner, Notices, Says};
 use super::pitch::{Kind, Pitch, Point};
+use super::shown::Shown;
 use super::{AtBat, Match, Outcome, Parts, Phase, at, full};
 use crate::game::Game;
 use crate::rules::PitchRules;
@@ -120,6 +121,8 @@ impl Match {
         } = coming;
         self.at = Some(AtBat {
             aim: at(stage, &parts.aim),
+            shown: Shown::default(),
+            clicked_on: None,
             aim_area_x: at(stage, &parts.aim_area).0,
             parts,
             table,

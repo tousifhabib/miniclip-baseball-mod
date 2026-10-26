@@ -31,6 +31,7 @@ use bb_engine::stage::Stage;
 
 use crate::art::{self, ButtonLabels};
 use crate::board;
+use crate::delay::Delay;
 use crate::game::Game;
 use crate::look::{self, Swatch};
 use crate::menu::{Menu, MenuPage};
@@ -66,6 +67,9 @@ pub struct Baseball {
     mods_file: Option<std::path::PathBuf>,
     /// The list of mods on the stage, while its page is up.
     mods_page: ModsPage,
+    /// Where how late the player's clicks reach the game is kept. `None`
+    /// keeps it only for this run.
+    delay_file: Option<std::path::PathBuf>,
     /// Whether the menu's music and the game's crowd are being heard.
     music_on: bool,
     crowd_on: bool,
@@ -119,6 +123,7 @@ impl Baseball {
             table: Vec::new(),
             mods_file: None,
             mods_page: ModsPage::default(),
+            delay_file: None,
             music_on: false,
             crowd_on: false,
             // A game whose art has no such strip is played in the art's own
@@ -156,6 +161,19 @@ impl Baseball {
         self.game.mods = Mods::load(&file);
         self.game.mods.keep_within(&self.game.rules);
         self.mods_file = Some(file);
+    }
+
+    /// Keeps how late the player's clicks reach the game in this file,
+    /// starting from what it holds.
+    pub fn keep_delay_in(&mut self, file: std::path::PathBuf) {
+        self.game.settings.delay = Delay::load(&file);
+        self.delay_file = Some(file);
+    }
+
+    /// Takes the player's clicks as reaching the game this late, for this
+    /// run, without writing that down.
+    pub fn delay_clicks_by(&mut self, delay: Delay) {
+        self.game.settings.delay = delay;
     }
 
     /// Makes every game go the same way, for a test or for chasing a fault.
@@ -208,8 +226,10 @@ impl Logic for Baseball {
         }
         self.show_scores(stage);
         let on_mods = self.screen == Screen::Menu && self.menu.page() == MenuPage::Mods;
-        self.mods_page
-            .show(on_mods, &self.game.mods, &self.game.rules, stage);
+        let (mods, rules, delay) = (&self.game.mods, &self.game.rules, self.game.settings.delay);
+        if let Some(measured) = self.mods_page.show(on_mods, mods, rules, delay, stage) {
+            self.set_delay(measured);
+        }
         self.give_the_pointer_back(stage);
         self.move_on(stage);
     }

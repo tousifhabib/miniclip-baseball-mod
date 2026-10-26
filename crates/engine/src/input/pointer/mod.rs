@@ -27,6 +27,14 @@ pub struct Pointer {
     /// kept here as it arrives, so that one which is over before the next
     /// frame is played is not missed by it.
     pub went_down: Option<(f32, f32)>,
+    /// When that press was made, if the host has said: in frames, on a
+    /// clock whose whole numbers are the moments the frames of that number
+    /// reached the screen. So 10.25 is a quarter of a frame after the
+    /// tenth frame played was first to be seen, and 9.5 is a press made
+    /// while the ninth was still showing, the tenth having been played but
+    /// not yet shown. Played with no screen, a press has no time, and is
+    /// taken to have been made on the frame played last.
+    pub went_down_at: Option<f64>,
     /// The button the pointer is resting on.
     over: Option<Target>,
     /// The button a press began on. It keeps the press until release, even
@@ -45,6 +53,7 @@ impl Default for Pointer {
             y: Pointer::NOWHERE,
             down: false,
             went_down: None,
+            went_down_at: None,
             over: None,
             pressed: None,
             inside: false,

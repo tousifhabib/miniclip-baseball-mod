@@ -4,31 +4,39 @@
 use bb_engine::stage::Stage;
 
 use crate::game::Game;
+use crate::play::shown::Seen;
 use crate::play::{AtBat, Match, Phase, at, frame_of, show};
 use crate::rules::HitRules;
 
 impl Match {
-    /// Moves the timing bar's marker on, where the bar is up.
-    pub(in crate::play) fn point_the_timing_bar(
+    /// Says on this frame where a swing made now would begin: the timing
+    /// bar's marker is moved on to it, where the bar is up, and it is kept
+    /// with where the ring is, for a click that reaches the game a frame or
+    /// two after it was made to be taken as made now.
+    pub(in crate::play) fn show_where_a_swing_begins(
         &self,
         at_bat: &mut AtBat,
         game: &Game,
         stage: &mut Stage,
     ) {
-        let Some(bar) = &mut at_bat.timing else {
-            return;
-        };
-        match self.phase {
+        let step = match self.phase {
             // A swing made now begins on the step the flight has come to.
-            Phase::Flight { step } => bar.point(step as i32, stage),
+            Phase::Flight { step } => step as i32,
             // Until the ball is thrown, the steps to go are the frames left
             // of the wind-up.
             Phase::WindUp => {
                 let frame = frame_of(stage, &at_bat.parts.pitcher);
-                let to_go = i32::from(game.rules.throw.release_frame) - i32::from(frame);
-                bar.point(-to_go, stage);
+                i32::from(frame) - i32::from(game.rules.throw.release_frame)
             }
-            _ => {}
+            _ => return,
+        };
+        let seen = Seen {
+            step,
+            aim: at_bat.aim,
+        };
+        at_bat.shown.showed(stage.frames_played(), seen);
+        if let Some(bar) = &mut at_bat.timing {
+            bar.point(step, stage);
         }
     }
 
