@@ -1,7 +1,11 @@
 //! Plays the baseball game, in a window or from a script.
 
+// Built as the Windows app, the program opens no console window beside its
+// own, and so has nowhere to print to: see `locate::started_as_app`.
+#![cfg_attr(feature = "app", windows_subsystem = "windows")]
+
 use std::path::PathBuf;
-use std::process::{Command, ExitCode};
+use std::process::ExitCode;
 
 use anyhow::{Context, Result};
 use bb_engine::app::Runner;
@@ -9,6 +13,7 @@ use bb_engine::audio::Audio;
 use bb_engine::library::Library;
 use bb_engine::stage::Stage;
 use bb_engine::window::{self, Options};
+use bb_game::alert::alert;
 use bb_game::baseball::{Baseball, Screen};
 use bb_game::delay::Delay;
 use bb_game::locate;
@@ -23,8 +28,9 @@ use clap::Parser;
 #[command(about = "Plays the baseball game")]
 struct Args {
     /// The folder that holds the art. Without this, the game looks inside
-    /// its own app bundle, then in its folder under Application Support,
-    /// then beside the program, then for `extracted` where it was started.
+    /// its own Mac app bundle, then in the player's own folder for the game
+    /// (under Application Support on a Mac, in %APPDATA% on Windows), then
+    /// beside the program, then for `extracted` where it was started.
     dir: Option<PathBuf>,
     /// Play no sound.
     #[arg(long)]
@@ -89,25 +95,12 @@ fn main() -> ExitCode {
             let message = format!("{error:#}");
             eprintln!("Error: {message}");
             // An app has no terminal for that to be read in.
-            if locate::in_app_bundle() {
+            if locate::started_as_app() {
                 alert(&message);
             }
             ExitCode::FAILURE
         }
     }
-}
-
-/// Puts up a system alert saying `message`, and waits for it to be
-/// dismissed.
-fn alert(message: &str) {
-    // AppleScript strings escape only the backslash and the double quote.
-    let quoted = message.replace('\\', "\\\\").replace('"', "\\\"");
-    let script =
-        format!("display alert \"The game could not start\" message \"{quoted}\" as critical");
-    // If this fails too there is nothing more to be done about it.
-    let _ = Command::new("/usr/bin/osascript")
-        .args(["-e", &script])
-        .status();
 }
 
 fn run() -> Result<()> {

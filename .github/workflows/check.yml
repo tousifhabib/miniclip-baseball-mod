@@ -1,9 +1,12 @@
 # Runs scripts/check.sh on every push and pull request: the layout, clippy,
-# the tests, the docs and the art.
+# the tests, the docs and the art. It runs once on a Mac and once on
+# Windows, and on Windows it also builds the app and keeps its zip for a
+# while.
 #
-# It runs on a Mac with Apple's own processor, which is the kind of machine
-# the record of whole games was written down on. On any other kind the
-# record's tests only check that each game goes the same way twice.
+# The record of whole games is written down for the two kinds of machine
+# these run on: a Mac with Apple's own processor, and Windows on an x86-64
+# one. On any other kind the record's tests only check that each game goes
+# the same way twice.
 
 name: check
 
@@ -31,3 +34,33 @@ jobs:
         run: scripts/check.sh
         env:
           CI: "1"
+
+  windows:
+    runs-on: windows-2025
+    defaults:
+      run:
+        # Git Bash, so that the steps and scripts/check.sh are the same as
+        # on the Mac.
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: The toolchain the code is written for
+        run: |
+          rustup toolchain install 1.99 --profile minimal --component rustfmt,clippy
+          rustup default 1.99
+      - uses: Swatinem/rust-cache@v2
+      - name: The art is here
+        run: test -f extracted/manifest.json
+      - name: Everything a change has to pass
+        run: scripts/check.sh
+        env:
+          CI: "1"
+      - name: The Windows app
+        shell: pwsh
+        run: scripts/bundle-windows.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: baseball-mod-windows
+          path: target/app/*.zip
+          if-no-files-found: error
+          retention-days: 14
