@@ -1,4 +1,4 @@
-# 11. The game on Windows
+# 12. The game on Windows
 
 **What was decided.** The game is built and played on Windows from the same
 code as on a Mac. What differs between the two is where the player's things
