@@ -6,7 +6,7 @@ arcade, no mods	1800	7f733dc351695cfc	0a710457f64fced9	2b2a1126fad15444
 arcade, no mods	2400	b16666d5f0cd12f5	209d558e0da5b3e4	f49b753317489119
 arcade, no mods	3000	3b327a25d7b6952c	222fcfeba9a60c50	6d9f3d654b16c06b
 arcade, no mods	3600	f0b77929bdebc1d9	e98283ddba3655f5	8efb44b58e4142d0
-arcade, no mods	4192	2373c900f1dd6628	9d5322fde670092b	10fd9c4e330f552d
+arcade, no mods	4192	2373c900f1dd6628	9d5322fde670092b	f668b5e4a273a30a
 arcade, timing_indicator	600	d3827a582eb823df	9f1f4a665e879cd5	648d4e236233090e
 arcade, timing_indicator	1200	92e7f3ae9b51e728	69ffd7f61461c1d7	11d1ec5b5eee8f8f
 arcade, timing_indicator	1800	2e003a2a61d435f9	8f3fbc9e2805e109	8c94a0dca2a54e4b
@@ -34,7 +34,7 @@ arcade, zinger_hit	3000	ea8089a21c5c66ff	d6f4427b497c0aa1	7791f0af925772c0
 arcade, zinger_hit	3600	c69a4b2c5b6fdcdb	ee56778715f39072	f8d8d37e53a32b35
 arcade, zinger_hit	4200	b7140870de2d85c3	d73248d8209ccd31	0978e51f5c20de00
 arcade, zinger_hit	4800	3d76a7a7b1d33789	372a1022f77d4d52	cd1f8d5668cd8bd4
-arcade, zinger_hit	5322	af090a28ee8dc6dc	f599c36ca4a81784	a4cb4e9d27853d56
+arcade, zinger_hit	5322	af090a28ee8dc6dc	f599c36ca4a81784	d6231af2a8e932df
 arcade, butterfingers	600	113846bca6c792c1	35a59afab677a6df	f98893969aa95186
 arcade, butterfingers	1200	c973a2c7f67ce4ca	81d7608c26c0dd26	d6583c379d7f90ff
 arcade, butterfingers	1800	4c4917e39cde7ba9	36fe90f1504c7778	b4a77709a8c05ebd
@@ -50,7 +50,7 @@ arcade, knuckleball	1800	1a461633f623eb6d	f544fd5ab4dbb23d	24c35e399089f95a
 arcade, knuckleball	2400	0cf0d01ffc717129	3ea30ce69e48719d	ddd28ae322f04f5d
 arcade, knuckleball	3000	7c05057c55fe71ec	6746d89467140868	f032f6ec1b451c67
 arcade, knuckleball	3600	b56aa38cf0bfacd5	8a24d33accab3279	e70d3c9e0cebef0c
-arcade, knuckleball	4114	2a222063624cc2bb	cbce9a6bebc35ea3	8588286ee6b3c501
+arcade, knuckleball	4114	2a222063624cc2bb	cbce9a6bebc35ea3	d8d5b5503e2427a5
 arcade, heat_check	600	236d0e39145daa5d	7999c4aa0bb5be1f	b905720984a652c3
 arcade, heat_check	1200	fc408b1d095c610b	bedad38da9ca53b9	5bae5d96638bc4c6
 arcade, heat_check	1800	e59e9b187cb47efd	b059323d8aa048df	784e8ec61be1f7c6
@@ -60,7 +60,7 @@ arcade, heat_check	3600	f89259bc4e342eb5	458429ead5a04398	82e04e37ddc4d03b
 arcade, heat_check	4200	8d939ad3595001d0	1b18d66719b082b4	7ff9a1ca878a6d5e
 arcade, heat_check	4800	32d26090f21dba4b	294977e51db9288a	5667c19f3ad41d7c
 arcade, heat_check	5400	1b8ba033f8d3add8	f4da60ef3732b286	6a88e3d93e565d6b
-arcade, heat_check	5572	a5abbc36283a2673	387917147e76f1d5	8a7631186bcf1e23
+arcade, heat_check	5572	a5abbc36283a2673	387917147e76f1d5	f12a0eef8be38660
 arcade, mystery_pitch	600	9996797a329d33e6	8ea48ab0912dee77	9afa28e5a38285d6
 arcade, mystery_pitch	1200	7e8bc4b87fc1d1d8	0cd1050abdc6d897	0c93145d7c2563d3
 arcade, mystery_pitch	1800	c333c3469766c9f3	902bf31df8d9e22e	dbe8021a3d0ea2fb
@@ -76,8 +76,8 @@ arcade, called_shot	2400	979a8f86bd3e57ba	3bc23478b2883059	69cab1a4b2fb802d
 arcade, called_shot	3000	82a115b24d9a272e	66cd947a62f0fe7b	225375d4d02e7ca2
 arcade, called_shot	3600	2a89e267d09432a1	db85fd8691412c1b	7a15fac4edbae82c
 arcade, called_shot	4200	b8af9267a3b2fa5c	5885775d46e807d6	c12cee51d8a300f8
-arcade, called_shot	4800	37102f421c765273	5c12cb6c53309674	03ffddc5e11005fa
-arcade, called_shot	5018	7c32cedbbb05f0b8	c004ce7470f8388c	92eaf51b5235624f
+arcade, called_shot	4800	37102f421c765273	5c12cb6c53309674	8ad535a49936a6a1
+arcade, called_shot	5018	7c32cedbbb05f0b8	c004ce7470f8388c	8357bfa9b172ce6c
 arcade, hot_bat	600	9f4d11a96c6ecd3a	c378f041b795e331	2761a5f3a09cbb54
 arcade, hot_bat	1200	1826a462675b7a0e	fd2e78e0d63d0e7b	840929ba0989e96b
 arcade, hot_bat	1800	e5dbda4f15a7f506	d667e9f2a66dc920	72986818a6445632
@@ -96,7 +96,7 @@ arcade, sudden_death	3000	73cf49586956c7d3	dacc8a27e7727b59	67b5f66444730d39
 arcade, sudden_death	3600	fe92d557f67f3893	ebd5fd69dba10a2e	e2a253787b580d46
 arcade, sudden_death	4200	13d3048338b19b62	16ce7775e2dbe38f	948c5338cffb9c69
 arcade, sudden_death	4800	0d597e41354811d6	e32d1acd952029a6	5150875d4b52bef9
-arcade, sudden_death	5204	f4e0bf7fda60a2ab	9f59ddbedfc01e4b	330ad38acd310e01
+arcade, sudden_death	5204	f4e0bf7fda60a2ab	9f59ddbedfc01e4b	666631bc4d924e34
 arcade, golden_ball	600	73cb9417d739d2db	43b1815ad4345052	0860860951daa134
 arcade, golden_ball	1200	b8522a0d7cbdb70c	ce3e555e696d904b	1387e140cd8056aa
 arcade, golden_ball	1800	433d3f9c6df94ed2	37c5b9ddbe898dfb	dea12b9deb1b07ec
@@ -140,8 +140,8 @@ arcade, night_game	2400	9d489c3d19783d64	57686ccab7300b5b	7da3164a65ec1273
 arcade, night_game	3000	40dcee324f880581	0f82ec502dafa9c7	400c575d7ee22aec
 arcade, night_game	3600	78b46783064b0bd9	f2c468cd912bb784	a1d8e53418d821bc
 arcade, night_game	4200	198092bf5b68956f	a0e38b6b6af859ce	c1450e6a1db42ccd
-arcade, night_game	4800	011dddddafb084eb	7949a82406f94cec	9ca8a958f40c48e3
-arcade, night_game	4853	52e5e0e8cb4de176	45f5ae11cc83aed1	006037e0129cd940
+arcade, night_game	4800	011dddddafb084eb	7949a82406f94cec	49c540824a336a12
+arcade, night_game	4853	52e5e0e8cb4de176	45f5ae11cc83aed1	087bfe854d4492f9
 arcade, the_shift	600	761703c4bfc14825	6c4ac604b9a37651	9cdff8bdd8739425
 arcade, the_shift	1200	d8850df61bc86026	2f7f0488c0369e42	90755d7adc9e3a00
 arcade, the_shift	1800	03a36b710f06e1ed	8bbcd38904bd061b	6252172ff457ee24
@@ -151,7 +151,7 @@ arcade, the_shift	3600	f339445d3062306d	c7c7270260b7908a	243dfdd994fa04e1
 arcade, the_shift	4200	ee215e5985f3a8cd	23351357233a539b	81ead0e79e7c4e10
 arcade, the_shift	4800	3abb86d3159071d9	76af9bbdbcd6e1f2	dc86aa11b6033239
 arcade, the_shift	5400	a6ef74eadae3dd98	cdd623beac6efb0d	7a34499ac94856e5
-arcade, the_shift	5745	817bdde197bb529d	e1749cfb671ba77e	a2f49705a84c374f
+arcade, the_shift	5745	817bdde197bb529d	e1749cfb671ba77e	d9ea49d0b0a27b07
 arcade, tired_arm	600	be1379945c431281	06f1afcd3b4cdadb	f72cba6c43908566
 arcade, tired_arm	1200	7febf4b7b3aef04c	1c5b7a60a60ff8ca	4b1786182436827d
 arcade, tired_arm	1800	a65345569952bc08	25374d0d1f129991	ac81f7873d6ee95f
@@ -188,7 +188,7 @@ arcade, rally	3600	d92c71fc91f3780d	1c7b357e69d73dd4	37327c4a89ef5437
 arcade, rally	4200	c462b43550a7edca	b3e4682e63ed40db	07cad729622bd890
 arcade, rally	4800	b1805be32b95e30b	530b2a04b360e511	e38feb520360a1ef
 arcade, rally	5400	ede7957b5666c10c	09e1c92080039183	21af163e594c518f
-arcade, rally	5636	9cd2592ddbf0417f	6e8f1a286c109dc9	885d1144755e5ca9
+arcade, rally	5636	9cd2592ddbf0417f	6e8f1a286c109dc9	e958dcc77edb2b61
 arcade, clutch	600	dec6c8f97954ef3d	d9ca4122fc7a7c32	1f08583c5bc72017
 arcade, clutch	1200	4684c6e57835ccf3	b8bcc5179d437c7a	c6cf1143de0f88fe
 arcade, clutch	1800	ce64e238fd2fff5c	ea5acfbe6e5b9386	632f75f66758c582

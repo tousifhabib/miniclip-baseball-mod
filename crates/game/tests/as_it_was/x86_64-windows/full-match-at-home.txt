@@ -111,7 +111,7 @@ full match at home, knuckleball	6000	23ea532400930aef	752025b7f29671da	cc5ca2fc4
 full match at home, knuckleball	6600	29b7131e03236f9c	ff22d9f08aa3aaed	f8c5090e71b34d1b
 full match at home, knuckleball	7200	4365eb0f0aebb671	8a979802e513172b	30be69931c2a6fc2
 full match at home, knuckleball	7800	5e73553bc8cd4519	676abedf5e77d0f9	787df2efd06f9c00
-full match at home, knuckleball	8053	65908228ee9035c7	8170d60df83c760d	0a9cee98d2c6a2e1
+full match at home, knuckleball	8053	65908228ee9035c7	8170d60df83c760d	e5dc2c81a6e1636f
 full match at home, heat_check	600	507d101b107ae230	f9100dd5f9f5611b	3cbd8f3bec431704
 full match at home, heat_check	1200	36331e109ac67a1f	bf48f0b826545244	8801958b60cb7093
 full match at home, heat_check	1800	67b7283e882f4281	add7cce99668c69c	f55df9f01edbcf21
@@ -145,7 +145,7 @@ full match at home, mystery_pitch	6000	b71644bb9c5454ad	711f04965b3747d1	dc94eb6
 full match at home, mystery_pitch	6600	d66acd39859e775c	5fd49f20f96494f3	bda6ccc3e9977606
 full match at home, mystery_pitch	7200	8e73c42837c0e446	b4d56a4859a9e6a4	06683e8b5f34900a
 full match at home, mystery_pitch	7800	f6e0caaed757c90b	c3821fb3e09bb69b	7bd4a9483f638c3e
-full match at home, mystery_pitch	8204	02d8c502bfe4b2f6	201074ff85fd889f	d283073cdf698a3c
+full match at home, mystery_pitch	8204	02d8c502bfe4b2f6	201074ff85fd889f	3934a830a1b1f773
 full match at home, called_shot	600	6a688389d6cd532c	50b5e5fb258ebe71	94b80092bfc95163
 full match at home, called_shot	1200	32dc272506eff773	44cc4519aacaefb2	3273e6250890104b
 full match at home, called_shot	1800	3249aeb74b9e53f3	9439cc2aab182693	f2ce8d79d22ef95b
@@ -261,7 +261,7 @@ full match at home, night_game	4800	97f21bcd3d691fec	cd3e9e919ea256ca	5e50aabad9
 full match at home, night_game	5400	30f8dc3c9b46cb0f	a040b3398391b9c9	a5a1b4e07a4517bd
 full match at home, night_game	6000	39fc1f25a4f261aa	4ad919cd922bf52f	5177b38fbfdc2378
 full match at home, night_game	6600	4552d80dfb5af9e8	f6eb7d0c5bd642d4	225d09ace66a71db
-full match at home, night_game	6936	8056ae89a321692f	e41753f2becffb5f	052dd5dc3f6e34af
+full match at home, night_game	6936	8056ae89a321692f	e41753f2becffb5f	6b4f8ca00c4b83a9
 full match at home, the_shift	600	fc999caed12cc3ca	bef8b451f02b3751	ab67e81c816523c0
 full match at home, the_shift	1200	12df2ae747e8242d	e4ece0f06a57c234	4a2813473810641f
 full match at home, the_shift	1800	10ab588e73ed3c82	130e90edfef999dd	112100bbd89ad806
@@ -392,4 +392,4 @@ full match at home, southpaw	6000	45e5a7aa304dc056	a493b1285ac895e8	2db66f3887c8
 full match at home, southpaw	6600	7f14074d837b2605	fc8eade87e1cfb9c	92d98a30c7892818
 full match at home, southpaw	7200	fb8ab271e3ef8c6b	072c9bcd1e50f6a9	e64af7d478940d84
 full match at home, southpaw	7800	4dc538e69722bba8	b744593535392b9e	c28781df08a0d66c
-full match at home, southpaw	8222	e32bc6b6b77ba8be	38744c6c96f92ecf	f17e66e25fdc6fcf
+full match at home, southpaw	8222	e32bc6b6b77ba8be	38744c6c96f92ecf	0816e9c09343c6ed

@@ -6,8 +6,8 @@ menu, setting up a match	543	c6f3aacad6772945	464259093831b5a3	ee7c158c9949171e
 menu, setting up the arcade game	600	ce0f7ae136cd8720	4afe80fa9e917df9	60e992452351a389
 menu, setting up the arcade game	639	9caa05ca78970a33	b9f8981af293d302	0726620630b671d4
 menu, setting up a full match	529	9fe4714f37021069	72713133fff35b36	68a8f61ee36b26a9
-menu, the mods' pages	600	6fea19225830ddaf	70135ee27f1f5d84	4bb9e0ebd345ab4c
-menu, the mods' pages	738	9bfa15f958114268	31ac3070e784322c	bb6b33facc90f01b
+menu, the mods' pages	600	6fea19225830ddaf	94a4605c87abf0fb	a107e9a538ada28e
+menu, the mods' pages	738	9bfa15f958114268	7a1e9900dc486b8c	96e551f24541533f
 menu, the high scores and the instructions	600	150a8bc5cfadf279	8f0e99f5e04722be	24ad72863353441f
 menu, the high scores and the instructions	849	3f6f1db74ad936e0	572171f337c949ad	e29439d426993f5c
 menu, quitting a match	524	f01f197e04f702db	68cfda3bfab144b0	caba95f59c5e2669
