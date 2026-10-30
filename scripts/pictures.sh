@@ -66,8 +66,8 @@ play() {
 }
 
 play menu "wait 90" --screen menu
-play match-setup "wait 60; click 200 181; wait 60; click 440 194; wait 5" --screen menu
-play mods-page "wait 60; click 330 360; wait 90; click 300 140; wait 5" --screen menu
+play match-setup "wait 60; click 200 178; wait 60; click 440 194; wait 5" --screen menu
+play mods-page "wait 60; click 330 367; wait 90; click 300 140; wait 5" --screen menu
 play instructions "wait 120" --screen instructionsAll
 # With this seed the first pitch crosses at 335,280 and is best swung at on
 # the 217th frame.
@@ -94,8 +94,8 @@ play twice-the-size "wait 150" --screen match --scale 2
 # A tournament: its two pages of the menu, and its tables for each shape,
 # with fixtures enough played on paper for there to be something in them.
 tables="wait 120"
-play tournament-setup "wait 60; click 200 240; wait 70; click 434 290; wait 5" --screen menu
-play tournament-summary "wait 60; click 200 240; wait 70; click 490 362; wait 70" --screen menu
+play tournament-setup "wait 60; click 200 232; wait 70; click 434 290; wait 5" --screen menu
+play tournament-summary "wait 60; click 200 232; wait 70; click 490 362; wait 70" --screen menu
 play tournament-league "$tables" --screen tournament --format league --played 9
 play tournament-groups "$tables" --screen tournament --format groups --played 13
 play tournament-cup "$tables" --screen tournament --format cup --played 5

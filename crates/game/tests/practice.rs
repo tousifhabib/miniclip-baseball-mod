@@ -40,6 +40,47 @@ fn play(script: &mut bb_game::script::Script, pitches: u32, late: i32) -> String
     after
 }
 
+/// On the first page and on the setup page: the row that leads to practice,
+/// the boxes of the view and of the timing bar, and the way on.
+const BATTING_PRACTICE: &str = "click 235 286";
+const MATCH_VIEW: &str = "click 510 289";
+const BAR_OFF: &str = "click 510 316";
+const NEXT: &str = "click 490 362";
+
+#[test]
+fn the_menu_leads_to_practice_on_the_view_chosen_for_it() {
+    let Some(mut script) = game("menu") else {
+        return;
+    };
+    let setup = state_after(
+        &mut script,
+        &format!("wait 60; {BATTING_PRACTICE}; wait 90; state"),
+    );
+    assert_eq!(setup, "Menu, PracticeSetup, Medium: Arcade view, bar on");
+    let chosen = state_after(
+        &mut script,
+        &format!("{MATCH_VIEW}; wait 3; {BAR_OFF}; wait 3; state"),
+    );
+    assert_eq!(chosen, "Menu, PracticeSetup, Medium: Match view, bar off");
+    let begun = state_after(&mut script, &format!("{NEXT}; wait 90; state"));
+    assert!(begun.starts_with("PracticeMatch, Medium: "), "{begun}");
+    // The bar says when to swing, and with it off nothing does.
+    let pitch = ready(&mut script);
+    assert!(!pitch.contains("best swung on steps"), "{pitch}");
+    assert!(pitch.contains("practice, pitches 0"), "{pitch}");
+}
+
+#[test]
+fn the_menu_leads_to_practice_on_the_arcade_view_with_the_bar_up_unless_told_otherwise() {
+    let Some(mut script) = game("menu") else {
+        return;
+    };
+    let steps = format!("wait 60; {BATTING_PRACTICE}; wait 90; {NEXT}; wait 90; state");
+    let begun = state_after(&mut script, &steps);
+    assert!(begun.starts_with("PracticeArcade, Medium: "), "{begun}");
+    assert!(ready(&mut script).contains("best swung on steps"));
+}
+
 #[test]
 fn a_session_goes_on_past_what_would_end_either_game() {
     for view in VIEWS {

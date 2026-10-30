@@ -8,7 +8,7 @@ use crate::common::{game, said, state_after};
 
 /// The row of the menu's first page that leads to the full match, and the
 /// buttons on the pages after it.
-const FULL_MATCH: &str = "click 200 216";
+const FULL_MATCH: &str = "click 200 205";
 const AWAY: &str = "click 445 312";
 const NEXT: &str = "click 490 362";
 const BACK: &str = "click 290 362";
@@ -99,7 +99,7 @@ fn the_choice_of_ground_is_only_on_the_full_matchs_setup() {
     assert_eq!(main, "Menu, Main, Medium");
     assert!(said(&script, "groundWord").is_empty());
     // The last innings on its own has nothing to choose.
-    let setup = state_after(&mut script, "click 200 181; wait 90; state");
+    let setup = state_after(&mut script, "click 200 178; wait 90; state");
     assert_eq!(setup, "Menu, MatchSetup, Medium");
     assert!(said(&script, "groundWord").is_empty());
 }

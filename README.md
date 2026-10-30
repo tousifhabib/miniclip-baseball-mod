@@ -784,7 +784,7 @@ steps drive the game from the command line:
 
 ```bash
 cargo run --release -p bb-game -- --screen menu \
-  --run "wait 60; click 200 181; wait 60; state; shot setup.png"
+  --run "wait 60; click 200 178; wait 60; state; shot setup.png"
 ```
 
 `wait N` plays N frames, `click X Y` clicks at a stage position (`click X Y
