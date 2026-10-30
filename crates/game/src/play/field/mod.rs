@@ -205,15 +205,20 @@ impl Ball {
 
     /// Where the ball will first come down, if it is left alone.
     pub fn landing(&self, home: Point, miss: f32, rules: &FieldRules) -> Point {
+        self.first_comes_to(home, miss, rules).0
+    }
+
+    /// Where the ball first stops being in the air over the field, if it is
+    /// left alone, and how it does.
+    pub fn first_comes_to(&self, home: Point, miss: f32, rules: &FieldRules) -> (Point, Happened) {
         let mut ball = *self;
         for _ in 0..600 {
             match ball.step(home, miss, rules) {
                 Happened::Nothing => {}
-                // Wherever it stops being in the air over the field.
-                _ => break,
+                happened => return (ball.at, happened),
             }
         }
-        ball.at
+        (ball.at, Happened::Nothing)
     }
 }
 

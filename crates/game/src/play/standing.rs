@@ -33,6 +33,10 @@ impl Match {
 
     /// How the match stands, if it is over.
     pub(super) fn outcome(&self) -> Option<Outcome> {
+        // Practice goes on until the player has had enough.
+        if self.practice.is_some() {
+            return None;
+        }
         match &self.mode {
             Mode::Arcade(arcade) => (arcade.left == 0).then_some(Outcome::ArcadeOver),
             Mode::Full(full) => {

@@ -7,12 +7,14 @@
 //! in `pager`, and each kind of page has a file: `batting`, `figures`,
 //! `spray`, `timing` and `turns`. The tables of a tournament, which are
 //! written on a board of the same kind with the same tables of batting
-//! and of figures, are in `tables`.
+//! and of figures, are in `tables`. The report on a session of batting
+//! practice, which is on one too, is in `practice`.
 
 mod batting;
 mod figures;
 mod pager;
 mod pages;
+mod practice;
 mod spray;
 mod tables;
 mod timing;
@@ -26,6 +28,7 @@ use crate::look::{self, Rgb};
 use crate::play::full::{Cell, FullMatch, Line};
 use crate::sheet::Sheet;
 pub use pages::Pages;
+pub use practice::Report;
 pub use tables::Tables;
 
 /// The colours of the board's lettering: as the art has it, for the side

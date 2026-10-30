@@ -6,7 +6,7 @@ use bb_engine::math::Matrix;
 use bb_engine::stage::Stage;
 
 use super::at;
-use crate::play::field::{Ground, reach};
+use crate::play::field::{Contact, Ground, reach};
 use crate::play::pitch::Point;
 use crate::rules::FieldRules;
 
@@ -59,6 +59,12 @@ impl Parts {
     }
 
     /// The fixed points of the field that a hit is placed by.
+    /// Whether a ball the bat sent off like this is outside the lines.
+    pub(crate) fn is_foul(&self, contact: &Contact, rules: &FieldRules) -> bool {
+        let mark_x = self.field_mark.0 + contact.aside / rules.aim_share;
+        mark_x < self.foul.0 || mark_x > self.foul.1
+    }
+
     pub(crate) fn ground(&self, rules: &FieldRules) -> Ground {
         Ground {
             home: self.home,

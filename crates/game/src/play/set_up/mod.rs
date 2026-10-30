@@ -71,6 +71,7 @@ impl Match {
         self.cues.clear();
         self.put_away.clear();
         self.stand_the_batter(&mut parts, stage);
+        self.begin_the_pitch_afresh();
         if let Some(outcome) = self.outcome() {
             self.phase = Phase::Over;
             return Some(self.close_half(outcome));
@@ -85,6 +86,7 @@ impl Match {
             golden: false,
         };
         self.say_the_innings(&mut coming, stage);
+        self.say_how_the_session_stands(&mut coming.notices, &coming.parts, stage);
         self.gild_the_ball(&mut coming, stage);
         self.heat_the_pitch(&mut coming, stage);
         self.tire_the_arm(&mut coming, stage);
@@ -104,6 +106,7 @@ impl Match {
             None => Vec::new(),
         };
         self.set_up_arcade(&coming.parts, game, stage);
+        self.clear_the_boards(&coming.parts, stage);
         self.show_numbers(stage);
 
         let mound = Match::mound(&coming.parts, stage)?;

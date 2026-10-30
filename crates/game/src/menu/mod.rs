@@ -3,6 +3,7 @@
 
 mod full_match;
 mod page;
+mod practice;
 mod summary;
 mod tournament;
 
@@ -50,6 +51,8 @@ pub struct Menu {
     boxes: Option<tournament::Boxes>,
     /// Something a box on one of those pages has asked for.
     asked: Option<Leave>,
+    /// What batting practice has put on its setup page.
+    practice: Option<practice::Practice>,
 }
 
 impl Default for Menu {
@@ -66,6 +69,7 @@ impl Default for Menu {
             choices: None,
             boxes: None,
             asked: None,
+            practice: None,
         }
     }
 }
@@ -117,7 +121,7 @@ impl Menu {
             self.arriving = true;
             match page {
                 // What the summary says fades away with it.
-                MenuPage::ToFull | MenuPage::ToTournament => {}
+                MenuPage::ToFull | MenuPage::ToTournament | MenuPage::ToPractice => {}
                 // The summary says where the side is to play.
                 MenuPage::FullSummary => {
                     self.clear_full(stage);
@@ -146,8 +150,8 @@ impl Menu {
     pub fn clicked(&mut self, label: &str, game: &mut Game, stage: &mut Stage) -> Option<Leave> {
         use MenuPage::{
             ArcadeSetup, ArcadeSummary, FullSetup, FullSummary, HighScores, Main, MatchSetup,
-            MatchSummary, Mods, ToArcade, ToFull, ToMatch, ToTournament, TournamentSetup,
-            TournamentSummary,
+            MatchSummary, Mods, PracticeSetup, ToArcade, ToFull, ToMatch, ToPractice, ToTournament,
+            TournamentSetup, TournamentSummary,
         };
         // A page that is still arriving cannot be used yet.
         if Menu::clip(stage).is_none_or(|menu| menu.playing) {
@@ -161,10 +165,13 @@ impl Menu {
             (Main, "TOURNAMENT") if self.underway() => TournamentSummary,
             (Main, "TOURNAMENT") => TournamentSetup,
             (Main, "ARCADE") => ArcadeSetup,
+            (Main, "BATTING PRACTICE") => PracticeSetup,
             (Main, "INSTRUCTIONS") => return Some(Leave::Instructions),
             (Main, label) if label.starts_with("HIGH SCORES") => HighScores,
             (Main, "MODS") => Mods,
-            (MatchSetup | ArcadeSetup | FullSetup | TournamentSetup, "BACK") => Main,
+            (MatchSetup | ArcadeSetup | FullSetup | TournamentSetup | PracticeSetup, "BACK") => {
+                Main
+            }
             (HighScores | Mods, "BACK") => Main,
             (TournamentSummary, "BACK") if self.underway() => Main,
             (TournamentSummary, "BACK") => TournamentSetup,
@@ -174,6 +181,8 @@ impl Menu {
             (MatchSetup, "NEXT") => MatchSummary,
             (ArcadeSetup, "NEXT") => ArcadeSummary,
             (FullSetup, "NEXT") => FullSummary,
+            // There is nothing about a session for a summary to say.
+            (PracticeSetup, "NEXT") => ToPractice,
             (TournamentSetup, "NEXT") => return Some(Leave::Draw),
             (MatchSummary, "PLAY BALL") => ToMatch,
             (ArcadeSummary, "PLAY BALL") => ToArcade,
@@ -182,7 +191,7 @@ impl Menu {
             (TournamentSummary, "PLAY BALL") if self.over() => TournamentSetup,
             (TournamentSummary, "PLAY BALL") => ToTournament,
             (
-                MatchSetup | ArcadeSetup | FullSetup | TournamentSetup,
+                MatchSetup | ArcadeSetup | FullSetup | TournamentSetup | PracticeSetup,
                 "EASY" | "MEDIUM" | "HARD",
             ) => {
                 game.settings.difficulty = match label {
@@ -230,6 +239,7 @@ impl Menu {
         self.show_grounds(&game.settings, stage);
         self.show_summary(game, stage);
         self.show_choices(game, stage);
+        self.show_practice(&game.settings, stage);
         self.show_told(stage);
         if let Some(asked) = self.asked.take() {
             return Some(asked);
@@ -239,6 +249,7 @@ impl Menu {
             MenuPage::ToMatch if frame >= last => return Some(Leave::Match),
             MenuPage::ToFull if frame >= last => return Some(Leave::FullMatch),
             MenuPage::ToTournament if frame >= last => return Some(Leave::Fixture),
+            MenuPage::ToPractice if frame >= last => return Some(Leave::Practice),
             // The arcade's fade-out is followed directly by the match's, so
             // it has ended when that is about to begin.
             MenuPage::ToArcade if to_match.is_some_and(|next| frame + 1 >= next) => {

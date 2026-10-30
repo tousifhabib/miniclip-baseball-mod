@@ -93,8 +93,12 @@ impl Baseball {
 
     /// Out of a game that has been given up: to the menu, and if the game
     /// was a fixture of the tournament, to what the menu says of that,
-    /// where the fixture is still to be played.
+    /// where the fixture is still to be played. A session of batting
+    /// practice is reported on first.
     pub(super) fn give_the_game_up(&mut self, stage: &mut Stage) {
+        if self.report_on_the_session(stage) {
+            return;
+        }
         let fixture = self.fixture.is_some();
         self.show(Screen::Menu, stage);
         if fixture {

@@ -18,6 +18,7 @@ pub(crate) mod mods;
 pub mod paper;
 mod phase;
 pub mod pitch;
+pub mod practice;
 pub(crate) mod runners;
 mod scoreboard;
 mod set_up;
@@ -84,6 +85,9 @@ pub struct Match {
     /// mod says more.
     pub(crate) run_worth: u32,
     runner_symbol: Option<SymbolId>,
+    /// The session, if this is batting practice: an arcade game or a last
+    /// innings that never ends and has no score.
+    pub(crate) practice: Option<practice::Session>,
 }
 
 /// How far down the batting view the mystery pitch mod names the pitch,
@@ -123,6 +127,7 @@ impl Match {
             thrown_at: (0, 0),
             run_worth: 1,
             runner_symbol: library.manifest.exports.get("runner").copied(),
+            practice: None,
         }
     }
 
@@ -132,6 +137,20 @@ impl Match {
         arcade.mode = Mode::Arcade(arcade::Arcade::new(game.rules.arcade.pitches));
         arcade.mods = ModsInPlay::for_game(game, seed, true);
         arcade
+    }
+
+    /// Batting practice, on the arcade game's view or on a match's. There
+    /// are no runs to get, so no number of them ends a play.
+    pub fn new_practice(game: &Game, seed: u64, library: &Library, arcade: bool) -> Match {
+        let mut practice = if arcade {
+            Match::new_arcade(game, seed, library)
+        } else {
+            Match::new(game, seed, library)
+        };
+        practice.target = u32::MAX;
+        practice.mods = ModsInPlay::for_practice(game, seed);
+        practice.practice = Some(practice::Session::new(!arcade));
+        practice
     }
 
     /// Called once a frame while the match screen is showing. Returns how

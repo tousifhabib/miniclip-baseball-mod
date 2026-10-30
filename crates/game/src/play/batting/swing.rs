@@ -105,7 +105,7 @@ impl Match {
             Match::sound(stage, "batSwing_fast");
         }
         at_bat.swing = Some(along);
-        if self.mode.full().is_some() {
+        if self.mode.full().is_some() || self.practice.is_some() {
             at_bat.swing_off = timing::Timing::of(&at_bat.pitch, &at_bat.table)
                 .best()
                 .map(|(first, last)| begins as i32 - begins.clamp(first, last) as i32);
@@ -159,6 +159,7 @@ impl Match {
         Match::cheer_the_hit(quality, zinger.as_ref(), stage);
         let contact = Match::contact_made(at_bat, power, zinger.as_ref(), rules);
         self.send_the_ball_off(at_bat, sample, &contact, zinger, rules, stage);
+        self.tell_the_session_it_was_hit(at_bat, &contact, game, stage);
         at_bat.contact = Some(contact);
         // He is 34 frames into his swing when he drops the bat.
         at_bat.run_in = Some(34u32.saturating_sub(at_bat.swing.unwrap_or(0)));

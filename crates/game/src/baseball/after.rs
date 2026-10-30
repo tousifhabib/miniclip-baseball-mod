@@ -67,7 +67,8 @@ impl Baseball {
         let Some(play) = &self.play else {
             return;
         };
-        if play.zinger_record() <= self.scores.longest_zinger {
+        // Nothing done in practice goes down as a record.
+        if play.session().is_some() || play.zinger_record() <= self.scores.longest_zinger {
             return;
         }
         self.scores.longest_zinger = play.zinger_record();
@@ -137,14 +138,18 @@ impl Baseball {
     }
 
     /// Takes in a click on the button at `path`, which may be one of the
-    /// arrows that turn the pages of a finished full match, or one of the
-    /// buttons on a tournament's tables.
+    /// arrows that turn the pages of a finished full match or of the report
+    /// on a session of batting practice, or one of the buttons on a
+    /// tournament's tables.
     pub(super) fn turn_page(&mut self, path: &[u16], stage: &mut Stage) {
         if let Some(pages) = &mut self.pages {
             pages.clicked(path, stage);
         }
         if let Some(tables) = &mut self.tables {
             tables.clicked(path, stage);
+        }
+        if let Some(report) = &mut self.report {
+            report.clicked(path, stage);
         }
     }
 }

@@ -20,8 +20,9 @@ impl Match {
         arcade.cleared = false;
         arcade.flying = false;
         arcade.owed = None;
-        // With the zinger mod on there is no target to drop the ball on.
-        let target_shown = !self.mods.every_hit_is_a_home_run();
+        // With the zinger mod on there is no target to drop the ball on,
+        // and none in practice.
+        let target_shown = !self.mods.every_hit_is_a_home_run() && self.practice.is_none();
         let area = &rules.target;
         arcade.target = (
             area.x + self.rng.below(area.width as u32) as f32,
@@ -123,6 +124,8 @@ impl Match {
             }
             Happened::Cleared => arcade.cleared = true,
             Happened::Landed if arcade.cleared => show(stage, &parts.field_ball, false),
+            // There is no scoring in practice.
+            Happened::Landed if self.practice.is_some() => {}
             Happened::Landed => {
                 scored = arcade
                     .touch(arcade.last_distance, &rules.arcade)

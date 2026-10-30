@@ -36,9 +36,16 @@ pub fn state(script: &mut Script) -> String {
 /// Whether the game is still on the screen it was started on, or has not
 /// yet got to it.
 pub fn playing(state: &str) -> bool {
-    ["Match,", "FullMatch,", "Arcade,", "Loading"]
-        .iter()
-        .any(|screen| state.starts_with(screen))
+    [
+        "Match,",
+        "FullMatch,",
+        "Arcade,",
+        "PracticeArcade,",
+        "PracticeMatch,",
+        "Loading",
+    ]
+    .iter()
+    .any(|screen| state.starts_with(screen))
 }
 
 /// Where the ball of the pitch in hand will cross, as the state says it.

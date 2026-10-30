@@ -11,6 +11,7 @@ use crate::menu::{Leave, MenuPage};
 use crate::play::full::FullMatch;
 use crate::play::{Match, play_from};
 use crate::rng::Rng;
+use crate::settings::PracticeView;
 
 impl Baseball {
     /// Has the shell show another screen, with what is heard on it. Returns
@@ -26,6 +27,9 @@ impl Baseball {
         self.pages = None;
         if let Some(tables) = self.tables.take() {
             tables.take_down(stage);
+        }
+        if let Some(report) = self.report.take() {
+            report.take_down(stage);
         }
         // What was written on the board went with the board.
         self.board = None;
@@ -48,6 +52,10 @@ impl Baseball {
             return;
         }
         self.finished = None;
+        // A session lasts to the end of the report on it.
+        if screen != Screen::PracticeReport {
+            self.session = None;
+        }
         // A fixture lasts from its first ball to the screen it ends on.
         let of_a_match = [Screen::FullMatch, Screen::MatchWon, Screen::MatchLost];
         if !of_a_match.contains(&screen) {
@@ -71,6 +79,12 @@ impl Baseball {
             Screen::Arcade => {
                 self.playing = self.game.as_played(false);
                 Some(Match::new_arcade(&self.playing, seed, stage.library()))
+            }
+            Screen::PracticeArcade | Screen::PracticeMatch => {
+                let arcade = screen == Screen::PracticeArcade;
+                self.playing = self.game.as_played(!arcade);
+                let library = stage.library();
+                Some(Match::new_practice(&self.playing, seed, library, arcade))
             }
             _ => None,
         };
@@ -97,6 +111,10 @@ impl Baseball {
             Leave::Arcade => Screen::Arcade,
             Leave::FullMatch => Screen::FullMatch,
             Leave::Tables => Screen::Tournament,
+            Leave::Practice => match self.game.settings.practice_view {
+                PracticeView::Arcade => Screen::PracticeArcade,
+                PracticeView::Match => Screen::PracticeMatch,
+            },
             Leave::Fixture => return self.play_the_fixture(stage),
             Leave::Draw | Leave::GiveUp => return self.about_the_tournament(leave, stage),
         };
@@ -115,7 +133,11 @@ impl Baseball {
                     self.leave_menu(leave, stage);
                 }
             }
-            Screen::Match | Screen::FullMatch | Screen::Arcade => match label {
+            Screen::Match
+            | Screen::FullMatch
+            | Screen::Arcade
+            | Screen::PracticeArcade
+            | Screen::PracticeMatch => match label {
                 "QUIT" => self.quit_prompt(true, stage),
                 "NO" => self.quit_prompt(false, stage),
                 "YES" => self.give_the_game_up(stage),
@@ -140,6 +162,11 @@ impl Baseball {
                     self.show(Screen::Menu, stage);
                     self.menu
                         .open(MenuPage::TournamentSummary, &self.game, stage);
+                }
+            }
+            Screen::PracticeReport => {
+                if art::CONTINUE_BUTTONS.contains(&button) {
+                    self.show(Screen::Menu, stage);
                 }
             }
             Screen::Instructions => self.instructions_clicked(label, stage),

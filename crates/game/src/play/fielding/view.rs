@@ -88,8 +88,7 @@ impl Match {
             self.mods.a_steal_is_in_play(stealing);
             self.start_runners(stage);
         } else if let (Some(ball), Some(contact)) = (at_bat.ball, at_bat.contact) {
-            let mark_x = parts.field_mark.0 + contact.aside / rules.field.aim_share;
-            if mark_x < parts.foul.0 || mark_x > parts.foul.1 {
+            if parts.is_foul(&contact, &rules.field) {
                 // A foul is a strike, but never the last one.
                 fielding.play = Play::Foul { called: 0 };
                 steal::send_back(&mut self.runners, stage);

@@ -27,6 +27,14 @@ pub(crate) struct Snapshot {
 pub(crate) enum Standing {
     /// The arcade game has points, and pitches still to come.
     Arcade { points: u32, pitches_left: u32 },
+    /// Batting practice has only what has come of the pitches so far.
+    Practice {
+        pitches: u32,
+        swings: u32,
+        met: u32,
+        sweet: u32,
+        longest: u32,
+    },
     Match {
         score: Score,
         outs: u32,

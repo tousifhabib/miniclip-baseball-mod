@@ -62,6 +62,28 @@ impl Ground {
     }
 }
 
+/// Which view a session of batting practice is played on.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum PracticeView {
+    /// The arcade game's: nobody fields, and the next pitch is soon on offer.
+    #[default]
+    Arcade,
+    /// A match's: a strike zone, the calls, and fielders who play the ball.
+    Match,
+}
+
+impl PracticeView {
+    pub const ALL: [PracticeView; 2] = [PracticeView::Arcade, PracticeView::Match];
+
+    /// The word for this choice on the setup page.
+    pub fn word(self) -> &'static str {
+        match self {
+            PracticeView::Arcade => "Arcade",
+            PracticeView::Match => "Match",
+        }
+    }
+}
+
 /// The choices made on the setup pages. They last from one game to the next.
 #[derive(Clone, Debug)]
 pub struct Settings {
@@ -72,6 +94,10 @@ pub struct Settings {
     /// matches have.
     pub format: Format,
     pub innings: u32,
+    /// The view a session of batting practice is played on, and whether the
+    /// timing bar is up in it.
+    pub practice_view: PracticeView,
+    pub practice_bar: bool,
     /// The colour of the team's shirts and helmets, if one has been picked.
     pub clothes: Option<Rgb>,
     /// The arcade batter's skin, if one has been picked.
@@ -90,6 +116,8 @@ impl Default for Settings {
             ground: Ground::Toss,
             format: Format::Groups,
             innings: 3,
+            practice_view: PracticeView::default(),
+            practice_bar: true,
             clothes: None,
             skin: None,
             logo: None,
