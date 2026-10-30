@@ -6,6 +6,7 @@ use super::{CREAM, GOLD, GREEN, GREY, RED, WHITE};
 use crate::art;
 use crate::look::Rgb;
 use crate::play::book::{End, Side, Turn, percent};
+use crate::play::pitch::Point;
 use crate::sheet::Sheet;
 
 /// The picture of the field on its page: its size, the art's being 1, and
@@ -27,10 +28,13 @@ fn mark(end: End) -> Rgb {
     }
 }
 
-/// The page of where a side's hits went: a picture of the field with a
-/// mark where each ball came down, and what they come to beside it.
-pub(super) fn field(side: &Side, sheet: &mut Sheet, stage: &mut Stage) {
-    const SIZE: f32 = 0.68;
+/// A picture of the field with a mark where each of `balls` came down, in
+/// its colour and in the order given, so that the last are on top.
+pub(super) fn picture_of_the_field(
+    balls: impl Iterator<Item = (Point, Rgb)>,
+    sheet: &mut Sheet,
+    stage: &mut Stage,
+) {
     let [left, top, wide, high] = FIELD_SEEN.map(|pixels| pixels * FIELD_SIZE);
     let (left, top) = (FIELD_AT.0 + left, FIELD_AT.1 + top);
     // A block the size of what is to be seen, which the picture after it
@@ -49,6 +53,20 @@ pub(super) fn field(side: &Side, sheet: &mut Sheet, stage: &mut Stage) {
     }
     let size = (FIELD_SIZE, FIELD_SIZE);
     sheet.add(stage, art::FIELD_PICTURE, "fieldPicture", FIELD_AT, size);
+    for (ball, colour) in balls {
+        // One that went clean out of the picture is marked at its edge.
+        let at = (
+            (FIELD_AT.0 + ball.0 * FIELD_SIZE).clamp(left + 3.0, left + wide - 3.0),
+            (FIELD_AT.1 + ball.1 * FIELD_SIZE).clamp(top + 3.0, top + high - 3.0),
+        );
+        sheet.dot(stage, "fieldMark", at, 1.0, colour);
+    }
+}
+
+/// The page of where a side's hits went: a picture of the field with a
+/// mark where each ball came down, and what they come to beside it.
+pub(super) fn field(side: &Side, sheet: &mut Sheet, stage: &mut Stage) {
+    const SIZE: f32 = 0.68;
     // The outs go on first, so that the hits are not hidden under them.
     let mut balls: Vec<&Turn> = side
         .turns
@@ -56,17 +74,10 @@ pub(super) fn field(side: &Side, sheet: &mut Sheet, stage: &mut Stage) {
         .filter(|turn| turn.ball.is_some())
         .collect();
     balls.sort_by_key(|turn| turn.end.bases());
-    for turn in balls {
-        let Some(ball) = turn.ball else {
-            continue;
-        };
-        // One that went clean out of the picture is marked at its edge.
-        let at = (
-            (FIELD_AT.0 + ball.at.0 * FIELD_SIZE).clamp(left + 3.0, left + wide - 3.0),
-            (FIELD_AT.1 + ball.at.1 * FIELD_SIZE).clamp(top + 3.0, top + high - 3.0),
-        );
-        sheet.dot(stage, "fieldMark", at, 1.0, mark(turn.end));
-    }
+    let balls = balls
+        .into_iter()
+        .filter_map(|turn| Some((turn.ball?.at, mark(turn.end))));
+    picture_of_the_field(balls, sheet, stage);
     let all = side.figures();
     let outs = all.in_play - all.hits;
     let share = |part: u32| percent((all.in_play > 0).then(|| part as f32 / all.in_play as f32));
