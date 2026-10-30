@@ -12,7 +12,7 @@ last innings, butterfingers at 1	5400	b310f7f484675d4f	35783e9e3c60e167	2a313a3a
 last innings, butterfingers at 1	6000	bad040d495cdda5d	7bdd0313ab832493	1e4938e2250bdf24
 last innings, butterfingers at 1	6600	3e03be75e99c2d02	36e81b30444a35b5	656bf3aaaa4b864d
 last innings, butterfingers at 1	7200	3959fca6d9232c9a	d682d2a31cf5102a	c3ef43e6046c3716
-last innings, butterfingers at 1	7312	ecdb2aa01c57ca03	6f4fc814b5bdd5dc	1436715beb39dcbe
+last innings, butterfingers at 1	7312	ecdb2aa01c57ca03	6f4fc814b5bdd5dc	6116cac0491d801c
 last innings, butterfingers at 5	600	3c84fb06fa1c9c27	3ca739722eed2106	5b6e8c219403f5a1
 last innings, butterfingers at 5	1200	aef1201ae9680cba	c8cd725e44a1dbed	519e1e5110199b01
 last innings, butterfingers at 5	1800	2f84ecc7a75bcdb0	965c25700c748397	225e63345299b324
@@ -78,7 +78,7 @@ last innings, pinball_park at 5	7800	e424627fc8a249a7	57863540d6b3cf53	334a2a509
 last innings, pinball_park at 5	8400	329fdce4162b98d1	ec1288c4f45a93d4	35d8ffc72b269fa9
 last innings, pinball_park at 5	9000	83f28f68ad54a61b	2ad3fa525a0d2420	b070096ccf984eaa
 last innings, pinball_park at 5	9600	2d11e245bb9a6c35	1bd3559df448e213	c1c42bebe7aeac42
-last innings, pinball_park at 5	9801	53deb79be6fc2c88	3265af96d9d6f4b8	49180729529d37d7
+last innings, pinball_park at 5	9801	53deb79be6fc2c88	3265af96d9d6f4b8	d00bcb10cddf7e46
 full match at home, pinball_park at 5	600	75872614e7a85329	8826c7d8aa82e75c	fa20260505e50425
 full match at home, pinball_park at 5	1200	4b1c0e83f35c3f40	12346f498f566aac	13d20cc40546dba1
 full match at home, pinball_park at 5	1800	b93c30f59082c86f	0a4574d391c6b568	19378b7676e31c96
@@ -175,7 +175,7 @@ last innings, turbo_runners at 5	9000	7b32b0b7238782bf	6afb8bc3b18aed6d	b0fc9aab
 last innings, turbo_runners at 5	9600	5cccb6336610aa68	42cd0a4581811382	51ea0688db1ff5f9
 last innings, turbo_runners at 5	10200	48d1b99dc6d4dd97	56d58aeed45e19a0	0b4b3c3c577815a1
 last innings, turbo_runners at 5	10800	e8ef6e34e2780dc7	d8de79e3b5f03040	d88292db9d0c0b4c
-last innings, turbo_runners at 5	10988	3ef80d4ad78f01d6	15b796c17a074a73	d13fd017ab445598
+last innings, turbo_runners at 5	10988	3ef80d4ad78f01d6	15b796c17a074a73	320ef46987538737
 full match at home, turbo_runners at 5	600	3af36211cdb76aaf	e785bb7cfc6e5507	ee8db886e407e7d6
 full match at home, turbo_runners at 5	1200	91339f95925c354c	9bac2276d6726ad9	29237077fc560395
 full match at home, turbo_runners at 5	1800	a1919ab2a1b99702	63e94b96dcaf9e29	7546d7f98770d36e

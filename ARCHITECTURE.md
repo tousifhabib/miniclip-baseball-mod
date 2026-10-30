@@ -139,6 +139,8 @@ ball's flight, to the fielding and the next pitch being asked for.
   itself.
 - `mode.rs`: a match is exactly one of three games, the last innings, the
   arcade game or a full match, and carries what only that kind keeps.
+- `practice/`: a session of batting practice, which is a last innings or an
+  arcade game with a `Session` beside it. See below.
 - `set_up/`: getting the view ready for a pitch is a list of steps, each a
   function with a name. The order is the order things have always been
   done in, and it matters (see below). The list is in `mod.rs`. The steps
@@ -240,6 +242,26 @@ The menu is told of the tournament in hand and keeps no more of it than
 that. Its two pages for one are in `menu/tournament/`, on the sections the
 art has for a match.
 
+### Batting practice
+
+A session is no kind of game. `Match::new_practice` starts a last innings or
+an arcade game, as the view chosen has it, and gives it a `Session`. The
+batting, the fielding and the arcade game's ball are the ones they were, and
+every game with no session goes as it did, numbers by chance and stage alike.
+What a session changes it changes in a few named places: the match has no
+outcome, each pitch is begun afresh by a step of `set_up/`, the arcade game's
+target and the boards are taken off the view, the numbers are not written, and
+`ModsInPlay::for_practice` says which mods are on.
+
+`play/practice/mod.rs` is sums, tested with no game, and `play.rs` is what the
+match does about them. A pitch goes into the session where it is decided, the
+ball's whole flight being worked out as the bat meets it, and not where the
+play ends, so that both views count alike and a ball still up when the next
+pitch is called is not lost.
+
+The report is in `board/practice.rs`, on the two pages of a full match's that
+are written from rows.
+
 ## How the files are cut
 
 A file does one job and says which in its first lines. None is over three
@@ -313,6 +335,7 @@ itself.
 | A side to play against | `[tournament.sides]` in `data/rules.toml` |
 | One thing to be chosen of several | A `Choice`, from `choice.rs` |
 | A row of the menu's first page | New art, placed in the menu's clip, and its words in `Menu::clicked` |
+| Something a session of batting practice adds up | `play/practice/mod.rs`, with a test that needs no game |
 | A word the art's files may hold | Its type in `bb-format`, made with `words!` |
 | A step of the script language | `Step` in `script/step.rs` |
 | Something kept between runs | `kept.rs` reads and writes it |

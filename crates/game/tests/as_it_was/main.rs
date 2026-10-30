@@ -101,6 +101,11 @@ fn the_easy_and_the_hard_game_go_as_they_did() {
 }
 
 #[test]
+fn batting_practice_goes_as_it_did() {
+    check("practice", games::practice());
+}
+
+#[test]
 fn the_menu_goes_as_it_did() {
     check("menu", games::the_menu());
 }

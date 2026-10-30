@@ -233,7 +233,13 @@ last innings, turbo_runners	6000	87c5cda689a80ace	61b15ed5bd502409	8134af4d0cda2
 last innings, turbo_runners	6600	9273ccdd3c1533b2	30f1e2890e98db69	2563dd517308a27a
 last innings, turbo_runners	7200	35ae306fe696983a	266ae33fbf9f5e03	a76ae6ef4a97dcf9
 last innings, turbo_runners	7800	fe7406c6f35cfdd0	3660eff8b08d9c93	51db74b229d78b4d
-last innings, turbo_runners	8114	6c8712766e75c549	43c54676cd3a175b	4ce52a18c79ec11b
+last innings, turbo_runners	8400	244fdfce508ecbe3	40d8ea36f5885972	eec3395355cc933b
+last innings, turbo_runners	9000	0268f4bb8f1b96a9	247f9c34bab28c61	232af5454c5a4dfa
+last innings, turbo_runners	9600	e24a4fe0d67416f1	5a1d703c92698a2e	97b899a1746a241e
+last innings, turbo_runners	10200	6068c2836fc799ea	b7495d2ccdedc0d1	772893c51c8b82b6
+last innings, turbo_runners	10800	a29d04e6c00029a8	669c5444dfc66f30	79cdd2fa1cbdf691
+last innings, turbo_runners	11400	8ef7986eb2230270	a073e0f004df9898	2959497bcd629e34
+last innings, turbo_runners	12000	f7428f176582f275	56dfe9781997fdae	8af23ecfaadbc768
 last innings, night_game	600	4d1088fec32004f7	424eff83ac6c9c36	95757db9e0a4e0bd
 last innings, night_game	1200	05fc02b4adae0fcf	9413deca21333e5e	301b2c6255a63382
 last innings, night_game	1800	1d309e45a06d42b2	abf5bc3498216105	9046c793816fcc31
@@ -261,7 +267,7 @@ last innings, the_shift	9600	d7ff9ac7fe1d44c5	261fd4271be948f5	0860079d4771ae06
 last innings, the_shift	10200	d23ff5a78a8dbecb	1f81facf6fad2a7c	0324dbc1eae64f99
 last innings, the_shift	10800	9ba3fd9fb9776e3c	0b801dbddedb7c95	09be70f18f5663cb
 last innings, the_shift	11400	172811b2a5aa3e38	8a7b614a6139e31b	de6f9fc0c560f1f1
-last innings, the_shift	11801	159bf188b10c9e02	daf54712f0a30c1d	9640564e622b5957
+last innings, the_shift	12000	a2427120ad3883f0	767a66dad3a67193	73043e16b2de187e
 last innings, tired_arm	600	30a1fe1849614edb	a2d9b7df84c627c0	1e65c529de7132ff
 last innings, tired_arm	1200	ecaf2be6cd4e9101	d213a394d179f3b6	b1d8a1330cf9e75b
 last innings, tired_arm	1800	437ac329b3996060	59432c47a4464366	a1365e926be3580a

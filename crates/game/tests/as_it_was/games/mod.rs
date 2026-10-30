@@ -4,6 +4,7 @@
 //! another, in each kind of game, at each skill level, and round the menu.
 
 mod menu;
+mod practice;
 mod tournament;
 mod whole;
 
@@ -14,6 +15,7 @@ use bb_game::tournament::Format;
 
 use crate::players::{Batter, Monkey, Player, Then, Tricks, Written};
 pub use menu::the_menu;
+pub use practice::practice;
 pub use tournament::tournaments;
 pub use whole::{finished_matches, monkeys, whole_matches};
 
@@ -227,6 +229,7 @@ pub fn levels() -> Vec<Game> {
 const BOTTOM_OF_THE_NINTH: &str = "click 200 178";
 const FULL_MATCH: &str = "click 200 205";
 const ARCADE: &str = "click 200 259";
+const BATTING_PRACTICE: &str = "click 235 286";
 const MODS: &str = "click 330 367";
 const NEXT: &str = "click 490 362";
 const BACK: &str = "click 290 362";

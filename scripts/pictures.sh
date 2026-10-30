@@ -88,6 +88,9 @@ play every-mod "wait 170" --screen match \
     --mod timing_indicator --mod heat_check --mod tired_arm --mod hot_bat --mod golden_ball \
     --mod clutch --mod rally --mod stolen_bases --mod hit_the_sign --mod bullet_time
 play full-match "wait 200" --screen fullMatch --ground away
+play practice-setup "wait 60; click 235 286; wait 90; click 510 289; wait 5" --screen menu
+play practice-arcade "$swing; wait 90" --screen practiceArcade
+play practice-match "$swing; wait 90" --screen practiceMatch
 play interval "wait 200" --screen fullMatch --ground home
 play twice-the-size "wait 150" --screen match --scale 2
 

@@ -1,5 +1,5 @@
 //! A match in progress: the last innings, batting to overtake the other
-//! side, or every innings of a full match.
+//! side, or every innings of a full match, or batting practice.
 //!
 //! The art builds the batting view afresh for every pitch, so everything
 //! that lasts from one pitch to the next is kept here: the score, the count,

@@ -1,0 +1,130 @@
+# How these games went when they were last written down: each game's sums of what
+# was said, heard and seen, every so many frames. See tests/as_it_was/main.rs.
+menu, a session of practice on the arcade game's view, and the report	600	a6097bb5f6d5492c	920f10e4d9bf947f	d82703d4fe7274ed
+menu, a session of practice on the arcade game's view, and the report	1200	d149aa4717bdf883	032c06a61e76fdf9	d8f9f5d9c28a61fc
+menu, a session of practice on the arcade game's view, and the report	1740	b1fc2ed88c75c8c3	2c410bb687b60305	0293f766aa1c0bcd
+menu, a session of practice on a match's view with no bar, and the report	600	c6047aa8eb1750de	51db24e601f317a2	d4d521b675494174
+menu, a session of practice on a match's view with no bar, and the report	1200	32207b2f1b1b0edd	d230e800c4f9d8f6	f45daa7f9cc06846
+menu, a session of practice on a match's view with no bar, and the report	1800	5992258fabc8a7da	47bc24ec5513ff55	959fff179347bf05
+menu, a session of practice on a match's view with no bar, and the report	1934	0fdf5326cddf341e	1d937bedd30e1084	b223e3d4a3c85702
+menu, a session of practice given up before a pitch	252	94e39d73a12708a8	e58f9b912e20412f	259a94341791721e
+practice on the arcade game's view	600	76297204ff8d497f	d9e8c5360db8f23d	9d11315b544eb735
+practice on the arcade game's view	1200	032614f84baf4f02	f92e32276ebb145c	2bd316c5a3f98fac
+practice on the arcade game's view	1800	da8befdf66ed22db	6af18dbc72dd6840	17bdd5c470f03043
+practice on the arcade game's view	2400	b40c16f8af41ada1	3a9fae7821f48b6b	b7c7f395d8899caa
+practice on the arcade game's view	3000	280ab6d49a06eb72	8df181ae923d02b9	1669ba750591392c
+practice on the arcade game's view	3600	cb1b3d476b37e768	b8b69a44bd9a8fe2	d9f51e3e56283f13
+practice on the arcade game's view	4200	0648ec61c3eb32c4	ad6cf093d5bc9fd4	d88e916c255c42ee
+practice on the arcade game's view	4800	7c69f6a51c2def28	99bac1fbcc1d052f	47e39c2209e01ba6
+practice on the arcade game's view	5400	de141065206581bf	07d51f879b9bf5d6	0bddff6ca5dcc6de
+practice on the arcade game's view	6000	51d312fe7f07753f	8d0da0d40c53b52a	cfc6459e1000ee51
+practice on the arcade game's view, every mod	600	00f208abfdc8b82a	b530ebb1a18b6a84	dcefa91db8176aa4
+practice on the arcade game's view, every mod	1200	b3a6b6e0ce65cce6	5f88550eb5fd31ac	90faeaf4d059e44c
+practice on the arcade game's view, every mod	1800	9d8973687875e4fd	e8aae8aa26f6fe28	43c21f9968097d06
+practice on the arcade game's view, every mod	2400	83a20ba52f9f932b	f7a75e0536c6f09b	cda0af10f53f4e9e
+practice on the arcade game's view, every mod	3000	2751f9fd13fc6536	eb44d507a4bdf73e	39026b86716c2e87
+practice on the arcade game's view, every mod	3600	288f4ee66d881f89	d91c76d5d365ede3	a74ee54d0a771f5a
+practice on the arcade game's view, every mod	4200	0db765df666e890e	7694fadaf48001f5	d7d9fa5ccfbe293e
+practice on the arcade game's view, every mod	4800	96d5d8073f7537fa	04be59283d2c0da7	a64a9226d974b56a
+practice on the arcade game's view, every mod	5400	5b523a76d6300448	472caf7864e92112	5a13546ec7b842d1
+practice on the arcade game's view, every mod	6000	ddf5829aaa1bd616	002b1d633da29a28	73b4682f039c1fd3
+monkey 0, practice on the arcade game's view	600	09ce78eedbf39a5b	11f163795dc67c1a	ddf8bd3f8194234b
+monkey 0, practice on the arcade game's view	1200	0f3724d4cbff2c3e	a7bc4211e9686ff4	df1304a7de661ce3
+monkey 0, practice on the arcade game's view	1800	c5916e452bf5a6ab	7a6f77479dce3f39	44dabe07fbfdf240
+monkey 0, practice on the arcade game's view	2400	9726250157f81da5	4ce5b6441dacf12e	c50fa246a0215fba
+monkey 0, practice on the arcade game's view	3000	726614b86d9b5200	389fbad696c66142	aa45623c6e8f8bbf
+monkey 0, practice on the arcade game's view	3600	8e15ee9d524f6901	10a1ecf5fe5e6161	29e4a45c913aade5
+monkey 0, practice on the arcade game's view	4200	d9d2a15ea5f2492c	8938d4fb207e2f7e	ec4b7e5105db9838
+monkey 0, practice on the arcade game's view	4800	9cdcb3ed74316dd4	2fc91b8cc34b9681	492633662079aff7
+monkey 0, practice on the arcade game's view	5400	ff8e15ec92ed9c59	940b797b77969ee3	174bae2d2aaf6044
+monkey 0, practice on the arcade game's view	6000	008d4be7f709fd8e	074fc35e7cdc2a23	f64de172d200f82a
+monkey 1, practice on the arcade game's view	600	2629298c7df4b1a3	dddd4c243f14eafb	4ebd11b0a10be94d
+monkey 1, practice on the arcade game's view	1200	de6c3c626853e510	aef8cbcfe2a9b9e7	c815853025aa7014
+monkey 1, practice on the arcade game's view	1800	c3f92b1c7b4901c3	36885f8dd2bd23ae	b61f42e68778cf49
+monkey 1, practice on the arcade game's view	2400	60e6d1a6c07e87f5	99ab9c83cddb963f	dad34457df1a10f4
+monkey 1, practice on the arcade game's view	3000	ebfb6a6760690282	55c09874b66f34c8	f8f73a74ad8bbcbb
+monkey 1, practice on the arcade game's view	3600	2e9cf691ed30d91b	725113b86460af56	2f40a74f8033acda
+monkey 1, practice on the arcade game's view	4200	c7e905fa117922ec	20069c24a2298baf	aeeb6b86261c080f
+monkey 1, practice on the arcade game's view	4800	cd76635d04b28ec6	e6281b8c012b93ee	920a380f0250dcaa
+monkey 1, practice on the arcade game's view	5400	89a7c2c9ae4bbf50	f8fa21f81e84f3da	4d38c6b4be152e52
+monkey 1, practice on the arcade game's view	6000	da2ed897cd3ea11c	f73532892da34c11	864b88a73cd3a327
+monkey 2, practice on the arcade game's view	600	6e4cc575f8a0fbd6	292a625f17e04a1b	cb602c6fcb2c29c4
+monkey 2, practice on the arcade game's view	1200	d1747b0fe857dc08	1375e3bdafee1de2	f162c36a164dbe3c
+monkey 2, practice on the arcade game's view	1800	607a5f7b8a5cd183	f093fc6f7d9764c4	32c3cf55aa8867ac
+monkey 2, practice on the arcade game's view	2400	7960d9651d3c6ba5	0a478582f134ec96	3ac20dd362f615bb
+monkey 2, practice on the arcade game's view	3000	2c4d032887254f35	81176041c06b3da5	d3687c98a6ca1adb
+monkey 2, practice on the arcade game's view	3600	46bb42e6263e215f	d4eb0539c8100069	e6495ab76a359563
+monkey 2, practice on the arcade game's view	4200	93e3121fe252ae8d	f19236025d0d204c	c20d962cf66b81cd
+monkey 2, practice on the arcade game's view	4800	a3ab7b41762427e1	25798b1549b3c7ae	d8a694add39ad3be
+monkey 2, practice on the arcade game's view	5400	5c65534941ae10d5	be905ae64aff425d	f9b829ceb993c809
+monkey 2, practice on the arcade game's view	6000	fde508bf9afba766	4438582d4ad40a98	a3fcd4e8dc51fe2f
+monkey 3, practice on the arcade game's view	600	e810b6d7a90a4fd2	71104a7015b69eda	21646e73e68b4b0c
+monkey 3, practice on the arcade game's view	1200	36bf365ab26decab	4e8b6ffccf128791	e82641ffc9592b73
+monkey 3, practice on the arcade game's view	1800	45e346a308dd877b	18c160b51cc82e22	b4db40f3c893e842
+monkey 3, practice on the arcade game's view	2400	75311384f6cc5fc8	084c2653c98b55c5	0e6c15f0d3cea59b
+monkey 3, practice on the arcade game's view	3000	a4e7949777c9c1b1	5571778c29e669bb	500901f604df47ed
+monkey 3, practice on the arcade game's view	3600	ddef60cf50053911	600acf6eacd9deaf	287c06474f3a0fcb
+monkey 3, practice on the arcade game's view	4200	3cc6c0b7cc0edebb	eda705a4f64c78bf	cfb63acd17bc65d0
+monkey 3, practice on the arcade game's view	4800	28f84a0e1a88be08	8208c7b2504deba6	e7ecf45a2bd714c3
+monkey 3, practice on the arcade game's view	5400	670188a0d7c13c05	08782872a05ba8ad	de74dcd6985a3bce
+monkey 3, practice on the arcade game's view	6000	7bcc2b29a25fb9c0	a5d0a95d9086a269	d14e9290bc41a11e
+practice on the match's view	600	5285019cc434a4f9	105c9159561b6c24	4ae278b46862c05f
+practice on the match's view	1200	3a7948824fc91d87	e58fa8698bbec93e	50f133319f16f334
+practice on the match's view	1800	bfb49d1b20f12732	9431c585ee663d25	a2cf32d792474891
+practice on the match's view	2400	ef79bcc3faa1c9fa	7979f7223c15dbf0	111eb9b763db85f8
+practice on the match's view	3000	64340d3999b8a742	3c083915495e8943	8211e92d39ec0949
+practice on the match's view	3600	4e943de003ca0d7e	c7b45dafb22d8f4b	2c82ad6447954222
+practice on the match's view	4200	4c9ff5071c026fbc	fd3fd51d13410944	9e83654d50bc5ee3
+practice on the match's view	4800	db90476b6f6d8db0	c6da2d9228e1dfb5	419cd02f9ead9384
+practice on the match's view	5400	d5d0aa518de8621f	420719a716fe0570	02f91bee1a776a93
+practice on the match's view	6000	e3c0e949f7d44c19	612372aca01729b5	3ca9ff1a80aff599
+practice on the match's view, every mod	600	235b0b07f8d79106	d1c78b46b1351854	fcc64d02b461c491
+practice on the match's view, every mod	1200	dee31d7e6262a860	b96b48048d76837e	5c0bf97956975e84
+practice on the match's view, every mod	1800	72dea8ebee46905a	8628c9ddbead2918	d2edd69fc848f7f1
+practice on the match's view, every mod	2400	50db08a62d3e7cc6	7b46ed1f2f5a6064	eb9e1b97906fd86c
+practice on the match's view, every mod	3000	2431313a2ce2c4b3	9244062a02d618ba	0dffbf6fabbcc697
+practice on the match's view, every mod	3600	c08e7e4b0a436134	d54b49455e071950	3e90bb54a597ddff
+practice on the match's view, every mod	4200	b9c3afa4ab2d925a	d6384d3eb80e3211	3ab5298204ea53ce
+practice on the match's view, every mod	4800	24d3967d3f6da10d	b28c184215089d8e	5df4e4e8d2d9e930
+practice on the match's view, every mod	5400	88e85cb847e5dcc8	eea1b725ad257d78	5068bd39b13206ae
+practice on the match's view, every mod	6000	8c5c539cc65289be	ea72af6576d408ec	e98ba619057d8436
+monkey 0, practice on the match's view	600	3f1631a21a4c800a	c73fd23d188b78b9	eeaa207ab60760bc
+monkey 0, practice on the match's view	1200	bc8540663a9d7b85	56be7b469fb89073	e92636a103095ef5
+monkey 0, practice on the match's view	1800	97f10316cc531381	913a6d87273a04d1	1aed4f482f9db382
+monkey 0, practice on the match's view	2400	e97a4c45ae284890	41d40c3a759aafef	6538d976ee14bdaf
+monkey 0, practice on the match's view	3000	2dc64d7dda571662	a0dcdf227ddefcf9	f92e4f92629217f9
+monkey 0, practice on the match's view	3600	86f4e17bb527a8a9	402da70779bd4ce4	703a5fba54fedbae
+monkey 0, practice on the match's view	4200	56c8f4d3ea2c936b	22d663043f8ed0d2	02da0f186d8b14df
+monkey 0, practice on the match's view	4800	867fe4cbfd60092b	965f9e10f538b0cf	565e75dd8e6b7c98
+monkey 0, practice on the match's view	5400	501b1a141e04c807	ee71d65dd591c3e4	94d6cfca4d2c4531
+monkey 0, practice on the match's view	6000	51813152ed66c5cd	9f24aeb62e7cb70c	cd6b7bb763a87f7a
+monkey 1, practice on the match's view	600	f669c9268d0d278a	b41fcbecbb1b7084	baa094ffc9c99db5
+monkey 1, practice on the match's view	1200	e44d6e2e065f3d96	8f96762d5fbea1a7	137371fed790063b
+monkey 1, practice on the match's view	1800	c730f5183442e2b9	7e16a006c6c02ce6	f8c24941e8c3f36f
+monkey 1, practice on the match's view	2400	706388c6ef1fb6b1	24e017285657e327	869c8ad50b3c4167
+monkey 1, practice on the match's view	3000	bf84d74746bebb81	f3ccfae76626a815	a90447fdada6f6fa
+monkey 1, practice on the match's view	3600	f210fe6b82bf8272	f9c6ea3476f7b62c	95e3404a0e30fcb5
+monkey 1, practice on the match's view	4200	22c1be08635140c7	00f45bc6983e2b87	577055e55a985006
+monkey 1, practice on the match's view	4800	24bdb3745f5698db	7e6a8b5525c7bd0c	d9e6888654fbdedb
+monkey 1, practice on the match's view	5400	f970a9d0877e046f	26470ddfc7dfaf12	f8555322904897e8
+monkey 1, practice on the match's view	6000	d73751eb05cef66e	cff4683de5247e5e	af39da21f584ca71
+monkey 2, practice on the match's view	600	e2973aad4df7e6e0	d1475d4b667a2544	a6c8c6c5e25b5901
+monkey 2, practice on the match's view	1200	23b625a7af32f14a	70ff8a48b00d9f4e	3115e8ca1144ffdb
+monkey 2, practice on the match's view	1800	0643dbadf8c1ccd0	3b4494bec1f4e194	43f5f440cdc391d6
+monkey 2, practice on the match's view	2400	9857c48e4b9f6939	a927ebebd7ef20fa	ef5979353e610f26
+monkey 2, practice on the match's view	3000	40476790d98de7b2	610eeabdb2b734eb	867659949d0f8d70
+monkey 2, practice on the match's view	3600	3134ad324405c477	04fb82ff9f019925	9844570fc64acfeb
+monkey 2, practice on the match's view	4200	9848cd2c49605f43	637cb84f90f4dfe8	bbe84b2ae3d3d024
+monkey 2, practice on the match's view	4800	641e06f552683e0c	d581dfa75aae418c	fe7ec304294ba115
+monkey 2, practice on the match's view	5400	87e7e7ed9f42e082	0a3ef90b3c877053	ae6a78d074e04288
+monkey 2, practice on the match's view	6000	16ef8c57f0286422	c9b6d57be5500fd9	e6822ca37065166c
+monkey 3, practice on the match's view	600	84d74a92e4e74322	bdb662c07bf4924c	325c76dbb7130abc
+monkey 3, practice on the match's view	1200	24eecabf5ab19086	19b95862393d46bf	e81ebe28a62d52a8
+monkey 3, practice on the match's view	1800	64d9651c88d1c4c8	1b8d1b538cd48bed	9fd6325bdce15a72
+monkey 3, practice on the match's view	2400	a0d759b31f4748b3	58fc763d84f096c5	f367851830492c90
+monkey 3, practice on the match's view	3000	2481d885a561b350	0d970e88e92fe7e6	bb15543df6a3642c
+monkey 3, practice on the match's view	3600	f5ae73aea27c6fae	30d06e999e809999	f4fde80a5a8cb825
+monkey 3, practice on the match's view	4200	317246cdf7298a13	10c6b9bafb131d77	e91a77e49c19d7fd
+monkey 3, practice on the match's view	4800	cdff95b26065530c	008a7881f64020e8	48d2d83b1696cc6a
+monkey 3, practice on the match's view	5400	2c4ff00ecc6b9c4e	305c1c4d7b3c3f88	79d82b58a99ea43f
+monkey 3, practice on the match's view	6000	257488014839df0e	c00b851cac084e94	2a7cb763eed70294

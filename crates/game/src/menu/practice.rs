@@ -17,7 +17,7 @@ const VIEW_WORD: (f32, f32) = (381.0, 279.0);
 const VIEWS: Row = Row {
     first: (434.0, 284.0),
     pitch: 70.0,
-    word: (36.0, -5.0),
+    word: (40.0, -5.0),
     begins: false,
     a_letter: 0.0,
     size: CHOICE_SIZE,
