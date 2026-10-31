@@ -6,7 +6,7 @@ arcade, no mods	1800	7f733dc351695cfc	0a710457f64fced9	2b2a1126fad15444
 arcade, no mods	2400	b16666d5f0cd12f5	209d558e0da5b3e4	f49b753317489119
 arcade, no mods	3000	3b327a25d7b6952c	222fcfeba9a60c50	6d9f3d654b16c06b
 arcade, no mods	3600	f0b77929bdebc1d9	e98283ddba3655f5	8efb44b58e4142d0
-arcade, no mods	4192	2373c900f1dd6628	9d5322fde670092b	f668b5e4a273a30a
+arcade, no mods	4192	7d003c59dcb771db	afab845c9c87d36c	c2a7298f0911fadc
 arcade, timing_indicator	600	d3827a582eb823df	9f1f4a665e879cd5	648d4e236233090e
 arcade, timing_indicator	1200	92e7f3ae9b51e728	69ffd7f61461c1d7	11d1ec5b5eee8f8f
 arcade, timing_indicator	1800	2e003a2a61d435f9	8f3fbc9e2805e109	8c94a0dca2a54e4b
@@ -15,7 +15,7 @@ arcade, timing_indicator	3000	9131862c93a8c765	0fbfdfdcf52c44f9	ba77fb469b749deb
 arcade, timing_indicator	3600	2adb6e1dc055d847	5277ca04c5f0a91e	d3eb957029635f88
 arcade, timing_indicator	4200	6924b2185eb14d08	a5474cdfedb7a160	13462b9933fb348e
 arcade, timing_indicator	4800	455cfe7212d01889	ae3445c848251b56	68014828bfdc00ec
-arcade, timing_indicator	5073	4f26d60af1299b55	b433592690aae540	f78d565f4896b060
+arcade, timing_indicator	5073	f05a5688f02cd0fc	99d2938ccb2702dd	1770e0d02183a2dc
 arcade, lone_pitcher	600	8ff15915d761cfe1	aa6cce3126cde2c3	ed87007d63b3fb4d
 arcade, lone_pitcher	1200	b195ed7b3dc7f217	b98299ebbea07008	e8fa04da4f35dc1d
 arcade, lone_pitcher	1800	932ae998cbf2c5f7	fdd9dfa6d2f1be35	36258632d58f1c47
@@ -24,8 +24,8 @@ arcade, lone_pitcher	3000	3f928633f0316018	73000d9a3b8b8dce	ec0c3e3b5b4b6591
 arcade, lone_pitcher	3600	4ac948048851b7dc	31b557edd5adbd52	10255886faf5aac7
 arcade, lone_pitcher	4200	7ed6e60a527ad72b	a55e02d374115033	9e7a1f5c8fbd4e1e
 arcade, lone_pitcher	4800	58e957b4c12ade82	8a953e59dc11411b	f32882eda3b07737
-arcade, lone_pitcher	5400	325e12c98579567b	aee96488dfc815ca	a611133f19ec77d9
-arcade, lone_pitcher	5667	326e455c3c5562bc	cba9d2e71661b910	0575bf49d6929e68
+arcade, lone_pitcher	5400	325e12c98579567b	aee96488dfc815ca	dc18ce53b18679e5
+arcade, lone_pitcher	5667	ccb4b207e6d3197e	c629d62090050a57	06d72682c577f220
 arcade, zinger_hit	600	786ec23eda00fc88	3b655bab985a8d7a	a0187efd7c11520d
 arcade, zinger_hit	1200	c235c0e6e4f14a5c	f7a159224f8513c6	189e51ab98bdc961
 arcade, zinger_hit	1800	a941e72fa9259f07	68cdf168f83b866c	b432347c8b63a378
@@ -34,7 +34,7 @@ arcade, zinger_hit	3000	ea8089a21c5c66ff	d6f4427b497c0aa1	97a4acd576d4592d
 arcade, zinger_hit	3600	c69a4b2c5b6fdcdb	ee56778715f39072	be96adaf767969a5
 arcade, zinger_hit	4200	b7140870de2d85c3	d73248d8209ccd31	da30d0e3e105bc80
 arcade, zinger_hit	4800	3d76a7a7b1d33789	372a1022f77d4d52	5abaed3bdcf1a967
-arcade, zinger_hit	5322	af090a28ee8dc6dc	f599c36ca4a81784	50e6f51667bc886b
+arcade, zinger_hit	5322	03f752111c91fcfa	441403d07ce16937	179c69f99e0a1808
 arcade, butterfingers	600	113846bca6c792c1	35a59afab677a6df	f98893969aa95186
 arcade, butterfingers	1200	c973a2c7f67ce4ca	81d7608c26c0dd26	d6583c379d7f90ff
 arcade, butterfingers	1800	4c4917e39cde7ba9	36fe90f1504c7778	b4a77709a8c05ebd
@@ -43,14 +43,15 @@ arcade, butterfingers	3000	3bd0fdc811bb5243	17f0a6f1c08bac8b	4c2d616aea9349ce
 arcade, butterfingers	3600	2501cc907978852e	a29a4f44b0b7f67a	c561bd0386cc792b
 arcade, butterfingers	4200	892e6956a019bca2	c1422421ce91a4f5	b841af59bcc4933c
 arcade, butterfingers	4800	a7501146c9cf6386	aa123df0a14fdcc0	0a9d46bafdfef336
-arcade, butterfingers	5100	5d2eeea6e6d3634a	58c8c88d1f8b4f8d	130c7c7aa336ddee
+arcade, butterfingers	5400	e207b5ba64e7beef	012fbbff223f7631	c919ba1bb85aa8da
+arcade, butterfingers	6000	25ba25d1ea8ce8e5	b5efba592a293f97	9d9f2e51d7950ab4
 arcade, knuckleball	600	1013431eb624f0bc	d9e8c5360db8f23d	8366df510b740669
 arcade, knuckleball	1200	1c9a65dedd5acaa7	86a3a65963588c83	762095844e84a231
 arcade, knuckleball	1800	1a461633f623eb6d	f544fd5ab4dbb23d	24c35e399089f95a
 arcade, knuckleball	2400	0cf0d01ffc717129	3ea30ce69e48719d	ddd28ae322f04f5d
 arcade, knuckleball	3000	7c05057c55fe71ec	6746d89467140868	f032f6ec1b451c67
 arcade, knuckleball	3600	b56aa38cf0bfacd5	8a24d33accab3279	e70d3c9e0cebef0c
-arcade, knuckleball	4114	2a222063624cc2bb	cbce9a6bebc35ea3	d8d5b5503e2427a5
+arcade, knuckleball	4114	ca87df962fc2d721	43aba7731f420dd7	3f4844a5484c680d
 arcade, heat_check	600	236d0e39145daa5d	7999c4aa0bb5be1f	b905720984a652c3
 arcade, heat_check	1200	fc408b1d095c610b	bedad38da9ca53b9	5bae5d96638bc4c6
 arcade, heat_check	1800	e59e9b187cb47efd	b059323d8aa048df	784e8ec61be1f7c6
@@ -59,8 +60,8 @@ arcade, heat_check	3000	a36b0317eedab6ff	721cfb038e64cd7d	8cc75cbc45894bc4
 arcade, heat_check	3600	f89259bc4e342eb5	458429ead5a04398	82e04e37ddc4d03b
 arcade, heat_check	4200	8d939ad3595001d0	1b18d66719b082b4	7ff9a1ca878a6d5e
 arcade, heat_check	4800	32d26090f21dba4b	294977e51db9288a	5667c19f3ad41d7c
-arcade, heat_check	5400	1b8ba033f8d3add8	f4da60ef3732b286	6a88e3d93e565d6b
-arcade, heat_check	5572	a5abbc36283a2673	387917147e76f1d5	f12a0eef8be38660
+arcade, heat_check	5400	484d0449bbe6ecea	3e4906a044689dce	be4ad8ab2d4f934f
+arcade, heat_check	5572	2d5667541ffe1fae	2aae95f9535afe54	1399870539da375d
 arcade, mystery_pitch	600	9996797a329d33e6	8ea48ab0912dee77	9afa28e5a38285d6
 arcade, mystery_pitch	1200	7e8bc4b87fc1d1d8	0cd1050abdc6d897	0c93145d7c2563d3
 arcade, mystery_pitch	1800	c333c3469766c9f3	902bf31df8d9e22e	dbe8021a3d0ea2fb
@@ -68,7 +69,7 @@ arcade, mystery_pitch	2400	9adde18eb50b4710	3151c633717df20d	132e56acf2cc899c
 arcade, mystery_pitch	3000	8f479821d5b6fe1b	8d7d04d4410f785b	cc73e06c04e44666
 arcade, mystery_pitch	3600	7398a0689f91dc3b	2f93115cc18d7363	ec945f3ac4a1be50
 arcade, mystery_pitch	4200	3415e875171cae01	0aa0cbce4cfe59af	4c08473d1eabd77e
-arcade, mystery_pitch	4783	68f312c26020ac87	3f9bcb6d0fbcef81	9939320b42c5eb87
+arcade, mystery_pitch	4783	3221dacdabff0fe9	b1d4b423a8f1c5e4	d22d0f3b274dc350
 arcade, called_shot	600	0e14c3bf05499ad9	e9db69312d8a3622	4a476ee4932bcc66
 arcade, called_shot	1200	87dfd0fc5d206363	282570213c81837f	bfe962caaa376984
 arcade, called_shot	1800	9fbb912343458ca7	06daea1cfadd4ccd	7ef08f03f335dee0
@@ -76,8 +77,8 @@ arcade, called_shot	2400	979a8f86bd3e57ba	3bc23478b2883059	69cab1a4b2fb802d
 arcade, called_shot	3000	82a115b24d9a272e	66cd947a62f0fe7b	225375d4d02e7ca2
 arcade, called_shot	3600	2a89e267d09432a1	db85fd8691412c1b	7a15fac4edbae82c
 arcade, called_shot	4200	b8af9267a3b2fa5c	5885775d46e807d6	c12cee51d8a300f8
-arcade, called_shot	4800	37102f421c765273	5c12cb6c53309674	8ad535a49936a6a1
-arcade, called_shot	5018	7c32cedbbb05f0b8	c004ce7470f8388c	8357bfa9b172ce6c
+arcade, called_shot	4800	fdd3c61427a9503a	96bfc8f2ade931a7	e36e9547dd91d380
+arcade, called_shot	5018	982f4715460be6d9	018f059516bc702d	bd3724e2d45f2e4a
 arcade, hot_bat	600	9f4d11a96c6ecd3a	c378f041b795e331	2761a5f3a09cbb54
 arcade, hot_bat	1200	1826a462675b7a0e	fd2e78e0d63d0e7b	840929ba0989e96b
 arcade, hot_bat	1800	e5dbda4f15a7f506	d667e9f2a66dc920	72986818a6445632
@@ -85,9 +86,9 @@ arcade, hot_bat	2400	64a159259f4a8eb3	4d553a50a42b02f2	5a22492b3736d09c
 arcade, hot_bat	3000	d66db017743468fc	8864b907920e51a9	a0b5f79f0c455654
 arcade, hot_bat	3600	42805ff2250b3efe	d3e48221a3900558	a4d184b20d6d0776
 arcade, hot_bat	4200	17ab9709ddd12319	d4067110d43ed8be	904ef060efb77260
-arcade, hot_bat	4800	3fec5904eb801017	98c0dbe77fa59a49	6a7f6ed06cfe0935
-arcade, hot_bat	5400	187c68a6428e9aae	9536488a5a9ea1dd	7b603561cbe40b07
-arcade, hot_bat	6000	19b03c1d67818c12	e2262b906cba6bdb	6f968afdb8c0d0b4
+arcade, hot_bat	4800	3fec5904eb801017	a2b5bc92e349f8dd	4a7ed2d73c54a5e8
+arcade, hot_bat	5400	187c68a6428e9aae	76528dc20f6ba87b	354a1542bc2b11da
+arcade, hot_bat	6000	19b03c1d67818c12	ffe0a1030f6bb01b	59cba70716b010da
 arcade, sudden_death	600	5a1bf44e3979a121	61d7ee4c469486f1	0ffc1f7eb79f5f16
 arcade, sudden_death	1200	51d97a26b63833a5	4db80b6c306a6bb6	4ceb7dbc879ac190
 arcade, sudden_death	1800	dd7a2fe8f0c5f480	9937c6a401e333fe	6fc6d1c561dc2bfe
@@ -96,7 +97,7 @@ arcade, sudden_death	3000	73cf49586956c7d3	dacc8a27e7727b59	67b5f66444730d39
 arcade, sudden_death	3600	fe92d557f67f3893	ebd5fd69dba10a2e	e2a253787b580d46
 arcade, sudden_death	4200	13d3048338b19b62	16ce7775e2dbe38f	948c5338cffb9c69
 arcade, sudden_death	4800	0d597e41354811d6	e32d1acd952029a6	5150875d4b52bef9
-arcade, sudden_death	5204	f4e0bf7fda60a2ab	9f59ddbedfc01e4b	666631bc4d924e34
+arcade, sudden_death	5204	99a559f85799188b	7391751e59c8987f	6f14e7cdc7ce2cc4
 arcade, golden_ball	600	73cb9417d739d2db	43b1815ad4345052	0860860951daa134
 arcade, golden_ball	1200	b8522a0d7cbdb70c	ce3e555e696d904b	1387e140cd8056aa
 arcade, golden_ball	1800	433d3f9c6df94ed2	37c5b9ddbe898dfb	dea12b9deb1b07ec
@@ -105,7 +106,7 @@ arcade, golden_ball	3000	b300bb8ee0ca5792	405347c289b43327	32d457088934eb08
 arcade, golden_ball	3600	e1381c1fd45282bc	83b5fe8f03bc93cc	4d8c32df307b67ff
 arcade, golden_ball	4200	17654bb3a7814b57	577794b863279136	8b0e297b36642536
 arcade, golden_ball	4800	54ce130561c251da	8f86bd811042d40e	ad1f00e0b10486bb
-arcade, golden_ball	5387	1a2d95fddf220981	22b7326d4a51426b	3b3bb14473678972
+arcade, golden_ball	5387	1a2d95fddf220981	39cb8d16298ee87e	ed27f453039cbed3
 arcade, pinball_park	600	ec2cae142964645c	709bab1be78e3db1	b75be769f69a20e8
 arcade, pinball_park	1200	aebd0f372a26446c	82541f739f61569c	16413170eb538d19
 arcade, pinball_park	1800	11a96ebd953d65ff	6e93f8b59a42b4cf	2ff2a5daf737ede3
@@ -114,7 +115,7 @@ arcade, pinball_park	3000	a904a671314eebd4	de164e358782537f	bbe0255e3771a0ff
 arcade, pinball_park	3600	3f8136abe73982cc	91c9b12a841a7931	765eaa956b7e1423
 arcade, pinball_park	4200	2fda0f51d50ffd55	53a1ced4f2a77a33	48481fc84c286f05
 arcade, pinball_park	4800	848b405e13c6a724	d5be8688ab3b25a8	7bfb5d86020386af
-arcade, pinball_park	5086	ee4c449b82a4861f	dedbbf5bbe7fce4d	bd4baab2a2d446c3
+arcade, pinball_park	5086	3b5001906a345abd	2243d8e507d9a38d	99f014a5b4d73949
 arcade, moon_ball	600	d98b92a8d7fbc31e	9f1f4a665e879cd5	a7898af1680d9059
 arcade, moon_ball	1200	1d5ddc51a0e5c61d	9f8e930c88fdcc9a	ad66071c13321de5
 arcade, moon_ball	1800	e0da51cb76e0c414	2ccf056071cf7618	6e4444c561d2e266
@@ -123,7 +124,7 @@ arcade, moon_ball	3000	4631efc4aae6b232	553c8ab6dad7a909	cbc118e0680d0080
 arcade, moon_ball	3600	3af9b348c68fd553	930e08073775bad8	9c0cbdba2988e66a
 arcade, moon_ball	4200	596518e80a7ac67f	02cafc58beb4c00f	711130f40c48e45a
 arcade, moon_ball	4800	098b56a30311f72b	3a24090d47d2db21	fb7d22419076beb8
-arcade, moon_ball	5150	561c6d1089470028	0a5cf7f3ed9621a0	52e976577041f8df
+arcade, moon_ball	5150	5df0939fd13d22b5	9b0aa3db6292ec3d	4c77de9eeba48dad
 arcade, turbo_runners	600	f4e667ade4eedb5d	d8fd7bc5b25ed433	26e4143a9e308f4d
 arcade, turbo_runners	1200	a3e14591fc444b36	e5f31c14dd6cd6ac	cc40a88adc54350d
 arcade, turbo_runners	1800	fac6a8d2c88745ab	903825b8d559a71c	a1f16682d92d1576
@@ -131,8 +132,8 @@ arcade, turbo_runners	2400	dbdd8363f1bf21b5	603d84f99775dc4b	47f5aa2dec1a07c7
 arcade, turbo_runners	3000	53f540e55e0297e0	97e9f1f0bea1b4de	854e023732785ecf
 arcade, turbo_runners	3600	343b15ad28f4724b	3bacd740b88dbc4d	62a8c850cc8d5c8a
 arcade, turbo_runners	4200	b93fcc08d957873e	eb74b4d03f455642	95307d52ed8374ee
-arcade, turbo_runners	4800	4c4272c94798d34a	315419d74843daf9	445f97d45be40be8
-arcade, turbo_runners	4940	4501c0531eb35378	7259ce1f4252e021	ffcbe2e599924bbe
+arcade, turbo_runners	4800	4c4272c94798d34a	97392af859399678	ae8f4aeb756385f5
+arcade, turbo_runners	4940	4501c0531eb35378	3150599122028024	f31ccb6d1fc59442
 arcade, night_game	600	c85b32cfcbb17ea7	21c4dc0200b0cdf4	21a61ce1f7f3eaa4
 arcade, night_game	1200	eca003ae2f38563d	b486b62495d3de53	21e9144b070425b1
 arcade, night_game	1800	0454f421699a0132	f0672ad81376c25c	7248208057c66e51
@@ -140,8 +141,8 @@ arcade, night_game	2400	9d489c3d19783d64	57686ccab7300b5b	7da3164a65ec1273
 arcade, night_game	3000	40dcee324f880581	0f82ec502dafa9c7	400c575d7ee22aec
 arcade, night_game	3600	78b46783064b0bd9	f2c468cd912bb784	a1d8e53418d821bc
 arcade, night_game	4200	198092bf5b68956f	a0e38b6b6af859ce	c1450e6a1db42ccd
-arcade, night_game	4800	011dddddafb084eb	7949a82406f94cec	49c540824a336a12
-arcade, night_game	4853	52e5e0e8cb4de176	45f5ae11cc83aed1	087bfe854d4492f9
+arcade, night_game	4800	011dddddafb084eb	a203bb89296d10f3	793fffd699784da3
+arcade, night_game	4853	52e5e0e8cb4de176	a5fb25af5adcca6d	d7818004260b5827
 arcade, the_shift	600	761703c4bfc14825	6c4ac604b9a37651	9cdff8bdd8739425
 arcade, the_shift	1200	d8850df61bc86026	2f7f0488c0369e42	90755d7adc9e3a00
 arcade, the_shift	1800	03a36b710f06e1ed	8bbcd38904bd061b	6252172ff457ee24
@@ -151,7 +152,7 @@ arcade, the_shift	3600	f339445d3062306d	c7c7270260b7908a	243dfdd994fa04e1
 arcade, the_shift	4200	ee215e5985f3a8cd	23351357233a539b	81ead0e79e7c4e10
 arcade, the_shift	4800	3abb86d3159071d9	76af9bbdbcd6e1f2	dc86aa11b6033239
 arcade, the_shift	5400	a6ef74eadae3dd98	cdd623beac6efb0d	7a34499ac94856e5
-arcade, the_shift	5745	817bdde197bb529d	e1749cfb671ba77e	d9ea49d0b0a27b07
+arcade, the_shift	5745	4b87eef650c120c0	4eb4f3b1c3c06be3	c9a274d2cd8c7a90
 arcade, tired_arm	600	be1379945c431281	06f1afcd3b4cdadb	f72cba6c43908566
 arcade, tired_arm	1200	7febf4b7b3aef04c	1c5b7a60a60ff8ca	4b1786182436827d
 arcade, tired_arm	1800	a65345569952bc08	25374d0d1f129991	ac81f7873d6ee95f
@@ -159,7 +160,9 @@ arcade, tired_arm	2400	8ceed927f34deb31	684df2b87f747867	2b2e8cb05d0d6707
 arcade, tired_arm	3000	bb5d4378627ac993	62f2f52f3a7711cd	e112dde37c93bad8
 arcade, tired_arm	3600	b6135d4464b40338	a7f3cc4c353e6a65	673aecd02f9ce3be
 arcade, tired_arm	4200	f31aff755e26120c	e9110c3ec87c90c0	b3368b5dcba3052f
-arcade, tired_arm	4745	b3f7864a7559061c	ffc85c23846d9531	339cdb95bc67f2eb
+arcade, tired_arm	4800	24b3184fa1ea5b00	e3689695294d7644	f44a4c945127ea7d
+arcade, tired_arm	5400	975e80cc35d99b1b	c04d63812dfcc8c3	81560f7e6544a4a3
+arcade, tired_arm	6000	7185aee86fd9e737	cf46e1383cd468bf	52329861722ba5b9
 arcade, stolen_bases	600	a42e76569c6589b7	580fec922c2c0924	a05f6dfd61fc93f4
 arcade, stolen_bases	1200	8aaff97d240faf7c	e867ab2f785ffc45	3174b38663377af4
 arcade, stolen_bases	1800	3047d894678e149a	f1da0bb3fec2937b	a8c6a17c7cb426ee
@@ -169,7 +172,7 @@ arcade, stolen_bases	3600	cd47cea88cb22271	4fe4a47e35129067	2ac4545a02d3f1dc
 arcade, stolen_bases	4200	722e20039b943ed8	2185722479247c94	05ddddb03777d71a
 arcade, stolen_bases	4800	80012425bef5d346	95d2fdda39af6d39	00d521e98087ae25
 arcade, stolen_bases	5400	96672f0b5ee1472a	8791f5d8f244ea26	3a4cdfa19cd27f24
-arcade, stolen_bases	5995	b310bb53720e2ca7	bc5343bb3e155f21	53d03b1650e56528
+arcade, stolen_bases	5995	ae881bcb58114668	6f53711f31f0742a	d5d38b190788dee6
 arcade, hit_the_sign	600	5536526d8029c426	4a91e5bd9daef57c	2589f66dfaddfbf9
 arcade, hit_the_sign	1200	dda2cafff2e96b06	751f9d0541104125	1df61c0db74cdf95
 arcade, hit_the_sign	1800	18cd534ee323aa3b	405407ab52414253	cf827fce5a054ba3
@@ -178,7 +181,7 @@ arcade, hit_the_sign	3000	edb01efa226ac01d	e059e0034466a9be	9b5a60926acef627
 arcade, hit_the_sign	3600	9ef6bc3af992de71	7ae28d2c03f35eb4	e74522f764df5fdf
 arcade, hit_the_sign	4200	2ad30e6188ebc243	c3a9efb95ead9d74	6f0c041ebd8a4873
 arcade, hit_the_sign	4800	64e0e28b6211224f	ff42679c2bda8db5	7e39d1ee0def0618
-arcade, hit_the_sign	5309	70448ab8c2fe4b7b	06ab20ed7439d117	339d496535f90f88
+arcade, hit_the_sign	5309	4415b7e41105e08b	2d011d046a6a3209	aeeceb0be5d6bdcd
 arcade, rally	600	14186adbf057bc4d	8dea2e0c7acbdf2c	7386facdca4a5d51
 arcade, rally	1200	7604523c331bcdec	f0ccf1aeee279131	995503ee452c60b0
 arcade, rally	1800	339d25cd7f84a709	75fce2026fb29836	aae44172caf6be58
@@ -187,8 +190,8 @@ arcade, rally	3000	6f09e175d3e319d8	c64dca2f0019705f	6b556a666ee54b5d
 arcade, rally	3600	d92c71fc91f3780d	1c7b357e69d73dd4	37327c4a89ef5437
 arcade, rally	4200	c462b43550a7edca	b3e4682e63ed40db	07cad729622bd890
 arcade, rally	4800	b1805be32b95e30b	530b2a04b360e511	e38feb520360a1ef
-arcade, rally	5400	ede7957b5666c10c	09e1c92080039183	21af163e594c518f
-arcade, rally	5636	9cd2592ddbf0417f	6e8f1a286c109dc9	e958dcc77edb2b61
+arcade, rally	5400	0c146f7b27d12e1c	c36fd1df2ac3f69a	b4c4d9210467b7bd
+arcade, rally	5636	161fa85a02987384	4316c474cb8992d4	cced5f77bcf1cf29
 arcade, clutch	600	dec6c8f97954ef3d	d9ca4122fc7a7c32	1f08583c5bc72017
 arcade, clutch	1200	4684c6e57835ccf3	b8bcc5179d437c7a	c6cf1143de0f88fe
 arcade, clutch	1800	ce64e238fd2fff5c	ea5acfbe6e5b9386	632f75f66758c582
@@ -197,7 +200,7 @@ arcade, clutch	3000	430f72746b0e7b54	35c9b2db7fc8d92d	d5b237c8c6033179
 arcade, clutch	3600	f49b76283ed95d87	1543cef91bb71971	1e3056bd11bef7a6
 arcade, clutch	4200	0aa9116f2a24e64c	5a4ce1420219d59f	17b5fd8e8a1cfd93
 arcade, clutch	4800	50ef67015ac7c5a1	fe881a442f068a5c	a162bd63f7520438
-arcade, clutch	5205	b84faf2f49014b54	e105c3f6d974fe8c	f8fb346f8101620b
+arcade, clutch	5205	e0917ca5a43b9310	eb8933465a81bd9c	6b6fcf30f2020d73
 arcade, bullet_time	600	a051081826c8fc4f	ff988d3cfd80b35f	f1cf1c0155333bb7
 arcade, bullet_time	1200	a28c4bd597c521e3	90fb961e4f7e5be2	3be6932ba84e14c3
 arcade, bullet_time	1800	6506c43390a4e073	1d825e6cebe7b650	35eb2b368ad9b60f
@@ -206,7 +209,7 @@ arcade, bullet_time	3000	7a59b138ab5bd85f	ffbb956482b10fc0	239f1260600e2c70
 arcade, bullet_time	3600	3536d6363584a41e	a6039c6c33745d61	0306e2f1b4a83d83
 arcade, bullet_time	4200	39846e91b7193970	554a2c6cb3f0d619	8c9bb27576b9604a
 arcade, bullet_time	4800	a7ab3288d79220dc	515db0c03c8d09b7	5be3c3cd7af16484
-arcade, bullet_time	5103	a10719b46eeb1217	cf79bb47acc66b63	4e7df8c5fa579237
+arcade, bullet_time	5103	b3d5fcbd8021758f	4b4756f83b5d83f7	4cfd65753900b0b1
 arcade, southpaw	600	5e2647b154531ae7	4b49e20d23aee75e	ff1b8ee57cdab7a1
 arcade, southpaw	1200	5ba598f5991cf7f5	118a073919947579	a686774703d334b6
 arcade, southpaw	1800	17c5cf678d779fa9	1387439105f76391	cd7f7eefb1fd6b5d
@@ -214,5 +217,5 @@ arcade, southpaw	2400	b63e71d7144dcae8	0df04453b6c532a4	700a7aa2e5312415
 arcade, southpaw	3000	a06cff3313f4476f	460c178e13527130	bbb116df09a4aff2
 arcade, southpaw	3600	0e21c6e519410c01	841e78d100e1cffd	77b12e389aac37c5
 arcade, southpaw	4200	77c81c0c009e7172	37593dfe1a733a45	bd40b7f1f3737651
-arcade, southpaw	4800	9fa5fec8dbc928f9	96e9cece35dfdf2b	2b42fbd8c869a679
-arcade, southpaw	5035	3a6db27292511eda	6ca75ac64f674368	947a3a267755fbba
+arcade, southpaw	4800	9fa5fec8dbc928f9	e0cee1c2b154c32c	4f99ace513079c01
+arcade, southpaw	5035	cbb9bfe26270c5b2	13cfb465e2d8334f	518a55d4a86ad2d4

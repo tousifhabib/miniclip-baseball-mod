@@ -40,7 +40,7 @@ const HEADING: (f32, f32) = (69.0, 0.8);
 
 /// The words on the board's button: the middle of the top of the first,
 /// how far apart the two are, and their size.
-const BUTTON: (f32, f32, f32, f32) = (546.0, 344.0, 12.0, 0.62);
+pub(super) const BUTTON: (f32, f32, f32, f32) = (546.0, 344.0, 12.0, 0.62);
 
 /// The tables of a tournament on the board, with the boxes that choose a
 /// section and the arrows that turn its pages.

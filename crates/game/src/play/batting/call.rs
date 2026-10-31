@@ -14,6 +14,7 @@ impl Match {
         let parts = at_bat.parts.clone();
         show(stage, &parts.ball, false);
         show(stage, &parts.shadow, false);
+        self.tell_the_session_it_went_by(at_bat, stage);
         if self.mode.is_arcade() {
             // No count in the arcade game: a miss is just a pitch gone. It
             // is a miss all the same to the mods that mind one, and a bat

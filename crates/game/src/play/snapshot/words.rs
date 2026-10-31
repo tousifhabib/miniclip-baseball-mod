@@ -21,6 +21,23 @@ impl Display for Snapshot {
                 // all the mods only bullet time has anything to add.
                 self.mods.bullet_time(out)
             }
+            Standing::Practice {
+                pitches,
+                swings,
+                met,
+                sweet,
+                longest,
+            } => {
+                write!(
+                    out,
+                    ", practice, pitches {pitches}, swings {swings}, met {met}, sweet {sweet}, \
+                     longest {longest}"
+                )?;
+                if let Some(pitch) = &self.pitch {
+                    write!(out, "{pitch}")?;
+                }
+                self.mods.bullet_time(out)
+            }
             Standing::Match {
                 score,
                 outs,

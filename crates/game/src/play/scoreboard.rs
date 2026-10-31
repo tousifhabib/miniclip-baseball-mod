@@ -24,6 +24,10 @@ impl Match {
 
     /// Writes the numbers the scoreboards show.
     pub(crate) fn show_numbers(&self, stage: &mut Stage) {
+        // A session of batting practice has none of them to show.
+        if self.practice.is_some() {
+            return;
+        }
         let batter = self
             .runners
             .batter()

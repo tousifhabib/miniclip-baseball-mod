@@ -1,5 +1,6 @@
 //! Which kind of game is being played. There are three, and a match is
-//! always exactly one of them.
+//! always exactly one of them. Batting practice is the first or the second
+//! of them, with a session beside it.
 
 use super::arcade::Arcade;
 use super::full::FullMatch;

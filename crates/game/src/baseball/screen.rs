@@ -24,12 +24,26 @@ pub enum Screen {
     Interval,
     /// The tables of a tournament, which are on that board too.
     Tournament,
+    /// Batting practice, on the arcade game's own frame of the shell or on
+    /// the match's.
+    PracticeArcade,
+    PracticeMatch,
+    /// The report on a session of batting practice, which is on that board
+    /// too.
+    PracticeReport,
 }
 
 impl Screen {
     /// Whether a game is being played on this screen.
     pub(super) fn is_game(self) -> bool {
-        matches!(self, Screen::Match | Screen::FullMatch | Screen::Arcade)
+        matches!(
+            self,
+            Screen::Match
+                | Screen::FullMatch
+                | Screen::Arcade
+                | Screen::PracticeArcade
+                | Screen::PracticeMatch
+        )
     }
 
     const ALL: [Screen; 9] = [
@@ -52,6 +66,11 @@ impl Screen {
     /// by its label.
     pub const TOURNAMENT: &str = "tournament";
 
+    /// What batting practice is called where a screen is asked for by its
+    /// label, on each of its views.
+    pub const PRACTICE_ARCADE: &str = "practiceArcade";
+    pub const PRACTICE_MATCH: &str = "practiceMatch";
+
     /// The screen the shell shows on the frame with this label.
     pub fn from_label(label: &str) -> Option<Screen> {
         if label == Screen::FULL_MATCH {
@@ -59,6 +78,12 @@ impl Screen {
         }
         if label == Screen::TOURNAMENT {
             return Some(Screen::Tournament);
+        }
+        if label == Screen::PRACTICE_ARCADE {
+            return Some(Screen::PracticeArcade);
+        }
+        if label == Screen::PRACTICE_MATCH {
+            return Some(Screen::PracticeMatch);
         }
         Screen::ALL
             .into_iter()
@@ -71,11 +96,14 @@ impl Screen {
             Screen::Loading => return None,
             Screen::Intro => "intro",
             Screen::Menu => "menu",
-            Screen::Match | Screen::FullMatch => "match",
-            Screen::Arcade => "arcade",
+            Screen::Match | Screen::FullMatch | Screen::PracticeMatch => "match",
+            Screen::Arcade | Screen::PracticeArcade => "arcade",
             Screen::MatchLost => "matchLost",
             Screen::MatchWon => "matchWon",
-            Screen::InningsTied | Screen::Interval | Screen::Tournament => "inningsTied",
+            Screen::InningsTied
+            | Screen::Interval
+            | Screen::Tournament
+            | Screen::PracticeReport => "inningsTied",
             Screen::ArcadeFinish => "arcadeFinish",
             Screen::Instructions => "instructionsAll",
         })

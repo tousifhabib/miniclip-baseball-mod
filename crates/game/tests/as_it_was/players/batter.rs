@@ -165,9 +165,16 @@ impl Player for Batter {
             return true;
         }
         self.between = 0;
-        let playing = ["Match,", "FullMatch,", "Arcade,", "Loading"]
-            .iter()
-            .any(|screen| now.starts_with(screen));
+        let playing = [
+            "Match,",
+            "FullMatch,",
+            "Arcade,",
+            "PracticeArcade,",
+            "PracticeMatch,",
+            "Loading",
+        ]
+        .iter()
+        .any(|screen| now.starts_with(screen));
         if !playing {
             if self.over == STAYS {
                 return false;
@@ -185,7 +192,7 @@ impl Player for Batter {
         if seen.phase != "Ready" {
             self.ready = 0;
         }
-        let arcade = now.starts_with("Arcade");
+        let arcade = now.starts_with("Arcade") || now.starts_with("PracticeArcade");
         match seen.phase.as_str() {
             "Settling" => {
                 let plan = self.plan(&seen, arcade);

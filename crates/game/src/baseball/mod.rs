@@ -8,7 +8,8 @@
 //! to another is in `screens`, a game in progress in `playing`, what a game
 //! leaves behind it in `after`, the player's choices in `choices`, the
 //! table of scores in `scores`, the tournament in hand in `tournament`
-//! and a fixture of it in `fixture`,
+//! and a fixture of it in `fixture`, the report on a session of batting
+//! practice in `practice`,
 //! what is heard on each screen in `sound`, and the game's account of
 //! itself in `describe`.
 
@@ -17,6 +18,7 @@ mod choices;
 mod describe;
 mod fixture;
 mod playing;
+mod practice;
 mod scores;
 mod screen;
 mod screens;
@@ -37,6 +39,7 @@ use crate::look::{self, Swatch};
 use crate::menu::{Menu, MenuPage};
 use crate::mods::{Mod, Mods, ModsPage};
 use crate::play::full::FullMatch;
+use crate::play::practice::Session;
 use crate::play::{Match, bullet};
 use crate::rules::Rules;
 use crate::scores::Scores;
@@ -99,6 +102,10 @@ pub struct Baseball {
     /// Where it is kept. `None` keeps it only for this run.
     tournament_file: Option<std::path::PathBuf>,
     tables: Option<board::Tables>,
+    /// The session of batting practice just finished, and the report on it
+    /// while that is up on the board.
+    session: Option<Session>,
+    report: Option<board::Report>,
     /// The fixture of the tournament that the full match in hand, or the
     /// one just finished, is.
     fixture: Option<ToPlay>,
@@ -140,6 +147,8 @@ impl Baseball {
             tournament: None,
             tournament_file: None,
             tables: None,
+            session: None,
+            report: None,
             fixture: None,
             on_paper: 0,
         }
@@ -219,6 +228,7 @@ impl Logic for Baseball {
         self.play_a_frame(stage);
         self.show_interval(stage);
         self.show_tables(stage);
+        self.show_report(stage);
         self.show_result_lines(stage);
         self.name_the_skill_played(stage);
         if let Some(shell) = art::shell(stage) {

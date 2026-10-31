@@ -23,6 +23,9 @@ pub enum MenuPage {
     /// match's sections of the menu as well.
     TournamentSetup,
     TournamentSummary,
+    /// The setup of a session of batting practice, which is shown on the
+    /// match's section of the menu as well.
+    PracticeSetup,
     /// Fading out on the way to a match.
     ToMatch,
     /// Fading out on the way to the arcade game.
@@ -31,6 +34,8 @@ pub enum MenuPage {
     ToFull,
     /// Fading out on the way to a fixture of a tournament.
     ToTournament,
+    /// Fading out on the way to a session of batting practice.
+    ToPractice,
 }
 
 impl MenuPage {
@@ -38,14 +43,20 @@ impl MenuPage {
     pub(super) fn label(self) -> &'static str {
         match self {
             MenuPage::Opening | MenuPage::Main => "menuFadeIn",
-            MenuPage::MatchSetup | MenuPage::FullSetup | MenuPage::TournamentSetup => "matchIn",
+            MenuPage::MatchSetup
+            | MenuPage::FullSetup
+            | MenuPage::TournamentSetup
+            | MenuPage::PracticeSetup => "matchIn",
             MenuPage::ArcadeSetup => "arcadeIn",
             MenuPage::HighScores | MenuPage::Mods => "highScoresIn",
             MenuPage::MatchSummary | MenuPage::FullSummary | MenuPage::TournamentSummary => {
                 "matchSummary"
             }
             MenuPage::ArcadeSummary => "arcadeSummary",
-            MenuPage::ToMatch | MenuPage::ToFull | MenuPage::ToTournament => "fadeOutMatch",
+            MenuPage::ToMatch
+            | MenuPage::ToFull
+            | MenuPage::ToTournament
+            | MenuPage::ToPractice => "fadeOutMatch",
             MenuPage::ToArcade => "fadeOutArcade",
         }
     }
@@ -59,6 +70,8 @@ pub enum Leave {
     Match,
     Arcade,
     FullMatch,
+    /// A session of batting practice, on the view chosen for it.
+    Practice,
     /// The next fixture of the tournament in hand.
     Fixture,
     /// A tournament is to be drawn as the setup page has it.

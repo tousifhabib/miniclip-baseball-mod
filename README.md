@@ -43,7 +43,7 @@ cargo run --release -p bb-game
 
 F1 opens the inspector, F2 pauses, F3 steps one frame while paused, and
 Escape quits. `--mute` turns the sound off, `--screen match` (or `menu`,
-`arcade`, `fullMatch` and so on) starts on a screen of your choice,
+`arcade`, `fullMatch`, `practiceArcade`, `practiceMatch` and so on) starts on a screen of your choice,
 `--seed N` makes every game go the same way, `--mod NAME` switches a mod on
 for that run, and `--ground home` (or `away`, or `toss`) says where a full
 match is played. `--screen tournament` opens on a tournament's tables: see
@@ -253,6 +253,50 @@ batting. The numbers are under `[tournament]` in `data/rules.toml`: the
 lengths of match there are, how many turns a batter needs to be listed by
 his averages, and the ten sides, each with its name, its colour and its
 strength.
+
+## Batting practice
+
+The menu's first page has a Batting Practice row, under Arcade. The pitches
+do not run out, nothing is at stake, and nothing goes down in the high
+scores or as the longest zinger.
+
+The setup page has the team's name, its colours and the skill level, and
+two rows of boxes under those. View is which of two views a session is
+played on. On Arcade nobody fields, and the next pitch is on offer while the
+ball is still up, so it is the quicker way to get through a lot of pitches.
+On Match there is the strike zone where the skill level shows one, the calls,
+and fielders who play the ball, with every play shown out to its end. Timing
+bar is whether the bar that says when to swing is up, whatever the timing
+indicator mod says. It starts on, and off is for finding out what you have
+learned.
+
+Every pitch is to a batter just come up, with nobody on and nobody out, and
+is seen through alone: a strike leaves the count as it was, a ball that is
+caught puts nobody out for long, and no number of either ends anything. Two
+lines across the top of the view say how many pitches you have seen, how
+many you met, how many sweetly and your longest ball, and then what came of
+the last pitch and how far off the best moment you swung. They are there
+with the bar off too, since they say what happened and not when to swing.
+
+QUIT ends a session, and the report on it is on a board of two pages. Your
+timing is a bar for each frame early or late, as the page of a full match
+has it. Where you hit it marks each ball on a picture of the field and says
+how many went over the wall, in play and foul, how they went to left, centre
+and right, in the air and on the ground, and how far they went. On the Match
+view it also says what you let go by, and how many balls you swung at. A
+session given up before a pitch has been seen through has nothing to report,
+and goes back to the menu.
+
+Of the mods, those that change the pitch and the swing are as you have them.
+Those with no place in the arcade game have none here, nor have sudden death,
+heat check and stolen bases, which go by a score, by runners or by a strike
+that puts a batter out.
+
+`--screen practiceArcade` and `--screen practiceMatch` open on a session,
+with the view's own name and the bar up. Where the code is: `play/practice/`
+has the session, and how the match plays it, and `board/practice.rs` the
+report. `docs/decisions/0012-batting-practice-is-no-kind-of-game.md` says why
+it is cut as it is.
 
 ## Mods
 
@@ -616,8 +660,8 @@ The rules are in `crates/game/src`. A part with one job is a file, and a
 part with several is a folder with a file for each. `baseball/` decides
 which screen is showing, `menu/` is the menu, `game.rs` is what every
 screen works from, `play/` is a game in progress, `tournament/` is a
-tournament and everything it adds up, `board/` is what a full match and a
-tournament write on the boards, `sheet.rs` is how words and drawings are
+tournament and everything it adds up, `board/` is what a full match, a
+tournament and a session of batting practice write on the boards, `sheet.rs` is how words and drawings are
 put on a panel, `choice.rs` is a row of boxes to choose one thing by, `look.rs` dresses the batting side, `scores.rs` keeps the high
 scores, `mods/` is the list of mods and their page of the menu, `delay/` is
 how late the player's clicks reach the game and the page it is measured on,
@@ -639,6 +683,7 @@ Inside `play/`:
 | `runners/` | The batters of the half and where each has got to, and the count on the one at the plate |
 | `mode.rs` | Which of the three games it is: the last innings, the arcade game or a full match |
 | `arcade/`, `full/` | What only the arcade game keeps, and a full match's innings |
+| `practice/` | A session of batting practice: what it keeps and adds up, and how the match plays it |
 | `book/`, `paper/` | A full match's scorebook, and the other side's innings played on paper |
 | `snapshot/` | How a game stands, as facts, and the one line they are printed as |
 | `shown.rs` | What the batting view showed on its last few frames, for a click to be taken as made on the one the player saw |
@@ -784,7 +829,7 @@ steps drive the game from the command line:
 
 ```bash
 cargo run --release -p bb-game -- --screen menu \
-  --run "wait 60; click 200 181; wait 60; state; shot setup.png"
+  --run "wait 60; click 200 178; wait 60; state; shot setup.png"
 ```
 
 `wait N` plays N frames, `click X Y` clicks at a stage position (`click X Y

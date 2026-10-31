@@ -85,6 +85,7 @@ impl Menu {
             stage.remove(&holder);
         }
         self.clear_tournament(stage);
+        self.clear_practice(stage);
     }
 
     /// On the full match's setup page, puts the choice of ground under the
@@ -129,7 +130,7 @@ impl Menu {
 
     /// Takes in a click on the button at `path`, which may be one of the
     /// choices of ground on the full match's setup page, or one of the
-    /// boxes a tournament has put on its pages.
+    /// boxes a tournament or batting practice has put on its pages.
     pub fn chose(&mut self, path: &[u16], settings: &mut Settings) {
         let chosen = self
             .grounds
@@ -139,5 +140,6 @@ impl Menu {
             settings.ground = ground;
         }
         self.chose_of_a_tournament(path, settings);
+        self.chose_of_practice(path, settings);
     }
 }

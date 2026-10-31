@@ -23,8 +23,8 @@ impl Match {
     /// Sends a new batter to the plate, if nobody is there.
     ///
     /// Each batter in a match has his own skin, and they carry the bat
-    /// logos in turn. The arcade game's one batter is as chosen. A full
-    /// match's nine come round again, each as he was.
+    /// logos in turn. The one batter of the arcade game and of practice is
+    /// as chosen. A full match's nine come round again, each as he was.
     pub(super) fn bring_up_a_batter(&mut self, game: &Game) {
         if self.runners.batter().is_some() {
             return;
@@ -34,7 +34,7 @@ impl Match {
             Some(_) => self.came_up % ORDER,
             None => self.came_up,
         };
-        let (skin, logo) = if self.mode.is_arcade() {
+        let (skin, logo) = if self.mode.is_arcade() || self.practice.is_some() {
             (game.settings.skin, game.settings.logo.clone())
         } else {
             let known = self.mode.full().and(self.line_up.get(order).copied());

@@ -118,4 +118,20 @@ impl ModsInPlay {
                 .then(|| TurboRunners::new(&rules.turbo, level(Mod::TurboRunners))),
         }
     }
+
+    /// The mods for a session of batting practice: those that change the
+    /// pitch and the swing. Those that have no place in the arcade game have
+    /// none here, nor have those that go by a score, by runners or by a
+    /// strike that puts a batter out, every pitch being to a batter just
+    /// come up. The timing bar is as the setup page has it, whatever the mod
+    /// says.
+    pub fn for_practice(game: &Game, seed: u64) -> ModsInPlay {
+        ModsInPlay {
+            heat_check: None,
+            stolen_bases: None,
+            sudden_death: None,
+            timing_indicator: game.settings.practice_bar.then_some(TimingIndicator),
+            ..ModsInPlay::for_game(game, seed, true)
+        }
+    }
 }

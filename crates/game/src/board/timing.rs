@@ -11,36 +11,38 @@ use crate::sheet::Sheet;
 /// frames. Swings further off than that are counted with the furthest.
 const TIMING_REACH: i32 = 8;
 
-/// The page of how the player's swings were timed: a bar for each frame
-/// early or late, as tall as the swings that began on it are many, and what
-/// they come to under it.
+/// How many frames off the best moment a swing began, how well it met the
+/// ball, and whether it did.
+pub(super) type Swing = (i32, Option<Quality>, bool);
+
+/// The page of how the player's swings in a full match were timed.
 pub(super) fn timing(side: &Side, sheet: &mut Sheet, stage: &mut Stage) {
-    const SIZE: f32 = 0.66;
-    const FLOOR: f32 = 228.0;
-    const TALL: f32 = 96.0;
-    const PITCH: f32 = 27.5;
-    const WIDE: f32 = 22.0;
-    let swings: Vec<_> = side
+    let swings: Vec<Swing> = side
         .turns
         .iter()
         .flat_map(|turn| &turn.pitches)
         .filter_map(|pitch| Some((pitch.off?, pitch.quality, pitch.met())))
         .collect();
+    timing_of(&swings, "NOT A SWING ALL MATCH", sheet, stage);
+}
+
+/// The page of how some swings were timed: a bar for each frame early or
+/// late, as tall as the swings that began on it are many, and what they come
+/// to under it. With no swings to show, `none` says so.
+pub(super) fn timing_of(swings: &[Swing], none: &str, sheet: &mut Sheet, stage: &mut Stage) {
+    const SIZE: f32 = 0.66;
+    const FLOOR: f32 = 228.0;
+    const TALL: f32 = 96.0;
+    const PITCH: f32 = 27.5;
+    const WIDE: f32 = 22.0;
     if swings.is_empty() {
-        return sheet.write(
-            stage,
-            "timingLine",
-            "NOT A SWING ALL MATCH",
-            (MIDDLE, 180.0),
-            1.0,
-            CREAM,
-        );
+        return sheet.write(stage, "timingLine", none, (MIDDLE, 180.0), 1.0, CREAM);
     }
     // For each frame off the best: the swings that met the ball sweetly,
     // those that met it less well, and those that missed.
     let bars = (2 * TIMING_REACH + 1) as usize;
     let mut counts = vec![[0u32; 3]; bars];
-    for &(off, quality, met) in &swings {
+    for &(off, quality, met) in swings {
         let bar = (off.clamp(-TIMING_REACH, TIMING_REACH) + TIMING_REACH) as usize;
         let kind = match (met, quality) {
             (true, Some(Quality::Good)) => 0,

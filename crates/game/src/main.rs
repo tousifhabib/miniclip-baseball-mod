@@ -38,7 +38,8 @@ struct Args {
     /// Start on this screen instead of the intro, by its label in the art:
     /// `menu`, `match`, `arcade`, `matchWon`, `matchLost`, `inningsTied`,
     /// `arcadeFinish` or `instructionsAll`. `fullMatch` starts a full
-    /// match.
+    /// match, and `practiceArcade` or `practiceMatch` a session of batting
+    /// practice on that view.
     #[arg(long)]
     screen: Option<String>,
     /// Where the side plays a full match: `home`, `away` or `toss`, which

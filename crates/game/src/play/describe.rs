@@ -50,12 +50,19 @@ impl Match {
             pitched: self.pitched,
             innings,
         };
-        let standing = match &self.mode {
-            Mode::Arcade(arcade) => Standing::Arcade {
+        let standing = match (&self.practice, &self.mode) {
+            (Some(session), _) => Standing::Practice {
+                pitches: session.pitches(),
+                swings: session.swings(),
+                met: session.met(),
+                sweet: session.sweet(),
+                longest: session.longest().unwrap_or(0),
+            },
+            (None, Mode::Arcade(arcade)) => Standing::Arcade {
                 points: arcade.points,
                 pitches_left: arcade.left,
             },
-            Mode::LastInnings => {
+            (None, Mode::LastInnings) => {
                 let score = Score::Of {
                     score: self.score,
                     target: self.target,
@@ -65,7 +72,7 @@ impl Match {
             // A full match has no score to reach: it says which innings it
             // is and what both sides have made, and, at the end, what each
             // made in every innings so far.
-            Mode::Full(full) => {
+            (None, Mode::Full(full)) => {
                 let score = Score::Against {
                     batting_in: full.batting_in(),
                     score: self.score,

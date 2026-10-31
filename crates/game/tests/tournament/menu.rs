@@ -137,7 +137,7 @@ fn when_it_is_over_the_menu_says_who_won_and_offers_another() {
 }
 
 /// The menu's first page, and its tournament row.
-const TOURNAMENT: &str = "click 200 240";
+const TOURNAMENT: &str = "click 200 232";
 
 #[test]
 fn the_row_on_the_first_page_leads_to_the_setup_until_there_is_a_result() {

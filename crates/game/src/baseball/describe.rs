@@ -41,6 +41,13 @@ impl Baseball {
                         let told = self.tournament.as_ref().map(Tournament::describe);
                         format!(": {}", told.unwrap_or_default())
                     }
+                    // The page for batting practice says what is chosen for
+                    // it.
+                    MenuPage::PracticeSetup => {
+                        let settings = &self.game.settings;
+                        let bar = if settings.practice_bar { "on" } else { "off" };
+                        format!(": {:?} view, bar {bar}", settings.practice_view)
+                    }
                     _ => String::new(),
                 };
                 format!(
@@ -57,6 +64,14 @@ impl Baseball {
                 let tables = tables.map_or(String::new(), |tables| format!(", {tables}"));
                 format!(
                     "Tournament, {:?}: {}{tables}",
+                    self.game.settings.difficulty,
+                    told.unwrap_or_default()
+                )
+            }
+            Screen::PracticeReport => {
+                let told = self.report.as_ref().map(board::Report::describe);
+                format!(
+                    "PracticeReport, {:?}: {}",
                     self.game.settings.difficulty,
                     told.unwrap_or_default()
                 )
